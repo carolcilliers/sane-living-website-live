@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="robots" content="noindex">
+  <title>Sane Living — Team Dashboard</title>
+  <link rel="stylesheet" href="/admin/theme.css">
+</head>
+<body>
+  <script src="https://unpkg.com/decap-cms@^3.0.0/dist/decap-cms.js"></script>
+  <script>
+    // Team-friendly login label.
+    // Decap's built-in button says "Login with GitHub" because the editing
+    // backend is GitHub — but this site's login is our own username/password
+    // form (api/auth.js), and NO team member needs a GitHub account. Rename
+    // the button to a plain "Log in" and add a hint so nobody is confused.
+    // This is cosmetic only; it never touches the login flow itself.
+    (function () {
+      function addHint(el) {
+        try {
+          if (!el) return;
+          var btn = el.closest ? el.closest('button, a') : null;
+          if (btn && !btn.dataset.brandStyled) {
+            // Paint the login button brand purple (Decap paints it dark
+            // charcoal; inline styles win over its generated classes).
+            btn.dataset.brandStyled = '1';
+            btn.style.background = 'linear-gradient(120deg, #5b3573, #8a56a0)';
+            btn.style.border = 'none';
+            btn.style.boxShadow = '0 8px 20px rgba(138, 86, 160, 0.35)';
+            btn.style.color = '#fff';
+          }
+          if (document.getElementById('team-login-hint')) return;
+          if (!btn || !btn.parentNode) return;
+          var p = document.createElement('p');
+          p.id = 'team-login-hint';
+          p.textContent = 'Team login: use the username and password Carol gave you. No GitHub account needed.';
+          p.style.cssText = 'text-align:center;color:#6b7280;font-size:14px;line-height:1.5;margin:14px auto 0;max-width:340px;font-family:-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;';
+          btn.parentNode.insertBefore(p, btn.nextSibling);
+        } catch (e) { /* cosmetic only — never break the dashboard */ }
+      }
+      function fix() {
+        try {
+          if (!document.body) return;
+          var walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT);
+          var node;
+          while ((node = walker.nextNode())) {
+            if (node.nodeValue && node.nodeValue.indexOf('Login with GitHub') !== -1) {
+              node.nodeValue = node.nodeValue.replace('Login with GitHub', 'Log in');
+              addHint(node.parentElement);
+            }
+          }
+        } catch (e) { /* cosmetic only — never break the dashboard */ }
+      }
+      function start() {
+        fix();
+        try {
+          new MutationObserver(fix).observe(document.body, { childList: true, subtree: true });
+        } catch (e) { /* older browsers: the first pass above still applies */ }
+      }
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', start);
+      } else {
+        start();
+      }
+    })();
+  </script>
+  <script>
+    // Load the site's own styles into the dashboard editor preview,
+    // so text looks the way it will on the real pages.
+    window.addEventListener('load', function () {
+      try {
+        if (window.CMS && CMS.registerPreviewStyle) {
+          CMS.registerPreviewStyle('/style.css');
+          CMS.registerPreviewStyle('/admin/preview.css');
+        }
+      } catch (e) { /* preview styling only — never break the dashboard */ }
+    });
+  </script>
+</body>
+</html>

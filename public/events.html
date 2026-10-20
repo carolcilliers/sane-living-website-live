@@ -1,0 +1,907 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Events — Sane Living</title>
+  <meta name="description" content="Upcoming events at the Sane Living Center in Ojai, California. Film screenings, workshops, performances, and community gatherings.">
+  <link rel="stylesheet" href="/style.css">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    /* Calendar-specific styles — adapted from sanecommunity.org */
+    .cal-wrap {
+      max-width: 900px;
+      margin: 0 auto;
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    }
+
+    .cal-header {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      margin-bottom: 16px;
+      gap: 10px;
+    }
+
+    .cal-nav {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .cal-nav button {
+      background: var(--clr-bg-card, #f7f7f7);
+      border: 1px solid #e0e0e0;
+      border-radius: 8px;
+      padding: 6px 12px;
+      cursor: pointer;
+      font-family: inherit;
+      font-size: 0.85rem;
+      font-weight: 500;
+      color: #333;
+      transition: all 0.15s;
+    }
+
+    .cal-nav button:hover {
+      background: #f3ecf9;
+      border-color: #c48eff;
+      color: #8a56a0;
+    }
+
+    .cal-month-label {
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: #111;
+      min-width: 160px;
+      text-align: center;
+    }
+
+    .cal-view-toggle {
+      display: flex;
+      background: #f7f7f7;
+      border: 1px solid #e0e0e0;
+      border-radius: 8px;
+      overflow: hidden;
+    }
+
+    .cal-view-toggle button {
+      background: none;
+      border: none;
+      padding: 6px 14px;
+      cursor: pointer;
+      font-family: inherit;
+      font-size: 0.8rem;
+      font-weight: 500;
+      color: #777;
+      transition: all 0.15s;
+    }
+
+    .cal-view-toggle button.active {
+      background: #8a56a0;
+      color: #fff;
+    }
+
+    .cal-view-toggle button:hover:not(.active) {
+      color: #8a56a0;
+    }
+
+    /* Grid View */
+    .cal-grid {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      border: 1px solid #e0e0e0;
+      border-radius: 8px;
+      overflow: hidden;
+    }
+
+    .cal-dow {
+      background: #f7f7f7;
+      padding: 8px 4px;
+      text-align: center;
+      font-size: 0.7rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: #777;
+      border-bottom: 1px solid #e0e0e0;
+    }
+
+    .cal-cell {
+      min-height: 80px;
+      border-right: 1px solid #f0f0f0;
+      border-bottom: 1px solid #f0f0f0;
+      padding: 4px;
+      position: relative;
+    }
+
+    .cal-cell:nth-child(7n) { border-right: none; }
+    .cal-cell.other-month { background: #f7f7f7; }
+    .cal-cell.other-month .cal-day-num { color: #999; }
+    .cal-cell.today { background: #f3ecf9; }
+
+    .cal-day-num {
+      font-size: 0.75rem;
+      font-weight: 600;
+      color: #333;
+      padding: 2px 4px;
+      display: inline-block;
+    }
+
+    .cal-cell.today .cal-day-num {
+      background: #8a56a0;
+      color: #fff;
+      border-radius: 50%;
+      width: 22px; height: 22px;
+      display: flex; align-items: center; justify-content: center;
+    }
+
+    .cal-event-dot {
+      display: block;
+      padding: 2px 4px;
+      margin: 1px 0;
+      font-size: 0.65rem;
+      font-weight: 500;
+      border-radius: 3px;
+      background: #edd8ff;
+      color: #7b22cc;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      cursor: pointer;
+      text-decoration: none;
+      transition: background 0.15s;
+    }
+
+    .cal-event-dot:hover { background: #dab8ff; }
+
+    /* List View */
+    .cal-list { display: none; }
+    .cal-list.active { display: block; }
+    .cal-grid-wrap.active { display: block; }
+    .cal-grid-wrap { display: none; }
+
+    .cal-list-month {
+      font-size: 0.75rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: #8a56a0;
+      padding: 12px 0 6px;
+      border-bottom: 2px solid #edd8ff;
+      margin-bottom: 4px;
+    }
+
+    .cal-list-item {
+      display: flex;
+      gap: 12px;
+      padding: 10px 8px;
+      border-bottom: 1px solid #f0f0f0;
+      cursor: pointer;
+      transition: background 0.15s;
+      border-radius: 8px;
+    }
+
+    .cal-list-item:hover { background: #f3ecf9; }
+
+    .cal-list-date {
+      flex-shrink: 0;
+      width: 48px;
+      text-align: center;
+    }
+
+    .cal-list-date .day-num {
+      font-size: 1.3rem;
+      font-weight: 700;
+      color: #111;
+      line-height: 1.2;
+    }
+
+    .cal-list-date .day-name {
+      font-size: 0.65rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      color: #777;
+    }
+
+    .cal-list-info { flex: 1; min-width: 0; }
+
+    .cal-list-title {
+      font-size: 0.9rem;
+      font-weight: 600;
+      color: #111;
+    }
+
+    .cal-list-meta {
+      font-size: 0.75rem;
+      color: #777;
+      margin-top: 2px;
+    }
+
+    .cal-list-type {
+      display: inline-block;
+      font-size: 0.6rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      padding: 2px 6px;
+      border-radius: 3px;
+      background: #edd8ff;
+      color: #7b22cc;
+      margin-left: 6px;
+      vertical-align: middle;
+    }
+
+    .cal-empty {
+      text-align: center;
+      padding: 40px 20px;
+      color: #777;
+      font-size: 0.9rem;
+    }
+
+    .cal-loading {
+      text-align: center;
+      padding: 60px 20px;
+      color: #999;
+      font-size: 0.85rem;
+    }
+
+    /* Fliers View */
+    .cal-fliers { display: none; }
+    .cal-fliers.active { display: block; }
+
+    .cal-fliers-grid {
+      columns: 2;
+      column-gap: 12px;
+    }
+
+    .cal-flier-card {
+      break-inside: avoid;
+      margin-bottom: 12px;
+      border-radius: 10px;
+      overflow: hidden;
+      background: #fff;
+      border: 1px solid #e0e0e0;
+      transition: box-shadow 0.15s;
+    }
+
+    .cal-flier-card:hover {
+      box-shadow: 0 4px 16px rgba(0,0,0,0.08);
+    }
+
+    .cal-flier-img {
+      width: 100%;
+      display: block;
+    }
+
+    .cal-flier-body {
+      padding: 10px 12px;
+    }
+
+    .cal-flier-title {
+      font-size: 0.85rem;
+      font-weight: 700;
+      color: #111;
+      margin-bottom: 4px;
+      line-height: 1.3;
+    }
+
+    .cal-flier-meta {
+      font-size: 0.7rem;
+      color: #777;
+      line-height: 1.4;
+    }
+
+    .cal-flier-badges {
+      display: flex;
+      gap: 4px;
+      flex-wrap: wrap;
+      margin-top: 6px;
+    }
+
+    .cal-flier-badge {
+      font-size: 0.6rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      padding: 2px 6px;
+      border-radius: 3px;
+      background: #edd8ff;
+      color: #7b22cc;
+    }
+
+    .cal-flier-badge.price {
+      background: #f0f0f0;
+      color: #333;
+    }
+
+    .cal-flier-no-img {
+      background: linear-gradient(135deg, #edd8ff, #f3ecf9);
+      padding: 24px 16px;
+      text-align: center;
+    }
+
+    .cal-flier-no-img .cal-flier-placeholder {
+      font-size: 1.2rem;
+      font-weight: 700;
+      color: #8a56a0;
+    }
+
+    /* Modal */
+    .cal-modal-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.4);
+      backdrop-filter: blur(2px);
+      z-index: 2000;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      animation: calFadeIn 0.15s ease;
+    }
+
+    .cal-modal-overlay.active { display: flex; }
+
+    @keyframes calFadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+
+    @keyframes calSlideUp {
+      from { opacity: 0; transform: translateY(12px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .cal-modal {
+      background: #fff;
+      border-radius: 12px;
+      max-width: 440px;
+      width: 100%;
+      max-height: 80vh;
+      overflow-y: auto;
+      box-shadow: 0 8px 40px rgba(0, 0, 0, 0.15);
+      animation: calSlideUp 0.2s ease;
+    }
+
+    .cal-modal-header {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      padding: 20px 20px 0;
+      gap: 12px;
+    }
+
+    .cal-modal-title {
+      font-size: 1.15rem;
+      font-weight: 700;
+      color: #111;
+      line-height: 1.3;
+    }
+
+    .cal-modal-close {
+      flex-shrink: 0;
+      width: 28px; height: 28px;
+      border: none;
+      background: #f0f0f0;
+      border-radius: 50%;
+      cursor: pointer;
+      font-size: 1rem;
+      color: #555;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.15s;
+    }
+
+    .cal-modal-close:hover { background: #e0e0e0; color: #111; }
+
+    .cal-modal-body { padding: 16px 20px 20px; }
+
+    .cal-modal-row {
+      display: flex;
+      align-items: flex-start;
+      gap: 8px;
+      padding: 6px 0;
+      font-size: 0.85rem;
+      color: #333;
+    }
+
+    .cal-modal-row + .cal-modal-row {
+      border-top: 1px solid #f0f0f0;
+    }
+
+    .cal-modal-icon {
+      flex-shrink: 0;
+      width: 18px;
+      text-align: center;
+      font-size: 0.9rem;
+      line-height: 1.5;
+    }
+
+    .cal-modal-label {
+      font-weight: 600;
+      color: #777;
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      margin-bottom: 2px;
+    }
+
+    .cal-modal-desc {
+      padding: 10px 0;
+      font-size: 0.85rem;
+      color: #333;
+      line-height: 1.6;
+      border-top: 1px solid #f0f0f0;
+    }
+
+    .cal-modal-badges {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+      padding: 8px 0;
+    }
+
+    .cal-modal-badge {
+      display: inline-block;
+      font-size: 0.7rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      padding: 3px 8px;
+      border-radius: 4px;
+      background: #edd8ff;
+      color: #7b22cc;
+    }
+
+    .cal-modal-badge.price {
+      background: #f0f0f0;
+      color: #333;
+    }
+
+    .cal-modal-cta {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      margin-top: 12px;
+      padding: 10px 20px;
+      background: #8a56a0;
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      font-family: inherit;
+      font-size: 0.85rem;
+      font-weight: 600;
+      text-decoration: none;
+      cursor: pointer;
+      transition: background 0.15s;
+      width: 100%;
+      justify-content: center;
+    }
+
+    .cal-modal-cta:hover { background: #7b22cc; }
+
+    .cal-modal-image {
+      width: 100%;
+      border-radius: 8px;
+      margin-bottom: 12px;
+      cursor: pointer;
+      transition: opacity 0.15s;
+    }
+
+    .cal-modal-image:hover { opacity: 0.9; }
+
+    @media (max-width: 480px) {
+      .cal-cell { min-height: 60px; }
+      .cal-event-dot { font-size: 0.55rem; padding: 1px 3px; }
+      .cal-month-label { font-size: 0.95rem; min-width: auto; }
+      .cal-header { gap: 8px; }
+      .cal-modal { max-height: 90vh; }
+      .cal-fliers-grid { columns: 1; }
+    }
+
+    @media (min-width: 700px) {
+      .cal-fliers-grid { columns: 3; }
+    }
+
+    /* ==== V2 DESIGN POLISH (DESIGN.md) — appended overrides ==== */
+    .cal-wrap { background: #fff; border-radius: 16px; box-shadow: 0 10px 30px rgba(42,26,51,.10); padding: 22px; }
+    .cal-grid { border: none; border-radius: 12px; box-shadow: inset 0 0 0 1px #e7ddf0; }
+    .cal-dow { background: #2a1a33; color: #e9def3; font-size: 0.72rem; letter-spacing: 0.08em; padding: 10px 4px; }
+    .cal-cell { transition: background 0.2s ease; }
+    .cal-cell:hover { background: #faf6fd; }
+    .cal-cell.today { box-shadow: inset 0 0 0 2px #8a56a0; border-radius: 6px; background: #f7f0fb; }
+    .cal-event-dot { background: #8a56a0; color: #fff; border-radius: 999px; padding: 3px 8px; font-weight: 600; cursor: pointer; transition: background 0.2s ease, transform 0.2s ease; }
+    .cal-event-dot:hover { background: #7a489a; transform: translateY(-1px); }
+    .cal-nav button, .cal-view-toggle button { border-radius: 999px; cursor: pointer; transition: all 0.2s ease; }
+    .cal-nav button:hover { transform: translateY(-1px); }
+    .cal-list-item { border-radius: 12px; transition: background 0.2s ease, transform 0.2s ease; cursor: pointer; }
+    .cal-list-item:hover { transform: translateX(3px); }
+    .cal-modal { border-radius: 16px !important; box-shadow: 0 24px 60px rgba(42,26,51,.28) !important; overflow: hidden; }
+    .cal-modal-header { background: linear-gradient(120deg, #2a1a33, #5b3573); color: #fff; }
+    .cal-modal-title { color: #fff; }
+    .cal-modal-close { background: rgba(255,255,255,.18); color: #fff; border-radius: 50%; }
+    .cal-modal-close:hover { background: rgba(255,255,255,.32); color: #fff; }
+    @media (prefers-reduced-motion: reduce) { .cal-cell, .cal-event-dot, .cal-list-item { transition: none; } }
+  </style>
+
+  <meta property="og:title" content="Events — Sane Living">
+  <meta property="og:description" content="Upcoming events at the Sane Living Center in Ojai, California. Film screenings, workshops, performances, and community gatherings.">
+  <meta property="og:image" content="https://saneliving.com/images/homepage-hero.jpg">
+  <meta property="og:image:width" content="1959">
+  <meta property="og:image:height" content="1309">
+  <meta property="og:image:alt" content="Sane Living Center Ojai Exterior">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://saneliving.com/events/">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Events — Sane Living">
+  <meta name="twitter:description" content="Upcoming events at the Sane Living Center in Ojai, California. Film screenings, workshops, performances, and community gatherings.">
+  <meta name="twitter:image" content="https://saneliving.com/images/homepage-hero.jpg">
+  <meta name="twitter:image:alt" content="Sane Living Center Ojai Exterior">
+</head>
+<body>
+  <nav id="site-nav"></nav>
+
+  <section class="page-hero">
+    <div class="container">
+      <h1>Upcoming Events</h1>
+      <p>Events at the Sane Living Center in Ojai, California</p>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container" style="margin-bottom: var(--space-xl);">
+      <div class="mc-signup">
+        <h4>Subscribe for Event Updates</h4>
+        <form action="https://saneliving.us19.list-manage.com/subscribe/post?u=b3bc47585c00a4e19f7c3841d&amp;id=590b76d0aa" method="post" target="_blank" novalidate>
+          <input type="email" name="EMAIL" placeholder="Email address" required>
+          <div style="position: absolute; left: -5000px;" aria-hidden="true">
+            <input type="text" name="b_b3bc47585c00a4e19f7c3841d_590b76d0aa" tabindex="-1" value="">
+          </div>
+          <button type="submit">Subscribe</button>
+        </form>
+      </div>
+    </div>
+    
+    <div class="cal-wrap">
+
+      <div class="cal-header">
+        <div class="cal-view-toggle">
+          <button id="fliersViewBtn" class="active">Fliers</button>
+          <button id="listViewBtn">List</button>
+          <button id="gridViewBtn">Month</button>
+        </div>
+        <div style="margin-top: 4px;">
+          <a href="/events/past" style="font-size: 0.85rem; font-weight: 500; color: #8a56a0; text-decoration: none; border-bottom: 1px dotted #8a56a0;">View Past Events Gallery →</a>
+        </div>
+        <div class="cal-nav">
+          <button id="prevBtn" aria-label="Previous month" style="display:none">Prev</button>
+          <span class="cal-month-label" id="monthLabel" style="display:none"></span>
+          <button id="nextBtn" aria-label="Next month" style="display:none">Next</button>
+        </div>
+      </div>
+
+      <div class="cal-fliers active" id="calFliers"></div>
+      <div class="cal-list" id="calList"></div>
+      <div class="cal-grid-wrap" id="gridWrap">
+        <div class="cal-grid" id="calGrid"></div>
+      </div>
+
+      <!-- Event Detail Modal -->
+      <div class="cal-modal-overlay" id="modalOverlay">
+        <div class="cal-modal" id="modal">
+          <div class="cal-modal-header">
+            <div class="cal-modal-title" id="modalTitle"></div>
+            <button class="cal-modal-close" id="modalClose" aria-label="Close">X</button>
+          </div>
+          <div class="cal-modal-body" id="modalBody"></div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <footer id="site-footer"></footer>
+  <script src="/script.js"></script>
+  <script>
+  (function() {
+    var events = [];
+    var eventsById = {};
+    var currentDate = new Date();
+    var currentView = 'fliers';
+
+    var DAYS = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+    var FULL_DAYS = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+    var MONTHS = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+
+    function setEvents(list) {
+      events = (list || []).slice();
+      eventsById = {};
+      events.forEach(function(e, i) {
+        if (!e.id) e.id = 'event-' + i;
+        if (typeof e.image === 'string') e.image = { url: e.image, thumbnail: e.image };
+        eventsById[e.id] = e;
+      });
+      render();
+    }
+
+    function loadEvents() {
+      document.getElementById('calGrid').innerHTML = '<div class="cal-loading" style="grid-column:1/-1;">Loading events...</div>';
+      // Events come from Airtable via /api/calendar-events — the site's one
+      // calendar sync. (No separate events file: Airtable is authoritative.)
+      fetch('/api/calendar-events')
+        .then(function(r) { return r.json(); })
+        .then(function(data) { setEvents(data.events || []); })
+        .catch(function() {
+          document.getElementById('calGrid').innerHTML = '<div class="cal-empty" style="grid-column:1/-1;">Could not load events.</div>';
+        });
+    }
+
+    function render() {
+      if (currentView === 'grid') renderGrid();
+      else if (currentView === 'list') renderList();
+      else if (currentView === 'fliers') renderFliers();
+    }
+
+    function renderGrid() {
+      var year = currentDate.getFullYear();
+      var month = currentDate.getMonth();
+      document.getElementById('monthLabel').textContent = MONTHS[month] + ' ' + year;
+
+      var firstDay = new Date(year, month, 1).getDay();
+      var daysInMonth = new Date(year, month + 1, 0).getDate();
+      var daysInPrev = new Date(year, month, 0).getDate();
+
+      var today = new Date();
+      var todayStr = today.getFullYear() + '-' + pad(today.getMonth()+1) + '-' + pad(today.getDate());
+
+      var html = '';
+      for (var d = 0; d < 7; d++) {
+        html += '<div class="cal-dow">' + DAYS[d] + '</div>';
+      }
+
+      var totalCells = Math.ceil((firstDay + daysInMonth) / 7) * 7;
+      for (var i = 0; i < totalCells; i++) {
+        var dayNum, dateStr, isOther = false;
+        if (i < firstDay) {
+          dayNum = daysInPrev - firstDay + i + 1;
+          var pm = month === 0 ? 11 : month - 1;
+          var py = month === 0 ? year - 1 : year;
+          dateStr = py + '-' + pad(pm+1) + '-' + pad(dayNum);
+          isOther = true;
+        } else if (i >= firstDay + daysInMonth) {
+          dayNum = i - firstDay - daysInMonth + 1;
+          var nm = month === 11 ? 0 : month + 1;
+          var ny = month === 11 ? year + 1 : year;
+          dateStr = ny + '-' + pad(nm+1) + '-' + pad(dayNum);
+          isOther = true;
+        } else {
+          dayNum = i - firstDay + 1;
+          dateStr = year + '-' + pad(month+1) + '-' + pad(dayNum);
+        }
+
+        var isToday = dateStr === todayStr;
+        var cls = 'cal-cell';
+        if (isOther) cls += ' other-month';
+        if (isToday) cls += ' today';
+
+        html += '<div class="' + cls + '">';
+        html += '<span class="cal-day-num">' + dayNum + '</span>';
+
+        var dayEvents = events.filter(function(e) { return e.date === dateStr; });
+        dayEvents.forEach(function(e) {
+          html += '<span class="cal-event-dot" data-event-id="' + e.id + '" title="' + escapeHtml(e.title) + '">' + escapeHtml(e.title) + '</span>';
+        });
+        html += '</div>';
+      }
+      document.getElementById('calGrid').innerHTML = html;
+    }
+
+    function renderList() {
+      var allEvents = events.filter(function(e) { return e.date; }).sort(function(a, b) {
+        return a.date < b.date ? -1 : a.date > b.date ? 1 : 0;
+      });
+
+      if (allEvents.length === 0) {
+        document.getElementById('calList').innerHTML = '<div class="cal-empty">No upcoming events.</div>';
+        return;
+      }
+
+      var html = '<div class="cal-list-month">Upcoming Events</div>';
+      allEvents.forEach(function(e) {
+        var dt = new Date(e.date + 'T12:00:00');
+        var dayName = DAYS[dt.getDay()];
+        var monthShort = MONTHS[dt.getMonth()].substring(0, 3);
+        var dayNum = dt.getDate();
+        var typeLabel = e.price ? e.price : (e.type === 'free' ? 'Free' : e.type);
+        var meta = '';
+        if (e.startTime) meta += e.startTime;
+        if (e.endTime) meta += ' - ' + e.endTime;
+        if (e.location) meta += (meta ? ' | ' : '') + e.location;
+
+        html += '<div class="cal-list-item" data-event-id="' + e.id + '">';
+        html += '<div class="cal-list-date"><div class="day-name">' + monthShort + '</div><div class="day-num">' + dayNum + '</div></div>';
+        html += '<div class="cal-list-info">';
+        html += '<div class="cal-list-title">' + escapeHtml(e.title);
+        if (typeLabel) html += '<span class="cal-list-type">' + typeLabel + '</span>';
+        html += '</div>';
+        if (meta) html += '<div class="cal-list-meta">' + escapeHtml(meta) + '</div>';
+        html += '</div></div>';
+      });
+      document.getElementById('calList').innerHTML = html;
+    }
+
+    function renderFliers() {
+      var allEvents = events.filter(function(e) { return e.date; }).sort(function(a, b) {
+        return a.date < b.date ? -1 : a.date > b.date ? 1 : 0;
+      });
+
+      if (allEvents.length === 0) {
+        document.getElementById('calFliers').innerHTML = '<div class="cal-empty">No upcoming events.</div>';
+        return;
+      }
+
+      var html = '<div class="cal-fliers-grid">';
+      allEvents.forEach(function(e) {
+        var dt = new Date(e.date + 'T12:00:00');
+        var dayName = DAYS[dt.getDay()];
+        var dayNum = dt.getDate();
+        var monthName = MONTHS[dt.getMonth()];
+
+        html += '<div class="cal-flier-card">';
+        if (e.image && e.image.thumbnail) {
+          html += '<a href="' + escapeHtml(e.image.url) + '" target="_blank"><img src="' + escapeHtml(e.image.thumbnail) + '" alt="' + escapeHtml(e.title) + '" class="cal-flier-img"></a>';
+        } else {
+          html += '<div class="cal-flier-no-img"><div class="cal-flier-placeholder">' + escapeHtml(e.title) + '</div></div>';
+        }
+
+        html += '<div class="cal-flier-body">';
+        html += '<div class="cal-flier-title">' + escapeHtml(e.title) + '</div>';
+
+        var meta = dayName + ', ' + monthName + ' ' + dayNum;
+        if (e.startTime) meta += ' | ' + e.startTime;
+        if (e.endTime) meta += ' - ' + e.endTime;
+        html += '<div class="cal-flier-meta">' + escapeHtml(meta) + '</div>';
+
+        if (e.location) {
+          html += '<div class="cal-flier-meta">' + escapeHtml(e.location) + '</div>';
+        }
+
+        var hasBadge = e.type || e.price;
+        if (hasBadge) {
+          html += '<div class="cal-flier-badges">';
+          if (e.type) {
+            var typeText = e.type.charAt(0).toUpperCase() + e.type.slice(1);
+            html += '<span class="cal-flier-badge">' + escapeHtml(typeText) + '</span>';
+          }
+          if (e.price) {
+            html += '<span class="cal-flier-badge price">' + escapeHtml(e.price) + '</span>';
+          }
+          html += '</div>';
+        }
+
+        if (e.blurb) {
+          html += '<div class="cal-flier-meta" style="margin-top:6px;font-style:italic;color:#555;">' + escapeHtml(e.blurb) + '</div>';
+        }
+        if (e.description) {
+          html += '<div class="cal-flier-meta" style="margin-top:4px;">' + escapeHtml(e.description) + '</div>';
+        }
+        if (e.rsvpUrl) {
+          html += '<a href="' + escapeHtml(e.rsvpUrl) + '" target="_blank" class="cal-modal-cta" style="margin-top:10px;font-size:0.75rem;padding:8px 14px;">More Info</a>';
+        }
+
+        html += '</div></div>';
+      });
+
+      html += '</div>';
+      document.getElementById('calFliers').innerHTML = html;
+    }
+
+    // Modal
+    function showModal(eventId) {
+      var e = eventsById[eventId];
+      if (!e) return;
+
+      document.getElementById('modalTitle').textContent = e.title;
+      var body = '';
+
+      if (e.image && e.image.url) {
+        body += '<a href="' + escapeHtml(e.image.url) + '" target="_blank"><img src="' + escapeHtml(e.image.thumbnail || e.image.url) + '" alt="' + escapeHtml(e.title) + '" class="cal-modal-image"></a>';
+      }
+
+      if (e.date) {
+        var dt = new Date(e.date + 'T12:00:00');
+        var dateDisplay = FULL_DAYS[dt.getDay()] + ', ' + MONTHS[dt.getMonth()] + ' ' + dt.getDate() + ', ' + dt.getFullYear();
+        var timeDisplay = '';
+        if (e.startTime) timeDisplay = e.startTime;
+        if (e.endTime) timeDisplay += ' - ' + e.endTime;
+        body += '<div class="cal-modal-row"><div><div class="cal-modal-label">Date & Time</div>' + escapeHtml(dateDisplay);
+        if (timeDisplay) body += '<br>' + escapeHtml(timeDisplay);
+        body += '</div></div>';
+      }
+
+      if (e.location) {
+        body += '<div class="cal-modal-row"><div><div class="cal-modal-label">Location</div>' + escapeHtml(e.location) + '</div></div>';
+      }
+
+      if (e.type || e.price) {
+        body += '<div class="cal-modal-badges">';
+        if (e.type) {
+          var typeText = e.type.charAt(0).toUpperCase() + e.type.slice(1);
+          body += '<span class="cal-modal-badge">' + escapeHtml(typeText) + '</span>';
+        }
+        if (e.price) {
+          body += '<span class="cal-modal-badge price">' + escapeHtml(e.price) + '</span>';
+        }
+        body += '</div>';
+      }
+
+      if (e.blurb) {
+        body += '<div class="cal-modal-desc" style="font-style:italic;color:#555;">' + escapeHtml(e.blurb) + '</div>';
+      }
+      if (e.description) {
+        body += '<div class="cal-modal-desc">' + escapeHtml(e.description) + '</div>';
+      }
+      if (e.rsvpUrl) {
+        body += '<a href="' + escapeHtml(e.rsvpUrl) + '" target="_blank" class="cal-modal-cta">More Info</a>';
+      }
+
+      document.getElementById('modalBody').innerHTML = body;
+      document.getElementById('modalOverlay').classList.add('active');
+    }
+
+    function closeModal() {
+      document.getElementById('modalOverlay').classList.remove('active');
+    }
+
+    document.getElementById('modalClose').addEventListener('click', closeModal);
+    document.getElementById('modalOverlay').addEventListener('click', function(ev) {
+      if (ev.target === this) closeModal();
+    });
+    document.addEventListener('keydown', function(ev) {
+      if (ev.key === 'Escape') closeModal();
+    });
+
+    document.addEventListener('click', function(ev) {
+      var dot = ev.target.closest('[data-event-id]');
+      if (dot) { ev.preventDefault(); showModal(dot.getAttribute('data-event-id')); }
+    });
+
+    // View toggle
+    function switchView(view) {
+      currentView = view;
+      ['gridViewBtn', 'listViewBtn', 'fliersViewBtn'].forEach(function(id) {
+        document.getElementById(id).classList.remove('active');
+      });
+      var containers = { grid: 'gridWrap', list: 'calList', fliers: 'calFliers' };
+      Object.keys(containers).forEach(function(v) {
+        document.getElementById(containers[v]).classList.remove('active');
+      });
+      var btnId = view === 'grid' ? 'gridViewBtn' : view === 'list' ? 'listViewBtn' : 'fliersViewBtn';
+      document.getElementById(btnId).classList.add('active');
+      document.getElementById(containers[view]).classList.add('active');
+      document.getElementById('prevBtn').style.display = view === 'grid' ? '' : 'none';
+      document.getElementById('nextBtn').style.display = view === 'grid' ? '' : 'none';
+      document.getElementById('monthLabel').style.display = view === 'grid' ? '' : 'none';
+      render();
+    }
+
+    document.getElementById('gridViewBtn').addEventListener('click', function() { switchView('grid'); });
+    document.getElementById('listViewBtn').addEventListener('click', function() { switchView('list'); });
+    document.getElementById('fliersViewBtn').addEventListener('click', function() { switchView('fliers'); });
+
+    document.getElementById('prevBtn').addEventListener('click', function() {
+      currentDate.setMonth(currentDate.getMonth() - 1); render();
+    });
+    document.getElementById('nextBtn').addEventListener('click', function() {
+      currentDate.setMonth(currentDate.getMonth() + 1); render();
+    });
+
+    function pad(n) { return n < 10 ? '0' + n : '' + n; }
+    function escapeHtml(s) {
+      if (!s) return '';
+      return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+    }
+
+    loadEvents();
+  })();
+  </script>
+</body>
+</html>

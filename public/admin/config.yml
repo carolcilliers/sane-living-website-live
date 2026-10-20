@@ -1,0 +1,173 @@
+# Sane Living — Team Dashboard (Decap CMS)
+# Repo: carolcilliers/saneliving-website  (Carol's repo — fixed Oct 20, 2026;
+# this previously pointed at devinbalkind/saneliving-website by mistake.)
+#
+# TRIAL SETUP: this config edits the `website-update` branch, so team edits
+# land on the V2 preview, NOT the live site. When V2 is approved and merged,
+# change TWO things before publishing:
+#   backend.branch: website-update  ->  main
+#   backend.base_url / site_url: the -git-website-update- preview URL
+#                                ->  https://saneliving-website-one.vercel.app
+# Login: team username + password form served by api/auth.js (Decap opens
+# it via base_url + auth_endpoint). Password + repo token live only in
+# Vercel env vars — see TEAM-DASHBOARD-SETUP.md at the repo root.
+
+backend:
+  name: github
+  repo: carolcilliers/saneliving-website
+  branch: main
+  base_url: https://saneliving-website-one.vercel.app
+  auth_endpoint: api/auth
+
+site_url: https://saneliving-website-one.vercel.app
+display_url: https://saneliving-website-git-website-update-carol-cilliers.vercel.app
+logo_url: /images/logo.png
+
+# Photos/videos the team uploads land in the repo and are served from /images,
+# exactly where the site already keeps its images.
+media_folder: "public/images"
+public_folder: "/images"
+
+collections:
+  # ---------------- Events ----------------
+  - name: "gallery"
+    label: "Photo Gallery"
+    editor: { preview: false }
+    files:
+      - label: "Gallery Photos"
+        name: "gallery"
+        file: "public/content/gallery.json"
+        format: json
+        fields:
+          - label: "Photos"
+            name: "photos"
+            widget: "list"
+            collapsed: false
+            summary: "{{fields.caption}}"
+            fields:
+              - { label: "Photo", name: "image", widget: "image" }
+              - { label: "Caption", name: "caption", widget: "string", required: false }
+              - { label: "Alt Text (describe the photo)", name: "alt", widget: "string", required: false }
+              - label: "Show On"
+                name: "section"
+                widget: "select"
+                options: ["venue", "weddings", "outdoor"]
+                default: "venue"
+                required: false
+
+  # ---------------- Weddings ----------------
+  - name: "weddings"
+    label: "Weddings Page"
+    editor: { preview: false }
+    files:
+      - label: "Weddings"
+        name: "weddings"
+        file: "public/content/weddings.json"
+        format: json
+        fields:
+          - { label: "Page Heading", name: "heading", widget: "string" }
+          - { label: "Main Photo", name: "heroImage", widget: "image", required: false }
+          - { label: "Intro Text", name: "intro", widget: "text" }
+          - label: "Highlights (one per item)"
+            name: "highlights"
+            widget: "list"
+            field: { label: "Highlight", name: "item", widget: "string" }
+          - { label: "Pricing Text", name: "pricingText", widget: "text" }
+          - { label: "What's Included", name: "includesText", widget: "text", required: false }
+          - { label: "Catering Policy", name: "cateringPolicy", widget: "text", required: false }
+          - { label: "Alcohol Policy", name: "alcoholPolicy", widget: "text", required: false }
+          - { label: "Parking Note", name: "parkingNote", widget: "text", required: false }
+          - { label: "Phone (shown on page)", name: "phoneDisplay", widget: "string", required: false }
+          - { label: "Availability Note", name: "availabilityNote", widget: "string", required: false }
+
+  # ---------------- Pricing ----------------
+  - name: "pricing"
+    label: "Pricing & Rates"
+    editor: { preview: false }
+    files:
+      - label: "Pricing"
+        name: "pricing"
+        file: "public/content/pricing.json"
+        format: json
+        fields:
+          - { label: "Rates Current As Of", name: "noteDate", widget: "string", required: false }
+          - { label: "Note Under the Date", name: "noteText", widget: "string", required: false }
+          - { label: "Hours Line (top of table)", name: "hoursHeader", widget: "string", required: false }
+          - label: "Rate Rows"
+            name: "rows"
+            widget: "list"
+            summary: "{{fields.label}}"
+            fields:
+              - { label: "Row Name (Day / Night / Day & Night)", name: "label", widget: "string" }
+              - { label: "Hours (e.g. 7 am to 5 pm)", name: "sublabel", widget: "string", required: false }
+              - { label: "Mon - Thu Price", name: "monThu", widget: "string" }
+              - { label: "Friday Price", name: "friday", widget: "string" }
+              - { label: "Saturday Price", name: "saturday", widget: "string" }
+              - { label: "Sunday Price", name: "sunday", widget: "string" }
+          - { label: "Weddings Note", name: "weddingsNote", widget: "text", required: false }
+          - { label: "Availability Note", name: "availabilityNote", widget: "string", required: false }
+          - { label: "Bottom Heading", name: "ctaHeading", widget: "string", required: false }
+          - { label: "Bottom Text", name: "ctaText", widget: "string", required: false }
+
+  # ---------------- Partners ----------------
+  - name: "partners"
+    label: "Partners"
+    editor: { preview: false }
+    files:
+      - label: "Partners"
+        name: "partners"
+        file: "public/content/partners.json"
+        format: json
+        fields:
+          - { label: "Intro Text", name: "intro", widget: "text", required: false }
+          - label: "Partner List - only add a partner AFTER they have agreed to be listed"
+            name: "partners"
+            widget: "list"
+            summary: "{{fields.name}}"
+            fields:
+              - { label: "Business Name", name: "name", widget: "string" }
+              - { label: "What They Do (Caterer, Florist, Planner...)", name: "category", widget: "string", required: false }
+              - { label: "Short Description", name: "description", widget: "text", required: false }
+              - { label: "Town / Area", name: "location", widget: "string", required: false }
+              - { label: "Website", name: "website", widget: "string", required: false }
+              - { label: "Photo or Logo", name: "image", widget: "image", required: false }
+
+  # ---------------- Settings ----------------
+  - name: "settings"
+    label: "Settings"
+    editor: { preview: false }
+    files:
+      - label: "Site Settings"
+        name: "settings"
+        file: "public/content/settings.json"
+        format: json
+        fields:
+          - { label: "Business Name", name: "businessName", widget: "string" }
+          - { label: "Phone (shown)", name: "phoneDisplay", widget: "string" }
+          - { label: "Phone Link (tel:+1...)", name: "phoneLink", widget: "string", required: false }
+          - { label: "Email", name: "email", widget: "string" }
+          - { label: "Address", name: "address", widget: "string" }
+          - { label: "Hours", name: "hours", widget: "string", required: false }
+          - { label: "Booking Page Link", name: "bookingPageUrl", widget: "string", required: false }
+          - { label: "Availability Calendar Embed URL (Airtable)", name: "availabilityEmbedUrl", widget: "string", required: false }
+          - { label: "Instagram URL", name: "instagramUrl", widget: "string", required: false }
+          - { label: "Facebook URL", name: "facebookUrl", widget: "string", required: false }
+
+  # ---------------- Pages (existing - About kept, path fixed) ----------------
+  - name: "pages"
+    label: "Pages"
+    files:
+      - label: "About"
+        name: "about"
+        file: "public/content/about.md"
+        fields:
+          - { label: "Title", name: "title", widget: "string" }
+          - label: "Sections"
+            name: "sections"
+            widget: "list"
+            fields:
+              - { label: "Heading", name: "heading", widget: "string" }
+              - { label: "Body", name: "body", widget: "markdown" }
+              - { label: "Link Text", name: "linkText", widget: "string", required: false }
+              - { label: "Link URL", name: "linkUrl", widget: "string", required: false }
+              - { label: "External Link", name: "external", widget: "boolean", default: false, required: false }

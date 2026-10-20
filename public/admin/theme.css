@@ -1,0 +1,84 @@
+/* ============================================================
+   Sane Living — dashboard theme (DESIGN.md)
+   Decap renders its own screens; this file restyles them from
+   the host page using stable hooks only (element, attribute and
+   #nc-root selectors — Decap's hashed classes are never used).
+   ============================================================ */
+@import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap');
+
+#nc-root, #nc-root * { font-family: 'Nunito', 'Open Sans', -apple-system, sans-serif !important; }
+body { background: #f6f2f9 !important; }
+::selection { background: #e2ccf2; }
+
+/* Headings */
+#nc-root h1, #nc-root h2, #nc-root h3 { color: #2a1a33 !important; letter-spacing: -0.01em; }
+
+/* Links in brand purple (buttons are <button>, unaffected) */
+#nc-root a { color: #5b3573; }
+#nc-root a:hover { color: #8a56a0; }
+
+/* Buttons: pill shape, brand feel */
+#nc-root button { border-radius: 999px !important; font-weight: 700 !important; }
+#nc-root button:hover { filter: brightness(1.05); }
+
+/* Inputs, selects, text areas: soft + purple focus */
+#nc-root input, #nc-root textarea, #nc-root select {
+  border-radius: 10px !important;
+}
+#nc-root input:focus, #nc-root textarea:focus, #nc-root select:focus {
+  border-color: #8a56a0 !important;
+  box-shadow: 0 0 0 3px rgba(138, 86, 160, 0.25) !important;
+  outline: none !important;
+}
+
+/* Left collections menu: bigger, calmer, purple active state */
+#nc-root a[href^="#/collections/"] {
+  font-size: 15.5px !important;
+  font-weight: 600;
+  border-radius: 10px;
+}
+#nc-root a[href^="#/collections/"]:hover { background: #f3ecf9 !important; }
+#nc-root a[href^="#/collections/"].active,
+#nc-root a[href^="#/collections/"][aria-current="page"] {
+  background: #efe4f8 !important;
+  color: #5b3573 !important;
+  box-shadow: inset 4px 0 0 #8a56a0;
+}
+
+/* "Search all" box in the collections menu */
+#nc-root input[placeholder="Search all"] {
+  border-radius: 999px !important;
+  background: #ffffff !important;
+  padding-left: 38px !important;
+  font-size: 14.5px !important;
+}
+
+/* Media / Contents header tabs */
+#nc-root a[href="#/"], #nc-root a[href="#/media"] { font-weight: 700; font-size: 15px; }
+
+/* Scrollbars to match */
+#nc-root ::-webkit-scrollbar { width: 10px; height: 10px; }
+#nc-root ::-webkit-scrollbar-thumb { background: #cbb3dd; border-radius: 8px; }
+#nc-root ::-webkit-scrollbar-track { background: transparent; }
+
+@media (prefers-reduced-motion: reduce) {
+  #nc-root * { transition: none !important; animation: none !important; }
+}
+
+/* ---- Editor screens (pass 2) ---- */
+/* Field labels: small, spaced, plum — reads like a designed form */
+#nc-root label {
+  font-size: 12.5px !important;
+  font-weight: 700 !important;
+  letter-spacing: 0.07em !important;
+  text-transform: uppercase;
+  color: #5b4a75 !important;
+}
+/* Text areas get comfortable height and type size */
+#nc-root textarea { font-size: 15.5px !important; line-height: 1.55 !important; min-height: 96px; }
+#nc-root input { font-size: 15.5px !important; }
+#nc-root select { font-size: 15px !important; }
+/* Photos everywhere in the dashboard: rounded, soft edge */
+#nc-root img { border-radius: 12px !important; }
+/* Hints under fields in calm gray-violet */
+#nc-root [class] p { line-height: 1.5; }

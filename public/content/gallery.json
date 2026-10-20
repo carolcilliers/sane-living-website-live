@@ -1,0 +1,70 @@
+{
+  "photos": [
+    {
+      "image": "/images/rent-center.jpg",
+      "caption": "The Sane Living Center auditorium",
+      "alt": "The Sane Living Center in Ojai, California",
+      "section": "venue"
+    },
+    {
+      "image": "/images/hero-center.jpg",
+      "caption": "Main Hall",
+      "alt": "Main Hall at Sane Living",
+      "section": "venue"
+    },
+    {
+      "image": "/images/center-office.jpg",
+      "caption": "Conference Room",
+      "alt": "Conference Room at Sane Living",
+      "section": "venue"
+    },
+    {
+      "image": "/images/evo3-sculpture.jpg",
+      "caption": "EVO3 Sculpture and outdoor gathering area",
+      "alt": "EVO3 Sculpture at Sane Living Center",
+      "section": "outdoor"
+    },
+    {
+      "image": "/images/about-center-exterior.jpg",
+      "caption": "Sane Living Center exterior",
+      "alt": "Sane Living Center building exterior",
+      "section": "venue"
+    },
+    {
+      "image": "/IMG_0197.jpg",
+      "caption": "Wedding celebration at Sane Living",
+      "alt": "Wedding celebration at Sane Living",
+      "section": "weddings"
+    },
+    {
+      "image": "/IMG_0201.jpg",
+      "caption": "Wedding celebration at Sane Living",
+      "alt": "Wedding celebration at Sane Living",
+      "section": "weddings"
+    },
+    {
+      "image": "/IMG_0207.jpg",
+      "caption": "Wedding celebration at Sane Living",
+      "alt": "Wedding celebration at Sane Living",
+      "section": "weddings"
+    },
+    {
+      "image": "/IMG_0208.jpg",
+      "caption": "Wedding celebration at Sane Living",
+      "alt": "Wedding celebration at Sane Living",
+      "section": "weddings"
+    },
+    {
+      "image": "/IMG_0216.jpg",
+      "caption": "Wedding celebration at Sane Living",
+      "alt": "Wedding celebration at Sane Living",
+      "section": "weddings"
+    },
+    {
+      "image": "/IMG_0217.jpg",
+      "caption": "Wedding celebration at Sane Living",
+      "alt": "Wedding celebration at Sane Living",
+      "section": "weddings"
+    }
+  ]
+}

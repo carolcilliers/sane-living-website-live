@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Rent the Sane Living Center — Sane Living</title>
+  <meta name="description" content="Rent the Sane Living Center — a beautiful high-tech auditorium in downtown Ojai, CA for events, conferences, celebrations, and more.">
+  <link rel="stylesheet" href="/style.css">
+
+  <meta property="og:title" content="Rent the Sane Living Center — Sane Living">
+  <meta property="og:description" content="Rent the Sane Living Center — a beautiful high-tech auditorium in downtown Ojai, CA for events, conferences, celebrations, and more.">
+  <meta property="og:image" content="https://saneliving.com/images/homepage-hero.jpg">
+  <meta property="og:image:width" content="1959">
+  <meta property="og:image:height" content="1309">
+  <meta property="og:image:alt" content="Sane Living Center Ojai Exterior">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://saneliving.com/rent">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Rent the Sane Living Center — Sane Living">
+  <meta name="twitter:description" content="Rent the Sane Living Center — a beautiful high-tech auditorium in downtown Ojai, CA for events, conferences, celebrations, and more.">
+  <meta name="twitter:image" content="https://saneliving.com/images/homepage-hero.jpg">
+  <meta name="twitter:image:alt" content="Sane Living Center Ojai Exterior">
+</head>
+<body>
+
+  <nav id="site-nav"></nav>
+
+  <section class="page-hero">
+    <div class="container">
+      <h1>Rent the Sane Living Center</h1>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="content-block">
+      <div data-animate class="split-grid-large-img">
+        <div>
+          <img src="/images/rent-center.jpg" alt="Sane Living Center" style="width:100%; border-radius: 8px;">
+          <button id="open-gallery-btn" class="btn btn-outline" style="margin-top: var(--space-md); width: 100%;">See More Images</button>
+        </div>
+        <div>
+          <p>The Sane Living Center is a beautiful auditorium and gathering venue located at 316 E. Matilija St, Ojai, CA 93023.</p>
+          <p>Available for rent, this high technology space has hosted a wide variety of events including conferences, film screenings, music festivals, artistic performances, lectures and workshops, business functions, community events, special occasions, private celebrations, and more.</p>
+          <a href="/rent/pricing/" class="btn btn-primary" style="margin-top: var(--space-lg);">See Rates and Availability</a>
+          <a href="/rent/weddings/" class="btn btn-outline" style="margin-top: var(--space-lg); margin-left: var(--space-md);">Weddings</a>
+        </div>
+      </div>
+
+      <hr class="section-divider" style="margin: var(--space-2xl) 0;">
+
+      <div data-animate id="availability">
+        <iframe class="airtable-embed" src="https://airtable.com/embed/shr45BrcrP6gderXF?backgroundColor=cyan" frameborder="0" onmousewheel="" width="100%" height="1200" style="background: transparent; border: 1px solid #ccc; border-radius: 8px;"></iframe>
+      </div>
+
+      <hr class="section-divider" style="margin: var(--space-2xl) 0;">
+
+      <div data-animate style="text-align: center;">
+        <h2>Need Accommodation in Ojai?</h2>
+        <p>Consider these nearby properties.</p>
+        <a href="/rent/farm/" class="btn btn-outline" style="margin-top: var(--space-md);">Nearby AirBNBs</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- Image Gallery Modal -->
+  <div id="gallery-modal">
+    <button class="gallery-close" id="gallery-close-btn">&times;</button>
+    <div class="gallery-content">
+      <button class="gallery-nav gallery-prev" id="gallery-prev-btn">&#10094;</button>
+      <img id="gallery-main-img" src="" alt="Gallery Image">
+      <button class="gallery-nav gallery-next" id="gallery-next-btn">&#10095;</button>
+    </div>
+  </div>
+
+  <footer id="site-footer"></footer>
+  <script src="/script.js"></script>
+</body>
+</html>

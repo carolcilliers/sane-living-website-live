@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Bio Ego Algo - Sane Living</title>
+  <meta name="description" content="An unprecedented artwork articulating the threats and treats of living with Bio, Ego & Algo.">
+  <link rel="stylesheet" href="/style.css">
+  <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <!-- WP Visual Composer Custom CSS — exact match -->
+  <style>
+    /* Page-level overrides — this page has its own black/dark design */
+    body.evo3-page {
+      background: #fff;
+      margin: 0;
+      padding: 0;
+      font-family: 'Open Sans', 'Helvetica Neue', Arial, sans-serif;
+    }
+    .evo3-page .site-nav {
+      background: #fff;
+      border-bottom-color: #e0e0e0;
+    }
+    .evo3-page .site-footer {
+      background: #231f20;
+      border-top: none;
+    }
+
+    /* VC custom CSS from WP — verbatim */
+    .blackbox h3 {
+      color: #fff;
+      font-size: 60px;
+      text-transform: uppercase;
+      margin-top: -23px;
+      word-spacing: 29px;
+    }
+    .blackbox p {
+      color: #fff;
+      text-transform: uppercase;
+      margin-bottom: 6px;
+      font-size: 22px;
+      font-weight: 500;
+    }
+
+    .evo3-body p {
+      color: #000000;
+      font-family: 'Open Sans';
+      font-style: normal;
+      font-weight: 500;
+      font-size: 17px;
+    }
+    .evo3-body h3 {
+      font-size: 25px;
+      text-transform: uppercase;
+      margin-top: 12px;
+      color: #000;
+      font-weight: 800;
+    }
+    .borderlines {
+      border-top: 1px solid #000 !important;
+      border-bottom: 1px solid #000 !important;
+      font-size: 17px;
+      color: #000;
+      padding: 6px 0px;
+    }
+
+    /* Layout - replicating VC rows/columns */
+    .vc-row {
+      display: flex;
+      flex-wrap: wrap;
+      width: 100%;
+    }
+    .vc-row.content-middle {
+      align-items: center;
+    }
+    .vc-col-4 {
+      width: 33.333%;
+      padding: 0 15px;
+      box-sizing: border-box;
+    }
+    .vc-col-8 {
+      width: 66.666%;
+      padding: 0 15px;
+      box-sizing: border-box;
+    }
+    .vc-col-12 {
+      width: 100%;
+      padding: 0 15px;
+      box-sizing: border-box;
+    }
+
+    /* Top banner */
+    .blackbox {
+      background-color: #000000;
+      padding: 0;
+      margin: 0;
+      padding-top: var(--nav-height);
+    }
+    .blackbox .vc-col-4 { display: flex; align-items: center; justify-content: center; }
+    .blackbox .vc-col-8 { display: flex; align-items: center; }
+    .blackbox img { max-width: 100%; }
+
+    /* Content body rows */
+    .evo3-body {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 20px 0;
+    }
+    .evo3-body .vc-row {
+      margin-bottom: 0;
+      padding: 10px 0;
+    }
+    .evo3-body .vc-col-4 {
+      margin-bottom: 40px;
+    }
+    .evo3-body img {
+      max-width: 100%;
+      display: block;
+    }
+    .evo3-body .img-center {
+      text-align: center;
+    }
+    .evo3-body .img-center img {
+      margin: 0 auto;
+    }
+
+    /* Closing statement section */
+    .evo3-closing {
+      background-color: #231f20;
+      padding: 40px 15px;
+    }
+    .evo3-closing .inner {
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+    .evo3-closing p {
+      color: #ccc;
+      font-family: 'Open Sans';
+      font-weight: 300;
+      font-size: 17px;
+      line-height: 1.8;
+      margin-bottom: 16px;
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+      .vc-col-4, .vc-col-8 { width: 100%; text-align: center; }
+      .blackbox h3 { font-size: 36px; word-spacing: 15px; }
+      .blackbox p { font-size: 16px; }
+      .evo3-body h3 { font-size: 20px; }
+      .evo3-body p { font-size: 15px; }
+      .borderlines { font-size: 15px; }
+    }
+  </style>
+
+  <meta property="og:title" content="Bio Ego Algo - Sane Living">
+  <meta property="og:description" content="An unprecedented artwork articulating the threats and treats of living with Bio, Ego & Algo.">
+  <meta property="og:image" content="https://saneliving.com/images/homepage-hero.jpg">
+  <meta property="og:image:width" content="1959">
+  <meta property="og:image:height" content="1309">
+  <meta property="og:image:alt" content="Sane Living Center Ojai Exterior">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://saneliving.com/evo3">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Bio Ego Algo - Sane Living">
+  <meta name="twitter:description" content="An unprecedented artwork articulating the threats and treats of living with Bio, Ego & Algo.">
+  <meta name="twitter:image" content="https://saneliving.com/images/homepage-hero.jpg">
+  <meta name="twitter:image:alt" content="Sane Living Center Ojai Exterior">
+</head>
+<body class="evo3-page">
+  <nav id="site-nav"></nav>
+
+  <!-- Row 1: Black banner — EVO3 logo + "Living With / Bio Ego Algo" -->
+  <div class="blackbox">
+    <div style="max-width: 1200px; margin: 0 auto; display: flex; flex-wrap: wrap; width: 100%; padding: 40px 0; align-items: center;">
+      <div class="vc-col-4" style="text-align: center;">
+        <img src="/images/evo3-title.png" alt="EVO 3" style="max-width: 100%;">
+      </div>
+      <div class="vc-col-8">
+        <div style="text-align: left;">
+          <p>Living With</p>
+          <h3>Bio Ego Algo</h3>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Body content rows -->
+  <div class="evo3-body">
+
+    <!-- Row 2: Nature's Bio — WE badge | text | DNA symbol -->
+    <div class="vc-row content-middle">
+      <div class="vc-col-4 img-center">
+        <img src="/images/badge-we.png" alt="Sane Living WE" style="max-width: 300px;">
+      </div>
+      <div class="vc-col-4">
+        <h3>Nature's Bio</h3>
+        <p>where every output is an input, has evolved its self-healing "we" system over billions of years, driven by cause/effect, <strong>DNA/ripples</strong>.</p>
+        <div class="borderlines">Existential Threat: <strong>EXTREME CLIMATES</strong></div>
+      </div>
+      <div class="vc-col-4 img-center">
+        <img src="/images/evo3-bio.png" alt="BIO dna symbol" style="max-width: 250px;">
+      </div>
+    </div>
+
+    <!-- Row 3: Sapiens' Ego — ME badge | text | Heart symbol -->
+    <div class="vc-row content-middle">
+      <div class="vc-col-4 img-center">
+        <img src="/images/badge-me.png" alt="Sane Living ME" style="max-width: 300px;">
+      </div>
+      <div class="vc-col-4">
+        <h3>Sapiens' Ego</h3>
+        <p>creates "me" stories, where inputs stimulate memories and generate selfserving outputs, driven by emotions – from suffering to elation, <strong>fear to love</strong>.</p>
+        <div class="borderlines">Existential Threat: <strong>BIO/NUCLEAR WAR</strong></div>
+      </div>
+      <div class="vc-col-4 img-center">
+        <img src="/images/evo3-ego.png" alt="Ego Sapiens EGO" style="max-width: 250px;">
+      </div>
+    </div>
+
+    <!-- Row 4: A.I.'s Algo — GO badge | text | Swirl symbol -->
+    <div class="vc-row content-middle">
+      <div class="vc-col-4 img-center">
+        <img src="/images/badge-go.png" alt="Sane Living GO" style="max-width: 300px;">
+      </div>
+      <div class="vc-col-4">
+        <h3>A.I.'s Algo</h3>
+        <p>self-iterates, self-directs, and then can hack us emotionally at hyper-rhythmic, unnatural, inhuman "go" speeds in ever-expanding <strong>time/space</strong> dimensions.</p>
+        <div class="borderlines">Existential Threat: <strong>OUR ENSLAVEMENT</strong></div>
+      </div>
+      <div class="vc-col-4 img-center">
+        <img src="/images/evo3-algo.png" alt="AI's ALGO" style="max-width: 250px;">
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Closing statement — dark charcoal bg -->
+  <div class="evo3-closing">
+    <div class="inner">
+      <p>SANE LIVING acknowledges the existential threats and brings awareness to our insane ways and addictions that have brought us to this precipice. Behaving as both individuals and communities, we must become fully responsible and take immediate action to cultivate sane, practical alternatives.</p>
+      <p>Reconnecting to nature can be our grounding touchstone to bring BIO, EGO, and ALGO into a healthier balance, flow, and prosocial point of view.</p>
+      <p>This is the most hopeful path forward for humanity, replacing our existential threats with existential treats – healthy minds, bodies, communities, and natural environments – aligned with the power of regeneration and the humility of self-healing.</p>
+    </div>
+  </div>
+
+  <footer id="site-footer"></footer>
+  <script src="/script.js"></script>
+</body>
+</html>

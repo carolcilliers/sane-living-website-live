@@ -1,0 +1,35 @@
+{
+  "noteDate": "As of January 1, 2026",
+  "noteText": "Please contact us for details.",
+  "hoursHeader": "SANE Hours of Operation: 7 am – 12 midnight",
+  "rows": [
+    {
+      "label": "Day",
+      "sublabel": "7 am – 5 pm",
+      "monThu": "$400",
+      "friday": "$400",
+      "saturday": "$500",
+      "sunday": "$400"
+    },
+    {
+      "label": "Night",
+      "sublabel": "5 pm – 12 midnight",
+      "monThu": "$400",
+      "friday": "$600",
+      "saturday": "$600",
+      "sunday": "$500"
+    },
+    {
+      "label": "Day & Night",
+      "sublabel": "7 am – 12 midnight",
+      "monThu": "$500",
+      "friday": "$800",
+      "saturday": "$875",
+      "sunday": "$775"
+    }
+  ],
+  "weddingsNote": "Weddings are quoted separately from venue rental. See wedding packages and availability.",
+  "availabilityNote": "Purple dates are not available",
+  "ctaHeading": "Ready to book?",
+  "ctaText": "Get in touch to reserve the Sane Living Center for your event."
+}

@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Lifestyle — Sane Living</title>
+  <meta name="description" content="Understanding Nature's Bio, Sapiens Ego, AI Algo, and EVO 3. Positive lifestyle changes for self-healing.">
+  <link rel="stylesheet" href="/style.css">
+  <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    body.lifestyle-page {
+      background: #231f20;
+      margin: 0; padding: 0;
+      font-family: 'Open Sans', 'Helvetica Neue', Arial, sans-serif;
+    }
+    .lifestyle-page .site-nav { background: #fff; border-bottom-color: #e0e0e0; }
+    .lifestyle-page .site-footer { background: #231f20; border-top: none; }
+
+    /* WP page custom CSS — verbatim */
+    .lifestyle-page h2 {
+      font-family: 'Open Sans', sans-serif;
+      font-weight: 700;
+      color: #fff;
+      font-size: 46px;
+      line-height: 51px;
+      padding: 10px;
+      letter-spacing: 1px;
+      margin-top: 6px;
+    }
+    .lifestyle-page .intro-text p {
+      color: #ffffff;
+      font-style: normal;
+      font-weight: 300;
+      font-family: 'Open Sans', sans-serif;
+      font-size: 22px;
+      text-align: center;
+      line-height: 1.7;
+    }
+    .lifestyle-page h3 {
+      font-family: 'Open Sans', sans-serif;
+      font-size: 34px;
+      color: #ffffff;
+      font-weight: 400;
+      margin-top: 4px;
+    }
+
+    /* Intro section */
+    .lifestyle-intro {
+      padding: calc(var(--nav-height) + 30px) 20px 0;
+      max-width: 800px;
+      margin: 0 auto;
+      text-align: center;
+    }
+    .lifestyle-intro img { max-width: 100%; margin: 0 auto 30px; }
+
+    /* 4-column color boxes */
+    .lifestyle-pillars {
+      display: flex;
+      min-height: 400px;
+      align-items: stretch;
+      margin-top: 40px;
+    }
+    .pillar-box {
+      flex: 1 1 0;
+      text-align: center;
+      padding: 34px 15px 40px;
+      transition: background 0.3s ease;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-start;
+      align-items: center;
+    }
+    .pillar-box a { color: #fff; text-decoration: none; }
+    .pillar-box a:hover { color: #fbf2ff; }
+    .pillar-box .video-icon {
+      width: 80px; height: 80px;
+      margin: 0 auto 12px;
+    }
+    .pillar-box h2 { text-align: center; margin-bottom: 0; }
+    .pillar-box .sep {
+      width: 50%;
+      height: 1px;
+      background: rgba(255,255,255,0.3);
+      margin: 12px auto 20px;
+    }
+    .pillar-box .info-img {
+      max-width: 375px;
+      width: 100%;
+    }
+
+    /* Pillar colors — from WP */
+    .greenbox  { background: #1b988c; }
+    .greenbox:hover  { background: #35aca0; }
+    .limebox   { background: #b7bf34; }
+    .limebox:hover   { background: #929737; }
+    .pinkbox   { background: #c63393; }
+    .pinkbox:hover   { background: #ac297f; }
+    .purplebox { background: #8a83be; }
+    .purplebox:hover { background: #a39eca; }
+
+    /* EVO section at bottom of purple column */
+    .evo-section h3 {
+      text-align: center;
+      color: #000;
+      font-weight: 700;
+      font-size: 34px;
+    }
+    .evo-existential {
+      text-align: center;
+      color: #fff;
+      margin-top: -10px;
+    }
+    .evo-existential .threats { letter-spacing: 3px; font-weight: 700; }
+    .evo-existential .treats  { letter-spacing: 5.8px; font-weight: 700; }
+
+    @media (max-width: 768px) {
+      .lifestyle-pillars { flex-direction: column; }
+      .pillar-box { min-height: auto; padding: 30px 20px; }
+      .lifestyle-page h2 { font-size: 32px; line-height: 38px; }
+    }
+  </style>
+
+  <meta property="og:title" content="Lifestyle — Sane Living">
+  <meta property="og:description" content="Understanding Nature's Bio, Sapiens Ego, AI Algo, and EVO 3. Positive lifestyle changes for self-healing.">
+  <meta property="og:image" content="https://saneliving.com/images/homepage-hero.jpg">
+  <meta property="og:image:width" content="1959">
+  <meta property="og:image:height" content="1309">
+  <meta property="og:image:alt" content="Sane Living Center Ojai Exterior">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://saneliving.com/lifestyle">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Lifestyle — Sane Living">
+  <meta name="twitter:description" content="Understanding Nature's Bio, Sapiens Ego, AI Algo, and EVO 3. Positive lifestyle changes for self-healing.">
+  <meta name="twitter:image" content="https://saneliving.com/images/homepage-hero.jpg">
+  <meta name="twitter:image:alt" content="Sane Living Center Ojai Exterior">
+</head>
+<body class="lifestyle-page">
+  <nav id="site-nav"></nav>
+
+  <!-- Intro: hero image + paragraphs -->
+  <section class="lifestyle-intro">
+    <img src="/images/lifestyle-hero.png" alt="Sane Lifestyle">
+    <div class="intro-text">
+      <p>In the last 20 years, unhealthy lifestyles became the main cause of chronic illnesses, such as diabetes, heart disease, obesity, arthritis, cancer, stroke and Alzheimers, leading to death. These illnesses are best healed by us making positive lifestyle changes before they become chronic.</p>
+      <div style="height: 20px;"></div>
+      <p>Doctors unfortunately have resorted to using pharma medicine for temporary healing, leading to chronic illnesses instead of striving for permanent self-healing with sane lifestyle changes.</p>
+    </div>
+  </section>
+
+  <!-- 4 colored pillar columns -->
+  <div class="lifestyle-pillars">
+
+    <!-- 1. Nature's Bio — green -->
+    <div class="pillar-box greenbox">
+      <a href="/lifestyle/natures-bio/">
+        <img src="/images/lifestyle-video.svg" alt="" class="video-icon">
+      </a>
+      <h2><a href="/lifestyle/natures-bio/">1. NATURE'S<br>BIO</a></h2>
+      <div class="sep"></div>
+      <img src="/images/lifestyle-we-dna.png" alt="WE DNA" class="info-img">
+    </div>
+
+    <!-- 2. Sapiens Ego — lime -->
+    <div class="pillar-box limebox">
+      <a href="/lifestyle/sapiens-ego/">
+        <img src="/images/lifestyle-video.svg" alt="" class="video-icon">
+      </a>
+      <h2><a href="/lifestyle/sapiens-ego/">2. SAPIENS<br>EGO</a></h2>
+      <div class="sep"></div>
+      <img src="/images/lifestyle-stories.png" alt="Stories" class="info-img">
+    </div>
+
+    <!-- 3. AI Algo — pink -->
+    <div class="pillar-box pinkbox">
+      <a href="/lifestyle/ai-algo/">
+        <img src="/images/lifestyle-video.svg" alt="" class="video-icon">
+      </a>
+      <h2><a href="/lifestyle/ai-algo/">3. AI<br>ALGO</a></h2>
+      <div class="sep"></div>
+      <img src="/images/lifestyle-speeds.png" alt="Speeds" class="info-img">
+    </div>
+
+    <!-- 4. EVO 3 — purple -->
+    <div class="pillar-box purplebox">
+      <a href="/evo3/">
+        <img src="/images/lifestyle-video.svg" alt="" class="video-icon">
+      </a>
+      <h2 style="margin-bottom: -8px;"><a href="/evo3/">EVO 3</a></h2>
+      <h3 style="text-align: center; margin-top: 0; color: #fff;">EVOLUTION</h3>
+      <div class="sep"></div>
+      <div class="evo-existential">
+        <h3 style="color: #000;"><strong>EXISTENTIAL</strong></h3>
+        <p style="color: #fff;"><strong class="threats">THREATS</strong><br>
+        <strong class="treats">TREATS</strong></p>
+      </div>
+    </div>
+
+  </div>
+
+  <footer id="site-footer"></footer>
+  <script src="/script.js"></script>
+</body>
+</html>

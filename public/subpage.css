@@ -1,0 +1,148 @@
+/* ============================================================
+   SUB-PAGE SHARED STYLES
+   Used by lifestyle and self-heal detail pages
+   Replicates WP Visual Composer colored-box grid layout
+   ============================================================ */
+
+/* Page-level base */
+.subpage-dark {
+  background: #231f20;
+  margin: 0; padding: 0;
+  font-family: 'Open Sans', 'Helvetica Neue', Arial, sans-serif;
+}
+.subpage-dark .site-nav { background: #fff; border-bottom-color: #e0e0e0; }
+.subpage-dark .site-footer { background: #231f20; border-top: none; }
+
+/* Header section (colored background) */
+.subpage-header {
+  padding: calc(var(--nav-height, 70px) + 30px) 30px 30px;
+  text-align: center;
+  color: #fff;
+}
+.subpage-header .label {
+  font-family: 'Open Sans', sans-serif;
+  font-size: 16px;
+  font-weight: 300;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  color: rgba(255,255,255,0.7);
+  margin-bottom: 0;
+}
+.subpage-header h1 {
+  font-family: 'Open Sans', sans-serif;
+  font-weight: 700;
+  letter-spacing: 5px;
+  text-transform: uppercase;
+  margin-bottom: 10px;
+  color: #fff;
+}
+.subpage-header .intro {
+  font-family: 'Open Sans', sans-serif;
+  font-weight: 300;
+  color: #fff;
+  font-size: 20px;
+  letter-spacing: 0.5px;
+  max-width: 800px;
+  margin: 0 auto;
+  line-height: 1.6;
+}
+
+/* Content grid: 6 topic boxes (3x2) */
+.topic-boxes {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 0;
+}
+.topic-box {
+  padding: 40px 25px;
+  text-align: center;
+  transition: background 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 200px;
+}
+.topic-box h3 {
+  font-family: 'Open Sans', sans-serif;
+  font-size: clamp(24px, 4vw, 40px);
+  color: #ffffff;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  font-weight: 700;
+  line-height: 1.2;
+  margin: 0;
+}
+
+/* Bottom navigation: 3 sibling page links */
+.sibling-boxes {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 0;
+  margin-top: 0;
+}
+.sibling-box {
+  padding: 30px 20px;
+  text-align: center;
+  transition: background 0.3s ease;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 180px;
+}
+.sibling-box a {
+  color: #fff;
+  text-decoration: none;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+.sibling-box h2 {
+  font-family: 'Open Sans', sans-serif;
+  font-size: clamp(32px, 5vw, 62px);
+  color: #ffffff;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  font-weight: 700;
+  line-height: 0.85;
+  margin: 0;
+}
+.sibling-box .video-icon {
+  width: 60px; height: 60px;
+  margin-bottom: 8px;
+}
+
+/* ---- Color palette: Lifestyle sub-pages ---- */
+.color-green   { background: #1b988c; }
+.color-green:hover   { background: #35aca0; }
+.color-lime    { background: #b7bf34; }
+.color-lime:hover    { background: #929737; }
+.color-pink    { background: #c63393; }
+.color-pink:hover    { background: #95216d; }
+.color-purple  { background: #8a83be; }
+.color-purple:hover  { background: #706a9c; }
+.color-blue    { background: #4cb3db; }
+.color-blue:hover    { background: #378aab; }
+
+/* ---- Color palette: Self-heal sub-pages ---- */
+.color-orange  { background: #f89c1c; }
+.color-orange:hover  { background: #c7801c; }
+.color-red     { background: #d11e3b; }
+.color-red:hover     { background: #9e182e; }
+.color-sgreen  { background: #87c53f; }
+.color-sgreen:hover  { background: #6c9a35; }
+.color-sblue   { background: #4cb3db; }
+.color-sblue:hover   { background: #378aab; }
+
+/* Responsive */
+@media (max-width: 768px) {
+  .topic-boxes { grid-template-columns: 1fr 1fr; }
+  .sibling-boxes { grid-template-columns: 1fr; }
+  .topic-box { min-height: 140px; padding: 30px 15px; }
+  .topic-box h3 { font-size: 22px; }
+  .sibling-box h2 { font-size: 36px; }
+  .subpage-header h1 { font-size: 48px; }
+}
+@media (max-width: 480px) {
+  .topic-boxes { grid-template-columns: 1fr; }
+}

@@ -1,0 +1,4 @@
+{
+  "_note": "RETIRED Oct 20, 2026 — do not edit. Events live in Airtable (the site's calendar sync) and reach the website via /api/calendar-events. The dashboard's Events panel manages Airtable directly. This file is kept only so old links do not break.",
+  "events": []
+}

@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Rates &amp; Availability — Sane Living Center</title>
+  <meta name="description" content="Sane Living Center rates and availability. View pricing and book the space for your next event in Ojai, California.">
+  <link rel="stylesheet" href="/style.css">
+  <style>
+    .pricing-note {
+      text-align: center;
+      font-size: 0.95rem;
+      color: var(--clr-text-muted);
+      margin-bottom: var(--space-xl);
+    }
+
+    /* Rate Table */
+    .rate-table-wrap {
+      max-width: 800px;
+      margin: 0 auto var(--space-2xl);
+      overflow-x: auto;
+    }
+
+    .rate-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.95rem;
+      border-radius: 12px;
+      overflow: hidden;
+      border: 1px solid var(--clr-border);
+    }
+
+    .rate-table thead th {
+      background: #231f20;
+      color: #fff;
+      font-weight: 700;
+      padding: 14px 16px;
+      text-align: center;
+      font-size: 0.85rem;
+    }
+
+    .rate-table thead th:first-child {
+      text-align: left;
+      font-size: 0.8rem;
+    }
+
+    .rate-table tbody td {
+      padding: 14px 16px;
+      text-align: center;
+      border-bottom: 1px solid var(--clr-border);
+      font-weight: 600;
+      color: var(--clr-text);
+    }
+
+    .rate-table tbody td:first-child {
+      text-align: left;
+      font-weight: 700;
+      color: var(--clr-text);
+    }
+
+    .rate-table tbody td:first-child span {
+      display: block;
+      font-size: 0.75rem;
+      font-weight: 400;
+      color: var(--clr-text-muted);
+      margin-top: 2px;
+    }
+
+    .rate-table tbody tr:nth-child(even) {
+      background: var(--clr-bg-card);
+    }
+
+    .rate-table tbody tr:hover {
+      background: #f3ecf9;
+    }
+
+    /* Calendar Section */
+    .cal-section-header {
+      text-align: center;
+      margin-bottom: var(--space-lg);
+    }
+
+    .cal-section-header h2 {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: var(--clr-text);
+      margin-bottom: var(--space-xs);
+    }
+
+    .pricing-embed {
+      width: 100%;
+      height: 550px;
+      border: 1px solid var(--clr-border);
+      border-radius: 12px;
+      background: transparent;
+    }
+
+    .pricing-legend {
+      text-align: center;
+      font-size: 0.85rem;
+      color: var(--clr-text-muted);
+      margin-top: var(--space-md);
+    }
+
+    .pricing-legend .purple-dot {
+      display: inline-block;
+      width: 12px;
+      height: 12px;
+      background: #8a56a0;
+      border-radius: 50%;
+      vertical-align: middle;
+      margin-right: 4px;
+    }
+
+    /* Weddings */
+    .wedding-pricing {
+      max-width: 800px;
+      margin: 0 auto var(--space-2xl);
+      padding: var(--space-xl);
+      background: var(--clr-bg-card);
+      border-radius: 12px;
+      text-align: center;
+    }
+
+    .wedding-pricing h2 {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: var(--clr-text);
+      margin-bottom: var(--space-sm);
+    }
+
+    .wedding-pricing p {
+      color: var(--clr-text-muted);
+      margin: 0;
+    }
+
+    .pricing-cta {
+      text-align: center;
+      margin-top: var(--space-2xl);
+      padding: var(--space-xl);
+      background: var(--clr-bg-card);
+      border-radius: 12px;
+    }
+
+    .pricing-cta h2 {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: var(--clr-text);
+      margin-bottom: var(--space-sm);
+    }
+
+    .pricing-cta p {
+      color: var(--clr-text-muted);
+      margin-bottom: var(--space-lg);
+    }
+
+    @media (max-width: 600px) {
+      .rate-table thead th,
+      .rate-table tbody td {
+        padding: 10px 8px;
+        font-size: 0.8rem;
+      }
+    }
+  </style>
+
+  <meta property="og:title" content="Rates &amp; Availability — Sane Living Center">
+  <meta property="og:description" content="Sane Living Center rates and availability. View pricing and book the space for your next event in Ojai, California.">
+  <meta property="og:image" content="https://saneliving.com/images/homepage-hero.jpg">
+  <meta property="og:image:width" content="1959">
+  <meta property="og:image:height" content="1309">
+  <meta property="og:image:alt" content="Sane Living Center Ojai Exterior">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://saneliving.com/rent/pricing/">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Rates &amp; Availability — Sane Living Center">
+  <meta name="twitter:description" content="Sane Living Center rates and availability. View pricing and book the space for your next event in Ojai, California.">
+  <meta name="twitter:image" content="https://saneliving.com/images/homepage-hero.jpg">
+  <meta name="twitter:image:alt" content="Sane Living Center Ojai Exterior">
+</head>
+<body>
+
+  <nav id="site-nav"></nav>
+
+  <section class="page-hero">
+    <div class="container">
+      <h1>Sane Living Center Rates &amp; Availability</h1>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="content-block">
+
+      <div class="pricing-note" data-animate>
+        <strong id="pricing-note-date">As of January 1, 2026</strong><br>
+        <span id="pricing-note-text">Please contact us for details.</span>
+      </div>
+
+      <!-- Rate Table -->
+      <div class="rate-table-wrap" data-animate>
+        <table class="rate-table">
+          <thead>
+            <tr>
+              <th id="pricing-hours">SANE Hours of Operation:<br>7 am – 12 midnight</th>
+              <th>Monday – Thursday</th>
+              <th>Friday</th>
+              <th>Saturday</th>
+              <th>Sunday</th>
+            </tr>
+          </thead>
+          <tbody id="pricing-rows">
+            <tr>
+              <td>Day<span>7 am – 5 pm</span></td>
+              <td>$400</td>
+              <td>$400</td>
+              <td>$500</td>
+              <td>$400</td>
+            </tr>
+            <tr>
+              <td>Night<span>5 pm – 12 midnight</span></td>
+              <td>$400</td>
+              <td>$600</td>
+              <td>$600</td>
+              <td>$500</td>
+            </tr>
+            <tr>
+              <td>Day &amp; Night<span>7 am – 12 midnight</span></td>
+              <td>$500</td>
+              <td>$800</td>
+              <td>$875</td>
+              <td>$775</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Weddings -->
+      <div class="wedding-pricing" id="weddings" data-animate>
+        <h2>Weddings</h2>
+        <p id="pricing-weddings-note">Weddings are quoted separately from venue rental. See <a href="/rent/weddings/">wedding packages and availability</a>.</p>
+      </div>
+
+      <hr class="section-divider" style="margin: var(--space-xl) 0;">
+
+      <!-- Availability Calendar -->
+      <div class="cal-section-header" data-animate>
+        <h2>Availability</h2>
+      </div>
+
+      <div data-animate>
+        <iframe
+          class="airtable-embed pricing-embed"
+          src="https://airtable.com/embed/appQOArJhzGuz5qBY/shr0WP23ZzLYTGw7E"
+          frameborder="0"
+          onmousewheel=""
+          width="100%"
+          loading="lazy"
+        ></iframe>
+      </div>
+
+      <div class="pricing-legend" data-animate>
+        <span class="purple-dot"></span> <span id="pricing-availability-note">Purple dates are not available</span>
+      </div>
+
+      <!-- CTA -->
+      <div class="pricing-cta" data-animate>
+        <h2>Ready to book?</h2>
+        <p>Get in touch to reserve the Sane Living Center for your event.</p>
+        <a href="/rent/#availability" class="btn btn-primary">Request to Rent</a>
+      </div>
+
+    </div>
+  </section>
+
+  <footer id="site-footer"></footer>
+  <script src="/script.js"></script>
+
+  <!-- Pricing content is edited in the team dashboard (/admin) and stored in
+       /content/pricing.json. The table above stays as a fallback. -->
+  <script>
+  (function() {
+    function esc(s) { return String(s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+    fetch('/content/pricing.json')
+      .then(function(r) { return r.ok ? r.json() : null; })
+      .then(function(d) {
+        if (!d) return;
+        if (d.noteDate) document.getElementById('pricing-note-date').textContent = d.noteDate;
+        if (d.noteText) document.getElementById('pricing-note-text').textContent = d.noteText;
+        if (d.hoursHeader) document.getElementById('pricing-hours').textContent = d.hoursHeader;
+        if (Array.isArray(d.rows) && d.rows.length) {
+          document.getElementById('pricing-rows').innerHTML = d.rows.map(function(row) {
+            return '<tr><td>' + esc(row.label) + (row.sublabel ? '<span>' + esc(row.sublabel) + '</span>' : '') + '</td>' +
+              '<td>' + esc(row.monThu) + '</td><td>' + esc(row.friday) + '</td><td>' + esc(row.saturday) + '</td><td>' + esc(row.sunday) + '</td></tr>';
+          }).join('');
+        }
+        if (d.weddingsNote) document.getElementById('pricing-weddings-note').textContent = d.weddingsNote;
+        if (d.availabilityNote) document.getElementById('pricing-availability-note').textContent = d.availabilityNote;
+      })
+      .catch(function() {});
+  })();
+  </script>
+</body>
+</html>

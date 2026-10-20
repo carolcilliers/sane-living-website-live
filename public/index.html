@@ -1,0 +1,457 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sane Living — Downtown Ojai's Premiere Event Space</title>
+  <meta name="description" content="Sane Living Center — a beautiful auditorium and gathering venue in the heart of Ojai, California. Events, workshops, film screenings, and more.">
+  <link rel="stylesheet" href="/style.css">
+  <style>
+    /* ---- Video Hero ---- */
+    .video-hero {
+      position: relative;
+      width: 100%;
+      height: 85vh;
+      min-height: 500px;
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding-top: var(--nav-height);
+    }
+
+    .video-hero-bg {
+      position: absolute;
+      inset: 0;
+      z-index: 0;
+    }
+
+    .video-hero-bg video {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      min-width: 100%;
+      min-height: 100%;
+      width: auto;
+      height: auto;
+      transform: translate(-50%, -50%);
+      object-fit: cover;
+      pointer-events: none;
+    }
+
+    .video-hero-overlay {
+      position: absolute;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.35);
+      z-index: 1;
+    }
+
+    .video-hero-content {
+      position: relative;
+      z-index: 2;
+      text-align: center;
+      padding: 0 var(--space-lg);
+      max-width: 800px;
+    }
+
+    .video-hero-content h1 {
+      font-size: clamp(2.2rem, 5vw, 3.6rem);
+      font-weight: 800;
+      color: #fff;
+      line-height: 1.15;
+      margin-bottom: var(--space-lg);
+      text-shadow: 0 2px 20px rgba(0,0,0,0.4);
+    }
+
+    .video-hero-content .hero-subtitle {
+      font-size: clamp(1rem, 2vw, 1.25rem);
+      color: rgba(255,255,255,0.9);
+      margin-bottom: var(--space-xl);
+      font-weight: 400;
+      text-shadow: 0 1px 8px rgba(0,0,0,0.3);
+    }
+
+    .video-hero-content .btn-group {
+      display: flex;
+      gap: var(--space-md);
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+
+    .video-hero-content .btn {
+      font-size: 1rem;
+      padding: 14px 28px;
+    }
+
+    .video-hero-content .btn-hero-primary {
+      background: #fff;
+      color: var(--clr-text);
+      font-weight: 700;
+      border-radius: var(--radius-md);
+      text-decoration: none;
+      transition: all 0.2s;
+    }
+
+    .video-hero-content .btn-hero-primary:hover {
+      background: var(--clr-accent);
+      color: #fff;
+    }
+
+    .video-hero-content .btn-hero-outline {
+      background: transparent;
+      color: #fff;
+      border: 2px solid rgba(255,255,255,0.6);
+      border-radius: var(--radius-md);
+      text-decoration: none;
+      font-weight: 600;
+      transition: all 0.2s;
+    }
+
+    .video-hero-content .btn-hero-outline:hover {
+      background: rgba(255,255,255,0.15);
+      border-color: #fff;
+    }
+
+    /* ---- Upcoming Events Section ---- */
+    .events-section {
+      display: none; /* hidden by default, shown by JS when events exist */
+    }
+
+    .events-section.has-events {
+      display: block;
+    }
+
+    .events-grid {
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-lg);
+      max-width: var(--max-width);
+      margin: 0 auto;
+    }
+
+    .event-card {
+      display: flex;
+      background: #fff;
+      border: 1px solid var(--clr-border);
+      border-radius: 12px;
+      overflow: hidden;
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+
+    .event-card:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 8px 24px rgba(0,0,0,0.08);
+    }
+
+    .event-card-img {
+      width: 280px;
+      min-height: 280px;
+      object-fit: cover;
+      flex-shrink: 0;
+    }
+
+    .event-card-body {
+      padding: var(--space-xl);
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      flex: 1;
+      min-width: 0;
+    }
+
+    .event-card-date {
+      font-size: 0.82rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--clr-accent);
+      margin-bottom: var(--space-xs);
+    }
+
+    .event-card-title {
+      font-size: 1.25rem;
+      font-weight: 700;
+      color: var(--clr-text);
+      margin-bottom: var(--space-sm);
+    }
+
+    .event-card-meta {
+      font-size: 0.92rem;
+      color: var(--clr-text-muted);
+      line-height: 1.5;
+    }
+
+    .event-card-cta {
+      display: inline-block;
+      margin-top: var(--space-md);
+      padding: 10px 20px;
+      background: var(--clr-accent);
+      color: #fff;
+      border-radius: var(--radius-sm);
+      text-decoration: none;
+      font-size: 0.92rem;
+      font-weight: 600;
+      transition: background 0.2s;
+      align-self: flex-start;
+    }
+
+    .event-card-cta:hover {
+      background: #7b22cc;
+    }
+
+    @media (max-width: 600px) {
+      .event-card {
+        flex-direction: column;
+      }
+      .event-card-img {
+        width: 100%;
+        min-height: 200px;
+        height: 200px;
+      }
+    }
+
+    /* ---- Rent Section ---- */
+    .rent-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: var(--space-xl);
+      max-width: var(--max-width);
+      margin: 0 auto;
+    }
+
+    .rent-card {
+      position: relative;
+      border-radius: 12px;
+      overflow: hidden;
+      aspect-ratio: 4/3;
+      cursor: pointer;
+      text-decoration: none;
+    }
+
+    .rent-card img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transition: transform 0.4s ease;
+    }
+
+    .rent-card:hover img {
+      transform: scale(1.05);
+    }
+
+    .rent-card-label {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      padding: var(--space-lg) var(--space-lg) var(--space-md);
+      background: linear-gradient(transparent, rgba(0,0,0,0.7));
+      color: #fff;
+      font-size: 1.1rem;
+      font-weight: 700;
+    }
+
+    @media (max-width: 768px) {
+      .rent-grid {
+        grid-template-columns: 1fr;
+      }
+      .video-hero {
+        height: 70vh;
+        min-height: 400px;
+      }
+    }
+
+    /* ---- Section Headers ---- */
+    .home-section-header {
+      text-align: center;
+      margin-bottom: var(--space-xl);
+    }
+
+    .home-section-header h2 {
+      font-size: 2rem;
+      font-weight: 800;
+      color: var(--clr-text);
+      margin-bottom: var(--space-sm);
+    }
+
+    .home-section-header p {
+      font-size: 1.05rem;
+      color: var(--clr-text-muted);
+      max-width: 600px;
+      margin: 0 auto;
+    }
+  </style>
+
+  <meta property="og:title" content="Sane Living — Downtown Ojai's Premiere Event Space">
+  <meta property="og:description" content="Sane Living Center — a beautiful auditorium and gathering venue in the heart of Ojai, California. Events, workshops, film screenings, and more.">
+  <meta property="og:image" content="https://saneliving.com/images/homepage-hero.jpg">
+  <meta property="og:image:width" content="1959">
+  <meta property="og:image:height" content="1309">
+  <meta property="og:image:alt" content="Sane Living Center Ojai Exterior">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://saneliving.com/">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Sane Living — Downtown Ojai's Premiere Event Space">
+  <meta name="twitter:description" content="Sane Living Center — a beautiful auditorium and gathering venue in the heart of Ojai, California. Events, workshops, film screenings, and more.">
+  <meta name="twitter:image" content="https://saneliving.com/images/homepage-hero.jpg">
+  <meta name="twitter:image:alt" content="Sane Living Center Ojai Exterior">
+</head>
+<body>
+  <nav id="site-nav"></nav>
+
+  <!-- 1. Video Hero -->
+  <section class="video-hero">
+    <div class="video-hero-bg">
+      <video autoplay muted loop playsinline>
+        <source src="/hero-video.mp4" type="video/mp4">
+      </video>
+    </div>
+    <div class="video-hero-overlay"></div>
+    <div class="video-hero-content">
+      <h1>Downtown Ojai's Premiere Event Space</h1>
+      <p class="hero-subtitle">A beautiful auditorium and gathering venue in the heart of Ojai, California</p>
+      <div class="btn-group">
+        <a href="/rent/" class="btn btn-hero-primary">Rent the Space</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- 2. Upcoming Events (auto-hidden when empty) -->
+  <section class="section events-section" id="eventsSection">
+    <div class="container">
+      <div class="home-section-header" data-animate>
+        <h2>Upcoming Events</h2>
+        <p>What's happening at Sane Living Center</p>
+      </div>
+      <div class="events-grid" id="eventsGrid" data-animate>
+        <!-- Populated by JS -->
+      </div>
+      <div style="text-align: center; margin-top: var(--space-xl);">
+        <a href="/events/" class="btn btn-outline">View All Events</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- 3. Rent the Space -->
+  <section class="section section-alt">
+    <div class="container">
+      <div class="home-section-header" data-animate>
+        <h2>Rent the Space</h2>
+        <p>Host your next event at the Sane Living Center</p>
+      </div>
+      <div class="rent-grid" data-animate>
+        <a href="/rent/" class="rent-card">
+          <img src="/images/hero-center.jpg" alt="Main Hall">
+          <div class="rent-card-label">Main Hall</div>
+        </a>
+        <a href="/rent/" class="rent-card">
+          <img src="/images/center-office.jpg" alt="Conference Room">
+          <div class="rent-card-label">Conference Room</div>
+        </a>
+        <a href="/sculpture/" class="rent-card">
+          <img src="/images/evo3-sculpture.jpg" alt="EVO3 Sculpture">
+          <div class="rent-card-label">Sculpture</div>
+        </a>
+      </div>
+      <div style="text-align: center; margin-top: var(--space-xl);">
+        <a href="/rent/" class="btn btn-outline">Rates &amp; Availability</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- 4. Map -->
+  <section class="section">
+    <div class="container">
+      <div class="home-section-header" data-animate>
+        <h2>Find Us</h2>
+        <p>316 E Matilija St, Ojai, CA 93023</p>
+      </div>
+      <iframe
+        src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3290.125351082763!2d-119.24584842359567!3d34.44896577301026!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x80e9a5375bb93e5f%3A0x9ea225831ba53217!2sSane%20Living!5e0!3m2!1sen!2sus!4v1715032537096!5m2!1sen!2sus"
+        width="100%" height="400"
+        style="border:0; border-radius: 12px;"
+        allowfullscreen=""
+        loading="lazy"
+        referrerpolicy="no-referrer-when-downgrade"
+      ></iframe>
+    </div>
+  </section>
+
+  <footer id="site-footer"></footer>
+
+  <script src="/script.js"></script>
+  <script>
+  (function() {
+    // --- Upcoming Events: Airtable via /api/calendar-events (the site's
+    // calendar sync — Airtable is the single source for events). ---
+    function todayStr() {
+      var n = new Date();
+      return n.getFullYear() + '-' + String(n.getMonth() + 1).padStart(2, '0') + '-' + String(n.getDate()).padStart(2, '0');
+    }
+    function upcoming(list) {
+      var t = todayStr();
+      return (list || []).filter(function(e) { return e && e.title && (!e.date || e.date >= t); })
+        .sort(function(a, b) { return (a.date || '') < (b.date || '') ? -1 : 1; });
+    }
+    function loadHomeEvents() {
+      return fetch('/api/calendar-events')
+        .then(function(r) { return r.json(); })
+        .then(function(data) { return upcoming(data.events); });
+    }
+    loadHomeEvents()
+      .then(function(allEvents) {
+        var events = (allEvents || []).slice(0, 3); // show max 3
+        if (events.length === 0) return;
+
+        var section = document.getElementById('eventsSection');
+        var grid = document.getElementById('eventsGrid');
+        section.classList.add('has-events');
+
+        var DAYS = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+        var MONTHS = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+
+        var html = '';
+        events.forEach(function(e) {
+          var dt = new Date(e.date + 'T12:00:00');
+          var dateStr = DAYS[dt.getDay()] + ', ' + MONTHS[dt.getMonth()] + ' ' + dt.getDate() + ', ' + dt.getFullYear();
+
+          html += '<div class="event-card">';
+
+          if (typeof e.image === 'string') e.image = { url: e.image, thumbnail: e.image };
+          if (e.image && e.image.thumbnail) {
+            html += '<a href="' + escHtml(e.image.url || e.image.thumbnail) + '" target="_blank"><img src="' + escHtml(e.image.thumbnail) + '" alt="' + escHtml(e.title) + '" class="event-card-img"></a>';
+          }
+
+          html += '<div class="event-card-body">';
+          html += '<div class="event-card-date">' + escHtml(dateStr) + '</div>';
+          html += '<div class="event-card-title">' + escHtml(e.title) + '</div>';
+
+          var meta = '';
+          if (e.startTime) meta += e.startTime;
+          if (e.endTime) meta += ' - ' + e.endTime;
+          if (e.location) meta += (meta ? ' | ' : '') + e.location;
+          if (meta) html += '<div class="event-card-meta">' + escHtml(meta) + '</div>';
+
+          if (e.blurb) {
+            html += '<div class="event-card-meta" style="margin-top:6px;">' + escHtml(e.blurb) + '</div>';
+          }
+
+          if (e.rsvpUrl) {
+            html += '<a href="' + escHtml(e.rsvpUrl) + '" target="_blank" class="event-card-cta">More Info</a>';
+          }
+
+          html += '</div></div>';
+        });
+
+        grid.innerHTML = html;
+      })
+      .catch(function() { /* silently hide events section */ });
+
+    function escHtml(s) {
+      if (!s) return '';
+      return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+    }
+  })();
+  </script>
+</body>
+</html>

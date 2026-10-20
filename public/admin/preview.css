@@ -1,0 +1,7 @@
+/* Sane Living preview style — styles the dashboard's About-page editor
+   preview so it looks like the real site (see DESIGN.md). */
+body { font-family: 'Nunito', 'Open Sans', -apple-system, sans-serif; color: #231f20; line-height: 1.75; padding: 1.5rem; max-width: 760px; margin: 0 auto; }
+h1, h2, h3 { color: #2a1a33; line-height: 1.25; }
+h1 { font-size: 2rem; } h2 { font-size: 1.5rem; margin-top: 1.6em; } h3 { font-size: 1.2rem; }
+a { color: #8a56a0; }
+img { max-width: 100%; border-radius: 14px; }
