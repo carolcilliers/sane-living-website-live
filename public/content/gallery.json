@@ -65,6 +65,12 @@
       "caption": "Wedding celebration at Sane Living",
       "alt": "Wedding celebration at Sane Living",
       "section": "weddings"
+    },
+    {
+      "image": "/images/download.jpg",
+      "caption": "",
+      "alt": "",
+      "section": "venue"
     }
   ]
 }
