@@ -21,5 +21,6 @@
 ## Day-to-day
 - Website content (events, photos, prices, text): use the team dashboard at `/dash/` (footer "Team Login" button on the site) — no git knowledge needed.
 - Code changes: branch → PR → preview → review → merge → production.
+- Vercel Hobby note: deployments trigger only on commits authored by Carol (see DEPLOYMENT_GUIDE.md) — Carol merges PRs on the GitHub website so deployments fire; other authors' direct pushes will not deploy on the free plan.
 - Never commit secrets. Environment variables live in Vercel only; see `.env.example` for the list of names.
 - Never force-push `main`.

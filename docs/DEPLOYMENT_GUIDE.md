@@ -19,6 +19,13 @@ Note: `CMS_GITHUB_TOKEN` must be re-issued for THIS repository before the dashbo
   4. Verify HTTPS certificate issuance, root/www redirects, and the dashboard login on the real domain.
 - Rollback: re-assign the domain to the previous project/deployment; the original repository and its deployments are untouched by this migration, so the previous production can be restored by domain reassignment alone.
 
+## Vercel Hobby collaboration rule (verified Oct 20, 2026)
+Public repositories CAN deploy on the free Hobby plan, but **only commits authored by the Vercel account owner (Carol) trigger deployments** — Vercel checks the git commit author, and public visibility does not lift this. Practical workflow on Hobby:
+- Sophia/Paul push branches and open PRs freely.
+- The production/preview deployment happens when **Carol merges the PR on GitHub's website** (the merge commit is authored by Carol) or when Carol (or Muse, whose commits are authored as Carol) pushes.
+- Direct pushes by other authors will show "Deployment Blocked" on Vercel — the fix is a Carol-authored merge or a small Carol-authored commit on top.
+- Removing this restriction entirely requires Vercel Pro (~$20/mo) — not authorized; do not upgrade without Carol's approval.
+
 ## Release procedure
 1. Work on a `feature/*` or `fix/*` branch.
 2. Open a pull request into `main`; Vercel builds a preview URL on the PR.
