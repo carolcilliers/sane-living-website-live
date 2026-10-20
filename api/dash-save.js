@@ -7,7 +7,7 @@
  * Writes are git commits to the dashboard branch via the GitHub API, using
  * CMS_GITHUB_TOKEN (server-side only). Only whitelisted paths are writable.
  * JSON files are parse-checked before saving so a bad save can't break the
- * website. BRANCH flips to "main" at merge time (or set DASH_BRANCH).
+ * website. Saves target main by default (or DASH_BRANCH when configured).
  */
 var lib = require('./_dashlib');
 
