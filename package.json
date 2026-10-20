@@ -1,0 +1,9 @@
+{
+  "name": "saneliving-website",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "npx serve . -l 3000",
+    "cms": "npx decap-server"
+  }
+}

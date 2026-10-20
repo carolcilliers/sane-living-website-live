@@ -1,0 +1,104 @@
+# saneliving.com — Agent Context
+
+Static marketing site for SANE Living, on Vercel. **Not** `sane-community`
+(`~/Antigravity/sane`, repo `sarapis/sane-community`) — two different sites, two
+different repos, easy to confuse. Remote here: `devinbalkind/saneliving-website`
+(private). All work lands on `main`; the repo has never used a PR or a branch.
+
+## Layout
+
+| path | what |
+|---|---|
+| `public/` | the entire served site — Vercel's output dir |
+| `public/script.js` | nav + footer injection, scroll/mobile nav, gallery modal (342 lines) |
+| `public/style.css`, `subpage.css` | all styling |
+| `public/admin/` | Decap CMS (`config.yml`, GitHub backend) |
+| `api/` | two Vercel serverless functions, Airtable-backed |
+| `assets/` | print/offline assets (QR codes). Repo root is **not** served |
+
+## ⚠️ Filesystem beats rewrites — never reintroduce a directory twin
+
+Vercel resolves static files **before** `vercel.json` rewrites. If both
+`public/X.html` and `public/X/index.html` exist, the directory wins and the
+rewrite never fires, so edits to the `.html` file silently do nothing.
+
+Ten pages were in this state and have been collapsed (`a1224da`, `3dd9ada`).
+**One file per route:** every page is `public/<name>.html` plus a rewrite. Do not
+create `public/<name>/index.html`. The only index files left are the homepage and
+`/admin/` (Decap CMS), and every rewrite destination in `vercel.json` resolves to
+a real file — keep both true.
+
+`public/events/` still exists, holding `past.html` and
+`ojai-health-intensive.html`, which are rewrite destinations themselves. Adding
+an `index.html` there would shadow `/events/` again.
+
+To scan for regressions, resolve the route from `vercel.json` — do **not** derive
+it from the filename. `tr '-' '/'` turns `lifestyle-ai-algo` into
+`lifestyle/ai/algo`, which is why the first sweep missed seven of the ten:
+
+```bash
+python3 -c "
+import json,os;v=json.load(open('vercel.json'))
+for r in v['rewrites']:
+    d,x='public'+r['destination'],os.path.join('public',r['source'].strip('/'),'index.html')
+    if os.path.exists(d) and os.path.exists(x): print('SHADOWED',r['source'],'<--',x)
+"
+```
+
+A page's `og:url` must be its real route, not its filename — `/self-heal/eat/`,
+never `/self-heal-eat`, which 404s. Verify against the deployed site, since a
+stale local file can look correct while serving nothing.
+
+## Deployment — manual, no Git integration
+
+**Pushing to GitHub does not deploy.** The Vercel project has no Git repo
+connected; every production deploy is a manual CLI run from the repo root:
+
+```bash
+npx vercel deploy --yes          # preview first
+npx vercel deploy --prod --yes   # then promote
+```
+
+⚠️ **Vercel reads the commit author from local git HEAD and blocks the deploy if
+that person is not on the Sarapis Vercel team** — the error is "the commit author
+doesn't have permission to create deployments for this project." After pulling
+someone else's commits, land your own commit on top before deploying.
+
+Preview URLs are behind Vercel Authentication, so plain `curl` gets an
+interstitial that still returns `200`. Verify previews with `npx vercel curl
+<url>/<path>`, and verify production with ordinary `curl`. Preview builds also
+lack the Airtable vars (Production-only), so their event APIs return `500` —
+expected, not a regression.
+
+## API + environment
+
+`api/calendar-events.js` and `api/calendar-events-past.js` read a published-events
+view from Airtable (`filterByFormula: {Publish} = TRUE()`, max 100 records).
+
+- `AIRTABLE_API_TOKEN`, `AIRTABLE_BASE_ID` — set on Vercel, **Production only**.
+  Preview and development deploys return `500 Airtable configuration missing`.
+- `AIRTABLE_CALENDAR_TABLE` — unset; falls back to hardcoded `tblIqFjxxfbOgwuQu`.
+- `?debug=1` returns raw Airtable field names; `?debug=2` skips the publish filter.
+
+## Decap CMS
+
+`public/admin/config.yml` uses the GitHub backend against `main`, so edits commit
+directly to production's branch. Its `pages/about` collection points at
+`content/about.md`, but the file lives at `public/content/about.md` — verify that
+path resolves before relying on the CMS. `local_backend` is commented out; for
+local editing run `npm run cms` and uncomment it.
+
+## Conventions
+
+- Commit straight to `main` — this repo has never used a PR or a branch.
+- `.vercel`, `.env`, `.env.local`, `node_modules/` are gitignored; keep secrets out.
+- Carol Cilliers (`carolcilliers@icloud.com`) also commits here; don't assume you
+  are the only writer — `git pull` before starting.
+
+## Known issues
+
+- Contact form is dead code: `initContactForm()` posts to `/api/contact`, which
+  does not exist (404), and no page defines `#contact-form`.
+- Upcoming events render empty because nothing has `Publish` ticked in Airtable,
+  not because the API is broken. Compare `/api/calendar-events` against
+  `/api/calendar-events?debug=2` to tell a data gap from an outage.
