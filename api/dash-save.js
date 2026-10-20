@@ -11,7 +11,7 @@
  */
 var lib = require('./_dashlib');
 
-var REPO = 'carolcilliers/saneliving-website';
+var REPO = 'carolcilliers/sane-living-website-live';
 var BRANCH = process.env.DASH_BRANCH || 'main';
 
 var CONTENT_FILES = {

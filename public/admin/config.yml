@@ -14,13 +14,13 @@
 
 backend:
   name: github
-  repo: carolcilliers/saneliving-website
+  repo: carolcilliers/sane-living-website-live
   branch: main
-  base_url: https://saneliving-website-one.vercel.app
+  base_url: https://sane-living-website-live.vercel.app
   auth_endpoint: api/auth
 
-site_url: https://saneliving-website-one.vercel.app
-display_url: https://saneliving-website-git-website-update-carol-cilliers.vercel.app
+site_url: https://sane-living-website-live.vercel.app
+display_url: https://sane-living-website-live.vercel.app
 logo_url: /images/logo.png
 
 # Photos/videos the team uploads land in the repo and are served from /images,
