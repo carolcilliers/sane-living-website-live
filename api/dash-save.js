@@ -30,15 +30,22 @@ function classify(path) {
 }
 
 async function gh(path, options) {
-  var resp = await fetch('https://api.github.com/repos/' + REPO + path, Object.assign({
-    headers: {
-      'Authorization': 'Bearer ' + process.env.CMS_GITHUB_TOKEN,
-      'Accept': 'application/vnd.github+json',
-      'X-GitHub-Api-Version': '2022-11-28',
-      'User-Agent': 'sane-living-dashboard',
-    },
-  }, options || {}));
-  return resp;
+  var opts = options || {};
+  // Merge headers key-by-key: a shallow Object.assign here previously let a
+  // request-specific `headers` object REPLACE the defaults, silently dropping
+  // the Authorization header on PUT saves (bug found Oct 20, 2026).
+  var headers = {
+    'Authorization': 'Bearer ' + process.env.CMS_GITHUB_TOKEN,
+    'Accept': 'application/vnd.github+json',
+    'X-GitHub-Api-Version': '2022-11-28',
+    'User-Agent': 'sane-living-dashboard',
+  };
+  Object.keys(opts.headers || {}).forEach(function (k) { headers[k] = opts.headers[k]; });
+  return fetch('https://api.github.com/repos/' + REPO + path, {
+    method: opts.method || 'GET',
+    headers: headers,
+    body: opts.body,
+  });
 }
 
 module.exports = async function handler(req, res) {

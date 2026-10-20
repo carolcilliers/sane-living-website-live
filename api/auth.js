@@ -9,13 +9,18 @@
  *   POST /api/auth  -> checks the form against Vercel environment variables:
  *                        CMS_LOGIN_USER     (default: "saneliving")
  *                        CMS_LOGIN_PASSWORD (set by Carol in Vercel)
- *                      On success it hands Decap the repo editing token from
- *                        CMS_GITHUB_TOKEN   (a GitHub token limited to this
- *                                            one repo, stored only in Vercel)
- *                      using Decap's postMessage handshake.
  *
- * Nothing secret lives in the code or the repo: the password and the token
- * exist only as Vercel environment variables. See TEAM-DASHBOARD-SETUP.md.
+ * SECURITY CHANGE (Oct 20, 2026): this endpoint USED to hand the repo editing
+ * token (CMS_GITHUB_TOKEN) to the browser via Decap's postMessage handshake —
+ * meaning anyone with the team password could extract the full token and use
+ * it outside the dashboard. That handoff is REMOVED. The old Decap editor at
+ * /admin is retired; the team dashboard at /dash is the supported editor and
+ * it keeps the token strictly server-side. After a correct password this page
+ * simply directs the user to /dash (where they sign in again — the dashboard
+ * issues its own session).
+ *
+ * Nothing secret lives in the code or the repo: the password exists only as
+ * a Vercel environment variable. See TEAM-DASHBOARD-SETUP.md.
  */
 
 var crypto = require('crypto');
@@ -84,20 +89,17 @@ function notConfiguredPage() {
   return pageShell('Sane Living — Login not set up', inner);
 }
 
-function successPage(token) {
-  var message = 'authorization:github:success:' + JSON.stringify({ token: token, provider: 'github' });
+function successPage() {
+  // No token is sent to the browser here — see the security note at the top
+  // of this file. The team dashboard at /dash keeps CMS_GITHUB_TOKEN
+  // server-side at all times.
   return (
-    '<!DOCTYPE html><html><body><p style="font-family:Nunito,-apple-system,sans-serif;color:#2a1a33">Login OK — sending you to the dashboard...</p><script>' +
-    '(function() {' +
-    '  var message = ' + JSON.stringify(message) + ';' +
-    '  function receiveMessage(e) {' +
-    '    window.opener.postMessage(message, e.origin);' +
-    '    window.removeEventListener("message", receiveMessage, false);' +
-    '  }' +
-    '  window.addEventListener("message", receiveMessage, false);' +
-    '  window.opener.postMessage("authorizing:github", "*");' +
-    '})();' +
-    '</script></body></html>'
+    '<!DOCTYPE html><html><body style="font-family:Nunito,-apple-system,sans-serif;color:#2a1a33;max-width:480px;margin:40px auto;padding:0 20px">' +
+    '<h1 style="font-size:1.3rem">You\'re signed in — editing has moved</h1>' +
+    '<p>The old editor is retired for security. Please use the team dashboard instead — it never exposes the editing key to a browser:</p>' +
+    '<p><a href="/dash/" style="display:inline-block;background:#8a56a0;color:#fff;padding:12px 26px;border-radius:999px;text-decoration:none;font-weight:700">Open the team dashboard</a></p>' +
+    '<p style="color:#666;font-size:.92rem">Sign in there with the same team username and password.</p>' +
+    '</body></html>'
   );
 }
 
@@ -118,11 +120,10 @@ function readBody(req) {
 module.exports = async function handler(req, res) {
   var expectedUser = process.env.CMS_LOGIN_USER || 'saneliving';
   var expectedPassword = process.env.CMS_LOGIN_PASSWORD || '';
-  var repoToken = process.env.CMS_GITHUB_TOKEN || '';
 
   res.setHeader('Content-Type', 'text/html; charset=utf-8');
 
-  if (!expectedPassword || !repoToken) {
+  if (!expectedPassword) {
     return res.status(500).send(notConfiguredPage());
   }
 
@@ -150,7 +151,7 @@ module.exports = async function handler(req, res) {
     }
 
     res.setHeader('Set-Cookie', 'cms_login_state=; Path=/; HttpOnly; Secure; SameSite=Lax; Max-Age=0');
-    return res.status(200).send(successPage(repoToken));
+    return res.status(200).send(successPage());
   }
 
   return res.status(405).send('Method not allowed');

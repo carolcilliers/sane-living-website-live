@@ -28,10 +28,14 @@ function airtableConfig() {
 }
 
 async function at(cfg, path, options) {
-  var resp = await fetch('https://api.airtable.com/v0/' + cfg.baseId + '/' + encodeURIComponent(cfg.table) + path, Object.assign({
-    headers: { 'Authorization': 'Bearer ' + cfg.token, 'Content-Type': 'application/json' },
-  }, options || {}));
-  return resp;
+  var opts = options || {};
+  var headers = { 'Authorization': 'Bearer ' + cfg.token, 'Content-Type': 'application/json' };
+  Object.keys(opts.headers || {}).forEach(function (k) { headers[k] = opts.headers[k]; });
+  return fetch('https://api.airtable.com/v0/' + cfg.baseId + '/' + encodeURIComponent(cfg.table) + path, {
+    method: opts.method || 'GET',
+    headers: headers,
+    body: opts.body,
+  });
 }
 
 /* ---- timezone helpers (no libraries) ---- */

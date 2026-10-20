@@ -138,3 +138,19 @@ same team username/password (session cookie via /api/dash-login).
   dash-events GET falls back to the LIVE site's public feed (read-only)
   when this project has no AIRTABLE_* keys — viewing works today, managing
   events still requires the token.
+
+## Oct 20, 2026 — header bug fix + Decap token handoff retired (new repo)
+- BUG (found by Carol's audit): api/dash-save.js built fetch options with a
+  shallow Object.assign, so the PUT's Content-Type header REPLACED the default
+  headers and dropped Authorization — every dashboard save failed at GitHub
+  even with a valid token. Fixed by merging headers key-by-key (same hardening
+  applied to api/dash-events.js). Verified by a header-capture test: PUT now
+  carries Authorization + Content-Type; content saves and image uploads pass.
+- SECURITY: api/auth.js no longer hands CMS_GITHUB_TOKEN to the browser
+  (Decap's postMessage flow exposed the full repo token to anyone with the
+  team password). The /admin Decap editor is retired; /dash is the only
+  editor and keeps the token server-side.
+- api/import-media.js is a ONE-TIME, login-gated importer that copies the
+  site's media from the old deployment into this repo with per-file SHA-1
+  verification, driven by the button in Dashboard → Settings. Delete it
+  after the migration is verified.

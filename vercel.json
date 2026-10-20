@@ -1,97 +1,418 @@
 {
   "rewrites": [
-    { "source": "/gallery/", "destination": "/gallery.html" },
-    { "source": "/gallery", "destination": "/gallery.html" },
-    { "source": "/partners/", "destination": "/partners.html" },
-    { "source": "/partners", "destination": "/partners.html" },
-    { "source": "/events/", "destination": "/events.html" },
-    { "source": "/events", "destination": "/events.html" },
-    { "source": "/events/past/", "destination": "/events/past.html" },
-    { "source": "/events/past", "destination": "/events/past.html" },
-    { "source": "/events/ojai-health-intensive/", "destination": "/events/ojai-health-intensive.html" },
-    { "source": "/events/ojai-health-intensive", "destination": "/events/ojai-health-intensive.html" },
-    { "source": "/rent/", "destination": "/rent.html" },
-    { "source": "/rent", "destination": "/rent.html" },
-    { "source": "/rent/pricing/", "destination": "/rent-pricing.html" },
-    { "source": "/rent/pricing", "destination": "/rent-pricing.html" },
-    { "source": "/rent/farm/", "destination": "/rent-farm.html" },
-    { "source": "/rent/farm", "destination": "/rent-farm.html" },
-    { "source": "/rent/weddings/", "destination": "/rent-weddings.html" },
-    { "source": "/rent/weddings", "destination": "/rent-weddings.html" },
-    { "source": "/sculpture/", "destination": "/sculpture.html" },
-    { "source": "/sculpture", "destination": "/sculpture.html" },
-    { "source": "/about/", "destination": "/about.html" },
-    { "source": "/about", "destination": "/about.html" },
-    { "source": "/evo3/", "destination": "/evo3.html" },
-    { "source": "/evo3", "destination": "/evo3.html" },
-    { "source": "/lifestyle/", "destination": "/lifestyle.html" },
-    { "source": "/lifestyle", "destination": "/lifestyle.html" },
-    { "source": "/lifestyle/natures-bio/", "destination": "/lifestyle-natures-bio.html" },
-    { "source": "/lifestyle/natures-bio", "destination": "/lifestyle-natures-bio.html" },
-    { "source": "/lifestyle/sapiens-ego/", "destination": "/lifestyle-sapiens-ego.html" },
-    { "source": "/lifestyle/sapiens-ego", "destination": "/lifestyle-sapiens-ego.html" },
-    { "source": "/lifestyle/ai-algo/", "destination": "/lifestyle-ai-algo.html" },
-    { "source": "/lifestyle/ai-algo", "destination": "/lifestyle-ai-algo.html" },
-    { "source": "/lifestyle/evo3/", "destination": "/lifestyle-evo3.html" },
-    { "source": "/lifestyle/evo3", "destination": "/lifestyle-evo3.html" },
-    { "source": "/self-heal/", "destination": "/self-heal.html" },
-    { "source": "/self-heal", "destination": "/self-heal.html" },
-    { "source": "/self-heal/eat/", "destination": "/self-heal-eat.html" },
-    { "source": "/self-heal/eat", "destination": "/self-heal-eat.html" },
-    { "source": "/self-heal/move/", "destination": "/self-heal-move.html" },
-    { "source": "/self-heal/move", "destination": "/self-heal-move.html" },
-    { "source": "/self-heal/detox/", "destination": "/self-heal-detox.html" },
-    { "source": "/self-heal/detox", "destination": "/self-heal-detox.html" },
-    { "source": "/self-heal/destress/", "destination": "/self-heal-destress.html" },
-    { "source": "/self-heal/destress", "destination": "/self-heal-destress.html" },
-    { "source": "/inspiration/", "destination": "/inspiration.html" },
-    { "source": "/inspiration", "destination": "/inspiration.html" },
-    { "source": "/contact/", "destination": "/contact.html" },
-    { "source": "/contact", "destination": "/contact.html" }
+    {
+      "source": "/gallery/",
+      "destination": "/gallery.html"
+    },
+    {
+      "source": "/gallery",
+      "destination": "/gallery.html"
+    },
+    {
+      "source": "/partners/",
+      "destination": "/partners.html"
+    },
+    {
+      "source": "/partners",
+      "destination": "/partners.html"
+    },
+    {
+      "source": "/events/",
+      "destination": "/events.html"
+    },
+    {
+      "source": "/events",
+      "destination": "/events.html"
+    },
+    {
+      "source": "/events/past/",
+      "destination": "/events/past.html"
+    },
+    {
+      "source": "/events/past",
+      "destination": "/events/past.html"
+    },
+    {
+      "source": "/events/ojai-health-intensive/",
+      "destination": "/events/ojai-health-intensive.html"
+    },
+    {
+      "source": "/events/ojai-health-intensive",
+      "destination": "/events/ojai-health-intensive.html"
+    },
+    {
+      "source": "/rent/",
+      "destination": "/rent.html"
+    },
+    {
+      "source": "/rent",
+      "destination": "/rent.html"
+    },
+    {
+      "source": "/rent/pricing/",
+      "destination": "/rent-pricing.html"
+    },
+    {
+      "source": "/rent/pricing",
+      "destination": "/rent-pricing.html"
+    },
+    {
+      "source": "/rent/farm/",
+      "destination": "/rent-farm.html"
+    },
+    {
+      "source": "/rent/farm",
+      "destination": "/rent-farm.html"
+    },
+    {
+      "source": "/rent/weddings/",
+      "destination": "/rent-weddings.html"
+    },
+    {
+      "source": "/rent/weddings",
+      "destination": "/rent-weddings.html"
+    },
+    {
+      "source": "/sculpture/",
+      "destination": "/sculpture.html"
+    },
+    {
+      "source": "/sculpture",
+      "destination": "/sculpture.html"
+    },
+    {
+      "source": "/about/",
+      "destination": "/about.html"
+    },
+    {
+      "source": "/about",
+      "destination": "/about.html"
+    },
+    {
+      "source": "/evo3/",
+      "destination": "/evo3.html"
+    },
+    {
+      "source": "/evo3",
+      "destination": "/evo3.html"
+    },
+    {
+      "source": "/lifestyle/",
+      "destination": "/lifestyle.html"
+    },
+    {
+      "source": "/lifestyle",
+      "destination": "/lifestyle.html"
+    },
+    {
+      "source": "/lifestyle/natures-bio/",
+      "destination": "/lifestyle-natures-bio.html"
+    },
+    {
+      "source": "/lifestyle/natures-bio",
+      "destination": "/lifestyle-natures-bio.html"
+    },
+    {
+      "source": "/lifestyle/sapiens-ego/",
+      "destination": "/lifestyle-sapiens-ego.html"
+    },
+    {
+      "source": "/lifestyle/sapiens-ego",
+      "destination": "/lifestyle-sapiens-ego.html"
+    },
+    {
+      "source": "/lifestyle/ai-algo/",
+      "destination": "/lifestyle-ai-algo.html"
+    },
+    {
+      "source": "/lifestyle/ai-algo",
+      "destination": "/lifestyle-ai-algo.html"
+    },
+    {
+      "source": "/lifestyle/evo3/",
+      "destination": "/lifestyle-evo3.html"
+    },
+    {
+      "source": "/lifestyle/evo3",
+      "destination": "/lifestyle-evo3.html"
+    },
+    {
+      "source": "/self-heal/",
+      "destination": "/self-heal.html"
+    },
+    {
+      "source": "/self-heal",
+      "destination": "/self-heal.html"
+    },
+    {
+      "source": "/self-heal/eat/",
+      "destination": "/self-heal-eat.html"
+    },
+    {
+      "source": "/self-heal/eat",
+      "destination": "/self-heal-eat.html"
+    },
+    {
+      "source": "/self-heal/move/",
+      "destination": "/self-heal-move.html"
+    },
+    {
+      "source": "/self-heal/move",
+      "destination": "/self-heal-move.html"
+    },
+    {
+      "source": "/self-heal/detox/",
+      "destination": "/self-heal-detox.html"
+    },
+    {
+      "source": "/self-heal/detox",
+      "destination": "/self-heal-detox.html"
+    },
+    {
+      "source": "/self-heal/destress/",
+      "destination": "/self-heal-destress.html"
+    },
+    {
+      "source": "/self-heal/destress",
+      "destination": "/self-heal-destress.html"
+    },
+    {
+      "source": "/inspiration/",
+      "destination": "/inspiration.html"
+    },
+    {
+      "source": "/inspiration",
+      "destination": "/inspiration.html"
+    },
+    {
+      "source": "/contact/",
+      "destination": "/contact.html"
+    },
+    {
+      "source": "/contact",
+      "destination": "/contact.html"
+    }
   ],
   "redirects": [
-    { "source": "/book/rent/", "destination": "/rent/", "statusCode": 301 },
-    { "source": "/book/rent", "destination": "/rent/", "statusCode": 301 },
-    { "source": "/sane-center-pricing/", "destination": "/rent/pricing/", "statusCode": 301 },
-    { "source": "/sane-center-pricing", "destination": "/rent/pricing/", "statusCode": 301 },
-    { "source": "/sane-farm/", "destination": "/rent/farm/", "statusCode": 301 },
-    { "source": "/sane-farm", "destination": "/rent/farm/", "statusCode": 301 },
-    { "source": "/evo3-sculpture/", "destination": "/sculpture/", "statusCode": 301 },
-    { "source": "/evo3-sculpture", "destination": "/sculpture/", "statusCode": 301 },
-    { "source": "/living-style-new/", "destination": "/lifestyle/", "statusCode": 301 },
-    { "source": "/living-style-new", "destination": "/lifestyle/", "statusCode": 301 },
-    { "source": "/natures-bio/", "destination": "/lifestyle/natures-bio/", "statusCode": 301 },
-    { "source": "/natures-bio", "destination": "/lifestyle/natures-bio/", "statusCode": 301 },
-    { "source": "/sapiens-ego/", "destination": "/lifestyle/sapiens-ego/", "statusCode": 301 },
-    { "source": "/sapiens-ego", "destination": "/lifestyle/sapiens-ego/", "statusCode": 301 },
-    { "source": "/ai-algo/", "destination": "/lifestyle/ai-algo/", "statusCode": 301 },
-    { "source": "/ai-algo", "destination": "/lifestyle/ai-algo/", "statusCode": 301 },
-    { "source": "/evo-3-boxes/", "destination": "/lifestyle/evo3/", "statusCode": 301 },
-    { "source": "/evo-3-boxes", "destination": "/lifestyle/evo3/", "statusCode": 301 },
-    { "source": "/daily-practice/", "destination": "/self-heal/", "statusCode": 301 },
-    { "source": "/daily-practice", "destination": "/self-heal/", "statusCode": 301 },
-    { "source": "/eat/", "destination": "/self-heal/eat/", "statusCode": 301 },
-    { "source": "/eat", "destination": "/self-heal/eat/", "statusCode": 301 },
-    { "source": "/move/", "destination": "/self-heal/move/", "statusCode": 301 },
-    { "source": "/move", "destination": "/self-heal/move/", "statusCode": 301 },
-    { "source": "/detox/", "destination": "/self-heal/detox/", "statusCode": 301 },
-    { "source": "/detox", "destination": "/self-heal/detox/", "statusCode": 301 },
-    { "source": "/destress/", "destination": "/self-heal/destress/", "statusCode": 301 },
-    { "source": "/destress", "destination": "/self-heal/destress/", "statusCode": 301 },
-    { "source": "/pov/", "destination": "/inspiration/", "statusCode": 301 },
-    { "source": "/pov", "destination": "/inspiration/", "statusCode": 301 },
-    { "source": "/harari/", "destination": "/inspiration/", "statusCode": 301 },
-    { "source": "/attenborough/", "destination": "/inspiration/", "statusCode": 301 },
-    { "source": "/harris/", "destination": "/inspiration/", "statusCode": 301 },
-    { "source": "/musk/", "destination": "/inspiration/", "statusCode": 301 },
-    { "source": "/ocean-alive/", "destination": "/inspiration/", "statusCode": 301 },
-    { "source": "/bush/", "destination": "/inspiration/", "statusCode": 301 },
-    { "source": "/ted-talks/", "destination": "/inspiration/", "statusCode": 301 },
-    { "source": "/sane-events/", "destination": "/events/", "statusCode": 301 },
-    { "source": "/sane-events", "destination": "/events/", "statusCode": 301 },
-    { "source": "/wp-admin/:path*", "destination": "/", "statusCode": 301 },
-    { "source": "/wp-content/:path*", "destination": "/", "statusCode": 301 },
-    { "source": "/wp-login.php", "destination": "/", "statusCode": 301 },
-    { "source": "/wp-includes/:path*", "destination": "/", "statusCode": 301 }
-  ]
+    {
+      "source": "/book/rent/",
+      "destination": "/rent/",
+      "statusCode": 301
+    },
+    {
+      "source": "/book/rent",
+      "destination": "/rent/",
+      "statusCode": 301
+    },
+    {
+      "source": "/sane-center-pricing/",
+      "destination": "/rent/pricing/",
+      "statusCode": 301
+    },
+    {
+      "source": "/sane-center-pricing",
+      "destination": "/rent/pricing/",
+      "statusCode": 301
+    },
+    {
+      "source": "/sane-farm/",
+      "destination": "/rent/farm/",
+      "statusCode": 301
+    },
+    {
+      "source": "/sane-farm",
+      "destination": "/rent/farm/",
+      "statusCode": 301
+    },
+    {
+      "source": "/evo3-sculpture/",
+      "destination": "/sculpture/",
+      "statusCode": 301
+    },
+    {
+      "source": "/evo3-sculpture",
+      "destination": "/sculpture/",
+      "statusCode": 301
+    },
+    {
+      "source": "/living-style-new/",
+      "destination": "/lifestyle/",
+      "statusCode": 301
+    },
+    {
+      "source": "/living-style-new",
+      "destination": "/lifestyle/",
+      "statusCode": 301
+    },
+    {
+      "source": "/natures-bio/",
+      "destination": "/lifestyle/natures-bio/",
+      "statusCode": 301
+    },
+    {
+      "source": "/natures-bio",
+      "destination": "/lifestyle/natures-bio/",
+      "statusCode": 301
+    },
+    {
+      "source": "/sapiens-ego/",
+      "destination": "/lifestyle/sapiens-ego/",
+      "statusCode": 301
+    },
+    {
+      "source": "/sapiens-ego",
+      "destination": "/lifestyle/sapiens-ego/",
+      "statusCode": 301
+    },
+    {
+      "source": "/ai-algo/",
+      "destination": "/lifestyle/ai-algo/",
+      "statusCode": 301
+    },
+    {
+      "source": "/ai-algo",
+      "destination": "/lifestyle/ai-algo/",
+      "statusCode": 301
+    },
+    {
+      "source": "/evo-3-boxes/",
+      "destination": "/lifestyle/evo3/",
+      "statusCode": 301
+    },
+    {
+      "source": "/evo-3-boxes",
+      "destination": "/lifestyle/evo3/",
+      "statusCode": 301
+    },
+    {
+      "source": "/daily-practice/",
+      "destination": "/self-heal/",
+      "statusCode": 301
+    },
+    {
+      "source": "/daily-practice",
+      "destination": "/self-heal/",
+      "statusCode": 301
+    },
+    {
+      "source": "/eat/",
+      "destination": "/self-heal/eat/",
+      "statusCode": 301
+    },
+    {
+      "source": "/eat",
+      "destination": "/self-heal/eat/",
+      "statusCode": 301
+    },
+    {
+      "source": "/move/",
+      "destination": "/self-heal/move/",
+      "statusCode": 301
+    },
+    {
+      "source": "/move",
+      "destination": "/self-heal/move/",
+      "statusCode": 301
+    },
+    {
+      "source": "/detox/",
+      "destination": "/self-heal/detox/",
+      "statusCode": 301
+    },
+    {
+      "source": "/detox",
+      "destination": "/self-heal/detox/",
+      "statusCode": 301
+    },
+    {
+      "source": "/destress/",
+      "destination": "/self-heal/destress/",
+      "statusCode": 301
+    },
+    {
+      "source": "/destress",
+      "destination": "/self-heal/destress/",
+      "statusCode": 301
+    },
+    {
+      "source": "/pov/",
+      "destination": "/inspiration/",
+      "statusCode": 301
+    },
+    {
+      "source": "/pov",
+      "destination": "/inspiration/",
+      "statusCode": 301
+    },
+    {
+      "source": "/harari/",
+      "destination": "/inspiration/",
+      "statusCode": 301
+    },
+    {
+      "source": "/attenborough/",
+      "destination": "/inspiration/",
+      "statusCode": 301
+    },
+    {
+      "source": "/harris/",
+      "destination": "/inspiration/",
+      "statusCode": 301
+    },
+    {
+      "source": "/musk/",
+      "destination": "/inspiration/",
+      "statusCode": 301
+    },
+    {
+      "source": "/ocean-alive/",
+      "destination": "/inspiration/",
+      "statusCode": 301
+    },
+    {
+      "source": "/bush/",
+      "destination": "/inspiration/",
+      "statusCode": 301
+    },
+    {
+      "source": "/ted-talks/",
+      "destination": "/inspiration/",
+      "statusCode": 301
+    },
+    {
+      "source": "/sane-events/",
+      "destination": "/events/",
+      "statusCode": 301
+    },
+    {
+      "source": "/sane-events",
+      "destination": "/events/",
+      "statusCode": 301
+    },
+    {
+      "source": "/wp-admin/:path*",
+      "destination": "/",
+      "statusCode": 301
+    },
+    {
+      "source": "/wp-content/:path*",
+      "destination": "/",
+      "statusCode": 301
+    },
+    {
+      "source": "/wp-login.php",
+      "destination": "/",
+      "statusCode": 301
+    },
+    {
+      "source": "/wp-includes/:path*",
+      "destination": "/",
+      "statusCode": 301
+    }
+  ],
+  "functions": {
+    "api/import-media.js": {
+      "maxDuration": 60
+    }
+  }
 }
