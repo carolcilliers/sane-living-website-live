@@ -611,22 +611,53 @@
         if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
       });
     });
+    function fileToDataUrl(file) {
+      return new Promise(function (resolve, reject) {
+        var r = new FileReader();
+        r.onload = function () { resolve(r.result); };
+        r.onerror = reject;
+        r.readAsDataURL(file);
+      });
+    }
+    // Shrink every photo before upload (max 1920px, JPEG quality 82; PNG
+    // kept only for real transparency): fast uploads, a lean repository,
+    // and quick page loads on the website.
+    async function compressImageFile(file) {
+      var dataUrl = await fileToDataUrl(file);
+      if (!/^image\/(jpeg|png|webp)$/.test(file.type)) return { name: file.name, base64: String(dataUrl).split(',')[1], from: file.size, to: file.size };
+      try {
+        var url = URL.createObjectURL(file);
+        var img = await new Promise(function (resolve, reject) { var i = new Image(); i.onload = function () { resolve(i); }; i.onerror = reject; i.src = url; });
+        var MAX = 1920;
+        var scale = Math.min(1, MAX / Math.max(img.naturalWidth, img.naturalHeight));
+        var w = Math.max(1, Math.round(img.naturalWidth * scale));
+        var h = Math.max(1, Math.round(img.naturalHeight * scale));
+        var cv = document.createElement('canvas'); cv.width = w; cv.height = h;
+        var cx = cv.getContext('2d'); cx.drawImage(img, 0, 0, w, h);
+        var hasAlpha = false;
+        if (file.type !== 'image/jpeg') { try { var px = cx.getImageData(0, 0, w, h).data; for (var p = 3; p < px.length; p += 1604) { if (px[p] < 250) { hasAlpha = true; break; } } } catch (e) {} }
+        var out = hasAlpha ? cv.toDataURL('image/png') : cv.toDataURL('image/jpeg', 0.82);
+        URL.revokeObjectURL(url);
+        if (out.length >= String(dataUrl).length) return { name: file.name, base64: String(dataUrl).split(',')[1], from: file.size, to: file.size };
+        var stem = file.name.replace(/\.[^.]+$/, '') || 'photo';
+        return { name: stem + (hasAlpha ? '.png' : '.jpg'), base64: out.split(',')[1], from: file.size, to: Math.round(out.length * 0.75) };
+      } catch (e) {
+        return { name: file.name, base64: String(dataUrl).split(',')[1], from: file.size, to: file.size };
+      }
+    }
     async function handleUploads(fileInput, section) {
       var files = Array.prototype.slice.call(fileInput.files || []);
       if (!files.length) return;
-      toast('Uploading ' + files.length + ' photo' + (files.length === 1 ? '' : 's') + '…');
+      toast('Preparing ' + files.length + ' photo' + (files.length === 1 ? '' : 's') + '…');
+      var shrunk = 0;
       for (var i = 0; i < files.length; i++) {
         var f = files[i];
         try {
-          var dataUrl = await new Promise(function (resolve, reject) {
-            var r = new FileReader();
-            r.onload = function () { resolve(r.result); };
-            r.onerror = reject;
-            r.readAsDataURL(f);
-          });
-          var base64 = String(dataUrl).split(',')[1];
-          var safeName = f.name.toLowerCase().replace(/[^a-z0-9._-]/g, '-');
-          await api('/api/dash-save', { method: 'POST', body: JSON.stringify({ path: 'public/images/' + safeName, contentBase64: base64 }) });
+          var prep = await compressImageFile(f);
+          if (prep.base64.length > 5500000) throw new Error('photo is too large even after shrinking');
+          if (prep.to < prep.from) shrunk++;
+          var safeName = prep.name.toLowerCase().replace(/[^a-z0-9._-]/g, '-');
+          await api('/api/dash-save', { method: 'POST', body: JSON.stringify({ path: 'public/images/' + safeName, contentBase64: prep.base64 }) });
           state.data.gallery.photos.push({ image: '/images/' + safeName, caption: '', alt: '', section: section });
         } catch (e) {
           toast('Upload failed for ' + f.name + ': ' + e.message, true);
@@ -634,7 +665,7 @@
       }
       setDirty('gallery', true);
       rerender();
-      toast('Photos uploaded into the section. Add captions, then Save & Publish.');
+      toast('Photos uploaded' + (shrunk ? ' (web-sized for fast loading)' : '') + ' into the section. Add captions, then Save & Publish.');
       fileInput.value = '';
     }
     $$('#photoGroups .gal-upload-group').forEach(function (input) {
