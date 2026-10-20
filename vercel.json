@@ -409,10 +409,5 @@
       "destination": "/",
       "statusCode": 301
     }
-  ],
-  "functions": {
-    "api/import-media.js": {
-      "maxDuration": 60
-    }
-  }
+  ]
 }
