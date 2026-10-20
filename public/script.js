@@ -131,8 +131,8 @@ function injectFooter() {
         <a href="/events/">Events</a>
         <a href="/contact/">Contact</a>
       </div>
-      <div class="footer-team" style="margin-top:18px">
-        <a href="/dash/" style="display:inline-block;padding:10px 26px;border:1.5px solid #a678c4;border-radius:999px;color:#e9def5;font-weight:700;text-decoration:none;letter-spacing:.02em">Team Login</a>
+      <div class="footer-team" style="margin-top:14px">
+        <a href="/dash/" style="font-size:.82rem;color:#8f8a90;text-decoration:none;letter-spacing:.03em">Team Login</a>
       </div>
       <p class="footer-copy">© ${year} Sane Living</p>
     </div>
