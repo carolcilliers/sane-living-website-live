@@ -27,7 +27,7 @@
     if (resp.status === 401) { showLogin('Your session ended — please log in again.'); throw new Error('unauthorized'); }
     if (!resp.ok) {
       var err = new Error(data.error || ('Request failed (' + resp.status + ')'));
-      err.code = data.code; err.detail = data.detail;
+      err.code = data.code; err.detail = data.detail; err.status = resp.status;
       throw err;
     }
     return data;
@@ -49,6 +49,7 @@
     dirty: {},           // section -> bool (unsaved JSON edits)
     data: {},            // section -> parsed content object
     aboutText: '',
+    versions: {}, loaded: {}, loadErrors: {}, errors: {}, conflicts: {}, unsaved: {}, saveStates: {}, busy: {}, storageOk: true, settingsTab: 'brand', aboutDocument: null,
     events: null,        // null = not loaded
     eventsStatus: null,  // {kind: ok|warn|err, msg}
     editingEventId: null,
@@ -120,75 +121,175 @@
     });
   }
   function goTo(id) {
-    if (state.dirty[state.section] && state.section !== id) {
-      if (!window.confirm('You have unsaved changes in "' + state.section + '". Leave without saving?')) return;
-      setDirty(state.section, false);
-    }
     state.section = id;
     $$('#mainNav [data-nav]').forEach(function (b) { b.classList.toggle('active', b.getAttribute('data-nav') === id); });
     $$('#panels .panel').forEach(function (p) { p.classList.toggle('active', p.id === 'panel-' + id); });
     window.scrollTo({ top: 0 });
   }
+  var RECOVERY_PREFIX = 'sl_studio_v1_';
+  function contentText(id) { return id === 'about' ? state.aboutText : JSON.stringify(state.data[id], null, 2) + '\n'; }
+  function applyDashboardBranding(value) {
+    var published=SaneSettings.normalize(value);
+    $$('.brand .logo-chip img,.login-card img').forEach(function(img){img.src=SaneSettings.safeUrl(published.logoUrl,'image')||SaneSettings.defaults.logoUrl;img.alt=published.logoAlt||published.businessName;});
+    var icon=document.querySelector('link[rel="icon"]')||document.head.appendChild(document.createElement('link'));icon.rel='icon';icon.href=SaneSettings.safeUrl(published.faviconUrl,'icon')||'/favicon.svg';
+  }
+  function putContent(id, text) {
+    if (id === 'about') { state.aboutText = text; state.aboutDocument = SaneContent.parseAbout(text); }
+    else {
+      var value=JSON.parse(text);if(!value||typeof value!=='object'||Array.isArray(value))throw new Error('This section has an invalid content structure.');
+      var listKey={gallery:'photos',pricing:'rows',partners:'partners'}[id];if(listKey&&!Array.isArray(value[listKey]))throw new Error('This section’s list could not be loaded.');
+      if(id==='settings'){value=SaneSettings.normalize(value);if(!Array.isArray(value.navigation)||!value.navigation.every(function(n){return n&&typeof n==='object';})||!value.pageMeta||typeof value.pageMeta!=='object'||Array.isArray(value.pageMeta))throw new Error('Settings structure needs repair before editing.');}
+      state.data[id]=value;
+    }
+  }
+  function cacheWork(id) {
+    try {
+      localStorage.setItem(RECOVERY_PREFIX + id, JSON.stringify({ content: contentText(id), baseSha: (state.versions[id] || {}).sha, draftSha: (state.versions[id] || {}).draftSha, updatedAt: Date.now() }));
+      state.storageOk = true;
+    } catch (e) { state.storageOk = false; }
+  }
+  function updateSaveUI(id) {
+    var status = state.saveStates[id] || 'Published version loaded';
+    var bar = $('#savebar-' + id);
+    if (!bar) return;
+    bar.classList.add('show');
+    bar.classList.toggle('has-changes', !!state.dirty[id]);
+    var msg = $('.msg',bar);
+    if (msg) msg.textContent = state.busy[id] ? 'Saving…' : status;
+    var detail = $('.save-detail',bar);
+    if (detail) detail.textContent = state.busy[id] ? 'You can keep editing while this version saves.' : state.unsaved[id] ? (state.storageOk ? 'Recovered on this device after refresh. Save draft to share it with the team.' : 'Device recovery is unavailable. Save a shared draft before leaving.') : state.dirty[id] ? 'Shared draft saved. The public website has not changed.' : 'Publish changes when you want to update the website.';
+    $$('[data-save],[data-draft],[data-discard]',bar).forEach(function (button) { button.disabled = !!state.busy[id] || !!state.uploading || !state.loaded[id] || !!state.conflicts[id]; });
+    var feedback = $('#feedback-' + id);
+    if (feedback) {
+      var error = state.loadErrors[id] || state.conflicts[id] || state.errors[id] || '';
+      feedback.hidden = !error;
+      $('.feedback-text',feedback).textContent = error;
+    }
+    var nav = $('#mainNav [data-nav="'+id+'"]');
+    if (nav) nav.classList.toggle('dirty',!!state.dirty[id]);
+  }
   function setDirty(section, on) {
     state.dirty[section] = !!on;
-    var btn = $('#mainNav [data-nav="' + section + '"]');
-    if (btn) btn.classList.toggle('dirty', !!on);
-    var bar = $('#savebar-' + section);
-    if (bar) bar.classList.toggle('show', !!on);
+    if (on) { state.unsaved[section] = true; state.saveStates[section] = 'Unsaved changes'; cacheWork(section); }
+    else state.unsaved[section] = false;
+    updateSaveUI(section);
   }
-
-  /* ---------------- generic JSON section machinery ---------------- */
   var JSON_SECTIONS = {
     gallery: { file: 'public/content/gallery.json', load: '/content/gallery.json' },
     weddings: { file: 'public/content/weddings.json', load: '/content/weddings.json' },
     pricing: { file: 'public/content/pricing.json', load: '/content/pricing.json' },
     partners: { file: 'public/content/partners.json', load: '/content/partners.json' },
-    settings: { file: 'public/content/settings.json', load: '/content/settings.json' },
+    settings: { file: 'public/content/settings.json', load: '/content/settings.json' }
   };
-  async function loadJsonSection(id) {
-    var resp = await fetch(JSON_SECTIONS[id].load, { cache: 'no-store' });
-    if (!resp.ok) throw new Error('Could not load ' + id + ' content.');
-    state.data[id] = await resp.json();
-    try {
-      var stash = JSON.parse(sessionStorage.getItem('sl_stash_' + id) || 'null');
-      if (stash && Date.now() - stash.t < 180000) state.data[id] = stash.data;
-    } catch (e) {}
+  async function loadContentSection(id, publishedOnly) {
+    var response = await api('/api/dash-content?section=' + encodeURIComponent(id));
+    if (!response.published) throw new Error('The published content is missing. Ask an administrator to restore this section.');
+    var published = response.published.content;
+    // Validate before replacing local state; bad remote content cannot erase a recovered draft.
+    if (id === 'about') SaneContent.parseAbout(published); else JSON.parse(published);
+    state.versions[id] = { sha: response.published.sha, draftSha: response.draft ? response.draft.sha : null, published: published };
+    if(id==='settings')applyDashboardBranding(JSON.parse(published));
+    state.loaded[id] = true; state.loadErrors[id] = ''; state.errors[id] = ''; state.conflicts[id] = '';
+    var draft = !publishedOnly && response.draft && response.draft.content !== published ? response.draft : null;
+    putContent(id, draft ? draft.content : published);
+    state.dirty[id] = !!draft; state.unsaved[id] = false;
+    state.saveStates[id] = draft ? 'Shared draft loaded' : 'Published version loaded';
+    if (draft && draft.baseSha !== response.published.sha) state.conflicts[id] = 'This shared draft was based on an older published version. Copy any text you need, then load the latest published version before saving.';
+    var local = null;
+    try { local = JSON.parse(localStorage.getItem(RECOVERY_PREFIX+id) || 'null'); } catch(e) {}
+    var remoteTime = draft ? Date.parse(draft.updatedAt) : 0;
+    if (!publishedOnly && local && typeof local.content === 'string' && local.updatedAt > remoteTime && local.content !== contentText(id)) {
+      putContent(id,local.content); state.dirty[id] = true; state.unsaved[id] = true; state.saveStates[id] = 'Recovered changes from this device';
+      if(local.draftSha !== (response.draft ? response.draft.sha : null))state.conflicts[id]='A newer shared draft exists alongside your recovered changes. Copy any text you need before loading the latest published version.';
+      if (local.baseSha !== response.published.sha) state.conflicts[id] = 'Your recovered changes are based on an older published version. Copy any text you need, then load the latest published version before saving.';
+    }
+    if (publishedOnly) { try { localStorage.removeItem(RECOVERY_PREFIX+id); } catch(e) {} }
   }
-  async function saveJsonSection(id, btn) {
-    var original = btn ? btn.innerHTML : '';
-    if (btn) { btn.disabled = true; btn.innerHTML = '<span class="spinner"></span> Saving…'; }
-    try {
-      await api('/api/dash-save', {
-        method: 'POST',
-        body: JSON.stringify({ path: JSON_SECTIONS[id].file, content: JSON.stringify(state.data[id], null, 2) + '\n' }),
-      });
-      setDirty(id, false);
-      try { sessionStorage.setItem('sl_stash_' + id, JSON.stringify({ t: Date.now(), data: state.data[id] })); } catch (e2) {}
-      toast('Saved & published — the website updates within about a minute.');
-      return true;
-    } catch (e) {
-      toast('Save failed: ' + e.message, true);
-      return false;
-    } finally {
-      if (btn) { btn.disabled = false; btn.innerHTML = original; }
+  async function loadJsonSection(id) {
+    try { await loadContentSection(id); }
+    catch(e) {
+      state.loadErrors[id] = e.message; state.loaded[id] = false;
+      state.data[id] = { photos: [], rows: [], partners: [], highlights: [] };
+      if(id === 'settings') state.data[id] = SaneSettings.normalize({});
     }
   }
-  function savebarHtml(id, label) {
-    return '<div class="savebar" id="savebar-' + id + '"><span class="msg">Unsaved changes in ' + label + '</span>' +
-      '<button type="button" class="btn btn-primary" data-save="' + id + '">Save &amp; Publish</button></div>';
+  function validationErrors(id) {
+    if (id === 'settings') return SaneSettings.validate(state.data.settings);
+    if (id === 'about') { try { return SaneContent.validateAbout(SaneContent.parseAbout(state.aboutText)); } catch(e) { return [e.message]; } }
+    return [];
+  }
+  function watchPublication(id, snapshot) {
+    var attempts=0;
+    async function check() {
+      if(!state.versions[id] || state.versions[id].published!==snapshot) return;
+      try {
+        var url=id==='about'?'/content/about.md':JSON_SECTIONS[id].load;
+        var response=await fetch(url+'?studio-check='+Date.now(),{cache:'no-store'});
+        if(response.ok && await response.text()===snapshot) {
+          if(!state.dirty[id]){state.saveStates[id]='Live on the website';updateSaveUI(id);}return;
+        }
+      } catch(e) {}
+      if(++attempts<10)setTimeout(check,6000);
+      else if(!state.dirty[id]){state.saveStates[id]='Published · website deployment still updating';updateSaveUI(id);}
+    }
+    setTimeout(check,3000);
+  }
+  async function saveSection(id, action) {
+    if (state.busy[id]) return false;
+    if (!state.loaded[id] || state.conflicts[id]) { toast('Load the latest version before saving.',true); return false; }
+    if(action === 'publish') { var errors = validationErrors(id); if(errors.length) { state.errors[id] = errors.join(' '); updateSaveUI(id); toast(errors[0],true); return false; } }
+    var snapshot = contentText(id), version = state.versions[id];
+    state.busy[id] = true; state.errors[id] = ''; updateSaveUI(id);
+    try {
+      var result = await api('/api/dash-save',{ method:'POST',body:JSON.stringify({ path:id==='about' ? 'public/content/about.md' : JSON_SECTIONS[id].file, content:snapshot, action:action, expectedSha:version.sha, expectedDraftSha:version.draftSha }) });
+      version.sha = result.sha; version.draftSha = result.draftSha;
+      var newerEdits = contentText(id) !== snapshot;
+      state.dirty[id] = action === 'draft' || newerEdits;
+      state.unsaved[id] = newerEdits;
+      state.saveStates[id] = newerEdits ? 'New changes since the last save' : action === 'draft' ? 'Draft saved · '+new Date().toLocaleTimeString([], {hour:'numeric',minute:'2-digit'}) : 'Published · deployment updating';
+      if(action === 'publish') { version.published = snapshot; if(id==='settings')applyDashboardBranding(JSON.parse(snapshot)); watchPublication(id,snapshot); }
+      if (newerEdits) cacheWork(id); else try { localStorage.removeItem(RECOVERY_PREFIX+id); } catch(e) {}
+      if(result.warning) { state.conflicts[id] = result.warning; toast(result.warning,true); }
+      else toast(action === 'draft' ? 'Shared draft saved. The public website is unchanged.' : 'Published. The website updates after deployment, usually within a minute.');
+      return true;
+    } catch(e) {
+      cacheWork(id); state.errors[id] = e.message;
+      if(e.status === 409) state.conflicts[id] = e.message;
+      toast('Save failed: '+e.message,true); return false;
+    } finally { state.busy[id] = false; updateSaveUI(id); }
+  }
+  async function saveJsonSection(id, btn, action) { return saveSection(id,action || 'publish'); }
+  function savebarHtml(id) {
+    return '<div class="editor-feedback" id="feedback-'+id+'" role="alert" hidden><span class="feedback-text"></span><button type="button" data-reload="'+id+'">Load latest published version</button></div>'+
+      '<div class="savebar show" id="savebar-'+id+'"><div class="save-status" role="status" aria-live="polite"><span class="msg">Published version loaded</span><span class="save-detail">Save a draft or publish when ready.</span></div><div class="save-actions">'+
+      '<button type="button" class="btn btn-text btn-small" data-discard="'+id+'">Revert</button><button type="button" class="btn btn-ghost" data-draft="'+id+'">Save draft</button><button type="button" class="btn btn-primary" data-save="'+id+'">Publish changes</button></div></div>';
   }
   function bindSavebars(root) {
-    $$('[data-save]', root).forEach(function (b) {
-      b.addEventListener('click', function () {
-        var id = b.getAttribute('data-save');
-        if (id === 'about') saveAbout(b);
-        else saveJsonSection(id, b);
-      });
-    });
+    $$('[data-save]',root).forEach(function(b){ b.onclick=function(){saveSection(b.dataset.save,'publish');}; });
+    $$('[data-draft]',root).forEach(function(b){ b.onclick=function(){saveSection(b.dataset.draft,'draft');}; });
+    $$('[data-reload]',root).forEach(function(b){ b.onclick=async function(){
+      var id=b.dataset.reload;
+      if(!confirm('Load the current published version? Copy any text you want to keep first. Your current work will be backed up on this device.')) return;
+      try { try{localStorage.setItem(RECOVERY_PREFIX+'backup_'+id,contentText(id));}catch(storageError){} await loadContentSection(id,true); refreshPanel(id); updateSaveUI(id); }
+      catch(e){toast(e.message,true);}
+    }; });
+    $$('[data-discard]',root).forEach(function(b){ b.onclick=async function(){
+      var id=b.dataset.discard;
+      if(!confirm('Discard your working changes and the shared draft for this section, and restore the published version?')) return;
+      state.busy[id]=true;updateSaveUI(id);
+      try {
+        try{localStorage.setItem(RECOVERY_PREFIX+'backup_'+id,contentText(id));}catch(storageError){}
+        var v=state.versions[id];
+        await api('/api/dash-save',{method:'POST',body:JSON.stringify({path:id==='about'?'public/content/about.md':JSON_SECTIONS[id].file,action:'discard',expectedSha:v.sha,expectedDraftSha:v.draftSha})});
+        await loadContentSection(id,true);refreshPanel(id);toast('Restored the published version.');
+      } catch(e){toast(e.message,true);} finally{state.busy[id]=false;updateSaveUI(id);}
+    }; });
+    Object.keys(state.versions).forEach(updateSaveUI);
   }
+  var fieldScope = '';
   function fieldHtml(label, name, value, opts) {
     opts = opts || {};
-    var idAttr = 'f-' + name.replace(/[^a-z0-9]/gi, '-');
+    var idAttr = 'f-' + fieldScope + '-' + name.replace(/[^a-z0-9]/gi, '-');
     var inner;
     if (opts.textarea) {
       inner = '<textarea id="' + idAttr + '" data-field="' + esc(name) + '" rows="' + (opts.rows || 4) + '">' + esc(value) + '</textarea>';
@@ -285,7 +386,7 @@
         pricing: 'The rental rate table and booking notes on the Pricing page.',
         partners: 'Local partners shown on the Partners page.',
         settings: 'Phone, email, address, hours and social links used across the site.',
-        about: 'The text of the About page.',
+        about: 'Edit the About page’s sections, story and links.',
       }[x.id];
       return '<button type="button" class="shortcut" data-goto="' + x.id + '"><h3>' + x.label + '</h3><p>' + blurb + '</p></button>';
     }).join('');
@@ -296,7 +397,7 @@
       calInner = '<div id="homeCal">' + calGridHtml() + '</div><div id="homeCalList" style="margin-top:18px">' + calDayListHtml() + '</div>' +
         (state.readOnly ? '<p style="color:var(--muted);font-size:.88rem;margin-top:12px">Read-only view from the live website — event editing unlocks when the Airtable keys are added.</p>' : '');
     }
-    return panelShell('home', 'Welcome', 'Everything here updates the Sane Living website. Pick a section on the left — press Save & Publish in a section and the site updates within about a minute.',
+    return panelShell('home', 'Welcome', 'Everything here updates the Sane Living website. Pick a section on the left — save a draft to review, or publish changes when they are ready.',
       '<div class="grid grid-3" style="margin-bottom:18px">' +
       '<div class="card stat-card"><div class="num">' + evCount + '</div><div class="lbl">upcoming events</div></div>' +
       '<div class="card stat-card"><div class="num">' + photos + '</div><div class="lbl">photos in the gallery</div></div>' +
@@ -378,13 +479,16 @@
       '<div class="field"><label for="ev-desc">Description</label><textarea id="ev-desc" rows="4">' + esc(v('description')) + '</textarea></div>' +
       '<div class="field"><label style="text-transform:none;letter-spacing:0;font-size:.95rem"><input type="checkbox" id="ev-publish" ' + (e.publish ? 'checked' : '') + ' style="width:auto;margin-right:8px">Show on the website (published)</label>' +
       '<div class="hint">Unticked events are drafts — saved in Airtable but hidden from the website.</div></div>' +
+      '<p class="event-work-status" id="ev-work-status" role="status">Save this event to keep it in Airtable. The checkbox above controls whether it appears on the website.</p>'+
       '<div style="display:flex;gap:10px;margin-top:8px;flex-wrap:wrap">' +
-      '<button type="button" class="btn btn-primary" id="ev-save">' + (e.id ? 'Save changes' : 'Add event') + '</button>' +
+      '<button type="button" class="btn btn-primary" id="ev-save">' + (e.publish ? 'Publish event changes' : 'Save unpublished event') + '</button>' +
       '<button type="button" class="btn btn-ghost" id="ev-cancel">Cancel</button></div></div>';
   }
   function renderEvents() {
     var inner = '<div id="syncSlot">' + syncBanner() + '</div>';
     inner += '<div style="margin-bottom:18px"><button type="button" class="btn btn-primary" id="ev-add">+ Add an event</button></div>';
+    var recoveredEvent = null; try { recoveredEvent = JSON.parse(localStorage.getItem(RECOVERY_PREFIX+'event') || 'null'); } catch(e){}
+    if(recoveredEvent) inner += '<div class="event-recovery-note" id="eventRecovery">There is unfinished event work on this device. <button type="button" class="btn btn-ghost btn-small" id="ev-restore">Resume editing</button></div>';
     inner += '<div id="eventEditorSlot"></div><div id="eventList">';
     if (state.events === null) {
       inner += '<div class="empty-note">Loading events…</div>';
@@ -430,6 +534,7 @@
     }
   }
   function bindEventButtons() {
+    var restore=$('#ev-restore');if(restore)restore.onclick=function(){try{var work=JSON.parse(localStorage.getItem(RECOVERY_PREFIX+'event'));if(work)openEventEditor(work);}catch(e){toast('The saved event could not be read.',true);}};
     $$('#panel-events [data-ev-edit]').forEach(function (b) {
       b.addEventListener('click', function () {
         var e = state.events.find(function (x) { return x.id === b.getAttribute('data-ev-edit'); });
@@ -477,7 +582,9 @@
     var slot = $('#eventEditorSlot');
     slot.innerHTML = eventFormHtml(e || {});
     slot.scrollIntoView({ behavior: 'smooth', block: 'start' });
-    $('#ev-cancel').addEventListener('click', function () { slot.innerHTML = ''; state.editingEventId = null; });
+    var captureEvent=function(){var work={id:state.editingEventId,title:$('#ev-title').value,date:$('#ev-date').value,startTime:$('#ev-start').value,endTime:$('#ev-end').value,location:$('#ev-loc').value,type:$('#ev-type').value,price:$('#ev-price').value,rsvpUrl:$('#ev-rsvp').value,description:$('#ev-desc').value,publish:$('#ev-publish').checked};state.unsaved.events=true;try{localStorage.setItem(RECOVERY_PREFIX+'event',JSON.stringify(work));}catch(e){}var eventStatus=$('#ev-work-status');if(eventStatus)eventStatus.textContent='Unsaved event changes · kept on this device until you save.';$('#ev-save').textContent=work.publish?'Publish event changes':'Save unpublished event';};
+    $$('input,textarea',slot).forEach(function(input){input.addEventListener('input',captureEvent);input.addEventListener('change',captureEvent);});
+    $('#ev-cancel').addEventListener('click', function () { if(state.unsaved.events&&!confirm('Discard the unfinished event changes on this device?'))return;slot.innerHTML = ''; state.editingEventId = null;state.unsaved.events=false;try{localStorage.removeItem(RECOVERY_PREFIX+'event');}catch(e){}var notice=$('#eventRecovery');if(notice)notice.remove(); });
     $('#ev-save').addEventListener('click', async function () {
       var btn = this;
       var payload = {
@@ -494,6 +601,7 @@
       };
       if (!payload.title) { toast('Give the event a title first.', true); return; }
       if (!payload.date || !payload.startTime) { toast('Give the event a date and a start time.', true); return; }
+      $$('input,textarea,button',slot).forEach(function(control){control.disabled=true;});
       btn.disabled = true;
       btn.innerHTML = '<span class="spinner"></span> Saving…';
       try {
@@ -509,6 +617,7 @@
           state.events.sort(function (a, b) { return (a.date || '9999') < (b.date || '9999') ? -1 : 1; });
           toast('Event added to Airtable.');
         }
+        state.unsaved.events=false;try{localStorage.removeItem(RECOVERY_PREFIX+'event');}catch(e){}var notice=$('#eventRecovery');if(notice)notice.remove();
         slot.innerHTML = '';
         state.editingEventId = null;
         $('#eventList').innerHTML = state.events.map(eventCard).join('');
@@ -517,7 +626,8 @@
       } catch (err) {
         toast('Save failed: ' + err.message, true);
         btn.disabled = false;
-        btn.textContent = state.editingEventId ? 'Save changes' : 'Add event';
+        $$('input,textarea,button',slot).forEach(function(control){control.disabled=false;});
+        btn.textContent = $('#ev-publish').checked ? 'Publish event changes' : 'Save unpublished event';
       }
     });
   }
@@ -573,7 +683,7 @@
       '<span style="color:var(--muted);font-size:.9rem">Every photo below sits in exactly one website section. Change a photo\'s section with its dropdown; order inside a section follows the ↑ ↓ arrows.</span></div>' +
       '<div id="photoGroups">' + groupsHtml() + '</div>' +
       savebarHtml('gallery', 'gallery');
-    return panelShell('gallery', 'Photo Gallery', 'New photos are saved here right away as NOT PUBLISHED \u2014 only you can see them. Press a photo\u2019s Publish button when it should appear on the website.', inner);
+    return panelShell('gallery', 'Photo Gallery', 'New photos start unpublished. Save a draft to keep your work, then use each photo’s Publish button when it should appear on the website.', inner);
   }
   function bindGallery() {
     var wrap = $('#photoGroups');
@@ -611,16 +721,18 @@
         state.data.gallery.photos.splice(idx, 1);
         setDirty('gallery', true);
         rerender();
-        if (wasDraft) { await saveJsonSection('gallery', null); toast('Removed and saved.'); }
+        if (wasDraft) { await saveJsonSection('gallery', null, 'draft'); }
       });
     });
     $$('#photoGroups [data-ph-publish]').forEach(function (b) {
       b.addEventListener('click', async function () {
         var idx = +b.getAttribute('data-ph-publish');
+        if(state.unsaved.gallery && !confirm('Publish this photo together with your current gallery changes?')) return;
         state.data.gallery.photos[idx].draft = false;
+        setDirty('gallery',true);
         b.disabled = true; b.textContent = 'Publishing\u2026';
         var okSave = await saveJsonSection('gallery', null);
-        if (okSave === false) { state.data.gallery.photos[idx].draft = true; rerender(); return; }
+        if (okSave === false) { state.data.gallery.photos[idx].draft = true; setDirty('gallery',true); rerender(); return; }
         rerender();
         toast('Published \u2014 the photo goes live on the website within about a minute.');
       });
@@ -678,7 +790,7 @@
           var prep = await compressImageFile(f);
           if (prep.base64.length > 5500000) throw new Error('photo is too large even after shrinking');
           if (prep.to < prep.from) shrunk++;
-          var safeName = prep.name.toLowerCase().replace(/[^a-z0-9._-]/g, '-');
+          var safeName = Date.now() + '-' + Math.random().toString(36).slice(2,7) + '-' + prep.name.toLowerCase().replace(/[^a-z0-9._-]/g, '-');
           await api('/api/dash-save', { method: 'POST', body: JSON.stringify({ path: 'public/images/' + safeName, contentBase64: prep.base64 }) });
           state.data.gallery.photos.push({ image: '/images/' + safeName, caption: '', alt: '', section: section, draft: true });
         } catch (e) {
@@ -686,22 +798,24 @@
         }
       }
       rerender();
-      await saveJsonSection('gallery', null);
-      toast('Photos saved in the dashboard as NOT PUBLISHED \u2014 safe here even if you refresh. Press \u201CPublish to website\u201D on a photo when you are ready for everyone to see it.');
+      setDirty('gallery',true);
+      var saved = await saveJsonSection('gallery', null, 'draft');
+      if(saved) toast('Photos saved in the dashboard as NOT PUBLISHED \u2014 safe here even if you refresh. Press \u201CPublish to website\u201D on a photo when you are ready for everyone to see it.');
       fileInput.value = '';
     }
     $$('#photoGroups .gal-upload-group').forEach(function (input) {
       input.addEventListener('change', function () { handleUploads(input, input.getAttribute('data-section')); });
     });
     var addUrl = $('#gal-add-url');
-    if (addUrl) addUrl.addEventListener('click', async function () {
+    if (addUrl) addUrl.onclick = async function () {
       var url = window.prompt('Paste the photo link (it should start with /images/ or https://):');
       if (!url) return;
       state.data.gallery.photos.push({ image: url.trim(), caption: '', alt: '', section: 'venue', draft: true });
       rerender();
-      await saveJsonSection('gallery', null);
-      toast('Photo saved as NOT PUBLISHED \u2014 press its Publish button when it should go live.');
-    });
+      setDirty('gallery',true);
+      var saved = await saveJsonSection('gallery', null, 'draft');
+      if(saved) toast('Photo saved as NOT PUBLISHED \u2014 press its Publish button when it should go live.');
+    };
   }
 
   /* ---------------- WEDDINGS ---------------- */
@@ -792,7 +906,7 @@
       return '<div class="card form-card" style="margin-bottom:14px">' +
         '<div class="form-row"><div class="field"><label>Business name</label><input data-pt="' + i + '" data-k="name" value="' + esc(p.name || '') + '"></div>' +
         '<div class="field"><label>Category</label><input data-pt="' + i + '" data-k="category" value="' + esc(p.category || '') + '" placeholder="Catering, Flowers, Photography…"></div></div>' +
-        '<div class="field"><label>Short description</label><textarea data-pt="' + i + '" data-k="blurb" rows="2">' + esc(p.blurb || '') + '</textarea></div>' +
+        '<div class="field"><label>Short description</label><textarea data-pt="' + i + '" data-k="description" rows="2">' + esc(p.description != null ? p.description : p.blurb || '') + '</textarea></div>' +
         '<div class="form-row"><div class="field"><label>Website</label><input data-pt="' + i + '" data-k="website" value="' + esc(p.website || '') + '" placeholder="https://…"></div>' +
         '<div class="field"><label>Photo (path or link)</label><input data-pt="' + i + '" data-k="image" value="' + esc(p.image || '') + '" placeholder="/images/…"></div></div>' +
         '<div><button type="button" class="btn btn-danger btn-small" data-pt-del="' + i + '">Remove this partner</button></div></div>';
@@ -822,132 +936,117 @@
     });
     var add = $('#pt-add');
     if (add) add.addEventListener('click', function () {
-      state.data.partners.partners.push({ name: '', category: '', blurb: '', website: '', image: '' });
+      state.data.partners.partners.push({ name: '', category: '', description: '', website: '', image: '' });
       setDirty('partners', true);
       refreshPanel('partners');
     });
   }
 
   /* ---------------- SETTINGS ---------------- */
-  function workspaceIcon(name) {
-    var paths = {
-      contact: '<path d="M21 10c0 7-9 12-9 12S3 17 3 10a9 9 0 1 1 18 0Z"/><circle cx="12" cy="10" r="3"/>',
-      booking: '<rect x="3" y="5" width="18" height="16" rx="3"/><path d="M16 3v4M8 3v4M3 11h18m-12 5 2 2 4-4"/>',
-      social: '<circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="m9 10 6-3M9 14l6 3"/>',
-      story: '<path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20M6.5 3H20v19H6.5A2.5 2.5 0 0 1 4 19.5v-14A2.5 2.5 0 0 1 6.5 3Z"/><path d="M8 7h8m-8 4h6"/>',
-    };
-    return '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' + paths[name] + '</svg>';
-  }
-  function settingsCard(id, title, blurb, icon, fieldsHtml) {
-    return '<section class="card settings-card" id="settings-' + id + '" aria-labelledby="settings-' + id + '-title">' +
-      '<div class="workspace-card-head"><span class="workspace-icon">' + workspaceIcon(icon) + '</span><div><h3 id="settings-' + id + '-title">' + title + '</h3>' +
-      '<p>' + blurb + '</p></div></div><div class="settings-fields">' + fieldsHtml + '</div></section>';
-  }
-  function renderSettings() {
-    var x = state.data.settings || {};
-    var inner = '<div class="settings-workspace">' +
-      '<nav class="settings-jumps" aria-label="Settings sections"><a href="#settings-contact">Contact details</a><a href="#settings-booking">Booking &amp; availability</a><a href="#settings-social">Social links</a></nav>' +
-      settingsCard('contact', 'Contact details', 'Help guests find you and get in touch.', 'contact',
-        '<div class="form-row">' + fieldHtml('Business name', 'businessName', x.businessName) + fieldHtml('Email', 'email', x.email) + '</div>' +
-        '<div class="form-row">' + fieldHtml('Phone (shown)', 'phoneDisplay', x.phoneDisplay) + fieldHtml('Phone (tap-to-call link)', 'phoneLink', x.phoneLink, { hint: 'Format: tel:+18056466000' }) + '</div>' +
-        fieldHtml('Address', 'address', x.address, { placeholder: 'Street address, city and ZIP code' }) +
-        fieldHtml('Hours', 'hours', x.hours, { placeholder: 'Your opening hours or availability' })) +
-      settingsCard('booking', 'Booking & availability', 'Keep your booking destination and availability calendar together.', 'booking',
-        fieldHtml('Booking page link', 'bookingPageUrl', x.bookingPageUrl, { placeholder: 'https://…' }) +
-        fieldHtml('Availability calendar link', 'availabilityEmbedUrl', x.availabilityEmbedUrl, { placeholder: 'https://airtable.com/embed/…' }) +
-        '<div class="workspace-note"><strong>Your calendar stays in Airtable.</strong><span>Only update this link when the calendar’s share link changes.</span></div>') +
-      settingsCard('social', 'Social links', 'Connect guests with your community. Leave a link blank to hide its icon.', 'social',
-        '<div class="form-row">' + fieldHtml('Instagram', 'instagramUrl', x.instagramUrl, { placeholder: 'https://instagram.com/…' }) + fieldHtml('Facebook', 'facebookUrl', x.facebookUrl, { placeholder: 'https://facebook.com/…' }) + '</div>') + '</div>' +
-      savebarHtml('settings', 'settings');
-    return panelShell('settings', 'Website settings', 'The details that help guests connect with Sane Living.', inner);
-  }
-  function bindSettings() {
-    bindFields('settings', $('#panel-settings'));
-  }
-  /* ---------------- ABOUT ---------------- */
-  function mdToHtml(md) {
-    var body = String(md || '');
-    // Strip YAML frontmatter for preview only
-    body = body.replace(/^---\n[\s\S]*?\n---\n?/, '');
-    var lines = body.split('\n');
-    var html = '';
-    var inList = false;
-    function inline(t) {
-      return esc(t)
-        .replace(/!\[([^\]]*)\]\(([^)]+)\)/g, '<img alt="$1" src="$2">')
-        .replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" target="_blank" rel="noopener">$1</a>')
-        .replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>')
-        .replace(/\*([^*]+)\*/g, '<em>$1</em>');
-    }
-    lines.forEach(function (line) {
-      var t = line.trim();
-      if (/^[-*] /.test(t)) {
-        if (!inList) { html += '<ul>'; inList = true; }
-        html += '<li>' + inline(t.slice(2)) + '</li>';
-        return;
-      }
-      if (inList) { html += '</ul>'; inList = false; }
-      if (/^### /.test(t)) html += '<h3>' + inline(t.slice(4)) + '</h3>';
-      else if (/^## /.test(t)) html += '<h2>' + inline(t.slice(3)) + '</h2>';
-      else if (/^# /.test(t)) html += '<h1>' + inline(t.slice(2)) + '</h1>';
-      else if (t === '') html += '';
-      else html += '<p>' + inline(t) + '</p>';
-    });
-    if (inList) html += '</ul>';
+  function settingsField(f, value) {
+    if(f.type === 'boolean') return '<label class="switch-field"><span><strong>'+esc(f.label)+'</strong></span><input type="checkbox" data-setting-toggle="'+f.key+'" '+(value?'checked':'')+'><span class="switch-track" aria-hidden="true"></span></label>';
+    var html = fieldHtml(f.label,f.key,value,{textarea:f.type==='textarea',rows:3,hint:f.hint,placeholder:f.type==='image'||f.type==='icon'?'Upload an image or enter /images/…':''});
+    if(f.type === 'image' || f.type === 'icon') html = '<div class="asset-field">'+html+'<div class="asset-controls"><div class="asset-preview"><img data-asset-preview="'+f.key+'" src="'+esc(SaneSettings.safeUrl(value,'image'))+'" alt="'+esc(f.label)+' preview" '+(!value?'hidden':'')+'></div><label class="btn btn-ghost btn-small">Upload '+(f.type==='icon'?'icon':'image')+'<input type="file" data-asset="'+f.key+'" accept="'+(f.type==='icon'?'.png,.ico':'.png,.jpg,.jpeg,.webp,.gif')+'" hidden></label><span class="asset-upload-status" data-asset-status="'+f.key+'" role="status">Maximum 4 MB</span></div></div>';
     return html;
   }
+  var PAGE_CHOICES = [['/','Homepage'],['/about/','About'],['/contact/','Contact'],['/events/','Upcoming events'],['/events/past/','Past events'],['/rent/','Rent'],['/rent/pricing/','Rates & availability'],['/rent/weddings/','Weddings'],['/rent/farm/','Farm'],['/gallery/','Gallery'],['/partners/','Partners'],['/sculpture/','Sculpture'],['/evo3/','EVO 3'],['/lifestyle/','Lifestyle'],['/inspiration/','Inspiration'],['/self-heal/','Self 2 Heal'],['/lifestyle/natures-bio/','Nature’s Bio'],['/lifestyle/sapiens-ego/','Sapiens Ego'],['/lifestyle/ai-algo/','AI Algo'],['/lifestyle/evo3/','Lifestyle EVO 3'],['/self-heal/eat/','Eat'],['/self-heal/move/','Move'],['/self-heal/detox/','Detox'],['/self-heal/destress/','Destress']];
+  function metadataEditor() {
+    var route = state.metaRoute || '/', meta = (state.data.settings.pageMeta || {})[route] || {};
+    return '<div class="metadata-editor"><h4>Individual page overrides</h4><p class="section-help">Leave a field blank to keep that page’s existing default.</p><div class="field"><label for="meta-route">Choose a page</label><select id="meta-route">'+PAGE_CHOICES.map(function(p){return '<option value="'+p[0]+'" '+(p[0]===route?'selected':'')+'>'+p[1]+'</option>';}).join('')+'</select></div>'+['title','description','image'].map(function(key){return '<div class="field"><label for="meta-'+key+'">'+({title:'Search title',description:'Search description',image:'Sharing image URL'})[key]+'</label><input id="meta-'+key+'" data-meta-input="'+key+'" value="'+esc(meta[key] || '')+'"></div>';}).join('')+'</div>';
+  }
+  function navigationEditor() {
+    return '<div class="navigation-editor">'+state.data.settings.navigation.map(function(n,i){return '<div class="navigation-row"><div class="nav-order">'+(i+1)+'</div><div class="field"><label for="nav-label-'+i+'">Menu label</label><input id="nav-label-'+i+'" data-menu-label="'+i+'" value="'+esc(n.label)+'"><span class="hint">'+esc(n.route)+'</span></div><label class="menu-visible"><input type="checkbox" data-menu-visible="'+i+'" '+(n.visible?'checked':'')+'> Visible</label><div class="reorder-actions"><button type="button" class="icon-btn" data-menu-move="'+i+'" data-direction="-1" aria-label="Move '+esc(n.label)+' up" '+(i===0?'disabled':'')+'>↑</button><button type="button" class="icon-btn" data-menu-move="'+i+'" data-direction="1" aria-label="Move '+esc(n.label)+' down" '+(i===state.data.settings.navigation.length-1?'disabled':'')+'>↓</button></div></div>';}).join('')+'</div>';
+  }
+  function renderSettings() {
+    var x = state.data.settings || SaneSettings.normalize({});
+    var tabs = '<div class="settings-tabs" role="tablist" aria-label="Website settings categories">'+SaneSettings.groups.map(function(g){var active=state.settingsTab===g.id;return '<button type="button" role="tab" id="tab-'+g.id+'" aria-controls="settings-'+g.id+'" aria-selected="'+active+'" tabindex="'+(active?'0':'-1')+'" data-settings-tab="'+g.id+'">'+esc(g.label)+'</button>';}).join('')+'</div>';
+    var panels = SaneSettings.groups.map(function(g){return '<div role="tabpanel" aria-labelledby="tab-'+g.id+'" id="settings-'+g.id+'" class="settings-tab-panel '+(state.settingsTab===g.id?'is-active':'')+'"><div class="card settings-card"><div class="workspace-card-head"><div><span class="workspace-eyebrow">Website settings</span><h3>'+esc(g.label)+'</h3><p>'+esc(g.intro)+'</p></div></div><div class="settings-fields">'+g.fields.map(function(f){return settingsField(f,x[f.key]);}).join('')+(g.id==='sharing'?metadataEditor():'')+(g.id==='navigation'?navigationEditor():'')+'</div></div></div>';}).join('');
+    return panelShell('settings','Settings','Shared site controls, ready for the next design. Save a draft to review with the team, or publish changes to the website.',tabs+panels+savebarHtml('settings'));
+  }
+  function selectSettingsTab(id, focus) {
+    state.settingsTab=id;
+    $$('#panel-settings [role="tab"]').forEach(function(b){var active=b.dataset.settingsTab===id;b.setAttribute('aria-selected',String(active));b.tabIndex=active?0:-1;if(active&&focus)b.focus();});
+    $$('#panel-settings [role="tabpanel"]').forEach(function(p){p.classList.toggle('is-active',p.id==='settings-'+id);});
+  }
+  function bindSettings() {
+    var root=$('#panel-settings');
+    bindFields('settings',root);
+    $$('[data-settings-tab]',root).forEach(function(b){b.onclick=function(){selectSettingsTab(b.dataset.settingsTab);};b.onkeydown=function(e){var tabs=$$('[data-settings-tab]',root),i=tabs.indexOf(b);if(['ArrowRight','ArrowLeft','Home','End'].indexOf(e.key)===-1)return;e.preventDefault();var next=e.key==='Home'?0:e.key==='End'?tabs.length-1:(i+(e.key==='ArrowRight'?1:-1)+tabs.length)%tabs.length;selectSettingsTab(tabs[next].dataset.settingsTab,true);};});
+    $$('[data-setting-toggle]',root).forEach(function(b){b.onchange=function(){state.data.settings[b.dataset.settingToggle]=b.checked;setDirty('settings',true);};});
+    $$('[data-menu-label]',root).forEach(function(b){b.oninput=function(){state.data.settings.navigation[+b.dataset.menuLabel].label=b.value;setDirty('settings',true);};});
+    $$('[data-menu-visible]',root).forEach(function(b){b.onchange=function(){state.data.settings.navigation[+b.dataset.menuVisible].visible=b.checked;setDirty('settings',true);};});
+    $$('[data-menu-move]',root).forEach(function(b){b.onclick=function(){var i=+b.dataset.menuMove,j=i+(+b.dataset.direction),arr=state.data.settings.navigation;if(j<0||j>=arr.length)return;var item=arr.splice(i,1)[0];arr.splice(j,0,item);setDirty('settings',true);refreshPanel('settings');};});
+    var route=$('#meta-route');
+    if(route)route.onchange=function(){state.metaRoute=route.value;refreshPanel('settings');};
+    $$('[data-meta-input]',root).forEach(function(input){input.oninput=function(){var r=state.metaRoute||'/';var map=state.data.settings.pageMeta||(state.data.settings.pageMeta={});var entry=map[r]||(map[r]={});entry[input.dataset.metaInput]=input.value;setDirty('settings',true);};});
+    $$('[data-asset-preview]',root).forEach(function(img){var input=$('#f-settings-'+img.dataset.assetPreview);if(input)input.addEventListener('input',function(){var url=SaneSettings.safeUrl(input.value,'image');img.hidden=!url;img.src=url;});img.onerror=function(){img.hidden=true;};});
+    $$('[data-asset]',root).forEach(function(input){input.onchange=async function(){
+      var file=input.files[0],key=input.dataset.asset,status=$('[data-asset-status="'+key+'"]',root);if(!file)return;
+      if(file.size>4*1024*1024){toast('Choose an image smaller than 4 MB.',true);input.value='';return;}
+      var ext=file.name.split('.').pop().toLowerCase();if(!/^(png|jpe?g|webp|gif|ico)$/.test(ext)){toast('Use PNG, JPEG, WebP, GIF or ICO.',true);return;}
+      input.disabled=true;state.uploading=true;updateSaveUI('settings');status.textContent='Uploading…';
+      try {
+        var encoded=await new Promise(function(resolve,reject){var reader=new FileReader();reader.onload=function(){resolve(String(reader.result).split(',')[1]);};reader.onerror=reject;reader.readAsDataURL(file);});
+        var path='public/images/'+key.toLowerCase()+'-'+Date.now()+'-'+Math.random().toString(36).slice(2,7)+'.'+ext;
+        var result=await api('/api/dash-save',{method:'POST',body:JSON.stringify({path:path,contentBase64:encoded})});
+        state.data.settings[key]=result.url;setDirty('settings',true);
+        var field=$('#f-settings-'+key);field.value=result.url;var image=$('[data-asset-preview="'+key+'"]',root);var previewUrl=URL.createObjectURL(file);image.src=previewUrl;image.hidden=false;image.onload=function(){URL.revokeObjectURL(previewUrl);};
+        status.textContent='Uploaded. Save draft or publish to use it.';toast('Uploaded. Your published image stays in place until you publish settings.');
+      }catch(e){status.textContent='Upload failed. Try again.';toast(e.message,true);}finally{state.uploading=false;updateSaveUI('settings');input.disabled=false;input.value='';}
+    };});
+  }
+  /* ---------------- ABOUT: structured source, friendly editor ---------------- */
+  function aboutSectionEditor(section,index,total) {
+    return '<details class="about-section-card card" '+((state.aboutOpen==null?0:state.aboutOpen)===index?'open':'')+'><summary><span class="chapter-number">'+String(index+1).padStart(2,'0')+'</span><span data-chapter-title="'+index+'">'+esc(section.heading||'Untitled section')+'</span><span class="section-chevron" aria-hidden="true">⌄</span></summary><div class="about-section-fields">'+
+      '<div class="field"><label for="about-heading-'+index+'">Section heading</label><input id="about-heading-'+index+'" data-about-field="heading" data-section-index="'+index+'" value="'+esc(section.heading)+'"></div>'+
+      '<div class="field"><label for="about-body-'+index+'">Story text</label><div class="writing-toolbar" role="group" aria-label="Text formatting">'+formattingButtons('about-body-'+index)+'</div><textarea id="about-body-'+index+'" class="story-text" data-about-field="body" data-section-index="'+index+'" rows="6">'+esc(section.body||'')+'</textarea></div>'+
+      '<details class="section-options"><summary>Image &amp; link options</summary><div class="form-row">'+['linkText','linkUrl','image'].map(function(k){return '<div class="field"><label for="about-'+k+'-'+index+'">'+({linkText:'Link label',linkUrl:'Link destination',image:'Section image URL'})[k]+'</label><input id="about-'+k+'-'+index+'" data-about-field="'+k+'" data-section-index="'+index+'" value="'+esc(section[k]||'')+'"></div>';}).join('')+'</div><label class="check-label"><input type="checkbox" data-about-external="'+index+'" '+(section.external?'checked':'')+'> Open section link in a new tab</label></details>'+
+      '<label class="check-label" style="margin-bottom:18px"><input type="checkbox" data-about-visible="'+index+'" '+(section.visible!==false?'checked':'')+'> Show this section on the website</label>'+
+      '<div class="section-tools"><div><button type="button" class="btn btn-ghost btn-small" data-about-move="'+index+'" data-direction="-1" '+(index===0?'disabled':'')+'>Move up</button> <button type="button" class="btn btn-ghost btn-small" data-about-move="'+index+'" data-direction="1" '+(index===total-1?'disabled':'')+'>Move down</button></div><button type="button" class="btn btn-text btn-small danger-text" data-about-remove="'+index+'">Remove section</button></div></div></details>';
+  }
+  function formattingButtons(target) { return [['bold','Bold'],['italic','Italic'],['list','List'],['link','Link']].map(function(item){return '<button type="button" data-format="'+item[0]+'" data-target="'+target+'">'+item[1]+'</button>';}).join(''); }
   function renderAbout() {
-    var words = state.aboutText.trim() ? state.aboutText.trim().split(/\s+/).length : 0;
-    var inner = '<div class="about-workspace"><div class="workspace-intro"><span class="workspace-icon">' + workspaceIcon('story') + '</span>' +
-      '<div><span class="workspace-eyebrow">Your story</span><h3>A place, a purpose, a community.</h3><p>Give the story room to breathe. Edit your content below, then save when you’re ready.</p></div></div>' +
-      '<div class="about-wrap">' +
-      '<div class="card about-editor"><div class="editor-card-head"><div><h3>Page content</h3><p>Your About page source</p></div><span class="workspace-tag">Markdown</span></div>' +
-      '<label class="editor-label" for="aboutText">Edit About page content</label><textarea id="aboutText" spellcheck="true" aria-describedby="about-help">' + esc(state.aboutText) + '</textarea>' +
-      '<div class="editor-meta"><span><span id="aboutWords">' + words + '</span> words</span><span>Changes publish when you save</span></div></div>' +
-      '<aside class="about-companion"><div class="card about-preview-card"><div class="editor-card-head"><div><h3>Writing preview</h3><p>Updates as you type</p></div><span class="preview-indicator" aria-hidden="true"></span></div>' +
-      '<div class="md-preview" id="aboutPreview">' + aboutPreviewHtml(state.aboutText) + '</div></div>' +
-      '<details class="about-guide"><summary>Editing tips</summary><div id="about-help"><p>Keep the page setup between the <code>---</code> lines intact.</p>' +
-      '<p>For text below the setup, use these shortcuts:</p><dl><div><dt>Heading</dt><dd>## Your heading</dd></div><div><dt>Bold</dt><dd>**Important text**</dd></div><div><dt>Link</dt><dd>[Label](/page/)</dd></div></dl>' +
-      '<p>Open “View on the website” to check the published page’s complete layout.</p></div></details></aside></div></div>' +
-      savebarHtml('about', 'About page');
-    return panelShell('about', 'About page', 'Shape the story of Sane Living in one calm editing space.', inner);
+    var documentModel;
+    try { documentModel=SaneContent.parseAbout(state.aboutText); }catch(e){return panelShell('about','About page','Content needs attention.','<div class="editor-feedback"><p>'+esc(e.message)+'</p></div>'+savebarHtml('about'));}
+    state.aboutDocument=documentModel;
+    var sections=documentModel.metadata.sections||[];
+    var html='<div class="about-toolbar"><div><span class="workspace-eyebrow">Page editor</span><p>Write naturally. Use the preview to review your changes before publishing.</p></div><div class="segmented-control" role="group" aria-label="About workspace"><button type="button" data-about-mode="edit" aria-pressed="true">Edit</button><button type="button" data-about-mode="preview" aria-pressed="false">Preview</button></div></div>'+
+      '<div id="aboutEdit"><div class="card about-title-card"><div class="field"><label for="aboutTitle">Page title</label><input id="aboutTitle" value="'+esc(documentModel.metadata.title||'About Sane Living')+'"></div></div><div id="aboutSections">'+sections.map(function(s,i){return aboutSectionEditor(s,i,sections.length);}).join('')+'</div>'+
+      '<button type="button" class="btn btn-ghost add-section" id="aboutAdd">+ Add a section</button>'+
+      '<div class="card about-additional '+(!documentModel.body.trim()&&!sections.length?'':'is-optional')+'"><details '+(!sections.length||documentModel.body.trim()?'open':'')+'><summary>Additional page text</summary><div class="field"><label for="aboutArticle">Text after the main sections</label><div class="writing-toolbar">'+formattingButtons('aboutArticle')+'</div><textarea id="aboutArticle" class="story-text" rows="6">'+esc(documentModel.body)+'</textarea></div></details></div></div>'+
+      '<div class="card about-reading-preview" id="aboutRead" hidden><div class="preview-label">Draft preview · not published</div><div class="md-preview" id="aboutPreview">'+SaneContent.aboutPreview(documentModel)+'</div></div>'+
+      '<div class="about-editor-count" id="aboutWords">'+aboutWordCount(documentModel)+' words</div>'+savebarHtml('about');
+    return panelShell('about','About page','Tell the Sane Living story. Edit each section below, save a shared draft, then publish when it is ready.',html);
   }
-  function aboutPreviewHtml(text) {
-    var html = mdToHtml(text);
-    return html || '<div class="preview-empty"><span class="workspace-icon">' + workspaceIcon('story') + '</span><h4>Your writing preview</h4><p>Text below the page setup will appear here. Your structured page sections remain in the editor.</p><a href="/about/" target="_blank" rel="noopener">View the published About page ↗</a></div>';
+  function aboutWordCount(doc) {var text=(doc.metadata.sections||[]).map(function(s){return s.heading+' '+s.body;}).join(' ')+' '+doc.body;return text.trim()?text.trim().split(/\s+/).length:0;}
+  function aboutChanged() {
+    state.aboutText=SaneContent.serializeAbout(state.aboutDocument);setDirty('about',true);
+    var preview=$('#aboutPreview');if(preview)preview.innerHTML=SaneContent.aboutPreview(state.aboutDocument);
+    var count=$('#aboutWords');if(count)count.textContent=aboutWordCount(state.aboutDocument)+' words';
   }
-  async function saveAbout(btn) {
-    var original = btn ? btn.innerHTML : '';
-    if (btn) { btn.disabled = true; btn.innerHTML = '<span class="spinner"></span> Saving…'; }
-    try {
-      await api('/api/dash-save', { method: 'POST', body: JSON.stringify({ path: 'public/content/about.md', content: state.aboutText }) });
-      setDirty('about', false);
-      toast('Saved & published — the website updates within about a minute.');
-    } catch (e) {
-      toast('Save failed: ' + e.message, true);
-    } finally {
-      if (btn) { btn.disabled = false; btn.innerHTML = original; }
-    }
-  }
+  async function saveAbout(btn) {return saveSection('about','publish');}
   function bindAbout() {
-    var ta = $('#aboutText');
-    if (!ta) return;
-    ta.addEventListener('input', function () {
-      state.aboutText = ta.value;
-      setDirty('about', true);
-      $('#aboutPreview').innerHTML = aboutPreviewHtml(ta.value);
-      var w = $('#aboutWords');
-      if (w) w.textContent = ta.value.trim() ? ta.value.trim().split(/\s+/).length : 0;
-    });
+    var root=$('#panel-about');if(!$('#aboutTitle'))return;
+    $('#aboutTitle').oninput=function(){state.aboutDocument.metadata.title=this.value;aboutChanged();};
+    $$('[data-about-field]',root).forEach(function(input){input.oninput=function(){var i=+input.dataset.sectionIndex,key=input.dataset.aboutField;state.aboutDocument.metadata.sections[i][key]=input.value;if(key==='heading')$('[data-chapter-title="'+i+'"]',root).textContent=input.value||'Untitled section';aboutChanged();};});
+    $$('[data-about-external]',root).forEach(function(input){input.onchange=function(){state.aboutDocument.metadata.sections[+input.dataset.aboutExternal].external=input.checked;aboutChanged();};});
+    $$('[data-about-visible]',root).forEach(function(input){input.onchange=function(){state.aboutDocument.metadata.sections[+input.dataset.aboutVisible].visible=input.checked;aboutChanged();};});
+    $('#aboutArticle').oninput=function(){state.aboutDocument.body=this.value;aboutChanged();};
+    $('#aboutAdd').onclick=function(){if(!state.aboutDocument.metadata.sections)state.aboutDocument.metadata.sections=[];state.aboutDocument.metadata.sections.push({heading:'New section',body:'',linkText:'',linkUrl:'',external:false});state.aboutOpen=state.aboutDocument.metadata.sections.length-1;aboutChanged();refreshPanel('about');var fields=$$('[data-about-field="heading"]');fields[fields.length-1].focus();};
+    $$('[data-about-remove]',root).forEach(function(b){b.onclick=function(){if(!confirm('Remove this section from your draft?'))return;state.aboutDocument.metadata.sections.splice(+b.dataset.aboutRemove,1);state.aboutOpen=0;aboutChanged();refreshPanel('about');};});
+    $$('[data-about-move]',root).forEach(function(b){b.onclick=function(){var i=+b.dataset.aboutMove,j=i+(+b.dataset.direction),arr=state.aboutDocument.metadata.sections;if(j<0||j>=arr.length)return;var item=arr.splice(i,1)[0];arr.splice(j,0,item);state.aboutOpen=j;aboutChanged();refreshPanel('about');};});
+    $$('[data-about-mode]',root).forEach(function(b){b.onclick=function(){var preview=b.dataset.aboutMode==='preview';$('#aboutEdit').hidden=preview;$('#aboutRead').hidden=!preview;$$('[data-about-mode]',root).forEach(function(button){button.setAttribute('aria-pressed',String(button===b));});};});
+    $$('[data-format]',root).forEach(function(b){b.onclick=function(){var ta=$('#'+b.dataset.target),start=ta.selectionStart,end=ta.selectionEnd,selection=ta.value.slice(start,end)||'your text',text=selection;if(b.dataset.format==='bold')text='**'+selection+'**';if(b.dataset.format==='italic')text='*'+selection+'*';if(b.dataset.format==='list')text=selection.split('\n').map(function(line){return '- '+line;}).join('\n');if(b.dataset.format==='link'){var url=prompt('Link destination (https://… or /page/):','/');if(!url)return;if(!SaneSettings.safeUrl(url,'link')){toast('Use an HTTPS link or a /page/ path.',true);return;}text='['+selection+']('+url+')';}ta.setRangeText(text,start,end,'select');ta.dispatchEvent(new Event('input',{bubbles:true}));ta.focus();};});
   }
 
   /* ---------------- render / bind orchestration ---------------- */
   var RENDER = { home: renderHome, events: renderEvents, gallery: renderGallery, weddings: renderWeddings, pricing: renderPricing, partners: renderPartners, settings: renderSettings, about: renderAbout };
   var BIND = { home: bindHome, events: bindEventButtons, gallery: bindGallery, weddings: bindWeddings, pricing: bindPricing, partners: bindPartners, settings: bindSettings, about: bindAbout };
   function renderAll() {
-    $('#panels').innerHTML = SECTIONS.map(function (s) { return RENDER[s.id](); }).join('');
+    $('#panels').innerHTML = SECTIONS.map(function (s) { fieldScope=s.id; return RENDER[s.id](); }).join('');
     SECTIONS.forEach(function (s) { if (BIND[s.id]) BIND[s.id](); });
     bindSavebars($('#panels'));
+    Object.keys(state.versions).forEach(updateSaveUI);
     $$('#panels [data-goto]').forEach(function (b) {
       b.addEventListener('click', function () { goTo(b.getAttribute('data-goto')); });
     });
@@ -957,6 +1056,7 @@
     if (!old) return;
     var wasActive = old.classList.contains('active');
     var tmp = document.createElement('div');
+    fieldScope=id;
     tmp.innerHTML = RENDER[id]();
     var fresh = tmp.firstChild;
     if (wasActive) fresh.classList.add('active');
@@ -986,16 +1086,16 @@
     } catch (e) {
       toast('Some content could not be loaded: ' + e.message, true);
     }
-    try {
-      var r = await fetch('/content/about.md', { cache: 'no-store' });
-      if (r.ok) state.aboutText = await r.text();
-    } catch (e) { /* about stays blank; saving will recreate */ }
+    try { await loadContentSection('about'); } catch(e) { state.loadErrors.about=e.message; state.loaded.about=false; state.aboutText=''; }
     renderAll();
     goTo('home');
     loadEvents(false);
   }
 
+  window.addEventListener('beforeunload',function(e){ if(state.uploading || Object.keys(state.unsaved).some(function(k){return state.unsaved[k];})){e.preventDefault();e.returnValue='';} });
+
   /* ---------------- boot ---------------- */
+  fetch('/content/settings.json',{cache:'no-cache'}).then(function(r){return r.ok?r.json():null;}).then(function(s){if(s)applyDashboardBranding(s);}).catch(function(){});
   (async function boot() {
     try {
       var data = await api('/api/dash-login');
@@ -1003,4 +1103,5 @@
     } catch (e) { /* stay on login */ }
   })();
 })();
+
 

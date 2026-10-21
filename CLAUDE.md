@@ -2,8 +2,7 @@
 
 Static marketing site for SANE Living, on Vercel. **Not** `sane-community`
 (`~/Antigravity/sane`, repo `sarapis/sane-community`) — two different sites, two
-different repos, easy to confuse. Remote here: `devinbalkind/saneliving-website`
-(private). All work lands on `main`; the repo has never used a PR or a branch.
+different repos, easy to confuse. Current remote: `carolcilliers/sane-living-website-live`. All work lands on `main`; the repo has never used a PR or a branch.
 
 ## Layout
 
@@ -49,26 +48,31 @@ A page's `og:url` must be its real route, not its filename — `/self-heal/eat/`
 never `/self-heal-eat`, which 404s. Verify against the deployed site, since a
 stale local file can look correct while serving nothing.
 
-## Deployment — manual, no Git integration
+## Deployment — current live repository
 
-**Pushing to GitHub does not deploy.** The Vercel project has no Git repo
-connected; every production deploy is a manual CLI run from the repo root:
+This repository is connected to Vercel. Commits to `main` trigger deployment;
+check the commit's Vercel status before claiming a change is live.
+`vercel.json` explicitly runs `npm run build` and serves `public/` while the
+serverless functions remain in root `api/`.
 
-```bash
-npx vercel deploy --yes          # preview first
-npx vercel deploy --prod --yes   # then promote
-```
+`npm run build` materializes published About sections, favicon and search/share
+metadata. Keep that build step during a frontend redesign, or replace its
+rendering against the same stable content contract.
 
-⚠️ **Vercel reads the commit author from local git HEAD and blocks the deploy if
-that person is not on the Sarapis Vercel team** — the error is "the commit author
-doesn't have permission to create deployments for this project." After pulling
-someone else's commits, land your own commit on top before deploying.
+## Content Studio contract
 
-Preview URLs are behind Vercel Authentication, so plain `curl` gets an
-interstitial that still returns `200`. Verify previews with `npx vercel curl
-<url>/<path>`, and verify production with ordinary `curl`. Preview builds also
-lack the Airtable vars (Production-only), so their event APIs return `500` —
-expected, not a regression.
+Read `docs/CONTENT_STUDIO.md` before changing settings, publication or page
+rendering. `public/site-config.js` is the shared settings schema/defaults and
+validation contract. Use its stable keys and the documented frontend hooks when
+redesigning. Drafts live outside the public output in `dashboard-drafts/`;
+published data remains in `public/content/`. Staff content writes must preserve
+both the published SHA and shared-draft SHA checks. Never bypass stale-write
+protection or replace a failed load with blank content and allow publishing.
+
+The About editor uses structured fields backed by `public/content/about.md`;
+unknown metadata and text after frontmatter must survive edits. The existing
+Airtable event API and publish filter remain independent of the editable
+availability/inquiry embed URLs.
 
 ## API + environment
 
@@ -102,3 +106,4 @@ local editing run `npm run cms` and uncomment it.
 - Upcoming events render empty because nothing has `Publish` ticked in Airtable,
   not because the API is broken. Compare `/api/calendar-events` against
   `/api/calendar-events?debug=2` to tell a data gap from an outage.
+

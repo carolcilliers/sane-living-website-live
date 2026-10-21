@@ -4,6 +4,11 @@
   "private": true,
   "scripts": {
     "dev": "npx serve . -l 3000",
-    "cms": "npx decap-server"
+    "cms": "npx decap-server",
+    "build": "node scripts/build-content.cjs",
+    "test": "node tests/content-api.cjs && node tests/studio-flow.cjs && node tests/studio-settings.cjs"
+  },
+  "devDependencies": {
+    "playwright": "1.62.1"
   }
 }

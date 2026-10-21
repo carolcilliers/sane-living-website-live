@@ -1,109 +1,84 @@
-/**
- * POST /api/dash-save — save dashboard content (team login required).
- *
- * Body (JSON content):  { path: "public/content/gallery.json", content: "<file text>" }
- * Body (image upload):  { path: "public/images/<file>.jpg", contentBase64: "<base64>" }
- *
- * Writes are git commits to the dashboard branch via the GitHub API, using
- * CMS_GITHUB_TOKEN (server-side only). Only whitelisted paths are writable.
- * JSON files are parse-checked before saving so a bad save can't break the
- * website. Saves target main by default (or DASH_BRANCH when configured).
- */
-var lib = require('./_dashlib');
-
-var REPO = 'carolcilliers/sane-living-website-live';
-var BRANCH = process.env.DASH_BRANCH || 'main';
-
-var CONTENT_FILES = {
-  'public/content/gallery.json': 'json',
-  'public/content/weddings.json': 'json',
-  'public/content/pricing.json': 'json',
-  'public/content/partners.json': 'json',
-  'public/content/settings.json': 'json',
-  'public/content/about.md': 'text',
-};
-
-function classify(path) {
-  if (CONTENT_FILES[path]) return CONTENT_FILES[path];
-  if (/^public\/images\/[A-Za-z0-9._-]+\.(jpg|jpeg|png|webp|gif)$/i.test(path)) return 'image';
-  return null;
+/** Authenticated publishing, shared drafts and unreferenced image uploads. */
+'use strict';
+var login = require('./_dashlib');
+var repo = require('./_contentlib');
+var settings = require('../public/site-config');
+var model = require('../public/content-model');
+function conflict(message) { var e = new Error(message); e.status = 409; throw e; }
+function validate(section, text) {
+  if (Buffer.byteLength(text,'utf8') > 750000) return 'Content is too large (maximum 750 KB).';
+  if (section === 'about') {
+    try { return model.validateAbout(model.parseAbout(text)).join(' '); } catch(e) { return 'About content could not be read: ' + e.message; }
+  }
+  var data;
+  try { data = JSON.parse(text); } catch(e) { return 'The content is not valid JSON — nothing was saved.'; }
+  if (!data || typeof data !== 'object' || Array.isArray(data)) return 'Content must be an object.';
+  if (section === 'settings') return settings.validate(settings.normalize(data)).join(' ');
+  if (section === 'gallery' && !Array.isArray(data.photos)) return 'Gallery photos must be a list.';
+  if (section === 'pricing' && !Array.isArray(data.rows)) return 'Pricing rows must be a list.';
+  if (section === 'partners' && !Array.isArray(data.partners)) return 'Partners must be a list.';
+  return '';
 }
-
-async function gh(path, options) {
-  var opts = options || {};
-  // Merge headers key-by-key: a shallow Object.assign here previously let a
-  // request-specific `headers` object REPLACE the defaults, silently dropping
-  // the Authorization header on PUT saves (bug found Oct 20, 2026).
-  var headers = {
-    'Authorization': 'Bearer ' + process.env.CMS_GITHUB_TOKEN,
-    'Accept': 'application/vnd.github+json',
-    'X-GitHub-Api-Version': '2022-11-28',
-    'User-Agent': 'sane-living-dashboard',
-  };
-  Object.keys(opts.headers || {}).forEach(function (k) { headers[k] = opts.headers[k]; });
-  return fetch('https://api.github.com/repos/' + REPO + path, {
-    method: opts.method || 'GET',
-    headers: headers,
-    body: opts.body,
-  });
-}
-
-module.exports = async function handler(req, res) {
+module.exports = async function (req, res) {
+  res.setHeader('Cache-Control','private, no-store');
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
-  if (!lib.requireLogin(req, res)) return;
-  if (!process.env.CMS_GITHUB_TOKEN) {
-    return res.status(503).json({ error: 'Saving is not configured yet (CMS_GITHUB_TOKEN missing).' });
-  }
-  var body = lib.readJsonBody(req);
-  var path = String(body.path || '');
-  var kind = classify(path);
-  if (!kind) return res.status(400).json({ error: 'That file is not editable from the dashboard.' });
-
-  var contentBase64;
-  if (kind === 'image') {
-    if (!body.contentBase64) return res.status(400).json({ error: 'No image data received.' });
-    var approxBytes = Math.floor(String(body.contentBase64).length * 0.75);
-    if (approxBytes > 4 * 1024 * 1024) return res.status(400).json({ error: 'Image is too large (max about 4 MB).' });
-    contentBase64 = String(body.contentBase64);
-  } else {
-    if (typeof body.content !== 'string') return res.status(400).json({ error: 'No content received.' });
-    if (kind === 'json') {
-      try { JSON.parse(body.content); } catch (e) {
-        return res.status(400).json({ error: 'The content is not valid JSON — nothing was saved.' });
-      }
-    }
-    contentBase64 = Buffer.from(body.content, 'utf8').toString('base64');
-  }
-
+  if (!login.requireLogin(req,res)) return;
+  if (!process.env.CMS_GITHUB_TOKEN) return res.status(503).json({ error: 'Saving is not configured (CMS_GITHUB_TOKEN missing).' });
+  var body = login.readJsonBody(req);
+  if (!body || typeof body !== 'object' || Array.isArray(body)) return res.status(400).json({ error: 'Send a content object.' });
+  var path = String(body.path || ''), section = repo.sectionFor(path);
+  var image = /^public\/images\/[A-Za-z0-9][A-Za-z0-9._-]*\.(jpg|jpeg|png|webp|gif|ico)$/i.exec(path);
+  if (!section && !image) return res.status(400).json({ error: 'That file is not editable from the dashboard.' });
   try {
-    var sha = null;
-    var getResp = await gh('/contents/' + path + '?ref=' + encodeURIComponent(BRANCH));
-    if (getResp.ok) {
-      var existing = await getResp.json();
-      sha = existing.sha || null;
-    } else if (getResp.status !== 404) {
-      var gErr = await getResp.text();
-      return res.status(502).json({ error: 'Could not read the current file from GitHub.', detail: gErr.slice(0, 300) });
+    if (image) {
+      var base64 = body.contentBase64;
+      if (typeof base64 !== 'string' || !base64 || !/^[A-Za-z0-9+/]+={0,2}$/.test(base64) || base64.length % 4 !== 0) return res.status(400).json({ error: 'No valid image data received.' });
+      var bytes = Buffer.from(base64,'base64');
+      if (bytes.length > 4 * 1024 * 1024) return res.status(413).json({ error: 'Image is too large (max 4 MB).' });
+      var ext = image[1].toLowerCase();
+      var valid = ext === 'png' ? bytes.subarray(0,8).equals(Buffer.from([137,80,78,71,13,10,26,10])) :
+        /jpe?g/.test(ext) ? bytes[0] === 255 && bytes[1] === 216 && bytes[2] === 255 :
+        ext === 'gif' ? /^GIF8[79]a$/.test(bytes.subarray(0,6).toString()) :
+        ext === 'webp' ? bytes.subarray(0,4).toString() === 'RIFF' && bytes.subarray(8,12).toString() === 'WEBP' : bytes.subarray(0,4).equals(Buffer.from([0,0,1,0]));
+      if (!valid) return res.status(400).json({ error: 'The file contents do not match the image extension.' });
+      var existing = await repo.read(path);
+      if (existing) return res.status(409).json({ error: 'This filename already exists. Upload with a new filename.' });
+      var response = await repo.gh('/contents/' + path,{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify({branch:repo.BRANCH,message:'Dashboard: upload '+path.split('/').pop(),content:base64})});
+      if (!response.ok) return res.status(502).json({ error: 'GitHub refused the image upload (' + response.status + ').' });
+      var uploaded = await response.json();
+      return res.status(200).json({ok:true,commit:uploaded.commit && uploaded.commit.sha,url:path.slice(6)});
     }
-    var putBody = {
-      message: 'Dashboard: update ' + path.split('/').pop(),
-      content: contentBase64,
-      branch: BRANCH,
-    };
-    if (sha) putBody.sha = sha;
-    var putResp = await gh('/contents/' + path, {
-      method: 'PUT',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(putBody),
-    });
-    if (!putResp.ok) {
-      var pErr = await putResp.text();
-      return res.status(502).json({ error: 'GitHub refused the save.', detail: pErr.slice(0, 300) });
+    var action = body.action || 'publish';
+    if (['draft','publish','discard'].indexOf(action) === -1) return res.status(400).json({ error: 'Unknown save action.' });
+    if (!Object.prototype.hasOwnProperty.call(body,'expectedSha') || !Object.prototype.hasOwnProperty.call(body,'expectedDraftSha')) return res.status(400).json({ error: 'Reload the dashboard before saving so content versions can be checked.' });
+    var current = await Promise.all([repo.read(path),repo.read(repo.draftPath(section))]);
+    var published = current[0], draft = current[1];
+    if ((published && published.sha || null) !== body.expectedSha) conflict('Someone published a newer version. Your changes are kept on this device. Reload the latest version before publishing.');
+    if ((draft && draft.sha || null) !== body.expectedDraftSha) conflict('A teammate saved a newer shared draft. Your changes are kept on this device. Reload before saving.');
+    if (action === 'discard') {
+      if (draft) {
+        var deleted = await repo.gh('/contents/'+repo.draftPath(section),{method:'DELETE',headers:{'Content-Type':'application/json'},body:JSON.stringify({branch:repo.BRANCH,message:'Dashboard: discard '+section+' draft',sha:draft.sha})});
+        if (!deleted.ok) conflict('The shared draft changed. Reload before discarding it.');
+      }
+      return res.status(200).json({ok:true,sha:published && published.sha || null,draftSha:null});
     }
-    var result = await putResp.json();
-    return res.status(200).json({ ok: true, commit: result.commit && result.commit.sha });
-  } catch (err) {
-    console.error('dash-save error:', err);
-    return res.status(500).json({ error: 'Save failed unexpectedly.' });
-  }
+    if (typeof body.content !== 'string') return res.status(400).json({ error: 'No content received.' });
+    if (Buffer.byteLength(body.content,'utf8') > 750000) return res.status(413).json({error:'Content is too large (maximum 750 KB).'});
+    var error = validate(section,body.content);
+    if (error && (action === 'publish' || !body.content || (section !== 'settings' && section !== 'about'))) return res.status(400).json({ error:error });
+    if (action === 'draft') {
+      try { if(section === 'about') model.parseAbout(body.content); else { var parsed=JSON.parse(body.content); if(!parsed || typeof parsed!=='object' || Array.isArray(parsed)) throw Error('object required'); } } catch(e) { return res.status(400).json({error:'Draft content is not readable.'}); }
+      var updatedAt = new Date().toISOString();
+      var result = await repo.write(repo.draftPath(section),JSON.stringify({version:1,baseSha:body.expectedSha,content:body.content,updatedAt:updatedAt},null,2)+'\n',draft && draft.sha,'Dashboard: save '+section+' draft');
+      return res.status(200).json({ok:true,action:'draft',sha:body.expectedSha,draftSha:result.content.sha,updatedAt:updatedAt,commit:result.commit.sha});
+    }
+    var result = await repo.write(path,body.content,published && published.sha,'Dashboard: publish '+section);
+    var warning = '';
+    if (draft) {
+      var cleaned = await repo.gh('/contents/'+repo.draftPath(section),{method:'DELETE',headers:{'Content-Type':'application/json'},body:JSON.stringify({branch:repo.BRANCH,message:'Dashboard: clear published '+section+' draft',sha:draft.sha})});
+      if (!cleaned.ok) warning = 'Published, but the shared draft could not be cleared. Reload to see its latest state.';
+    }
+    return res.status(200).json({ok:true,action:'publish',sha:result.content.sha,draftSha:warning ? draft && draft.sha : null,commit:result.commit.sha,warning:warning});
+  } catch(e) { return res.status(e.status || 500).json({error:e.message || 'Saving failed. Your changes are kept on this device.'}); }
 };
+

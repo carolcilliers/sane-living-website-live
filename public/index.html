@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Sane Living — Downtown Ojai's Premiere Event Space</title>
+  <title>Sane Living — Downtown Ojai&#39;s Premiere Event Space</title>
   <meta name="description" content="Sane Living Center — a beautiful auditorium and gathering venue in the heart of Ojai, California. Events, workshops, film screenings, and more.">
   <link rel="stylesheet" href="/style.css">
   <style>
@@ -282,7 +282,7 @@
     }
   </style>
 
-  <meta property="og:title" content="Sane Living — Downtown Ojai's Premiere Event Space">
+  <meta property="og:title" content="Sane Living — Downtown Ojai&#39;s Premiere Event Space">
   <meta property="og:description" content="Sane Living Center — a beautiful auditorium and gathering venue in the heart of Ojai, California. Events, workshops, film screenings, and more.">
   <meta property="og:image" content="https://saneliving.com/images/homepage-hero.jpg">
   <meta property="og:image:width" content="1959">
@@ -291,10 +291,13 @@
   <meta property="og:type" content="website">
   <meta property="og:url" content="https://saneliving.com/">
   <meta name="twitter:card" content="summary_large_image">
-  <meta name="twitter:title" content="Sane Living — Downtown Ojai's Premiere Event Space">
+  <meta name="twitter:title" content="Sane Living — Downtown Ojai&#39;s Premiere Event Space">
   <meta name="twitter:description" content="Sane Living Center — a beautiful auditorium and gathering venue in the heart of Ojai, California. Events, workshops, film screenings, and more.">
   <meta name="twitter:image" content="https://saneliving.com/images/homepage-hero.jpg">
   <meta name="twitter:image:alt" content="Sane Living Center Ojai Exterior">
+<link rel="icon" href="/favicon.svg">
+<script src="/site-config.js" defer></script>
+<script src="/site-content.js" defer></script>
 </head>
 <body>
   <nav id="site-nav"></nav>
@@ -302,16 +305,16 @@
   <!-- 1. Video Hero -->
   <section class="video-hero">
     <div class="video-hero-bg">
-      <video autoplay muted loop playsinline>
+      <video data-site-hero-video autoplay muted loop playsinline>
         <source src="/hero-video.mp4" type="video/mp4">
       </video>
     </div>
     <div class="video-hero-overlay"></div>
     <div class="video-hero-content">
-      <h1>Downtown Ojai's Premiere Event Space</h1>
-      <p class="hero-subtitle">A beautiful auditorium and gathering venue in the heart of Ojai, California</p>
+      <h1 data-site-text="homeHeading">Downtown Ojai's Premiere Event Space</h1>
+      <p class="hero-subtitle" data-site-text="homeIntro">A beautiful auditorium and gathering venue in the heart of Ojai, California</p>
       <div class="btn-group">
-        <a href="/rent/" class="btn btn-hero-primary">Rent the Space</a>
+        <a href="/rent/" class="btn btn-hero-primary" data-site-href="homePrimaryUrl" data-site-text="homePrimaryLabel">Rent the Space</a>
       </div>
     </div>
   </section>
@@ -364,9 +367,9 @@
     <div class="container">
       <div class="home-section-header" data-animate>
         <h2>Find Us</h2>
-        <p>316 E Matilija St, Ojai, CA 93023</p>
+        <p data-site-text="address">316 E Matilija St, Ojai, CA 93023</p>
       </div>
-      <iframe
+      <iframe data-site-map
         src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3290.125351082763!2d-119.24584842359567!3d34.44896577301026!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x80e9a5375bb93e5f%3A0x9ea225831ba53217!2sSane%20Living!5e0!3m2!1sen!2sus!4v1715032537096!5m2!1sen!2sus"
         width="100%" height="400"
         style="border:0; border-radius: 12px;"
@@ -455,3 +458,4 @@
   </script>
 </body>
 </html>
+

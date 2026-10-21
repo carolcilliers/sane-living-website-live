@@ -99,6 +99,9 @@
   <meta name="twitter:description" content="Host your wedding at the Sane Living Center in downtown Ojai, California. Packages from $1,500, quoted to your guest count and needs.">
   <meta name="twitter:image" content="https://saneliving.com/images/homepage-hero.jpg">
   <meta name="twitter:image:alt" content="Sane Living Center Ojai Exterior">
+<link rel="icon" href="/favicon.svg">
+<script src="/site-config.js" defer></script>
+<script src="/site-content.js" defer></script>
 </head>
 <body>
 
@@ -130,7 +133,7 @@
           <p>This high technology space has hosted a wide variety of events including special occasions and private celebrations, and is available for weddings and receptions.</p></div>
           <ul id="wedding-highlights"></ul>
           <div id="wedding-details" style="margin-top: var(--space-md);"></div>
-          <a href="tel:+18056466000" class="btn btn-primary" style="margin-top: var(--space-lg);">Call (805) 646-6000</a>
+          <a data-site-href="phoneLink" href="tel:+18056466000" class="btn btn-primary" style="margin-top: var(--space-lg);">Call (805) 646-6000</a>
         </div>
       </div>
 
@@ -139,7 +142,7 @@
       <!-- Pricing -->
       <div class="wedding-pricing" id="pricing" data-animate>
         <h2>Pricing</h2>
-        <p id="wedding-pricing-text">Wedding packages from $1,500, quoted separately based on guest count and needs. Call <a href="tel:+18056466000">(805) 646-6000</a> for a custom quote.</p>
+        <p id="wedding-pricing-text">Wedding packages from $1,500, quoted separately based on guest count and needs. Call <a data-site-href="phoneLink" href="tel:+18056466000">(805) 646-6000</a> for a custom quote.</p>
       </div>
 
       <hr class="section-divider" style="margin: var(--space-2xl) 0;">
@@ -150,7 +153,7 @@
       </div>
 
       <div data-animate>
-        <iframe
+        <iframe data-site-availability
           class="airtable-embed wedding-embed"
           src="https://airtable.com/embed/appQOArJhzGuz5qBY/shr0WP23ZzLYTGw7E"
           frameborder="0"
@@ -168,8 +171,8 @@
       <div class="wedding-cta" data-animate>
         <h2>Plan your day with us</h2>
         <p>Get in touch to check your date and request a quote.</p>
-        <a href="tel:+18056466000" class="btn btn-primary">Call (805) 646-6000</a>
-        <a href="/rent/pricing/" class="btn btn-outline" style="margin-left: var(--space-md);">Venue Rates</a>
+        <a data-site-href="phoneLink" href="tel:+18056466000" class="btn btn-primary">Call (805) 646-6000</a>
+        <a data-site-booking href="/rent/pricing/" class="btn btn-outline" style="margin-left: var(--space-md);">Venue Rates</a>
       </div>
 
     </div>
@@ -187,26 +190,29 @@
       .then(function(r) { return r.ok ? r.json() : null; })
       .then(function(d) {
         if (!d) return;
+        if (typeof d.heading === 'string') document.querySelector('.page-hero h1').textContent=d.heading;
         if (d.heroImage) document.getElementById('wedding-hero').src = d.heroImage;
-        if (d.intro) {
+        if (typeof d.intro === 'string') {
           document.getElementById('wedding-intro').innerHTML =
             d.intro.split(/\n\s*\n/).map(function(p) { return '<p>' + esc(p) + '</p>'; }).join('');
         }
-        if (Array.isArray(d.highlights) && d.highlights.length) {
+        if (Array.isArray(d.highlights)) {
           document.getElementById('wedding-highlights').innerHTML =
             d.highlights.map(function(h) { return '<li>' + esc(h) + '</li>'; }).join('');
         }
+        if(window.SaneSite) window.SaneSite.ready.then(function(s){ document.querySelectorAll('.split-grid-large-img a[data-site-href="phoneLink"], .wedding-cta a[data-site-href="phoneLink"]').forEach(function(a){a.textContent='Call '+(d.phoneDisplay||s.phoneDisplay);}); });
         var details = '';
         if (d.includesText) details += '<p><strong>What\'s included:</strong> ' + esc(d.includesText) + '</p>';
         if (d.cateringPolicy) details += '<p><strong>Catering:</strong> ' + esc(d.cateringPolicy) + '</p>';
         if (d.alcoholPolicy) details += '<p><strong>Alcohol:</strong> ' + esc(d.alcoholPolicy) + '</p>';
         if (d.parkingNote) details += '<p><strong>Parking:</strong> ' + esc(d.parkingNote) + '</p>';
         document.getElementById('wedding-details').innerHTML = details;
-        if (d.pricingText) document.getElementById('wedding-pricing-text').textContent = d.pricingText;
-        if (d.availabilityNote) document.getElementById('wedding-availability-note').textContent = d.availabilityNote;
+        if (typeof d.pricingText === 'string') document.getElementById('wedding-pricing-text').textContent = d.pricingText;
+        if (typeof d.availabilityNote === 'string') document.getElementById('wedding-availability-note').textContent = d.availabilityNote;
       })
       .catch(function() {});
   })();
   </script>
 </body>
 </html>
+

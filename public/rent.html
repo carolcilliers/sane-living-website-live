@@ -20,6 +20,9 @@
   <meta name="twitter:description" content="Rent the Sane Living Center — a beautiful high-tech auditorium in downtown Ojai, CA for events, conferences, celebrations, and more.">
   <meta name="twitter:image" content="https://saneliving.com/images/homepage-hero.jpg">
   <meta name="twitter:image:alt" content="Sane Living Center Ojai Exterior">
+<link rel="icon" href="/favicon.svg">
+<script src="/site-config.js" defer></script>
+<script src="/site-content.js" defer></script>
 </head>
 <body>
 
@@ -41,7 +44,7 @@
         <div>
           <p>The Sane Living Center is a beautiful auditorium and gathering venue located at 316 E. Matilija St, Ojai, CA 93023.</p>
           <p>Available for rent, this high technology space has hosted a wide variety of events including conferences, film screenings, music festivals, artistic performances, lectures and workshops, business functions, community events, special occasions, private celebrations, and more.</p>
-          <a href="/rent/pricing/" class="btn btn-primary" style="margin-top: var(--space-lg);">See Rates and Availability</a>
+          <a data-site-booking href="/rent/pricing/" class="btn btn-primary" style="margin-top: var(--space-lg);">See Rates and Availability</a>
           <a href="/rent/weddings/" class="btn btn-outline" style="margin-top: var(--space-lg); margin-left: var(--space-md);">Weddings</a>
         </div>
       </div>
@@ -49,7 +52,7 @@
       <hr class="section-divider" style="margin: var(--space-2xl) 0;">
 
       <div data-animate id="availability">
-        <iframe class="airtable-embed" src="https://airtable.com/embed/shr45BrcrP6gderXF?backgroundColor=cyan" frameborder="0" onmousewheel="" width="100%" height="1200" style="background: transparent; border: 1px solid #ccc; border-radius: 8px;"></iframe>
+        <iframe data-site-rental-inquiry class="airtable-embed" src="https://airtable.com/embed/shr45BrcrP6gderXF?backgroundColor=cyan" frameborder="0" onmousewheel="" width="100%" height="1200" style="background: transparent; border: 1px solid #ccc; border-radius: 8px;"></iframe>
       </div>
 
       <hr class="section-divider" style="margin: var(--space-2xl) 0;">
@@ -76,3 +79,4 @@
   <script src="/script.js"></script>
 </body>
 </html>
+

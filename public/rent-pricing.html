@@ -176,6 +176,9 @@
   <meta name="twitter:description" content="Sane Living Center rates and availability. View pricing and book the space for your next event in Ojai, California.">
   <meta name="twitter:image" content="https://saneliving.com/images/homepage-hero.jpg">
   <meta name="twitter:image:alt" content="Sane Living Center Ojai Exterior">
+<link rel="icon" href="/favicon.svg">
+<script src="/site-config.js" defer></script>
+<script src="/site-content.js" defer></script>
 </head>
 <body>
 
@@ -247,7 +250,7 @@
       </div>
 
       <div data-animate>
-        <iframe
+        <iframe data-site-availability
           class="airtable-embed pricing-embed"
           src="https://airtable.com/embed/appQOArJhzGuz5qBY/shr0WP23ZzLYTGw7E"
           frameborder="0"
@@ -265,7 +268,7 @@
       <div class="pricing-cta" data-animate>
         <h2>Ready to book?</h2>
         <p>Get in touch to reserve the Sane Living Center for your event.</p>
-        <a href="/rent/#availability" class="btn btn-primary">Request to Rent</a>
+        <a href="/rent/#availability" data-site-booking class="btn btn-primary">Request to Rent</a>
       </div>
 
     </div>
@@ -283,20 +286,23 @@
       .then(function(r) { return r.ok ? r.json() : null; })
       .then(function(d) {
         if (!d) return;
-        if (d.noteDate) document.getElementById('pricing-note-date').textContent = d.noteDate;
-        if (d.noteText) document.getElementById('pricing-note-text').textContent = d.noteText;
-        if (d.hoursHeader) document.getElementById('pricing-hours').textContent = d.hoursHeader;
-        if (Array.isArray(d.rows) && d.rows.length) {
+        if(typeof d.ctaHeading==='string') document.querySelector('.pricing-cta h2').textContent=d.ctaHeading;
+        if(typeof d.ctaText==='string') document.querySelector('.pricing-cta p').textContent=d.ctaText;
+        if (typeof d.noteDate === 'string') document.getElementById('pricing-note-date').textContent = d.noteDate;
+        if (typeof d.noteText === 'string') document.getElementById('pricing-note-text').textContent = d.noteText;
+        if (typeof d.hoursHeader === 'string') document.getElementById('pricing-hours').textContent = d.hoursHeader;
+        if (Array.isArray(d.rows)) {
           document.getElementById('pricing-rows').innerHTML = d.rows.map(function(row) {
             return '<tr><td>' + esc(row.label) + (row.sublabel ? '<span>' + esc(row.sublabel) + '</span>' : '') + '</td>' +
               '<td>' + esc(row.monThu) + '</td><td>' + esc(row.friday) + '</td><td>' + esc(row.saturday) + '</td><td>' + esc(row.sunday) + '</td></tr>';
           }).join('');
         }
-        if (d.weddingsNote) document.getElementById('pricing-weddings-note').textContent = d.weddingsNote;
-        if (d.availabilityNote) document.getElementById('pricing-availability-note').textContent = d.availabilityNote;
+        if (typeof d.weddingsNote === 'string') document.getElementById('pricing-weddings-note').textContent = d.weddingsNote;
+        if (typeof d.availabilityNote === 'string') document.getElementById('pricing-availability-note').textContent = d.availabilityNote;
       })
       .catch(function() {});
   })();
   </script>
 </body>
 </html>
+

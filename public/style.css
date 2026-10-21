@@ -1124,3 +1124,18 @@ img { border-radius: 2px; }
   *, *::before, *::after { transition: none !important; animation: none !important; }
   html { scroll-behavior: auto; }
 }
+
+
+/* Stable content hooks: independent of page layout. */
+.visually-hidden { position:absolute; width:1px; height:1px; padding:0; margin:-1px; overflow:hidden; clip:rect(0,0,0,0); white-space:nowrap; border:0; }
+.signup-honeypot { position:absolute; left:-5000px; }
+.footer-newsletter-description, .footer-hours, .footer-note { font-size:14px; color:#c4bdc8; }
+.footer-hours { margin-top:-12px; }
+.footer-social { display:flex; gap:20px; justify-content:center; margin:12px 0; }
+.footer-social a { color:#d6d0d9; font-size:15px; }
+.footer-contact a { color:#d6d0d9; }
+.site-announcement { position:fixed; top:0; left:0; right:0; z-index:1002; padding:9px 20px; text-align:center; color:#fff; background:var(--clr-plum); font-size:14px; line-height:1.5; }
+.site-announcement a { color:#fff; text-decoration:underline; font-weight:700; margin-left:8px; }
+body.has-announcement { padding-top:var(--site-announcement-height); }
+.has-announcement .site-nav { top:var(--site-announcement-height); }
+.about-managed-section { margin-bottom:var(--space-2xl); }

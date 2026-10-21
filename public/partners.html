@@ -18,10 +18,16 @@
     .partner-category { color: var(--clr-text-muted); font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.04em; }
   </style>
   <meta property="og:title" content="Our Partners — Sane Living">
-  <meta property="og:description" content="Local Ojai partners who help hosts put on great events at the Sane Living Center.">
+  <meta property="og:description" content="Local Ojai partners who help hosts put on great events at the Sane Living Center — caterers, planners, florists, photographers and more.">
   <meta property="og:image" content="https://saneliving.com/images/homepage-hero.jpg">
   <meta property="og:type" content="website">
   <meta property="og:url" content="https://saneliving.com/partners/">
+<meta name="twitter:title" content="Our Partners — Sane Living">
+<meta name="twitter:description" content="Local Ojai partners who help hosts put on great events at the Sane Living Center — caterers, planners, florists, photographers and more.">
+<meta name="twitter:image" content="https://saneliving.com/images/homepage-hero.jpg">
+<link rel="icon" href="/favicon.svg">
+<script src="/site-config.js" defer></script>
+<script src="/site-content.js" defer></script>
 </head>
 <body>
 
@@ -64,7 +70,7 @@
       .then(function(d) {
         var grid = document.getElementById('partner-grid');
         if (!d) { grid.innerHTML = ''; return; }
-        if (d.intro) document.getElementById('partners-intro').textContent = d.intro;
+        if (typeof d.intro === 'string') document.getElementById('partners-intro').textContent = d.intro;
         var list = d.partners || [];
         if (!list.length) {
           grid.innerHTML = '<p style="text-align:center; color: var(--clr-text-muted); grid-column: 1/-1;">Our partner list is growing — check back soon, or ask us for a recommendation for your event.</p>';
@@ -88,3 +94,4 @@
   </script>
 </body>
 </html>
+
