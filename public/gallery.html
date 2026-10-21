@@ -79,7 +79,7 @@
     });
     fetch('/content/gallery.json')
       .then(function(r) { return r.ok ? r.json() : null; })
-      .then(function(d) { photos = (d && d.photos) || []; render('all'); })
+      .then(function(d) { photos = ((d && d.photos) || []).filter(function(p) { return !p.draft; }); render('all'); })
       .catch(function() { grid.innerHTML = '<p style="text-align:center;">Could not load photos.</p>'; });
   })();
   </script>

@@ -149,6 +149,10 @@
     var resp = await fetch(JSON_SECTIONS[id].load, { cache: 'no-store' });
     if (!resp.ok) throw new Error('Could not load ' + id + ' content.');
     state.data[id] = await resp.json();
+    try {
+      var stash = JSON.parse(sessionStorage.getItem('sl_stash_' + id) || 'null');
+      if (stash && Date.now() - stash.t < 180000) state.data[id] = stash.data;
+    } catch (e) {}
   }
   async function saveJsonSection(id, btn) {
     var original = btn ? btn.innerHTML : '';
@@ -159,9 +163,12 @@
         body: JSON.stringify({ path: JSON_SECTIONS[id].file, content: JSON.stringify(state.data[id], null, 2) + '\n' }),
       });
       setDirty(id, false);
+      try { sessionStorage.setItem('sl_stash_' + id, JSON.stringify({ t: Date.now(), data: state.data[id] })); } catch (e2) {}
       toast('Saved & published — the website updates within about a minute.');
+      return true;
     } catch (e) {
       toast('Save failed: ' + e.message, true);
+      return false;
     } finally {
       if (btn) { btn.disabled = false; btn.innerHTML = original; }
     }
@@ -528,6 +535,7 @@
     return '<div class="photo-card">' +
       '<img src="' + esc(p.image) + '" alt="' + esc(p.alt || '') + '" loading="lazy" onerror="this.style.opacity=0.25">' +
       '<div class="pc-body">' +
+      (p.draft ? '<div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:10px"><span style="background:#fdf0d5;color:#8a6d00;border:1px solid #ecd28a;border-radius:999px;padding:2px 10px;font-size:.76rem;font-weight:700">\u25CF NOT PUBLISHED</span><button type="button" class="btn btn-primary" style="padding:6px 14px;font-size:.85rem" data-ph-publish="' + idx + '">Publish to website</button></div>' : '') +
       '<input data-ph="caption" data-idx="' + idx + '" value="' + esc(p.caption || '') + '" placeholder="Caption (shown under the photo)">' +
       '<input data-ph="alt" data-idx="' + idx + '" value="' + esc(p.alt || '') + '" placeholder="Describe the photo (for accessibility)">' +
       '<label class="pc-section-label">Website section<select data-ph="section" data-idx="' + idx + '">' + sections + '</select></label>' +
@@ -565,7 +573,7 @@
       '<span style="color:var(--muted);font-size:.9rem">Every photo below sits in exactly one website section. Change a photo\'s section with its dropdown; order inside a section follows the ↑ ↓ arrows.</span></div>' +
       '<div id="photoGroups">' + groupsHtml() + '</div>' +
       savebarHtml('gallery', 'gallery');
-    return panelShell('gallery', 'Photo Gallery', 'Photos are organized by where they appear on the website. Add photos inside a section, caption them, then Save & Publish.', inner);
+    return panelShell('gallery', 'Photo Gallery', 'New photos are saved here right away as NOT PUBLISHED \u2014 only you can see them. Press a photo\u2019s Publish button when it should appear on the website.', inner);
   }
   function bindGallery() {
     var wrap = $('#photoGroups');
@@ -595,13 +603,26 @@
       });
     });
     $$('#photoGroups [data-ph-del]').forEach(function (b) {
-      b.addEventListener('click', function () {
+      b.addEventListener('click', async function () {
         var idx = +b.getAttribute('data-ph-del');
         var cap = state.data.gallery.photos[idx].caption || 'this photo';
         if (!window.confirm('Remove "' + cap + '" from the gallery? (The photo file itself stays on the website.)')) return;
+        var wasDraft = !!state.data.gallery.photos[idx].draft;
         state.data.gallery.photos.splice(idx, 1);
         setDirty('gallery', true);
         rerender();
+        if (wasDraft) { await saveJsonSection('gallery', null); toast('Removed and saved.'); }
+      });
+    });
+    $$('#photoGroups [data-ph-publish]').forEach(function (b) {
+      b.addEventListener('click', async function () {
+        var idx = +b.getAttribute('data-ph-publish');
+        state.data.gallery.photos[idx].draft = false;
+        b.disabled = true; b.textContent = 'Publishing\u2026';
+        var okSave = await saveJsonSection('gallery', null);
+        if (okSave === false) { state.data.gallery.photos[idx].draft = true; rerender(); return; }
+        rerender();
+        toast('Published \u2014 the photo goes live on the website within about a minute.');
       });
     });
     $$('#panel-gallery [data-jump]').forEach(function (a) {
@@ -659,26 +680,27 @@
           if (prep.to < prep.from) shrunk++;
           var safeName = prep.name.toLowerCase().replace(/[^a-z0-9._-]/g, '-');
           await api('/api/dash-save', { method: 'POST', body: JSON.stringify({ path: 'public/images/' + safeName, contentBase64: prep.base64 }) });
-          state.data.gallery.photos.push({ image: '/images/' + safeName, caption: '', alt: '', section: section });
+          state.data.gallery.photos.push({ image: '/images/' + safeName, caption: '', alt: '', section: section, draft: true });
         } catch (e) {
           toast('Upload failed for ' + f.name + ': ' + e.message, true);
         }
       }
-      setDirty('gallery', true);
       rerender();
-      toast('Photos uploaded' + (shrunk ? ' (web-sized for fast loading)' : '') + ' into the section. Add captions, then Save & Publish.');
+      await saveJsonSection('gallery', null);
+      toast('Photos saved in the dashboard as NOT PUBLISHED \u2014 safe here even if you refresh. Press \u201CPublish to website\u201D on a photo when you are ready for everyone to see it.');
       fileInput.value = '';
     }
     $$('#photoGroups .gal-upload-group').forEach(function (input) {
       input.addEventListener('change', function () { handleUploads(input, input.getAttribute('data-section')); });
     });
     var addUrl = $('#gal-add-url');
-    if (addUrl) addUrl.addEventListener('click', function () {
+    if (addUrl) addUrl.addEventListener('click', async function () {
       var url = window.prompt('Paste the photo link (it should start with /images/ or https://):');
       if (!url) return;
-      state.data.gallery.photos.push({ image: url.trim(), caption: '', alt: '', section: 'venue' });
-      setDirty('gallery', true);
+      state.data.gallery.photos.push({ image: url.trim(), caption: '', alt: '', section: 'venue', draft: true });
       rerender();
+      await saveJsonSection('gallery', null);
+      toast('Photo saved as NOT PUBLISHED \u2014 press its Publish button when it should go live.');
     });
   }
 

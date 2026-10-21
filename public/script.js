@@ -323,7 +323,7 @@ function initGalleryModal() {
     .then((r) => (r.ok ? r.json() : null))
     .then((data) => {
       if (data && Array.isArray(data.photos) && data.photos.length) {
-        galleryImages = data.photos.map((p) => p.image).filter(Boolean);
+        galleryImages = data.photos.filter((p) => !p.draft).map((p) => p.image).filter(Boolean);
       }
     })
     .catch(() => {});
