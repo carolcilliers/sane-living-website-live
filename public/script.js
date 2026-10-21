@@ -126,14 +126,12 @@ function injectFooter() {
         +1 (805) 646-6000 ·
         <a href="mailto:info@saneliving.com">info@saneliving.com</a>
       </p>
-      <div class="footer-links">
+      <nav class="footer-links" aria-label="Footer navigation">
         <a href="/rent/">Rent</a>
         <a href="/events/">Events</a>
         <a href="/contact/">Contact</a>
-      </div>
-      <div class="footer-team" style="margin-top:14px">
-        <a href="/dash/" style="font-size:.82rem;color:#8f8a90;text-decoration:none;letter-spacing:.03em">Team Login</a>
-      </div>
+        <a href="/dash/">Team Login</a>
+      </nav>
       <p class="footer-copy">© ${year} Sane Living</p>
     </div>
   `;
