@@ -62,7 +62,7 @@ function App() {
   });
   const model = history.now;
   const [selected, select] = useState("");
-  const [width, setWidth] = useState(1024);
+  const [width, setWidth] = useState(() => window.innerWidth < 850 ? 375 : 1024);
   const [clean, setClean] = useState(false);
   const [route, setRoute] = useState("/about/");
   const [reviewing, setReviewing] = useState(false);

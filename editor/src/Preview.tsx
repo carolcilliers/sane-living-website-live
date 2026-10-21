@@ -20,7 +20,7 @@ export function Preview({ model, template, width, selected, select, clean, route
   useEffect(() => {
     const node = viewport.current;
     if (!node) return;
-    const observer = new ResizeObserver(() => { setAvailable(Math.max(240, node.clientWidth - 48)); setHeight(Math.max(520, node.clientHeight - 60)); });
+    const observer = new ResizeObserver(() => { setAvailable(Math.max(240, node.clientWidth - 48)); setHeight(Math.max(180, node.clientHeight - 48)); });
     observer.observe(node); return () => observer.disconnect();
   }, []);
   useEffect(() => { setReady(false); setFailed(false); },[route,reload]);
@@ -106,7 +106,7 @@ export function Preview({ model, template, width, selected, select, clean, route
       <div className="canvas-size" style={{width,transform:`scale(${scale})`,transformOrigin:"top left"}}>
         <div className="canvas-caption"><span className="browser-dots">● ● ●</span><span>{location.host}{route} · {width}px · {Math.round(scale*100)}%</span></div>
         <iframe key={route+reload} ref={frame} title="About page preview" sandbox="allow-same-origin allow-scripts" src={route+"?editor-preview="+reload}
-          style={{height:Math.max(520,(height-31*scale)/scale),visibility:ready?"visible":"hidden"}} onLoad={loaded}/>
+          style={{height:Math.max(180,(height-31*scale)/scale),visibility:ready?"visible":"hidden"}} onLoad={loaded}/>
       </div>
     </div>
   </div>;

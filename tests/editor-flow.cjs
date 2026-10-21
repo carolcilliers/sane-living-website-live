@@ -205,6 +205,7 @@ const createServer = require("./qa-server.cjs"),
       const frame = page
         .frames()
         .find((f) => f.url().includes("/dash/editor/index.html"));
+      assert.equal(await frame.evaluate(()=>document.querySelector('.canvas-fit').getBoundingClientRect().height<=document.querySelector('.canvas-scroll').clientHeight),true,"canvas viewport fits on small screens");
       assert.equal(
         await frame.evaluate(
           () => document.documentElement.scrollWidth > innerWidth,
