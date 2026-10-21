@@ -107,3 +107,21 @@ local editing run `npm run cms` and uncomment it.
   not because the API is broken. Compare `/api/calendar-events` against
   `/api/calendar-events?debug=2` to tell a data gap from an outage.
 
+
+## Page editor pilot (E01–E03)
+
+`editor/` is an isolated React/Vite About editor, lazy-loaded in the dashboard's
+Page Editor panel. Read `docs/editor/IMPLEMENTATION_STATUS.md` before expanding it.
+It reads a copy through authenticated `dash-content`, saves browser-only recovery
+and imports/exports its own draft format. It never calls a content-write API.
+New-editor publication stays disabled until the dev plan's private authoring and
+publication gates pass. Existing About/Settings publication remains unchanged.
+
+`public/about-renderer.js` is the shared About body renderer used by both the
+legacy build (via `content-renderer/about.cjs`) and the pilot preview. Keep output
+parity and managed markers. No public route changed rendering ownership.
+
+Run `npm ci`, `npm run typecheck`, `npm test`, and `npm run build`.
+`npm run dev:editor` starts a local fixture-backed proof server; no production
+credentials or service writes. Compiled `public/dash/editor/` assets are built
+at deploy/test time and are not committed. Keep Settings last in the sidebar.

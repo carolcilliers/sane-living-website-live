@@ -43,13 +43,7 @@ const start=aboutHtml.indexOf('      <!-- United Founder & Philosophy Sections -
 if(start!==-1){const end=aboutHtml.indexOf('      <hr class="section-divider"',start);philosophy=aboutHtml.slice(start,end);}
 const existingPhilosophy=/<!-- philosophy:start -->([\s\S]*?)<!-- philosophy:end -->/.exec(aboutHtml);if(existingPhilosophy)philosophy=existingPhilosophy[1];
 if(fs.existsSync(philosophyPath))philosophy=fs.readFileSync(philosophyPath,'utf8');
-const imageDefaults={'Sane Living Center':'/images/about-center-exterior.jpg','Founder — Aubrey Balkind':'/images/about-aubrey.jpg','Sane Living Farm':'/images/about-farm.jpg','HIP VGN':'/images/about-hipvegan.jpg'};
-const blocks=(about.metadata.sections||[]).filter(section=>section.visible!==false).map((section,i)=>{
- const image=settings.safeUrl(section.image||imageDefaults[section.heading]||'','image'),link=settings.safeUrl(section.linkUrl,'link');
- const prose='<div><h2>'+content.esc(section.heading)+'</h2>'+content.markdown(section.body)+(link&&section.linkText?'<a class="btn btn-outline" href="'+content.esc(link)+'"'+(section.external?' target="_blank" rel="noopener noreferrer"':'')+'>'+content.esc(section.linkText)+'</a>':'')+'</div>';
- const picture=image?'<img src="'+content.esc(image)+'" alt="'+content.esc(section.heading)+'" style="width:100%;border-radius:8px;">':'';
- return '<div data-animate class="about-managed-section '+(image?'split-grid':'')+'">'+(i%2?picture+prose:prose+picture)+'</div>'+(section.heading.indexOf('Founder')===0?'<!-- philosophy:start -->'+philosophy+'<!-- philosophy:end -->':'');
-}).join('\n')+content.markdown(about.body);
+const blocks=require('../content-renderer/about.cjs').sections(about,philosophy);
 if(aboutHtml.includes('<!-- about-managed:start -->'))aboutHtml=aboutHtml.replace(/<!-- about-managed:start -->[\s\S]*?<!-- about-managed:end -->/,()=> '<!-- about-managed:start -->\n'+blocks+'\n<!-- about-managed:end -->');
 else{const a=aboutHtml.indexOf('    <div class="content-block">'),b=aboutHtml.lastIndexOf('    </div>\n  </section>');if(a===-1||b===-1)throw Error('About content container not found');aboutHtml=aboutHtml.slice(0,a)+'    <div class="content-block">\n<!-- about-managed:start -->\n'+blocks+'\n<!-- about-managed:end -->\n'+aboutHtml.slice(b);}
 aboutHtml=aboutHtml.replace(/(<section class="page-hero">[\s\S]*?<h1>)[\s\S]*?(<\/h1>)/,(_,a,b)=>a+content.esc(about.metadata.title||'About Sane Living')+b);

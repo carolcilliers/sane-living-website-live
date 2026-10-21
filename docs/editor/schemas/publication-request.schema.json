@@ -1,0 +1,93 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:sane-living:editor:publication-request:1",
+  "title": "Proposed publication request v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "pageId",
+    "draftRevision",
+    "dependencySelection",
+    "expectedPublishedHashes",
+    "previewSnapshotHash",
+    "idempotencyKey"
+  ],
+  "properties": {
+    "pageId": {
+      "type": "string",
+      "format": "uuid"
+    },
+    "draftRevision": {
+      "type": "string",
+      "pattern": "^rev_[A-Za-z0-9_-]{1,100}$"
+    },
+    "dependencySelection": {
+      "type": "array",
+      "maxItems": 20,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "resourceId",
+          "revision",
+          "source",
+          "writeScope"
+        ],
+        "properties": {
+          "resourceId": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 100
+          },
+          "revision": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 160
+          },
+          "source": {
+            "enum": [
+              "published",
+              "draft"
+            ]
+          },
+          "writeScope": {
+            "enum": [
+              "read-only",
+              "page",
+              "global"
+            ]
+          }
+        }
+      }
+    },
+    "expectedPublishedHashes": {
+      "type": "object",
+      "minProperties": 1,
+      "maxProperties": 30,
+      "propertyNames": {
+        "pattern": "^[A-Za-z0-9:_-]{1,100}$"
+      },
+      "additionalProperties": {
+        "anyOf": [
+          {
+            "type": "string",
+            "pattern": "^(?:[a-f0-9]{40}|[a-f0-9]{64})$"
+          },
+          {
+            "type": "null"
+          }
+        ]
+      }
+    },
+    "previewSnapshotHash": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{64}$"
+    },
+    "idempotencyKey": {
+      "type": "string",
+      "minLength": 16,
+      "maxLength": 128,
+      "pattern": "^[A-Za-z0-9_-]+$"
+    }
+  }
+}

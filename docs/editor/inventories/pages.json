@@ -1,0 +1,560 @@
+[
+  {
+    "source": "public/about.html",
+    "canonical_route": "/about/",
+    "aliases": [
+      "/about/",
+      "/about"
+    ],
+    "current_owner": "About Markdown + build",
+    "classification": "adapter pilot",
+    "proposed_wave": "1",
+    "script_sources": [
+      "/site-config.js",
+      "/site-content.js",
+      "/script.js"
+    ],
+    "fetch_sources": [],
+    "integration_hosts": [],
+    "settings_hooks": [],
+    "inline_script_count": 0
+  },
+  {
+    "source": "public/contact.html",
+    "canonical_route": "/contact/",
+    "aliases": [
+      "/contact/",
+      "/contact"
+    ],
+    "current_owner": "HTML + Settings",
+    "classification": "forms / embeds",
+    "proposed_wave": "3",
+    "script_sources": [
+      "/site-config.js",
+      "/site-content.js",
+      "/script.js"
+    ],
+    "fetch_sources": [],
+    "integration_hosts": [
+      "airtable.com",
+      "www.google.com"
+    ],
+    "settings_hooks": [
+      "data-site-email",
+      "data-site-href",
+      "data-site-inquiry",
+      "data-site-map",
+      "data-site-text"
+    ],
+    "inline_script_count": 0
+  },
+  {
+    "source": "public/events/ojai-health-intensive.html",
+    "canonical_route": "/events/ojai-health-intensive/",
+    "aliases": [
+      "/events/ojai-health-intensive/",
+      "/events/ojai-health-intensive"
+    ],
+    "current_owner": "HTML + media",
+    "classification": "custom media",
+    "proposed_wave": "4",
+    "script_sources": [
+      "/site-config.js",
+      "/site-content.js",
+      "/script.js"
+    ],
+    "fetch_sources": [],
+    "integration_hosts": [
+      "player.vimeo.com"
+    ],
+    "settings_hooks": [],
+    "inline_script_count": 0
+  },
+  {
+    "source": "public/events/past.html",
+    "canonical_route": "/events/past/",
+    "aliases": [
+      "/events/past/",
+      "/events/past"
+    ],
+    "current_owner": "HTML + Airtable / Settings",
+    "classification": "live data / shared integration",
+    "proposed_wave": "4",
+    "script_sources": [
+      "/site-config.js",
+      "/site-content.js",
+      "/script.js"
+    ],
+    "fetch_sources": [
+      "/api/calendar-events-past"
+    ],
+    "integration_hosts": [],
+    "settings_hooks": [],
+    "inline_script_count": 1
+  },
+  {
+    "source": "public/events.html",
+    "canonical_route": "/events/",
+    "aliases": [
+      "/events/",
+      "/events"
+    ],
+    "current_owner": "HTML + Airtable / Settings",
+    "classification": "live data / shared integration",
+    "proposed_wave": "4",
+    "script_sources": [
+      "/site-config.js",
+      "/site-content.js",
+      "/script.js"
+    ],
+    "fetch_sources": [
+      "/api/calendar-events"
+    ],
+    "integration_hosts": [
+      "saneliving.us19.list-manage.com"
+    ],
+    "settings_hooks": [],
+    "inline_script_count": 1
+  },
+  {
+    "source": "public/evo3.html",
+    "canonical_route": "/evo3/",
+    "aliases": [
+      "/evo3/",
+      "/evo3"
+    ],
+    "current_owner": "HTML",
+    "classification": "editorial / template candidate",
+    "proposed_wave": "2",
+    "script_sources": [
+      "/site-config.js",
+      "/site-content.js",
+      "/script.js"
+    ],
+    "fetch_sources": [],
+    "integration_hosts": [],
+    "settings_hooks": [],
+    "inline_script_count": 0
+  },
+  {
+    "source": "public/gallery.html",
+    "canonical_route": "/gallery/",
+    "aliases": [
+      "/gallery/",
+      "/gallery"
+    ],
+    "current_owner": "HTML + collection JSON",
+    "classification": "collection / functional",
+    "proposed_wave": "3",
+    "script_sources": [
+      "/site-config.js",
+      "/site-content.js",
+      "/script.js"
+    ],
+    "fetch_sources": [
+      "/content/gallery.json"
+    ],
+    "integration_hosts": [],
+    "settings_hooks": [
+      "data-site-booking"
+    ],
+    "inline_script_count": 1
+  },
+  {
+    "source": "public/index.html",
+    "canonical_route": "/",
+    "aliases": [
+      "/"
+    ],
+    "current_owner": "HTML + Airtable / Settings",
+    "classification": "live data / shared integration",
+    "proposed_wave": "4",
+    "script_sources": [
+      "/site-config.js",
+      "/site-content.js",
+      "/script.js"
+    ],
+    "fetch_sources": [
+      "/api/calendar-events"
+    ],
+    "integration_hosts": [
+      "local-video",
+      "www.google.com"
+    ],
+    "settings_hooks": [
+      "data-site-hero-video",
+      "data-site-href",
+      "data-site-map",
+      "data-site-text"
+    ],
+    "inline_script_count": 1
+  },
+  {
+    "source": "public/inspiration.html",
+    "canonical_route": "/inspiration/",
+    "aliases": [
+      "/inspiration/",
+      "/inspiration"
+    ],
+    "current_owner": "HTML + media",
+    "classification": "custom media",
+    "proposed_wave": "4",
+    "script_sources": [
+      "/site-config.js",
+      "/site-content.js",
+      "/script.js"
+    ],
+    "fetch_sources": [],
+    "integration_hosts": [
+      "www.youtube.com"
+    ],
+    "settings_hooks": [],
+    "inline_script_count": 1
+  },
+  {
+    "source": "public/lifestyle-ai-algo.html",
+    "canonical_route": "/lifestyle/ai-algo/",
+    "aliases": [
+      "/lifestyle/ai-algo/",
+      "/lifestyle/ai-algo"
+    ],
+    "current_owner": "HTML",
+    "classification": "editorial / template candidate",
+    "proposed_wave": "2",
+    "script_sources": [
+      "/site-config.js",
+      "/site-content.js",
+      "/script.js"
+    ],
+    "fetch_sources": [],
+    "integration_hosts": [],
+    "settings_hooks": [],
+    "inline_script_count": 0
+  },
+  {
+    "source": "public/lifestyle-evo3.html",
+    "canonical_route": "/lifestyle/evo3/",
+    "aliases": [
+      "/lifestyle/evo3/",
+      "/lifestyle/evo3"
+    ],
+    "current_owner": "HTML",
+    "classification": "editorial / template candidate",
+    "proposed_wave": "2",
+    "script_sources": [
+      "/site-config.js",
+      "/site-content.js",
+      "/script.js"
+    ],
+    "fetch_sources": [],
+    "integration_hosts": [],
+    "settings_hooks": [],
+    "inline_script_count": 0
+  },
+  {
+    "source": "public/lifestyle-natures-bio.html",
+    "canonical_route": "/lifestyle/natures-bio/",
+    "aliases": [
+      "/lifestyle/natures-bio/",
+      "/lifestyle/natures-bio"
+    ],
+    "current_owner": "HTML",
+    "classification": "editorial / template candidate",
+    "proposed_wave": "2",
+    "script_sources": [
+      "/site-config.js",
+      "/site-content.js",
+      "/script.js"
+    ],
+    "fetch_sources": [],
+    "integration_hosts": [],
+    "settings_hooks": [],
+    "inline_script_count": 0
+  },
+  {
+    "source": "public/lifestyle-sapiens-ego.html",
+    "canonical_route": "/lifestyle/sapiens-ego/",
+    "aliases": [
+      "/lifestyle/sapiens-ego/",
+      "/lifestyle/sapiens-ego"
+    ],
+    "current_owner": "HTML",
+    "classification": "editorial / template candidate",
+    "proposed_wave": "2",
+    "script_sources": [
+      "/site-config.js",
+      "/site-content.js",
+      "/script.js"
+    ],
+    "fetch_sources": [],
+    "integration_hosts": [],
+    "settings_hooks": [],
+    "inline_script_count": 0
+  },
+  {
+    "source": "public/lifestyle.html",
+    "canonical_route": "/lifestyle/",
+    "aliases": [
+      "/lifestyle/",
+      "/lifestyle"
+    ],
+    "current_owner": "HTML",
+    "classification": "editorial / template candidate",
+    "proposed_wave": "2",
+    "script_sources": [
+      "/site-config.js",
+      "/site-content.js",
+      "/script.js"
+    ],
+    "fetch_sources": [],
+    "integration_hosts": [],
+    "settings_hooks": [],
+    "inline_script_count": 0
+  },
+  {
+    "source": "public/partners.html",
+    "canonical_route": "/partners/",
+    "aliases": [
+      "/partners/",
+      "/partners"
+    ],
+    "current_owner": "HTML + collection JSON",
+    "classification": "collection / functional",
+    "proposed_wave": "3",
+    "script_sources": [
+      "/site-config.js",
+      "/site-content.js",
+      "/script.js"
+    ],
+    "fetch_sources": [
+      "/content/partners.json"
+    ],
+    "integration_hosts": [],
+    "settings_hooks": [],
+    "inline_script_count": 1
+  },
+  {
+    "source": "public/rent-farm.html",
+    "canonical_route": "/rent/farm/",
+    "aliases": [
+      "/rent/farm/",
+      "/rent/farm"
+    ],
+    "current_owner": "HTML + media",
+    "classification": "custom media",
+    "proposed_wave": "4",
+    "script_sources": [
+      "/site-config.js",
+      "/site-content.js",
+      "/script.js"
+    ],
+    "fetch_sources": [],
+    "integration_hosts": [
+      "local-video"
+    ],
+    "settings_hooks": [],
+    "inline_script_count": 0
+  },
+  {
+    "source": "public/rent-pricing.html",
+    "canonical_route": "/rent/pricing/",
+    "aliases": [
+      "/rent/pricing/",
+      "/rent/pricing"
+    ],
+    "current_owner": "HTML + collection JSON",
+    "classification": "collection / functional",
+    "proposed_wave": "3",
+    "script_sources": [
+      "/site-config.js",
+      "/site-content.js",
+      "/script.js"
+    ],
+    "fetch_sources": [
+      "/content/pricing.json"
+    ],
+    "integration_hosts": [
+      "airtable.com"
+    ],
+    "settings_hooks": [
+      "data-site-availability",
+      "data-site-booking"
+    ],
+    "inline_script_count": 1
+  },
+  {
+    "source": "public/rent-weddings.html",
+    "canonical_route": "/rent/weddings/",
+    "aliases": [
+      "/rent/weddings/",
+      "/rent/weddings"
+    ],
+    "current_owner": "HTML + collection JSON",
+    "classification": "collection / functional",
+    "proposed_wave": "3",
+    "script_sources": [
+      "/site-config.js",
+      "/site-content.js",
+      "/script.js"
+    ],
+    "fetch_sources": [
+      "/content/weddings.json"
+    ],
+    "integration_hosts": [
+      "airtable.com"
+    ],
+    "settings_hooks": [
+      "data-site-availability",
+      "data-site-booking",
+      "data-site-href"
+    ],
+    "inline_script_count": 1
+  },
+  {
+    "source": "public/rent.html",
+    "canonical_route": "/rent/",
+    "aliases": [
+      "/rent/",
+      "/rent"
+    ],
+    "current_owner": "HTML + Settings",
+    "classification": "forms / embeds",
+    "proposed_wave": "3",
+    "script_sources": [
+      "/site-config.js",
+      "/site-content.js",
+      "/script.js"
+    ],
+    "fetch_sources": [],
+    "integration_hosts": [
+      "airtable.com"
+    ],
+    "settings_hooks": [
+      "data-site-booking",
+      "data-site-rental-inquiry"
+    ],
+    "inline_script_count": 0
+  },
+  {
+    "source": "public/sculpture.html",
+    "canonical_route": "/sculpture/",
+    "aliases": [
+      "/sculpture/",
+      "/sculpture"
+    ],
+    "current_owner": "HTML + media",
+    "classification": "custom media",
+    "proposed_wave": "4",
+    "script_sources": [
+      "/site-config.js",
+      "/site-content.js",
+      "/script.js"
+    ],
+    "fetch_sources": [],
+    "integration_hosts": [
+      "player.vimeo.com"
+    ],
+    "settings_hooks": [],
+    "inline_script_count": 0
+  },
+  {
+    "source": "public/self-heal-destress.html",
+    "canonical_route": "/self-heal/destress/",
+    "aliases": [
+      "/self-heal/destress/",
+      "/self-heal/destress"
+    ],
+    "current_owner": "HTML",
+    "classification": "editorial / template candidate",
+    "proposed_wave": "2",
+    "script_sources": [
+      "/site-config.js",
+      "/site-content.js",
+      "/script.js"
+    ],
+    "fetch_sources": [],
+    "integration_hosts": [],
+    "settings_hooks": [],
+    "inline_script_count": 0
+  },
+  {
+    "source": "public/self-heal-detox.html",
+    "canonical_route": "/self-heal/detox/",
+    "aliases": [
+      "/self-heal/detox/",
+      "/self-heal/detox"
+    ],
+    "current_owner": "HTML",
+    "classification": "editorial / template candidate",
+    "proposed_wave": "2",
+    "script_sources": [
+      "/site-config.js",
+      "/site-content.js",
+      "/script.js"
+    ],
+    "fetch_sources": [],
+    "integration_hosts": [],
+    "settings_hooks": [],
+    "inline_script_count": 0
+  },
+  {
+    "source": "public/self-heal-eat.html",
+    "canonical_route": "/self-heal/eat/",
+    "aliases": [
+      "/self-heal/eat/",
+      "/self-heal/eat"
+    ],
+    "current_owner": "HTML",
+    "classification": "editorial / template candidate",
+    "proposed_wave": "2",
+    "script_sources": [
+      "/site-config.js",
+      "/site-content.js",
+      "/script.js"
+    ],
+    "fetch_sources": [],
+    "integration_hosts": [],
+    "settings_hooks": [],
+    "inline_script_count": 0
+  },
+  {
+    "source": "public/self-heal-move.html",
+    "canonical_route": "/self-heal/move/",
+    "aliases": [
+      "/self-heal/move/",
+      "/self-heal/move"
+    ],
+    "current_owner": "HTML",
+    "classification": "editorial / template candidate",
+    "proposed_wave": "2",
+    "script_sources": [
+      "/site-config.js",
+      "/site-content.js",
+      "/script.js"
+    ],
+    "fetch_sources": [],
+    "integration_hosts": [],
+    "settings_hooks": [],
+    "inline_script_count": 0
+  },
+  {
+    "source": "public/self-heal.html",
+    "canonical_route": "/self-heal/",
+    "aliases": [
+      "/self-heal/",
+      "/self-heal"
+    ],
+    "current_owner": "HTML",
+    "classification": "editorial / template candidate",
+    "proposed_wave": "2",
+    "script_sources": [
+      "/site-config.js",
+      "/site-content.js",
+      "/script.js"
+    ],
+    "fetch_sources": [],
+    "integration_hosts": [],
+    "settings_hooks": [],
+    "inline_script_count": 0
+  }
+]

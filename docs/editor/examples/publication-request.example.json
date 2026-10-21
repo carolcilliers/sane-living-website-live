@@ -1,0 +1,25 @@
+{
+  "pageId": "11111111-1111-4111-8111-111111111111",
+  "draftRevision": "rev_synthetic_001",
+  "dependencySelection": [
+    {
+      "resourceId": "about",
+      "revision": "rev_synthetic_about_001",
+      "source": "draft",
+      "writeScope": "page"
+    },
+    {
+      "resourceId": "settings",
+      "revision": "published_synthetic_settings",
+      "source": "published",
+      "writeScope": "read-only"
+    }
+  ],
+  "expectedPublishedHashes": {
+    "page:about": null,
+    "about": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    "settings": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+  },
+  "previewSnapshotHash": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+  "idempotencyKey": "synthetic_proof_request_001"
+}

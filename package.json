@@ -5,10 +5,27 @@
   "scripts": {
     "dev": "npx serve . -l 3000",
     "cms": "npx decap-server",
-    "build": "node scripts/build-content.cjs",
-    "test": "node tests/content-api.cjs && node tests/studio-flow.cjs && node tests/studio-settings.cjs"
+    "build": "npm run build:editor && node scripts/build-content.cjs",
+    "test": "node tests/content-api.cjs && node tests/studio-flow.cjs && node tests/studio-settings.cjs && npm run test:editor",
+    "build:editor": "vite build --config editor/vite.config.mjs",
+    "dev:editor": "node scripts/dev-editor.cjs",
+    "test:editor": "node tests/editor-contract.cjs && node tests/editor-flow.cjs",
+    "typecheck": "tsc -p editor/tsconfig.json",
+    "pretest": "npm run build:editor"
   },
   "devDependencies": {
-    "playwright": "1.62.1"
+    "@types/react": "19.2.7",
+    "@types/react-dom": "19.2.3",
+    "@vitejs/plugin-react": "5.1.1",
+    "playwright": "1.62.1",
+    "typescript": "5.9.3",
+    "vite": "7.3.1"
+  },
+  "dependencies": {
+    "@dnd-kit/core": "6.3.1",
+    "@dnd-kit/sortable": "10.0.0",
+    "@dnd-kit/utilities": "3.2.2",
+    "react": "19.2.0",
+    "react-dom": "19.2.0"
   }
 }

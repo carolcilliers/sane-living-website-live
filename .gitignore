@@ -6,3 +6,7 @@ node_modules/
 .env.*
 !.env.example
 *.log
+
+# Compiled only at deployment/test time; source remains in editor/.
+public/dash/editor/
+tests/qa-*.png

@@ -1,0 +1,306 @@
+[
+  {
+    "key": "schemaVersion",
+    "group": "Schema",
+    "current_type": "integer",
+    "canonical_resource": "settings",
+    "binding_key": "schemaVersion",
+    "scope": "global"
+  },
+  {
+    "key": "businessName",
+    "group": "Branding",
+    "current_type": "string",
+    "canonical_resource": "settings",
+    "binding_key": "businessName",
+    "scope": "global"
+  },
+  {
+    "key": "phoneDisplay",
+    "group": "Contact and social",
+    "current_type": "string",
+    "canonical_resource": "settings",
+    "binding_key": "phoneDisplay",
+    "scope": "global"
+  },
+  {
+    "key": "phoneLink",
+    "group": "Contact and social",
+    "current_type": "string",
+    "canonical_resource": "settings",
+    "binding_key": "phoneLink",
+    "scope": "global"
+  },
+  {
+    "key": "email",
+    "group": "Contact and social",
+    "current_type": "string",
+    "canonical_resource": "settings",
+    "binding_key": "email",
+    "scope": "global"
+  },
+  {
+    "key": "address",
+    "group": "Contact and social",
+    "current_type": "string",
+    "canonical_resource": "settings",
+    "binding_key": "address",
+    "scope": "global"
+  },
+  {
+    "key": "hours",
+    "group": "Contact and social",
+    "current_type": "string",
+    "canonical_resource": "settings",
+    "binding_key": "hours",
+    "scope": "global"
+  },
+  {
+    "key": "logoUrl",
+    "group": "Branding",
+    "current_type": "string",
+    "canonical_resource": "settings",
+    "binding_key": "logoUrl",
+    "scope": "global"
+  },
+  {
+    "key": "logoAlt",
+    "group": "Branding",
+    "current_type": "string",
+    "canonical_resource": "settings",
+    "binding_key": "logoAlt",
+    "scope": "global"
+  },
+  {
+    "key": "faviconUrl",
+    "group": "Branding",
+    "current_type": "string",
+    "canonical_resource": "settings",
+    "binding_key": "faviconUrl",
+    "scope": "global"
+  },
+  {
+    "key": "footerText",
+    "group": "Branding",
+    "current_type": "string",
+    "canonical_resource": "settings",
+    "binding_key": "footerText",
+    "scope": "global"
+  },
+  {
+    "key": "bookingPageUrl",
+    "group": "Booking",
+    "current_type": "string",
+    "canonical_resource": "settings",
+    "binding_key": "bookingPageUrl",
+    "scope": "global"
+  },
+  {
+    "key": "availabilityEmbedUrl",
+    "group": "Booking",
+    "current_type": "string",
+    "canonical_resource": "settings",
+    "binding_key": "availabilityEmbedUrl",
+    "scope": "global"
+  },
+  {
+    "key": "instagramUrl",
+    "group": "Contact and social",
+    "current_type": "string",
+    "canonical_resource": "settings",
+    "binding_key": "instagramUrl",
+    "scope": "global"
+  },
+  {
+    "key": "facebookUrl",
+    "group": "Contact and social",
+    "current_type": "string",
+    "canonical_resource": "settings",
+    "binding_key": "facebookUrl",
+    "scope": "global"
+  },
+  {
+    "key": "homeHeading",
+    "group": "Homepage",
+    "current_type": "string",
+    "canonical_resource": "settings",
+    "binding_key": "homeHeading",
+    "scope": "global"
+  },
+  {
+    "key": "homeIntro",
+    "group": "Homepage",
+    "current_type": "string",
+    "canonical_resource": "settings",
+    "binding_key": "homeIntro",
+    "scope": "global"
+  },
+  {
+    "key": "homePrimaryLabel",
+    "group": "Homepage",
+    "current_type": "string",
+    "canonical_resource": "settings",
+    "binding_key": "homePrimaryLabel",
+    "scope": "global"
+  },
+  {
+    "key": "homePrimaryUrl",
+    "group": "Homepage",
+    "current_type": "string",
+    "canonical_resource": "settings",
+    "binding_key": "homePrimaryUrl",
+    "scope": "global"
+  },
+  {
+    "key": "homeVideoUrl",
+    "group": "Homepage",
+    "current_type": "string",
+    "canonical_resource": "settings",
+    "binding_key": "homeVideoUrl",
+    "scope": "global"
+  },
+  {
+    "key": "homePosterUrl",
+    "group": "Homepage",
+    "current_type": "string",
+    "canonical_resource": "settings",
+    "binding_key": "homePosterUrl",
+    "scope": "global"
+  },
+  {
+    "key": "announcementEnabled",
+    "group": "Announcement",
+    "current_type": "boolean",
+    "canonical_resource": "settings",
+    "binding_key": "announcementEnabled",
+    "scope": "global"
+  },
+  {
+    "key": "announcementText",
+    "group": "Announcement",
+    "current_type": "string",
+    "canonical_resource": "settings",
+    "binding_key": "announcementText",
+    "scope": "global"
+  },
+  {
+    "key": "announcementLinkLabel",
+    "group": "Announcement",
+    "current_type": "string",
+    "canonical_resource": "settings",
+    "binding_key": "announcementLinkLabel",
+    "scope": "global"
+  },
+  {
+    "key": "announcementLinkUrl",
+    "group": "Announcement",
+    "current_type": "string",
+    "canonical_resource": "settings",
+    "binding_key": "announcementLinkUrl",
+    "scope": "global"
+  },
+  {
+    "key": "newsletterEnabled",
+    "group": "Newsletter",
+    "current_type": "boolean",
+    "canonical_resource": "settings",
+    "binding_key": "newsletterEnabled",
+    "scope": "global"
+  },
+  {
+    "key": "newsletterTitle",
+    "group": "Newsletter",
+    "current_type": "string",
+    "canonical_resource": "settings",
+    "binding_key": "newsletterTitle",
+    "scope": "global"
+  },
+  {
+    "key": "newsletterDescription",
+    "group": "Newsletter",
+    "current_type": "string",
+    "canonical_resource": "settings",
+    "binding_key": "newsletterDescription",
+    "scope": "global"
+  },
+  {
+    "key": "newsletterButton",
+    "group": "Newsletter",
+    "current_type": "string",
+    "canonical_resource": "settings",
+    "binding_key": "newsletterButton",
+    "scope": "global"
+  },
+  {
+    "key": "newsletterUrl",
+    "group": "Newsletter",
+    "current_type": "string",
+    "canonical_resource": "settings",
+    "binding_key": "newsletterUrl",
+    "scope": "global"
+  },
+  {
+    "key": "rentalFormUrl",
+    "group": "Booking",
+    "current_type": "string",
+    "canonical_resource": "settings",
+    "binding_key": "rentalFormUrl",
+    "scope": "global"
+  },
+  {
+    "key": "contactFormUrl",
+    "group": "Contact and social",
+    "current_type": "string",
+    "canonical_resource": "settings",
+    "binding_key": "contactFormUrl",
+    "scope": "global"
+  },
+  {
+    "key": "mapEmbedUrl",
+    "group": "Contact and social",
+    "current_type": "string",
+    "canonical_resource": "settings",
+    "binding_key": "mapEmbedUrl",
+    "scope": "global"
+  },
+  {
+    "key": "directionsUrl",
+    "group": "Contact and social",
+    "current_type": "string",
+    "canonical_resource": "settings",
+    "binding_key": "directionsUrl",
+    "scope": "global"
+  },
+  {
+    "key": "defaultShareImage",
+    "group": "Search and sharing",
+    "current_type": "string",
+    "canonical_resource": "settings",
+    "binding_key": "defaultShareImage",
+    "scope": "global"
+  },
+  {
+    "key": "siteDescription",
+    "group": "Search and sharing",
+    "current_type": "string",
+    "canonical_resource": "settings",
+    "binding_key": "siteDescription",
+    "scope": "global"
+  },
+  {
+    "key": "navigation",
+    "group": "Navigation",
+    "current_type": "array",
+    "canonical_resource": "settings",
+    "binding_key": "navigation",
+    "scope": "global"
+  },
+  {
+    "key": "pageMeta",
+    "group": "Search and sharing",
+    "current_type": "object",
+    "canonical_resource": "settings",
+    "binding_key": "pageMeta",
+    "scope": "global"
+  }
+]

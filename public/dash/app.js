@@ -65,6 +65,7 @@
     { id: 'weddings', label: 'Weddings Page', icon: '<svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 21s-7.5-4.7-10-9.3C.4 8.6 2.3 5 5.7 5c2 0 3.4 1.1 4.3 2.4h4c.9-1.3 2.3-2.4 4.3-2.4 3.4 0 5.3 3.6 3.7 6.7C19.5 16.3 12 21 12 21z" transform="scale(0.92) translate(1,0)"/></svg>' },
     { id: 'pricing', label: 'Pricing & Rates', icon: '<svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v20M17 6.5c-.6-1-2.6-1.5-5-1.5-3 0-5 1.3-5 3.2 0 4.4 10 2.4 10 6.6 0 1.9-2 3.2-5 3.2-2.4 0-4.4-.6-5-1.6"/></svg>' },
     { id: 'partners', label: 'Partners', icon: '<svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.9M16 3.1a4 4 0 0 1 0 7.8"/></svg>' },
+    { id: 'editor', label: 'Page Editor', icon: '<svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="3"/><path d="M3 9h18M9 9v12m4-8h4m-4 4h4"/></svg>' },
     { id: 'about', label: 'About Page', icon: '<svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>' },
     { id: 'settings', label: 'Settings', icon: '<svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.9l.1.1a2 2 0 1 1-2.9 2.9l-.1-.1a1.7 1.7 0 0 0-1.9-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.2a1.7 1.7 0 0 0-1-1.5 1.7 1.7 0 0 0-1.9.3l-.1.1a2 2 0 1 1-2.9-2.9l.1-.1a1.7 1.7 0 0 0 .3-1.9 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.2a1.7 1.7 0 0 0 1.5-1 1.7 1.7 0 0 0-.3-1.9l-.1-.1a2 2 0 1 1 2.9-2.9l.1.1a1.7 1.7 0 0 0 1.9.3h0a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.2a1.7 1.7 0 0 0 1 1.5h0a1.7 1.7 0 0 0 1.9-.3l.1-.1a2 2 0 1 1 2.9 2.9l-.1.1a1.7 1.7 0 0 0-.3 1.9v0a1.7 1.7 0 0 0 1.5 1h.2a2 2 0 1 1 0 4h-.2a1.7 1.7 0 0 0-1.5 1z"/></svg>' },
   ];
@@ -107,6 +108,8 @@
   });
   $('#logoutBtn').addEventListener('click', async function () {
     try { await api('/api/dash-login', { method: 'DELETE' }); } catch (e) { /* ignore */ }
+    var frame=document.getElementById('pageEditorFrame');if(frame)frame.remove();
+    try{localStorage.removeItem('sl_editor_about_v1');}catch(e){}
     showLogin();
   });
 
@@ -121,7 +124,12 @@
     });
   }
   function goTo(id) {
+    if (!SECTIONS.some(function(s){return s.id===id;})) return;
+    var editorFrame=document.getElementById('pageEditorFrame');
+    if(editorFrame&&state.section==='editor'&&id!=='editor')editorFrame.contentWindow.postMessage({type:'sane-editor:flush'},location.origin);
     state.section = id;
+    history.replaceState(null,'','#'+id);
+    if(id==='editor'&&!editorFrame){var host=document.getElementById('pageEditorHost');if(host){var frame=document.createElement('iframe');frame.id='pageEditorFrame';frame.title='Sane Living page editor';frame.src='/dash/editor/index.html';frame.style.cssText='width:100%;height:calc(100vh - 36px);min-height:880px;border:0;border-radius:16px;background:#f6f5f7;display:block';host.appendChild(frame);}}
     $$('#mainNav [data-nav]').forEach(function (b) { b.classList.toggle('active', b.getAttribute('data-nav') === id); });
     $$('#panels .panel').forEach(function (p) { p.classList.toggle('active', p.id === 'panel-' + id); });
     window.scrollTo({ top: 0 });
@@ -386,6 +394,7 @@
         pricing: 'The rental rate table and booking notes on the Pricing page.',
         partners: 'Local partners shown on the Partners page.',
         settings: 'Phone, email, address, hours and social links used across the site.',
+        editor: 'Arrange and preview an About page draft in the visual editor.',
         about: 'Edit the About page’s sections, story and links.',
       }[x.id];
       return '<button type="button" class="shortcut" data-goto="' + x.id + '"><h3>' + x.label + '</h3><p>' + blurb + '</p></button>';
@@ -1040,7 +1049,8 @@
   }
 
   /* ---------------- render / bind orchestration ---------------- */
-  var RENDER = { home: renderHome, events: renderEvents, gallery: renderGallery, weddings: renderWeddings, pricing: renderPricing, partners: renderPartners, settings: renderSettings, about: renderAbout };
+  function renderEditor(){return '<section class="panel" id="panel-editor"><div id="pageEditorHost"></div></section>';}
+  var RENDER = { editor:renderEditor, home: renderHome, events: renderEvents, gallery: renderGallery, weddings: renderWeddings, pricing: renderPricing, partners: renderPartners, settings: renderSettings, about: renderAbout };
   var BIND = { home: bindHome, events: bindEventButtons, gallery: bindGallery, weddings: bindWeddings, pricing: bindPricing, partners: bindPartners, settings: bindSettings, about: bindAbout };
   function renderAll() {
     $('#panels').innerHTML = SECTIONS.map(function (s) { fieldScope=s.id; return RENDER[s.id](); }).join('');
@@ -1088,12 +1098,13 @@
     }
     try { await loadContentSection('about'); } catch(e) { state.loadErrors.about=e.message; state.loaded.about=false; state.aboutText=''; }
     renderAll();
-    goTo('home');
+    goTo(SECTIONS.some(function(s){return '#'+s.id===location.hash;})?location.hash.slice(1):'home');
     loadEvents(false);
   }
 
   window.addEventListener('beforeunload',function(e){ if(state.uploading || Object.keys(state.unsaved).some(function(k){return state.unsaved[k];})){e.preventDefault();e.returnValue='';} });
 
+  window.addEventListener('hashchange',function(){if(entered)goTo(location.hash.slice(1));});
   /* ---------------- boot ---------------- */
   fetch('/content/settings.json',{cache:'no-cache'}).then(function(r){return r.ok?r.json():null;}).then(function(s){if(s)applyDashboardBranding(s);}).catch(function(){});
   (async function boot() {

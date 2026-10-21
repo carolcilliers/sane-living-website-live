@@ -3,6 +3,7 @@ const {execFileSync}=require('node:child_process');
 module.exports=async function createServer(){
  const root=path.resolve(__dirname,'..'),output=fs.mkdtempSync(path.join(os.tmpdir(),'sane-studio-'));
  fs.cpSync(path.join(root,'public'),path.join(output,'public'),{recursive:true});fs.cpSync(path.join(root,'scripts'),path.join(output,'scripts'),{recursive:true});fs.copyFileSync(path.join(root,'vercel.json'),path.join(output,'vercel.json'));fs.cpSync(path.join(root,'templates'),path.join(output,'templates'),{recursive:true});
+ fs.cpSync(path.join(root,'content-renderer'),path.join(output,'content-renderer'),{recursive:true});
  const content=require('../api/_contentlib');
  const records=new Map(Object.values(content.FILES).map(file=>[file,{content:fs.readFileSync(path.join(root,file),'utf8')} ]));
  function sha(text){return crypto.createHash('sha1').update(text).digest('hex');}for(const record of records.values())record.sha=sha(record.content);

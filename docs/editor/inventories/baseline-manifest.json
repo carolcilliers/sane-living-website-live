@@ -1,0 +1,554 @@
+{
+  "repository": "carolcilliers/sane-living-website-live",
+  "branch": "main",
+  "commit": "3e020ae628ae609345d3906a5d8180d293fd05ff",
+  "source_file_count": 65,
+  "supplemental_count": 3,
+  "scope": "source metadata only; no complete website source distributed",
+  "files": [
+    {
+      "path": ".env.example",
+      "githubBlobSha": "f9b295ba9afc65051aada104743dab6bc56d8e52",
+      "role": "retrieved-current-source",
+      "snapshot_sha256": "a47904e8195836a919543d24cd61950b6292d34f3d0b4489ef45db2480354a61",
+      "bytes": 1225,
+      "exact_git_blob_match": true
+    },
+    {
+      "path": "CLAUDE.md",
+      "githubBlobSha": "351f492f2717a1d8144c60cdff5ab83c166b1cf0",
+      "role": "retrieved-current-source",
+      "snapshot_sha256": "b1db066a869f2c1893cb44f0bcd67d97b34f7cc2cf4dd6db2e6a110e5d2eecf4",
+      "bytes": 5307,
+      "exact_git_blob_match": true
+    },
+    {
+      "path": "api/_contentlib.js",
+      "githubBlobSha": "a9f9a04969811ab0257081702be2ad36dd137043",
+      "role": "retrieved-current-source",
+      "snapshot_sha256": "c4f5e730379416857128a000ed32290cb79886128df50ca5314b25c73501c7a1",
+      "bytes": 2350,
+      "exact_git_blob_match": true
+    },
+    {
+      "path": "api/_dashlib.js",
+      "githubBlobSha": "3211e016da2c142adb4db2dd4b7aff12ed99e261",
+      "role": "retrieved-current-source",
+      "snapshot_sha256": "d570411584215b859d79d61e8ab45a76ed04960ebdab9403d25dd35348c0e947",
+      "bytes": 3191,
+      "exact_git_blob_match": true
+    },
+    {
+      "path": "api/auth.js",
+      "githubBlobSha": "f0d637a4e4f1ff2e677884173986066ff2df1c61",
+      "role": "retrieved-current-source",
+      "snapshot_sha256": "a2f939373dfad7120d01272524ece9492e627c6e14fe53e192b07e6e6f2e58f7",
+      "bytes": 8186,
+      "exact_git_blob_match": true
+    },
+    {
+      "path": "api/calendar-events-past.js",
+      "githubBlobSha": "df677a7af6669cd532da9c5d9e88d5dbf02a84e3",
+      "role": "retrieved-current-source",
+      "snapshot_sha256": "ae9cba367e90ff580fea4ceb0a9f1dbdeceb2a67db1d01bd7379f3b6f0840233",
+      "bytes": 4585,
+      "exact_git_blob_match": true
+    },
+    {
+      "path": "api/calendar-events.js",
+      "githubBlobSha": "255f40e4850384fb431ca2a70672d18f63683cb6",
+      "role": "retrieved-current-source",
+      "snapshot_sha256": "278ff60032f6244b8e669343855054037794ffad7077e27b2faafe3ddc87b0a5",
+      "bytes": 4601,
+      "exact_git_blob_match": true
+    },
+    {
+      "path": "api/callback.js",
+      "githubBlobSha": "0401f56fab771d351dfe8dbaf0bd82bac7206797",
+      "role": "retrieved-current-source",
+      "snapshot_sha256": "9d816536507adf080940299e9f1dd24839d9f5a8ff512b1bcf94eba71fd71df5",
+      "bytes": 868,
+      "exact_git_blob_match": true
+    },
+    {
+      "path": "api/dash-content.js",
+      "githubBlobSha": "805283f7e33d4047a2fcb037e4ad6ef134aab739",
+      "role": "retrieved-current-source",
+      "snapshot_sha256": "5ba4b0c6d95c2ade7af93afdf578a4bb6fefe37d8cfb4a0cbd7000f4099c5575",
+      "bytes": 1068,
+      "exact_git_blob_match": true
+    },
+    {
+      "path": "api/dash-events.js",
+      "githubBlobSha": "15c268213e68766ca32c722b734a25d23823efa0",
+      "role": "retrieved-current-source",
+      "snapshot_sha256": "bb48b924000bcf02df914994520533a4a01a6b91eb6cc8928a4384668e35fa5a",
+      "bytes": 10032,
+      "exact_git_blob_match": true
+    },
+    {
+      "path": "api/dash-login.js",
+      "githubBlobSha": "c88bc659ebce4147fecbd1cfbb13869e0a7bacc2",
+      "role": "retrieved-current-source",
+      "snapshot_sha256": "8f152a6b18c1a598141db8b831dfe73a81fa800dd5e2b49d5ed8d7a387b83bc0",
+      "bytes": 1313,
+      "exact_git_blob_match": true
+    },
+    {
+      "path": "api/dash-save.js",
+      "githubBlobSha": "2d0709bbafaa986e819d67ba6c0d8969c03fdd67",
+      "role": "retrieved-current-source",
+      "snapshot_sha256": "ec11d5306b1d4d6e139489c5b30ca82217ab099f4cfcafe6e71ce1aa41aecf33",
+      "bytes": 7253,
+      "exact_git_blob_match": true
+    },
+    {
+      "path": "docs/BACKEND_INTEGRATIONS.md",
+      "githubBlobSha": "efdb78b9664d614d0d57b2b72f9779a1918f254e",
+      "role": "retrieved-current-source",
+      "snapshot_sha256": "5baaf139611c001c10b3c62b61ccb420195a51a6353084cea5c7cc3ad6702984",
+      "bytes": 3254,
+      "exact_git_blob_match": true
+    },
+    {
+      "path": "docs/CONTENT_STUDIO.md",
+      "githubBlobSha": "c61ea782393319a15605a9bed65165ec300ecc57",
+      "role": "retrieved-current-source",
+      "snapshot_sha256": "ef733531b791755820d33db25ef08fb9ebfc4f9cbd19dbddc6444f49e22afa94",
+      "bytes": 6796,
+      "exact_git_blob_match": true
+    },
+    {
+      "path": "docs/DEPLOYMENT_GUIDE.md",
+      "githubBlobSha": "49f03b0f380091bd8a18f1dc85332b86a7dac75d",
+      "role": "retrieved-current-source",
+      "snapshot_sha256": "a33e1df05bc9d596b16cbfca30df197a1e2fc0d6f046c54b4274dc1989a0396f",
+      "bytes": 3838,
+      "exact_git_blob_match": true
+    },
+    {
+      "path": "docs/MIGRATION_REPORT.md",
+      "githubBlobSha": "3f72508b9bdbc8b111c84795ec315f8e3722471b",
+      "role": "retrieved-current-source",
+      "snapshot_sha256": "3391e9fcbe7e2ae6d6657f5dc859230664eab9a0b99c4450bd5eaa56665ad5b1",
+      "bytes": 3679,
+      "exact_git_blob_match": true
+    },
+    {
+      "path": "docs/TEAM_WORKFLOW.md",
+      "githubBlobSha": "6e6158f366e4485122ce1155b9694e328e671644",
+      "role": "retrieved-current-source",
+      "snapshot_sha256": "17943a2e2cd0910442e52cdf7246413f7c5c056d389fa597b14fc65b4046dc94",
+      "bytes": 1896,
+      "exact_git_blob_match": true
+    },
+    {
+      "path": "package.json",
+      "githubBlobSha": "904bd4a1ba0f7bf6a80be64bb11cc500378dbeac",
+      "role": "retrieved-current-source",
+      "snapshot_sha256": "be32fa5e76ba416367a662798067a5bfa86c683d6d445ce1c798f79d70df213f",
+      "bytes": 368,
+      "exact_git_blob_match": true
+    },
+    {
+      "path": "public/about.html",
+      "githubBlobSha": "ea07ab73cdd5c4e2ac968c8c411740caa7d3398c",
+      "role": "retrieved-current-source",
+      "snapshot_sha256": "73a6c1e2978b26b6922c3b5a03de06e80784bbad873395609c7787905ec05894",
+      "bytes": 5361,
+      "exact_git_blob_match": true
+    },
+    {
+      "path": "public/admin/config.yml",
+      "githubBlobSha": "aee47c63948a45bbffa25b64173f7fdb5211b3ff",
+      "role": "retrieved-current-source",
+      "snapshot_sha256": "5f205e6986aee24128639ed555843dd6716edd384c3b93e53a6d781e145ca415",
+      "bytes": 8331,
+      "exact_git_blob_match": true
+    },
+    {
+      "path": "public/contact.html",
+      "githubBlobSha": "a8aec491b14968701eb3220a74eb99cef90029af",
+      "role": "retrieved-current-source",
+      "snapshot_sha256": "cd4e90835170391650e23eb62b3675ec56b20d9850a53d15e421f981637b625f",
+      "bytes": 3752,
+      "exact_git_blob_match": true
+    },
+    {
+      "path": "public/content-model.js",
+      "githubBlobSha": "53994fb2a92fac2563c1efaebf8989f0b2c41d18",
+      "role": "retrieved-current-source",
+      "snapshot_sha256": "6ea8a5442ad79d9279ace176b262624721809f78d87f73619f9296dcfc733eb1",
+      "bytes": 4119,
+      "exact_git_blob_match": true
+    },
+    {
+      "path": "public/content/about.md",
+      "githubBlobSha": "25aa4cc3444ba28b91cedbf21d46dcf4ecaef0f4",
+      "role": "retrieved-current-source",
+      "snapshot_sha256": "80002cfa746129e8e337582badc6f2b81265c263da3833344780110a13283411",
+      "bytes": 1845,
+      "exact_git_blob_match": true
+    },
+    {
+      "path": "public/content/events.json",
+      "githubBlobSha": "49096a9dace5a495deafcd6ad81d5c6d743b769d",
+      "role": "retrieved-current-source",
+      "snapshot_sha256": "16d8fb7e0c78eaaaec8a743cd7c246e7fbdc52d09cf745a7573cca9b39d3627b",
+      "bytes": 276,
+      "exact_git_blob_match": true
+    },
+    {
+      "path": "public/content/gallery.json",
+      "githubBlobSha": "aaa248a6397e2cb97f2b764b5366de3035fb6676",
+      "role": "retrieved-current-source",
+      "snapshot_sha256": "4bb26f3388013b552d957c3836556cb8a1e3c5703273d219abc5efc5728f0d22",
+      "bytes": 2246,
+      "exact_git_blob_match": true
+    },
+    {
+      "path": "public/content/page-defaults.json",
+      "githubBlobSha": "ec0bea2c83564b8608ce28462302f10b101dc99e",
+      "role": "retrieved-current-source",
+      "snapshot_sha256": "a4768389af552a221193188ad13b5fd2474e1ab2b4f4320fa042ec8cbe91bae6",
+      "bytes": 6526,
+      "exact_git_blob_match": true
+    },
+    {
+      "path": "public/content/partners.json",
+      "githubBlobSha": "10788f52767596f12869b177e0af3e51286aabca",
+      "role": "retrieved-current-source",
+      "snapshot_sha256": "92fda32eb777e88a9827ce20d800cbd84dcbb7fda856f3de83d0bd82c2e276f9",
+      "bytes": 347,
+      "exact_git_blob_match": true
+    },
+    {
+      "path": "public/content/pricing.json",
+      "githubBlobSha": "92221fb17cb2b9090b776bc4e46fe14baf8b2e2c",
+      "role": "retrieved-current-source",
+      "snapshot_sha256": "006b5be5457a889958d2f84f06145474e2ead977350e5725e54c2ba08d98605d",
+      "bytes": 976,
+      "exact_git_blob_match": true
+    },
+    {
+      "path": "public/content/settings.json",
+      "githubBlobSha": "fff932f171b1951bbe55f6f6ff5f0205e6a82910",
+      "role": "retrieved-current-source",
+      "snapshot_sha256": "2d2dafd9cf7b3f2be5958629dc50992363dbeef5b1f699574552538c7fa8d241",
+      "bytes": 2421,
+      "exact_git_blob_match": true
+    },
+    {
+      "path": "public/content/weddings.json",
+      "githubBlobSha": "7d1c63235ff2dd1f0fb0ecdd2e90294e44cb981b",
+      "role": "retrieved-current-source",
+      "snapshot_sha256": "cfb7ac445abfd646d8b91411ea2e72f5eee569a555512e6388d0081ab0b07956",
+      "bytes": 1250,
+      "exact_git_blob_match": true
+    },
+    {
+      "path": "public/dash/app.js",
+      "githubBlobSha": "3aa7589b0c01934f81c923b4d24dcb5c86c567dd",
+      "role": "retrieved-current-source",
+      "snapshot_sha256": "1781c91e1b675bd25d6f6a3bb5104fd43309265ab2acda369cd953e1a63b7b31",
+      "bytes": 84758,
+      "exact_git_blob_match": true
+    },
+    {
+      "path": "public/dash/index.html",
+      "githubBlobSha": "a822a063adbb93210f7a862e6362281d1e51bad4",
+      "role": "retrieved-current-source",
+      "snapshot_sha256": "d14219f35a358f622e96f8ca1fd22b795a98fddbef9573d41b9e0918ebdb4d5c",
+      "bytes": 26342,
+      "exact_git_blob_match": true
+    },
+    {
+      "path": "public/events.html",
+      "githubBlobSha": "907518028ebcdc8a2ddfe2fc8a43e62d1869c266",
+      "role": "retrieved-current-source",
+      "snapshot_sha256": "a9de2892b38d9d7a233ab2c22d82036279dd904af691a8451b1ec5b66214c50b",
+      "bytes": 29188,
+      "exact_git_blob_match": true
+    },
+    {
+      "path": "public/events/ojai-health-intensive.html",
+      "githubBlobSha": "ede25be7ced780c386d106f81f6f71d1134c40e9",
+      "role": "retrieved-current-source",
+      "snapshot_sha256": "c690b4a6053ae2b01707c70eee411446cdbdf09c36c123b234c11b89aced4549",
+      "bytes": 3905,
+      "exact_git_blob_match": true
+    },
+    {
+      "path": "public/events/past.html",
+      "githubBlobSha": "6017e1771a2c223bfe4448995e1631b3625d95fd",
+      "role": "retrieved-current-source",
+      "snapshot_sha256": "fdca50708dbe90dfcd1c2b13ff626958075405b4d33978c04e7a65c2235fcca0",
+      "bytes": 15654,
+      "exact_git_blob_match": true
+    },
+    {
+      "path": "public/evo3.html",
+      "githubBlobSha": "8f993186d583455452baaec68afe8ae85a69ea30",
+      "role": "retrieved-current-source",
+      "snapshot_sha256": "10c0c8540cb9770c08d0ca824609a78fb2e2d8b112edaa757f196a9f42fcc50f",
+      "bytes": 8820,
+      "exact_git_blob_match": true
+    },
+    {
+      "path": "public/gallery.html",
+      "githubBlobSha": "0ea25316fd819e3275eb43232fd68f15fa788cd5",
+      "role": "retrieved-current-source",
+      "snapshot_sha256": "ab2f851a13613fbd7054517ede0d5b930f51f57e37b313b71cdd0f5fc3e2b092",
+      "bytes": 5369,
+      "exact_git_blob_match": true
+    },
+    {
+      "path": "public/index.html",
+      "githubBlobSha": "4217b76d068cb65bd018181e09c0ccedf2a75497",
+      "role": "retrieved-current-source",
+      "snapshot_sha256": "e65897b809b668af0331c4a7e91b7ccdaff91a88243779e11062f65d358e9e3f",
+      "bytes": 14129,
+      "exact_git_blob_match": true
+    },
+    {
+      "path": "public/inspiration.html",
+      "githubBlobSha": "31c972c9f0a121d11dd5491bc1636b1023e02a05",
+      "role": "retrieved-current-source",
+      "snapshot_sha256": "63e95c615264ec564f26cfdca12ca56b8f933a61ae3d6b3c21be33c9eeb0e9ba",
+      "bytes": 10669,
+      "exact_git_blob_match": true
+    },
+    {
+      "path": "public/lifestyle-ai-algo.html",
+      "githubBlobSha": "f69c70c4477e507a12d719cb0fac1312b48e77b0",
+      "role": "retrieved-current-source",
+      "snapshot_sha256": "28dacdb9a30b2e24a9a1b54da24768f7624487543d3aeb54482a0d17a4801f91",
+      "bytes": 4255,
+      "exact_git_blob_match": true
+    },
+    {
+      "path": "public/lifestyle-evo3.html",
+      "githubBlobSha": "634b81ff9a3d14065f6a3b0c1914bd8a66c3c60b",
+      "role": "retrieved-current-source",
+      "snapshot_sha256": "4b4ea1fdceed5d3d346a33b2157efeabe453a85ff3e2ef69b57fe2c5eaaee91e",
+      "bytes": 2981,
+      "exact_git_blob_match": true
+    },
+    {
+      "path": "public/lifestyle-natures-bio.html",
+      "githubBlobSha": "8f0d57719b397e2154437b01428db636a4b6fe3f",
+      "role": "retrieved-current-source",
+      "snapshot_sha256": "8d2a0e0de957d0605aadcc7eef684b1bdd70151fe1f9387a8d2ff96fa811584c",
+      "bytes": 3912,
+      "exact_git_blob_match": true
+    },
+    {
+      "path": "public/lifestyle-sapiens-ego.html",
+      "githubBlobSha": "4ab7e2463143941807033a8fbca962a6a878b03b",
+      "role": "retrieved-current-source",
+      "snapshot_sha256": "0ccf2755c72242cee9b9e89f2b5154cc470e71f02fbdee597df5720781e1d5ac",
+      "bytes": 4050,
+      "exact_git_blob_match": true
+    },
+    {
+      "path": "public/lifestyle.html",
+      "githubBlobSha": "97f3b3f71c9a1d810a1303eae2acf4eed5f125f4",
+      "role": "retrieved-current-source",
+      "snapshot_sha256": "d122f1db93a58498fb590cdd7a1936fa611230054babfbbb9dfe9c1219db997c",
+      "bytes": 7598,
+      "exact_git_blob_match": true
+    },
+    {
+      "path": "public/partners.html",
+      "githubBlobSha": "a7a23e4b0c17bf23d4a495e0af74ff8a05c1d4d3",
+      "role": "retrieved-current-source",
+      "snapshot_sha256": "2d2fcc9a66b1bc427ebe35977179c3210be9643c9b56632cb4057e22600e24df",
+      "bytes": 5530,
+      "exact_git_blob_match": true
+    },
+    {
+      "path": "public/rent-farm.html",
+      "githubBlobSha": "2a8dbb7bb85a0008886e16be729b2e81aacf8bd2",
+      "role": "retrieved-current-source",
+      "snapshot_sha256": "41036537c2ac64cf490d8f4e97655cd652daf09505c46134546050e88b975f8b",
+      "bytes": 5419,
+      "exact_git_blob_match": true
+    },
+    {
+      "path": "public/rent-pricing.html",
+      "githubBlobSha": "760021fce23b4190edc4e2a42765d6e93e7317bc",
+      "role": "retrieved-current-source",
+      "snapshot_sha256": "369da03e47d8f0ad9768e762f27b8af5a8977032ff45840b69f97219e156480a",
+      "bytes": 9683,
+      "exact_git_blob_match": true
+    },
+    {
+      "path": "public/rent-weddings.html",
+      "githubBlobSha": "70d745062fd225c4b27697c79b982509778b1e43",
+      "role": "retrieved-current-source",
+      "snapshot_sha256": "9c132ee4ee35bcf2bbafe812a6b2f6bf6bc27631faff9efbec064d1c0467a59a",
+      "bytes": 8682,
+      "exact_git_blob_match": true
+    },
+    {
+      "path": "public/rent.html",
+      "githubBlobSha": "d49911a1248ded31cc728d98ae48f4e81c983a46",
+      "role": "retrieved-current-source",
+      "snapshot_sha256": "9fa0aee043ca022ef1543a5dda17abb269d0dd5897e2b4374cd0a7c3cebedcd5",
+      "bytes": 4284,
+      "exact_git_blob_match": true
+    },
+    {
+      "path": "public/script.js",
+      "githubBlobSha": "045af654be3dab794f6e8e3317e2c5af8471ee37",
+      "role": "retrieved-current-source",
+      "snapshot_sha256": "37061a7ad381f1d114851622b7303dedd0a316efdf58ab56d169ce5ece08fe2b",
+      "bytes": 11942,
+      "exact_git_blob_match": true
+    },
+    {
+      "path": "public/sculpture.html",
+      "githubBlobSha": "5679e66bedee63ae01b839c7949bca1544c20548",
+      "role": "retrieved-current-source",
+      "snapshot_sha256": "baba9714ee204acb589146df9d20feba373d965c284dbf2ac3f2320607b44907",
+      "bytes": 3538,
+      "exact_git_blob_match": true
+    },
+    {
+      "path": "public/self-heal-destress.html",
+      "githubBlobSha": "6f705c3587e5935bb60064d95d5c388e01de901a",
+      "role": "retrieved-current-source",
+      "snapshot_sha256": "30c97f57ace5039096afa2b443c5d1f0fd1a0b9ecf0852c2cf21b771745f2921",
+      "bytes": 3373,
+      "exact_git_blob_match": true
+    },
+    {
+      "path": "public/self-heal-detox.html",
+      "githubBlobSha": "15e925e6742fe466bc1671b37bde690134262a68",
+      "role": "retrieved-current-source",
+      "snapshot_sha256": "e7ae58b3f68ea4c50050cff3a878d65ca5e6e9753d064296cc1215692a68bbce",
+      "bytes": 3308,
+      "exact_git_blob_match": true
+    },
+    {
+      "path": "public/self-heal-eat.html",
+      "githubBlobSha": "a046f314d38eb159d27067a883808eed4ec8f20d",
+      "role": "retrieved-current-source",
+      "snapshot_sha256": "e4df361f0b89f5d7eab791fe910c49e349e3dd17bed53df2debd3c89ea3d0bed",
+      "bytes": 3383,
+      "exact_git_blob_match": true
+    },
+    {
+      "path": "public/self-heal-move.html",
+      "githubBlobSha": "2abc700bf8d08261324554eb2b76b15f87cea137",
+      "role": "retrieved-current-source",
+      "snapshot_sha256": "114459ac80d5ec0f5b22d32fa540502e5e55fa7edebbc0c6ead40f02aefc9bbd",
+      "bytes": 3334,
+      "exact_git_blob_match": true
+    },
+    {
+      "path": "public/self-heal.html",
+      "githubBlobSha": "7105a80b798f996c49ea538f092628eac4570a91",
+      "role": "retrieved-current-source",
+      "snapshot_sha256": "a8e9ac555b2cc80b10c41b5746118417796b284b97ed3bc0b73e34eb18900afb",
+      "bytes": 6041,
+      "exact_git_blob_match": true
+    },
+    {
+      "path": "public/site-config.js",
+      "githubBlobSha": "46ba09058de70cec89007bc6a6db4ec6d7972062",
+      "role": "retrieved-current-source",
+      "snapshot_sha256": "50397613f906e01d729b774099d8898383748d375bde6e58ecbb4b12c748055e",
+      "bytes": 10122,
+      "exact_git_blob_match": true
+    },
+    {
+      "path": "public/site-content.js",
+      "githubBlobSha": "7b32afb25926d7f786f33d693460b7062de5603a",
+      "role": "retrieved-current-source",
+      "snapshot_sha256": "e1b1abe1a7c2d76ee4ab09c20b413368ad9b8fc82b4470b2578865707c9d00c8",
+      "bytes": 6908,
+      "exact_git_blob_match": true
+    },
+    {
+      "path": "scripts/build-content.cjs",
+      "githubBlobSha": "30a0aabb7d9871d477e13801e450010c0c8c48c4",
+      "role": "retrieved-current-source",
+      "snapshot_sha256": "b0c59cc23b39d58631745d46793433535cfb6004295dda62b5dd647ffd0d71e7",
+      "bytes": 6785,
+      "exact_git_blob_match": true
+    },
+    {
+      "path": "tests/browser.cjs",
+      "githubBlobSha": "63583a0ee8c56023eb974483e0613afb614f7c54",
+      "role": "retrieved-current-source",
+      "snapshot_sha256": "5cc7e4ae559d8c97f0c68000bf3db9676143ed346f072f59d70ae457d6dad29a",
+      "bytes": 619,
+      "exact_git_blob_match": true
+    },
+    {
+      "path": "tests/content-api.cjs",
+      "githubBlobSha": "5df69e2bbc69a50255c32196011d38eb3a098b5c",
+      "role": "retrieved-current-source",
+      "snapshot_sha256": "2634aae90c83b9c24409211f81465d93ad243ef5870e8b6df060822e5db2ed86",
+      "bytes": 3364,
+      "exact_git_blob_match": true
+    },
+    {
+      "path": "tests/qa-server.cjs",
+      "githubBlobSha": "eee8ea166916ce2d6cf96f2a02da24794f3574c9",
+      "role": "retrieved-current-source",
+      "snapshot_sha256": "c953378242168b2be6b78ef0f88edc4f0d16eae90aea99be38aa66a35ab9e1bb",
+      "bytes": 5373,
+      "exact_git_blob_match": true
+    },
+    {
+      "path": "tests/studio-flow.cjs",
+      "githubBlobSha": "ba5ec08f738f945c1d45c9c7e7bdca789aef3413",
+      "role": "retrieved-current-source",
+      "snapshot_sha256": "c054eec80d0b8cbbce0519cbc2c723cd78798714e6572ffab778409eae541dd9",
+      "bytes": 6963,
+      "exact_git_blob_match": true
+    },
+    {
+      "path": "tests/studio-settings.cjs",
+      "githubBlobSha": "7a7032ff50aa5bc2c58035c1ad061d56bb5f5f53",
+      "role": "retrieved-current-source",
+      "snapshot_sha256": "27747e3878a75ce7830b400e5b15603141cb45f5223d4a76dd7b8e25bd1fb877",
+      "bytes": 5991,
+      "exact_git_blob_match": true
+    },
+    {
+      "path": "vercel.json",
+      "githubBlobSha": "1643d288896bba6785bd2d0d98ca984455cdc151",
+      "role": "retrieved-current-source",
+      "snapshot_sha256": "cbc6eff8e56ce98472ddb42ef94c6a6637d69cd23cfdfbfb33bc27c9b663f1e1",
+      "bytes": 8925,
+      "exact_git_blob_match": true
+    },
+    {
+      "path": "public/vendor/js-yaml.LICENSE",
+      "githubBlobSha": "09d3a29e93d1239edf737a58fb1cd893808abc82",
+      "role": "supplemental-baseline-blob-matched",
+      "snapshot_sha256": "a07bc24468b9654ce76a547d47a2db282d07733b715db4c73a98bd63961f9550",
+      "bytes": 1084,
+      "exact_git_blob_match": true
+    },
+    {
+      "path": "public/vendor/js-yaml.min.js",
+      "githubBlobSha": "bdd8eef542b332e118cbe97bbac011b446723c1c",
+      "role": "supplemental-baseline-blob-matched",
+      "snapshot_sha256": "45dc3dd03dc07a06705a2c2989b8c7f709013f04bd5386e3279d4e447f07ebd7",
+      "bytes": 39430,
+      "exact_git_blob_match": true
+    },
+    {
+      "path": "templates/about-philosophy.html",
+      "githubBlobSha": "25ed6b015093fd4b7befca18af65261b6e83a8f6",
+      "role": "supplemental-baseline-blob-matched",
+      "snapshot_sha256": "a0c6aae114028990f7b89db010bcbe5a0ef9510a0846e5e1f40986d260e5f096",
+      "bytes": 1599,
+      "exact_git_blob_match": true
+    }
+  ]
+}

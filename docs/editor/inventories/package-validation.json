@@ -1,0 +1,22 @@
+{
+  "artifact_checks": [
+    {
+      "schema": "page-document",
+      "schema_valid": true,
+      "example_passed": true,
+      "negative_cases_passed": 2
+    },
+    {
+      "schema": "publication-request",
+      "schema_valid": true,
+      "example_passed": true,
+      "negative_cases_passed": 2
+    }
+  ],
+  "relative_markdown_links": "all resolved",
+  "baseline_git_blob_matches": 68,
+  "marketing_pages": 25,
+  "settings_top_level_keys": 38,
+  "application_implementation": "not performed",
+  "production_mutations": "none"
+}
