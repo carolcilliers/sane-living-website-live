@@ -64,8 +64,8 @@
     { id: 'weddings', label: 'Weddings Page', icon: '<svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 21s-7.5-4.7-10-9.3C.4 8.6 2.3 5 5.7 5c2 0 3.4 1.1 4.3 2.4h4c.9-1.3 2.3-2.4 4.3-2.4 3.4 0 5.3 3.6 3.7 6.7C19.5 16.3 12 21 12 21z" transform="scale(0.92) translate(1,0)"/></svg>' },
     { id: 'pricing', label: 'Pricing & Rates', icon: '<svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v20M17 6.5c-.6-1-2.6-1.5-5-1.5-3 0-5 1.3-5 3.2 0 4.4 10 2.4 10 6.6 0 1.9-2 3.2-5 3.2-2.4 0-4.4-.6-5-1.6"/></svg>' },
     { id: 'partners', label: 'Partners', icon: '<svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.9M16 3.1a4 4 0 0 1 0 7.8"/></svg>' },
-    { id: 'settings', label: 'Settings', icon: '<svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.9l.1.1a2 2 0 1 1-2.9 2.9l-.1-.1a1.7 1.7 0 0 0-1.9-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.2a1.7 1.7 0 0 0-1-1.5 1.7 1.7 0 0 0-1.9.3l-.1.1a2 2 0 1 1-2.9-2.9l.1-.1a1.7 1.7 0 0 0 .3-1.9 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.2a1.7 1.7 0 0 0 1.5-1 1.7 1.7 0 0 0-.3-1.9l-.1-.1a2 2 0 1 1 2.9-2.9l.1.1a1.7 1.7 0 0 0 1.9.3h0a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.2a1.7 1.7 0 0 0 1 1.5h0a1.7 1.7 0 0 0 1.9-.3l.1-.1a2 2 0 1 1 2.9 2.9l-.1.1a1.7 1.7 0 0 0-.3 1.9v0a1.7 1.7 0 0 0 1.5 1h.2a2 2 0 1 1 0 4h-.2a1.7 1.7 0 0 0-1.5 1z"/></svg>' },
     { id: 'about', label: 'About Page', icon: '<svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>' },
+    { id: 'settings', label: 'Settings', icon: '<svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.9l.1.1a2 2 0 1 1-2.9 2.9l-.1-.1a1.7 1.7 0 0 0-1.9-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.2a1.7 1.7 0 0 0-1-1.5 1.7 1.7 0 0 0-1.9.3l-.1.1a2 2 0 1 1-2.9-2.9l.1-.1a1.7 1.7 0 0 0 .3-1.9 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.2a1.7 1.7 0 0 0 1.5-1 1.7 1.7 0 0 0-.3-1.9l-.1-.1a2 2 0 1 1 2.9-2.9l.1.1a1.7 1.7 0 0 0 1.9.3h0a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.2a1.7 1.7 0 0 0 1 1.5h0a1.7 1.7 0 0 0 1.9-.3l.1-.1a2 2 0 1 1 2.9 2.9l-.1.1a1.7 1.7 0 0 0-.3 1.9v0a1.7 1.7 0 0 0 1.5 1h.2a2 2 0 1 1 0 4h-.2a1.7 1.7 0 0 0-1.5 1z"/></svg>' },
   ];
 
   /* ---------------- login ---------------- */
@@ -829,25 +829,37 @@
   }
 
   /* ---------------- SETTINGS ---------------- */
-  function settingsCard(title, blurb, fieldsHtml) {
-    return '<div class="card form-card" style="margin-bottom:18px"><h3 class="block-title">' + title + '</h3>' +
-      (blurb ? '<p style="color:var(--muted);margin-bottom:12px">' + blurb + '</p>' : '') + fieldsHtml + '</div>';
+  function workspaceIcon(name) {
+    var paths = {
+      contact: '<path d="M21 10c0 7-9 12-9 12S3 17 3 10a9 9 0 1 1 18 0Z"/><circle cx="12" cy="10" r="3"/>',
+      booking: '<rect x="3" y="5" width="18" height="16" rx="3"/><path d="M16 3v4M8 3v4M3 11h18m-12 5 2 2 4-4"/>',
+      social: '<circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="m9 10 6-3M9 14l6 3"/>',
+      story: '<path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20M6.5 3H20v19H6.5A2.5 2.5 0 0 1 4 19.5v-14A2.5 2.5 0 0 1 6.5 3Z"/><path d="M8 7h8m-8 4h6"/>',
+    };
+    return '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' + paths[name] + '</svg>';
+  }
+  function settingsCard(id, title, blurb, icon, fieldsHtml) {
+    return '<section class="card settings-card" id="settings-' + id + '" aria-labelledby="settings-' + id + '-title">' +
+      '<div class="workspace-card-head"><span class="workspace-icon">' + workspaceIcon(icon) + '</span><div><h3 id="settings-' + id + '-title">' + title + '</h3>' +
+      '<p>' + blurb + '</p></div></div><div class="settings-fields">' + fieldsHtml + '</div></section>';
   }
   function renderSettings() {
     var x = state.data.settings || {};
-    var inner =
-      settingsCard('Contact details', 'Shown in the website footer and on the Contact page.',
+    var inner = '<div class="settings-workspace">' +
+      '<nav class="settings-jumps" aria-label="Settings sections"><a href="#settings-contact">Contact details</a><a href="#settings-booking">Booking &amp; availability</a><a href="#settings-social">Social links</a></nav>' +
+      settingsCard('contact', 'Contact details', 'Help guests find you and get in touch.', 'contact',
         '<div class="form-row">' + fieldHtml('Business name', 'businessName', x.businessName) + fieldHtml('Email', 'email', x.email) + '</div>' +
         '<div class="form-row">' + fieldHtml('Phone (shown)', 'phoneDisplay', x.phoneDisplay) + fieldHtml('Phone (tap-to-call link)', 'phoneLink', x.phoneLink, { hint: 'Format: tel:+18056466000' }) + '</div>' +
-        fieldHtml('Address', 'address', x.address) +
-        fieldHtml('Hours', 'hours', x.hours)) +
-      settingsCard('Booking & availability', 'Where the booking buttons point, and the Airtable availability calendar embedded on the Pricing and Weddings pages.',
-        fieldHtml('Booking page link', 'bookingPageUrl', x.bookingPageUrl) +
-        fieldHtml('Availability calendar embed link (Airtable)', 'availabilityEmbedUrl', x.availabilityEmbedUrl, { hint: 'Change only if the Airtable share link changes — the calendar itself is managed in Airtable.' })) +
-      settingsCard('Social links', 'Leave blank to hide an icon.',
-        '<div class="form-row">' + fieldHtml('Instagram link', 'instagramUrl', x.instagramUrl) + fieldHtml('Facebook link', 'facebookUrl', x.facebookUrl) + '</div>') +
+        fieldHtml('Address', 'address', x.address, { placeholder: 'Street address, city and ZIP code' }) +
+        fieldHtml('Hours', 'hours', x.hours, { placeholder: 'Your opening hours or availability' })) +
+      settingsCard('booking', 'Booking & availability', 'Keep your booking destination and availability calendar together.', 'booking',
+        fieldHtml('Booking page link', 'bookingPageUrl', x.bookingPageUrl, { placeholder: 'https://…' }) +
+        fieldHtml('Availability calendar link', 'availabilityEmbedUrl', x.availabilityEmbedUrl, { placeholder: 'https://airtable.com/embed/…' }) +
+        '<div class="workspace-note"><strong>Your calendar stays in Airtable.</strong><span>Only update this link when the calendar’s share link changes.</span></div>') +
+      settingsCard('social', 'Social links', 'Connect guests with your community. Leave a link blank to hide its icon.', 'social',
+        '<div class="form-row">' + fieldHtml('Instagram', 'instagramUrl', x.instagramUrl, { placeholder: 'https://instagram.com/…' }) + fieldHtml('Facebook', 'facebookUrl', x.facebookUrl, { placeholder: 'https://facebook.com/…' }) + '</div>') + '</div>' +
       savebarHtml('settings', 'settings');
-    return panelShell('settings', 'Settings', 'Contact details and links used across the website, grouped by job.', inner);
+    return panelShell('settings', 'Website settings', 'The details that help guests connect with Sane Living.', inner);
   }
   function bindSettings() {
     bindFields('settings', $('#panel-settings'));
@@ -886,14 +898,23 @@
   }
   function renderAbout() {
     var words = state.aboutText.trim() ? state.aboutText.trim().split(/\s+/).length : 0;
-    var inner = '<div class="about-wrap">' +
-      '<div class="card form-card"><div class="field" style="margin-bottom:0"><label for="aboutText">About page text (Markdown)</label>' +
-      '<textarea id="aboutText">' + esc(state.aboutText) + '</textarea>' +
-      '<div class="hint">The block between the --- lines at the top is page setup — leave it as is and edit the text below it.</div>' +
-      '<div class="hint" style="margin-top:8px"><span id="aboutWords">' + words + '</span> words · the preview updates as you type</div></div></div>' +
-      '<div><div class="card"><h3 class="block-title" style="margin-bottom:10px">Website preview</h3><div class="md-preview" id="aboutPreview">' + mdToHtml(state.aboutText) + '</div></div></div></div>' +
+    var inner = '<div class="about-workspace"><div class="workspace-intro"><span class="workspace-icon">' + workspaceIcon('story') + '</span>' +
+      '<div><span class="workspace-eyebrow">Your story</span><h3>A place, a purpose, a community.</h3><p>Give the story room to breathe. Edit your content below, then save when you’re ready.</p></div></div>' +
+      '<div class="about-wrap">' +
+      '<div class="card about-editor"><div class="editor-card-head"><div><h3>Page content</h3><p>Your About page source</p></div><span class="workspace-tag">Markdown</span></div>' +
+      '<label class="editor-label" for="aboutText">Edit About page content</label><textarea id="aboutText" spellcheck="true" aria-describedby="about-help">' + esc(state.aboutText) + '</textarea>' +
+      '<div class="editor-meta"><span><span id="aboutWords">' + words + '</span> words</span><span>Changes publish when you save</span></div></div>' +
+      '<aside class="about-companion"><div class="card about-preview-card"><div class="editor-card-head"><div><h3>Writing preview</h3><p>Updates as you type</p></div><span class="preview-indicator" aria-hidden="true"></span></div>' +
+      '<div class="md-preview" id="aboutPreview">' + aboutPreviewHtml(state.aboutText) + '</div></div>' +
+      '<details class="about-guide"><summary>Editing tips</summary><div id="about-help"><p>Keep the page setup between the <code>---</code> lines intact.</p>' +
+      '<p>For text below the setup, use these shortcuts:</p><dl><div><dt>Heading</dt><dd>## Your heading</dd></div><div><dt>Bold</dt><dd>**Important text**</dd></div><div><dt>Link</dt><dd>[Label](/page/)</dd></div></dl>' +
+      '<p>Open “View on the website” to check the published page’s complete layout.</p></div></details></aside></div></div>' +
       savebarHtml('about', 'About page');
-    return panelShell('about', 'About Page', 'The story text on the About page.', inner);
+    return panelShell('about', 'About page', 'Shape the story of Sane Living in one calm editing space.', inner);
+  }
+  function aboutPreviewHtml(text) {
+    var html = mdToHtml(text);
+    return html || '<div class="preview-empty"><span class="workspace-icon">' + workspaceIcon('story') + '</span><h4>Your writing preview</h4><p>Text below the page setup will appear here. Your structured page sections remain in the editor.</p><a href="/about/" target="_blank" rel="noopener">View the published About page ↗</a></div>';
   }
   async function saveAbout(btn) {
     var original = btn ? btn.innerHTML : '';
@@ -914,7 +935,7 @@
     ta.addEventListener('input', function () {
       state.aboutText = ta.value;
       setDirty('about', true);
-      $('#aboutPreview').innerHTML = mdToHtml(ta.value);
+      $('#aboutPreview').innerHTML = aboutPreviewHtml(ta.value);
       var w = $('#aboutWords');
       if (w) w.textContent = ta.value.trim() ? ta.value.trim().split(/\s+/).length : 0;
     });
@@ -982,3 +1003,4 @@
     } catch (e) { /* stay on login */ }
   })();
 })();
+

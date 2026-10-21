@@ -141,6 +141,83 @@
   .md-preview h1, .md-preview h2, .md-preview h3 { color: var(--plum); margin: .7em 0 .35em; }
   .md-preview p { margin: .5em 0; }
   .md-preview img { max-width: 100%; border-radius: 12px; }
+  /* ---------- About & Settings workspaces ---------- */
+  #panel-about, #panel-settings { --workspace-border: #e9e2ef; }
+  #panel-about .page-sub, #panel-settings .page-sub { font-size: 1rem; line-height: 1.65; }
+  #panel-about .card, #panel-settings .settings-card { border: 1px solid var(--workspace-border); box-shadow: 0 4px 20px rgba(42,26,51,.045); }
+  .workspace-icon { display: inline-flex; align-items: center; justify-content: center; flex: 0 0 46px; width: 46px; height: 46px; border-radius: 14px; color: var(--plum2); background: var(--tint); }
+  .workspace-intro { display: flex; align-items: center; gap: 18px; padding: 24px; margin-bottom: 22px; border: 1px solid #e5daef; border-radius: 18px; background: linear-gradient(115deg, #f0e7f7, #fbf8fd); }
+  .workspace-intro .workspace-icon { background: #fff; }
+  .workspace-eyebrow { display: block; color: var(--plum2); font-size: .73rem; font-weight: 800; letter-spacing: .1em; text-transform: uppercase; margin-bottom: 3px; }
+  .workspace-intro h3 { color: var(--plum); font-size: 1.25rem; line-height: 1.3; margin-bottom: 6px; }
+  .workspace-intro p { color: #665773; font-size: .94rem; max-width: 560px; }
+  #panel-about .about-wrap { grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr); gap: 20px; }
+  #panel-about .about-editor, #panel-about .about-preview-card { padding: 0; overflow: hidden; min-width: 0; }
+  .editor-card-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 19px 22px; border-bottom: 1px solid var(--workspace-border); background: #fff; }
+  .editor-card-head h3 { color: var(--plum); font-size: 1rem; font-weight: 800; }
+  .editor-card-head p { color: var(--muted); font-size: .82rem; margin-top: 2px; }
+  .workspace-tag { font-size: .7rem; color: var(--plum2); font-weight: 800; border-radius: 6px; padding: 4px 8px; background: var(--tint); }
+  .editor-label { display: block; margin: 18px 22px 0; font-size: .8rem; font-weight: 700; color: var(--muted); }
+  #panel-about #aboutText { display: block; width: calc(100% - 28px); min-height: 470px; margin: 8px 14px; padding: 12px 10px; border: 1px solid transparent; border-radius: 8px; background: #fff; color: #45374f; font-family: ui-monospace, Menlo, monospace; font-size: 14px; line-height: 1.85; resize: vertical; tab-size: 2; }
+  #panel-about #aboutText:focus { border-color: var(--violet); outline: 2px solid rgba(166,120,196,.2); outline-offset: 0; }
+  .editor-meta { display: flex; justify-content: space-between; flex-wrap: wrap; gap: 6px 12px; border-top: 1px solid var(--workspace-border); padding: 12px 22px; font-size: .75rem; color: var(--muted); background: #fcfafd; }
+  .about-companion { min-width: 0; display: grid; gap: 16px; }
+  .preview-indicator { width: 8px; height: 8px; border-radius: 50%; background: var(--accent); box-shadow: 0 0 0 5px var(--tint); margin-right: 5px; }
+  #panel-about .md-preview { padding: 20px 24px 28px; min-height: 280px; font-size: 1rem; line-height: 1.85; color: #52445e; overflow-wrap: anywhere; }
+  #panel-about .md-preview h1 { font-size: 1.65rem; line-height: 1.3; }
+  #panel-about .md-preview h2 { font-size: 1.35rem; line-height: 1.35; }
+  #panel-about .md-preview h3 { font-size: 1.1rem; }
+  #panel-about .md-preview ul { padding-left: 22px; }
+  #panel-about .md-preview a, .about-guide a { color: var(--plum2); text-underline-offset: 3px; }
+  .preview-empty { text-align: center; padding: 16px 0; }
+  .preview-empty .workspace-icon { margin-bottom: 12px; }
+  .preview-empty h4 { color: var(--plum); font-size: 1rem; }
+  .preview-empty p { font-size: .88rem; line-height: 1.65; }
+  .preview-empty a { font-size: .86rem; font-weight: 700; }
+  .about-guide { padding: 17px 20px; border-radius: 14px; border: 1px solid var(--workspace-border); background: #f1ebf6; color: #5e4b6d; font-size: .85rem; }
+  .about-guide summary { cursor: pointer; font-weight: 800; color: var(--plum2); }
+  .about-guide p { margin-top: 12px; }
+  .about-guide dl { display: grid; gap: 9px; margin-top: 14px; }
+  .about-guide dl div { display: flex; justify-content: space-between; flex-wrap: wrap; gap: 4px 10px; }
+  .about-guide dt { font-weight: 700; }
+  .about-guide dd, .about-guide code { font-family: ui-monospace, Menlo, monospace; font-size: .76rem; }
+  .settings-workspace { display: grid; gap: 20px; }
+  .settings-jumps { display: flex; flex-wrap: wrap; gap: 8px 24px; padding: 0 2px 6px; border-bottom: 1px solid var(--workspace-border); }
+  .settings-jumps a { display: inline-block; padding: 8px 0; font-size: .9rem; font-weight: 800; color: var(--plum2); text-decoration: none; }
+  .settings-jumps a:hover { text-decoration: underline; text-underline-offset: 6px; }
+  #panel-settings .settings-card { padding: 0; overflow: hidden; scroll-margin-top: 20px; }
+  .workspace-card-head { display: flex; align-items: flex-start; gap: 16px; padding: 24px 26px 20px; border-bottom: 1px solid var(--workspace-border); background: #fdfbff; }
+  .workspace-card-head h3 { color: var(--plum); font-size: 1.12rem; font-weight: 800; margin-bottom: 3px; }
+  .workspace-card-head p { color: var(--muted); font-size: .9rem; line-height: 1.6; max-width: 540px; }
+  .settings-fields { padding: 24px 26px 10px; }
+  #panel-settings .field { margin-bottom: 22px; min-width: 0; }
+  #panel-settings .field label { text-transform: none; letter-spacing: 0; font-size: .88rem; font-weight: 800; color: #4b3958; margin-bottom: 8px; }
+  #panel-settings .field input { min-width: 0; background: #fff; border: 1px solid #dcd2e5; padding: 13px 14px; border-radius: 10px; color: var(--ink); font-size: 16px; transition: border-color .2s ease, box-shadow .2s ease; }
+  #panel-settings .field input::placeholder { color: #81738c; }
+  #panel-settings .field input:hover { border-color: #bca6cc; }
+  #panel-settings .field input:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(138,86,160,.12); }
+  #panel-settings .field .hint { margin-top: 7px; font-size: .8rem; }
+  .workspace-note { display: grid; gap: 3px; border-left: 3px solid #b597ca; border-radius: 0 10px 10px 0; background: #f7f2fa; padding: 14px 16px; margin-bottom: 18px; color: #665173; font-size: .83rem; line-height: 1.6; }
+  .workspace-note strong { color: var(--plum2); }
+  @media (max-width: 1100px) {
+    #panel-about .about-wrap { grid-template-columns: minmax(0, 1fr); }
+    #panel-about #aboutText { min-height: 350px; }
+  }
+  @media (max-width: 600px) {
+    .workspace-intro { padding: 18px; align-items: flex-start; gap: 12px; }
+    .workspace-intro h3 { font-size: 1.1rem; }
+    .workspace-intro .workspace-icon { display: none; }
+    .workspace-card-head { padding: 20px 18px; gap: 12px; }
+    .workspace-icon { flex-basis: 38px; width: 38px; height: 38px; border-radius: 11px; }
+    .settings-fields { padding: 20px 18px 2px; }
+    .settings-jumps { column-gap: 18px; }
+    .settings-jumps a { font-size: .83rem; }
+    .editor-card-head { padding: 17px 18px; }
+    #panel-about .md-preview { padding: 18px; }
+    #panel-about #aboutText { font-size: 16px; }
+    #panel-about .savebar, #panel-settings .savebar { border-radius: 14px; padding: 14px; }
+    #panel-about .savebar .btn, #panel-settings .savebar .btn { justify-content: center; width: 100%; }
+  }
   #toast { position: fixed; bottom: 24px; left: 50%; transform: translate(-50%, 20px); background: var(--plum); color: #fff; font-weight: 700; padding: 13px 22px; border-radius: 999px; box-shadow: var(--shadow-lg); opacity: 0; pointer-events: none; transition: all .25s ease; z-index: 60; max-width: 90vw; text-align: center; }
   #toast.show { opacity: 1; transform: translate(-50%, 0); }
   #toast.err { background: var(--err); }
@@ -242,3 +319,4 @@
 <script src="/dash/app.js"></script>
 </body>
 </html>
+
