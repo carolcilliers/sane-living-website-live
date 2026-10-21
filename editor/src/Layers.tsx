@@ -59,9 +59,11 @@ function Layer({ section, selected, select, move, first, last }: RowProps) {
         <small>
           {section.visible === false
             ? "Hidden"
-            : section.image
-              ? "Image & story"
-              : "Story"}
+            : section.kindLabel
+              ? String(section.kindLabel)
+              : section.image
+                ? "Image & story"
+                : "Story"}
         </small>
       </button>
       <div className="layer-arrows">
@@ -145,7 +147,7 @@ export function Layers({
         onClick={add}
         disabled={sections.length >= 50}
       >
-        ＋ Add a story section
+        + Add block
       </button>
       <div className="source-note">
         <span className="tiny-label">CONTENT SOURCE</span>

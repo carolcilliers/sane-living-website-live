@@ -8,6 +8,8 @@ const proxy = Object.fromEntries(
   [
     "/api/",
     "/about/",
+    "/studio-blocks.css",
+    "/studio-runtime.js",
     "^/\\?editor-preview=",
     "/script.js",
     "/site-content.js",
@@ -46,6 +48,13 @@ export default defineConfig({
   plugins: [react()],
   publicDir: false,
   build: {
+    commonjsOptions: { include: [/node_modules/, /content-core/, /public/] },
+    rollupOptions: {
+      input: {
+        main: path.join(root, "index.html"),
+        preview: path.join(root, "preview.html"),
+      },
+    },
     outDir: path.resolve(root, "../public/dash/editor"),
     emptyOutDir: true,
   },

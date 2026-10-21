@@ -10,13 +10,13 @@ const createServer=require('./qa-server.cjs');
  const page=await context.newPage(),errors=[];page.on('pageerror',e=>errors.push(e.message));
  await page.goto(server.url+'/dash/');await page.locator('[data-nav="settings"]').waitFor();
  assert.equal(await page.evaluate(()=>{const ids=[...document.querySelectorAll('[id]')].map(n=>n.id);return ids.length-new Set(ids).size;}),0,'unique field IDs');
- assert.deepEqual(await page.locator('#mainNav [data-nav]').evaluateAll(nodes=>nodes.slice(-2).map(n=>n.dataset.nav)),['about','settings']);
+ assert.deepEqual(await page.locator('#mainNav [data-nav]').evaluateAll(nodes=>nodes.slice(-2).map(n=>n.dataset.nav)),['editor','settings']);
  for(const width of [375,768,1024,1440]){
   await page.setViewportSize({width,height:1000});
-  for(const id of ['home','events','gallery','weddings','pricing','partners','about','settings']){
+  for(const id of ['home','events','gallery','weddings','pricing','partners','settings']){
    await page.locator('[data-nav="'+id+'"]').click();await page.waitForTimeout(280);
    assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth>innerWidth),false,id+' overflow '+width);
-   if(['about','settings','weddings'].includes(id)&&(width===375||width===1440))await page.screenshot({path:path.join(__dirname,'qa-'+id+'-'+width+'.png'),fullPage:true});
+   if(['settings','weddings'].includes(id)&&(width===375||width===1440))await page.screenshot({path:path.join(__dirname,'qa-'+id+'-'+width+'.png'),fullPage:true});
   }
   console.log('PASS all dashboard sections at '+width+'px');
  }
@@ -40,11 +40,7 @@ const createServer=require('./qa-server.cjs');
  await page.locator('#f-settings-businessName').fill('Sane Living Studio');server.failNext='dashboard-drafts/settings.json';await page.locator('[data-draft="settings"]').click();await page.locator('#feedback-settings').waitFor({state:'visible'});assert.match(await page.locator('#feedback-settings').textContent(),/refused/i);assert.equal(await page.locator('#f-settings-businessName').inputValue(),'Sane Living Studio');
  await page.locator('[data-draft="settings"]').click();await page.waitForFunction(()=>document.querySelector('#savebar-settings .msg').textContent.startsWith('Draft saved'));
  console.log('PASS failed save remains visible, preserves edits and can be retried');
- await page.locator('[data-nav="about"]').click();assert.equal(await page.locator('[data-about-field="body"]').count(),4);assert.equal(await page.locator('#aboutText').count(),0);
- const body=page.locator('#about-body-0');await body.fill('A welcoming **community** in Ojai.');await page.locator('[data-about-mode="preview"]').click();assert.equal(await page.locator('#aboutPreview strong').textContent(),'community');await page.locator('[data-draft="about"]').click();await page.waitForFunction(()=>document.querySelector('#savebar-about .msg').textContent.startsWith('Draft saved'));
- await page.locator('[data-save="about"]').click();await page.waitForFunction(()=>document.querySelector('#savebar-about .msg').textContent.startsWith('Published ·'));
- await publicPage.goto(server.url+'/about/');assert.match(await publicPage.locator('.content-block').textContent(),/welcoming community/);assert.equal(await publicPage.getByRole('heading',{name:'Sane Living Farm',exact:true}).count(),0);
- console.log('PASS friendly About editor, preview, draft, publish and generated public HTML');
+ // About authoring, private preview and publication are exercised by site-editor-flow.cjs.
  await page.locator('[data-nav="settings"]').click();await page.getByRole('tab',{name:'Contact & social',exact:true}).click();await page.locator('#f-settings-email').fill('conflict@example.com');
  const record=server.records.get('public/content/settings.json');server.records.set('public/content/settings.json',{...record,sha:'teammate-new-sha'});
  await page.locator('[data-save="settings"]').click();await page.locator('#feedback-settings').waitFor({state:'visible'});assert.match(await page.locator('#feedback-settings').textContent(),/newer version/);assert.equal(await page.locator('#f-settings-email').inputValue(),'conflict@example.com');assert(await page.locator('[data-save="settings"]').isDisabled());

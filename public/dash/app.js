@@ -66,7 +66,6 @@
     { id: 'pricing', label: 'Pricing & Rates', icon: '<svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v20M17 6.5c-.6-1-2.6-1.5-5-1.5-3 0-5 1.3-5 3.2 0 4.4 10 2.4 10 6.6 0 1.9-2 3.2-5 3.2-2.4 0-4.4-.6-5-1.6"/></svg>' },
     { id: 'partners', label: 'Partners', icon: '<svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.9M16 3.1a4 4 0 0 1 0 7.8"/></svg>' },
     { id: 'editor', label: 'Page Editor', icon: '<svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="3"/><path d="M3 9h18M9 9v12m4-8h4m-4 4h4"/></svg>' },
-    { id: 'about', label: 'About Page', icon: '<svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>' },
     { id: 'settings', label: 'Settings', icon: '<svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.9l.1.1a2 2 0 1 1-2.9 2.9l-.1-.1a1.7 1.7 0 0 0-1.9-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.2a1.7 1.7 0 0 0-1-1.5 1.7 1.7 0 0 0-1.9.3l-.1.1a2 2 0 1 1-2.9-2.9l.1-.1a1.7 1.7 0 0 0 .3-1.9 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.2a1.7 1.7 0 0 0 1.5-1 1.7 1.7 0 0 0-.3-1.9l-.1-.1a2 2 0 1 1 2.9-2.9l.1.1a1.7 1.7 0 0 0 1.9.3h0a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.2a1.7 1.7 0 0 0 1 1.5h0a1.7 1.7 0 0 0 1.9-.3l.1-.1a2 2 0 1 1 2.9 2.9l-.1.1a1.7 1.7 0 0 0-.3 1.9v0a1.7 1.7 0 0 0 1.5 1h.2a2 2 0 1 1 0 4h-.2a1.7 1.7 0 0 0-1.5 1z"/></svg>' },
   ];
 
@@ -110,6 +109,7 @@
     try { await api('/api/dash-login', { method: 'DELETE' }); } catch (e) { /* ignore */ }
     var frame=document.getElementById('pageEditorFrame');if(frame)frame.remove();
     try{localStorage.removeItem('sl_editor_about_v1');}catch(e){}
+    document.body.classList.remove('page-editor-open');try{localStorage.setItem('sl_studio_logout',String(Date.now()));indexedDB.deleteDatabase('sl-studio-v2');}catch(e){}
     showLogin();
   });
 
@@ -124,38 +124,27 @@
     });
   }
   function goTo(id) {
+    var aboutAlias=id==='about';if(aboutAlias)id='editor';
     if (!SECTIONS.some(function(s){return s.id===id;})) return;
     var editorFrame=document.getElementById('pageEditorFrame');
     if(editorFrame&&state.section==='editor'&&id!=='editor')editorFrame.contentWindow.postMessage({type:'sane-editor:flush'},location.origin);
     state.section = id;
+    document.body.classList.toggle('page-editor-open',id==='editor');
     history.replaceState(null,'','#'+id);
-    if(id==='editor'&&!editorFrame){var host=document.getElementById('pageEditorHost');if(host){var frame=document.createElement('iframe');frame.id='pageEditorFrame';frame.title='Sane Living page editor';frame.src='/dash/editor/index.html';frame.allow='fullscreen';frame.style.cssText='width:100%;height:calc(100dvh - 52px);min-height:720px;border:0;border-radius:14px;background:#f7f8fa;display:block';host.appendChild(frame);}}
+    if(id==='editor'&&!editorFrame){var host=document.getElementById('pageEditorHost');if(host){var frame=document.createElement('iframe');frame.id='pageEditorFrame';frame.title='Sane Living page editor';frame.src='/dash/editor/index.html'+(aboutAlias?'?page=about':'');frame.allow='fullscreen';frame.style.cssText='width:100%;height:100dvh;min-height:690px;border:0;border-radius:0;background:#f7f8fa;display:block';host.appendChild(frame);}}
     $$('#mainNav [data-nav]').forEach(function (b) { b.classList.toggle('active', b.getAttribute('data-nav') === id); });
     $$('#panels .panel').forEach(function (p) { p.classList.toggle('active', p.id === 'panel-' + id); });
+    if(aboutAlias){var current=document.getElementById('pageEditorFrame');if(current){current.contentWindow.postMessage({type:'studio:select-about'},location.origin);current.addEventListener('load',function(){current.contentWindow.postMessage({type:'studio:select-about'},location.origin);},{once:true});}}
     window.scrollTo({ top: 0 });
   }
-  // Explicit, read-checked handoff; this bridge never writes a draft or publishes.
-  window.addEventListener('message', async function(e) {
+  // The editor publishes through its authenticated gateway; messages only navigate the dashboard.
+  window.addEventListener('message',function(e){
     var frame=document.getElementById('pageEditorFrame'),data=e.data;
-    if(e.origin!==location.origin || !frame || e.source!==frame.contentWindow || !data)return;
-    if(data.type!=='sane-editor:review')return;
-    var requestId=data.requestId;
-    function answer(message){frame.contentWindow.postMessage({type:'sane-editor:review-result',requestId:requestId,message:message},location.origin);}
-    if(typeof requestId!=='string' || typeof data.content!=='string' || data.content.length>262144 || !/^[a-f0-9]{40}$/.test(data.sourceSha||'')){answer('The draft transfer was invalid. Your browser draft is retained.');return;}
-    if(state.busy.about){answer('About is currently saving. Wait for it to finish before transferring.');return;}
-    try {
-      var model=SaneContent.parseAbout(data.content),errors=SaneContent.validateAbout(model);
-      if(errors.length)throw Error(errors.join(' '));
-      var fresh=await api('/api/dash-content?section=about');
-      if(!fresh.published || fresh.published.sha!==data.sourceSha)throw Error('About changed since this editor loaded. Download your draft, then load the latest published copy before transferring.');
-      if(state.busy.about)throw Error('About is currently saving. Try the transfer again when it finishes.');
-      if((state.dirty.about || fresh.draft) && !confirm('Replace the About form’s current working copy with this visual draft? Nothing is saved or published until you choose it on the About page.')){answer('Transfer cancelled. Your visual draft is retained.');return;}
-      state.versions.about={sha:fresh.published.sha,draftSha:fresh.draft?fresh.draft.sha:null,published:fresh.published.content};
-      state.loaded.about=true;state.loadErrors.about='';state.conflicts.about='';state.errors.about='';
-      putContent('about',data.content);setDirty('about',true);refreshPanel('about');goTo('about');
-      answer('Draft transferred to About for review. Choose Save draft or Publish there. Nothing has been published yet.');
-      toast('Visual draft ready for review. Save or publish when you are ready.');
-    }catch(err){answer(err.message||'The transfer failed. Your visual draft is retained.');}
+    if(e.origin!==location.origin||!frame||e.source!==frame.contentWindow||!data)return;
+    if(data.type==='studio:open-section'&&['home','events','gallery','weddings','pricing','partners','settings'].indexOf(data.section)!==-1){
+      goTo(data.section);
+      if(data.section==='settings'&&SaneSettings.groups.some(function(g){return g.id===data.tab;}))selectSettingsTab(data.tab);
+    }
   });
   var RECOVERY_PREFIX = 'sl_studio_v1_';
   function contentText(id) { return id === 'about' ? state.aboutText : JSON.stringify(state.data[id], null, 2) + '\n'; }
@@ -696,11 +685,11 @@
       var cards = mine.length
         ? '<div class="photo-grid">' + mine.map(function (pair) { return photoCard(pair[0], pair[1], photos.length); }).join('') + '</div>'
         : '<div class="empty-note">No photos in this section yet — add the first one.</div>';
-      return '<div class="group-block" id="gal-group-' + sd.id + '">' +
-        '<div class="group-head"><div><h3>' + sd.title + ' <span class="group-count">' + mine.length + ' photo' + (mine.length === 1 ? '' : 's') + '</span></h3>' +
+      return '<section class="group-block gallery-section-card" aria-labelledby="gallery-title-'+sd.id+'" id="gal-group-' + sd.id + '">' +
+        '<div class="group-head"><div><span class="gallery-section-eyebrow">Gallery collection</span><h3 id="gallery-title-'+sd.id+'">' + sd.title + ' <span class="group-count">' + mine.length + ' photo' + (mine.length === 1 ? '' : 's') + '</span></h3>' +
         '<p>' + sd.blurb + '<br><span class="where">Appears: ' + sd.where + '</span></p></div>' +
         '<label class="btn btn-primary btn-small" style="margin:0">+ Add photos<input type="file" class="gal-upload-group" data-section="' + sd.id + '" accept="image/*" multiple hidden></label></div>' +
-        cards + '</div>';
+        '<div class="gallery-section-photos">'+cards+'</div></section>';
     }).join('');
   }
   function renderGallery() {
@@ -715,7 +704,7 @@
       '<span style="color:var(--muted);font-size:.9rem">Every photo below sits in exactly one website section. Change a photo\'s section with its dropdown; order inside a section follows the ↑ ↓ arrows.</span></div>' +
       '<div id="photoGroups">' + groupsHtml() + '</div>' +
       savebarHtml('gallery', 'gallery');
-    return panelShell('gallery', 'Photo Gallery', 'New photos start unpublished. Save a draft to keep your work, then use each photo’s Publish button when it should appear on the website.', inner);
+    return panelShell('gallery', 'Photo Gallery', 'Each collection below matches one section on the website. Edit photos together, save a draft, then publish your gallery changes when ready.', inner);
   }
   function bindGallery() {
     var wrap = $('#photoGroups');
@@ -1121,7 +1110,7 @@
     }
     try { await loadContentSection('about'); } catch(e) { state.loadErrors.about=e.message; state.loaded.about=false; state.aboutText=''; }
     renderAll();
-    goTo(SECTIONS.some(function(s){return '#'+s.id===location.hash;})?location.hash.slice(1):'home');
+    goTo(location.hash==='#about'?'about':SECTIONS.some(function(s){return '#'+s.id===location.hash;})?location.hash.slice(1):'home');
     loadEvents(false);
   }
 

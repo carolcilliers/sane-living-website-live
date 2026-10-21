@@ -2,625 +2,1901 @@ import {
   StrictMode,
   useCallback,
   useEffect,
-  useReducer,
   useRef,
   useState,
   Component,
   type ReactNode,
 } from "react";
 import { createRoot } from "react-dom/client";
-import { Layers } from "./Layers";
+import core from "../../content-core/site.cjs";
 import { Inspector } from "./Inspector";
-import { Preview, PAGES } from "./Preview";
+import { Layers } from "./Layers";
+import { SiteCanvas } from "./SiteCanvas";
+import { readRecord, saveDraft, snapshot, clearDraft } from "./storage";
+import type {
+  Workspace,
+  Block,
+  Page,
+  Bootstrap,
+  Saved,
+  Snapshot,
+} from "./site-types";
 import type { About } from "./types";
 import "./style.css";
-const KEY = "sl_editor_about_v1";
-interface History {
-  now: About | null;
-  past: About[];
-  future: About[];
-  group: string;
+import "./site-style.css";
+const LABELS: Record<string, string> = {
+  heading: "Heading",
+  text: "Text",
+  image: "Image",
+  split: "Image + text",
+  button: "Button",
+  spacer: "Spacer",
+  divider: "Divider",
+  callout: "Callout",
+  gallery: "Gallery",
+  events: "Live events",
+  pricing: "Pricing",
+  partners: "Partners",
+  booking: "Booking form",
+  newsletter: "Newsletter",
+};
+const SYMBOLS: Record<string, string> = {
+  heading: "H",
+  text: "T",
+  image: "▧",
+  split: "◧",
+  button: "↗",
+  spacer: "↕",
+  divider: "—",
+  callout: "❝",
+  gallery: "▦",
+  events: "□",
+  pricing: "$",
+  partners: "♧",
+  booking: "▤",
+  newsletter: "✉",
+};
+const FIELD_LABELS: Record<string, string> = {
+  text: "Text",
+  heading: "Heading",
+  level: "Heading level",
+  src: "Image URL",
+  alt: "Image description",
+  caption: "Caption",
+  url: "Destination",
+  side: "Image position",
+  height: "Height",
+  section: "Gallery section",
+  kind: "Connected form",
+};
+function download(value: unknown, name = "sane-living-website-draft.json") {
+  const u = URL.createObjectURL(
+    new Blob([JSON.stringify(value, null, 2)], { type: "application/json" }),
+  );
+  const a = document.createElement("a");
+  a.href = u;
+  a.download = name;
+  a.click();
+  setTimeout(() => URL.revokeObjectURL(u), 1000);
 }
-type Action =
-  | { type: "load"; model: About }
-  | { type: "edit"; model: About; group: string }
-  | { type: "undo" }
-  | { type: "redo" };
-function reducer(s: History, a: Action): History {
-  if (a.type === "load")
-    return { now: a.model, past: [], future: [], group: "" };
-  if (a.type === "edit")
-    return {
-      now: a.model,
-      past:
-        s.now && a.group !== s.group ? [...s.past, s.now].slice(-50) : s.past,
-      future: [],
-      group: a.group,
-    };
-  if (a.type === "undo" && s.now && s.past.length)
-    return {
-      now: s.past.at(-1)!,
-      past: s.past.slice(0, -1),
-      future: [s.now, ...s.future],
-      group: "",
-    };
-  if (a.type === "redo" && s.now && s.future.length)
-    return {
-      now: s.future[0],
-      past: [...s.past, s.now].slice(-50),
-      future: s.future.slice(1),
-      group: "",
-    };
-  return s;
+async function api(url: string, body?: unknown) {
+  const r = await fetch(url, {
+    cache: "no-store",
+    ...(body
+      ? {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(body),
+        }
+      : {}),
+  });
+  const d = await r.json();
+  if (!r.ok)
+    throw Error(
+      r.status === 401
+        ? "Your team session ended. Sign in again; your private draft is retained."
+        : d.error || "The website could not be loaded.",
+    );
+  return d;
 }
 function App() {
-  const [history, dispatch] = useReducer(reducer, {
-    now: null,
-    past: [],
-    future: [],
-    group: "",
-  });
-  const model = history.now;
-  const [selected, select] = useState("");
-  const [width, setWidth] = useState(() => window.innerWidth < 850 ? 375 : 1024);
-  const [clean, setClean] = useState(false);
-  const [route, setRoute] = useState("/about/");
-  const [reviewing, setReviewing] = useState(false);
-  const [expanded, setExpanded] = useState(false);
-  const reviewRequest = useRef("");
-  const [tab, setTab] = useState<"sections" | "canvas" | "edit">("canvas");
-  const [template, setTemplate] = useState("");
-  const [sourceSha, setSha] = useState("");
-  const [loading, setLoading] = useState(true);
-  const [loadError, setLoadError] = useState("");
-  const [message, setMessage] = useState("");
-  const [saveState, setSaveState] = useState("Not saved yet");
-  const [stale, setStale] = useState(false);
-  const [recoveryBlocked, setRecoveryBlocked] = useState(false);
-  const [publishedSha, setPublishedSha] = useState("");
-  const current = useRef({ model, sourceSha, recoveryBlocked });
-  current.current = { model, sourceSha, recoveryBlocked };
-  const lastSaved = useRef("");
-  const knownStorage = useRef<string | null>(null);
-  const loadId = useRef(0);
-  const importInput = useRef<HTMLInputElement>(null);
-  const saveLocal = useCallback(() => {
-    const { model: m, sourceSha: sha } = current.current;
-    if (!m || !sha) return;
-    if (current.current.recoveryBlocked) {
-      setSaveState(
-        "Older recovery retained — download it before starting over",
-      );
-      return;
-    }
-    try {
-      const text = JSON.stringify(window.SaneEditorModel.exportDraft(m, sha));
-      const existing = localStorage.getItem(KEY);
-      if (existing !== knownStorage.current && existing !== text) {
-        setRecoveryBlocked(true);
-        setSaveState(
-          "Another browser tab changed this draft — recovery retained",
-        );
-        return;
-      }
-      localStorage.setItem(KEY, text);
-      knownStorage.current = text;
-      lastSaved.current = text;
-      setSaveState("Saved on this browser · " + new Date().toLocaleTimeString([], {hour:"numeric",minute:"2-digit"}));
-    } catch {
-      setSaveState("Browser save failed — download your draft");
-    }
-  }, []);
+  const [data, setData] = useState<Bootstrap | null>(null),
+    [history, setHistory] = useState<{
+      now: Workspace | null;
+      past: Workspace[];
+      future: Workspace[];
+      group: string;
+    }>({ now: null, past: [], future: [], group: "" });
+  const work = history.now;
+  const workRef = useRef(work);
+  workRef.current = work;
+  const [pageId, setPageId] = useState(
+      new URLSearchParams(location.search).get("page") || "home",
+    ),
+    [selected, select] = useState(""),
+    [storyId, setStoryId] = useState(""),
+    [leftTab, setLeftTab] = useState<"pages" | "insert" | "layers">("pages");
+  const [mobile, setMobile] = useState<"left" | "canvas" | "right">("canvas"),
+    [width, setWidth] = useState(() => (innerWidth < 850 ? 375 : 1024)),
+    [search, setSearch] = useState(""),
+    [status, setStatus] = useState("Loading website…"),
+    [message, notice] = useState(""),
+    [loadError, setLoadError] = useState(""),
+    [stale, setStale] = useState(false),
+    [saved, setSaved] = useState(""),
+    [saving, setSaving] = useState(false),
+    [review, setReview] = useState(false),
+    [publishing, setPublishing] = useState(false),
+    [release, setRelease] = useState<{
+      id: string;
+      commit: string;
+      state: string;
+    } | null>(null),
+    [newPage, setNewPage] = useState(false),
+    [newName, setNewName] = useState(""),
+    [slug, setSlug] = useState(""),
+    [uploading, setUploading] = useState(false);
+  const [aboutRecovery, setAboutRecovery] = useState<{
+    content: string;
+    baseSha: string;
+  } | null>(null);
+  const revision = useRef(0),
+    savingLock = useRef(false),
+    recoveryBlocked = useRef(false),
+    pendingRelease = useRef<{ text: string; id: string } | null>(null),
+    loadVersion = useRef(0),
+    input = useRef<HTMLInputElement>(null),
+    fieldGroup = useRef("");
+  function replace(w: Workspace) {
+    setHistory({ now: w, past: [], future: [], group: "" });
+    select("");
+  }
   const load = useCallback(async (reset = false) => {
-    const id = ++loadId.current;
-    setLoading(true);
+    const version = ++loadVersion.current;
     setLoadError("");
+    setStatus("Loading website…");
     try {
-      const [response, page] = await Promise.all([
-        fetch("/api/dash-content?section=about", { cache: "no-store" }),
-        fetch("/about/", { cache: "no-store" }),
-      ]);
-      if (!response.ok)
-        throw Error(
-          response.status === 401
-            ? "Sign in to the dashboard to load the About page."
-            : "The About source could not be loaded. Retry before editing.",
-        );
-      if (!page.ok)
-        throw Error("The public About preview template could not be loaded.");
-      const data = await response.json(),
-        html = await page.text();
-      if (!data.published?.content || !data.published.sha)
-        throw Error(
-          "The published About source is missing. Nothing has been replaced.",
-        );
-      let m = window.SaneEditorModel.fromSource(data.published.content, () =>
+      const d: Bootstrap = await api("/api/studio");
+      if (version !== loadVersion.current) return;
+      let w: Workspace = {
+        project: d.project,
+        about: window.SaneEditorModel.fromSource(d.resources.about, () =>
           crypto.randomUUID(),
         ),
-        base = data.published.sha,
-        recovered = false,
-        isStale = false,
-        blocked = false;
-      if (!html.includes("<!-- about-managed:start -->"))
-        throw Error(
-          "The About preview template is incompatible. The public site has not been changed.",
+        aboutText: d.resources.about,
+        assets: [],
+      };
+      let recovered = false,
+        conflict = false;
+      let stored: any;
+      try {
+        stored = await readRecord("drafts", "website");
+      } catch {
+        notice(
+          "Private browser storage is unavailable. You can edit and download a draft, but recovery cannot be saved here.",
         );
-      if (!reset) {
-        let stored: string | null = null;
-        try {
-          stored = localStorage.getItem(KEY);
-          knownStorage.current = stored;
-        } catch {
-          setMessage(
-            "Browser recovery is unavailable. Download a draft to keep your work.",
+      }
+      revision.current = stored?.revision || 0;
+      recoveryBlocked.current = false;
+      if (!reset && stored) {
+        const old = stored.value as Saved;
+        const errors = core.validate(old?.work?.project, d.registry, {
+          ...d.resources,
+          about: old?.work?.aboutText,
+        });
+        if (!old?.work || errors.length) {
+          recoveryBlocked.current = true;
+          notice(
+            "An incompatible older draft was retained. Download it before loading a fresh copy.",
           );
-        }
-        if (stored) {
-          try {
-            const recovery = window.SaneEditorModel.importDraft(
-              JSON.parse(stored),
-            );
-            m = recovery.model;
-            base = recovery.sourceSha;
-            isStale = base !== data.published.sha;
-            recovered = true;
-          } catch {
-            blocked = true;
-            setMessage(
-              "An older browser draft could not be opened. It has been left intact; use Import draft with a compatible file.",
-            );
+        } else {
+          w = old.work;
+          recovered = true;
+          conflict =
+            old.layoutSha !== d.layoutSha ||
+            (old.versions.about !== d.versions.about &&
+              w.aboutText !== old.baseAbout);
+          if (!conflict && old.versions.about !== d.versions.about) {
+            w = {
+              ...w,
+              aboutText: d.resources.about,
+              about: window.SaneEditorModel.fromSource(d.resources.about, () =>
+                crypto.randomUUID(),
+              ),
+            };
           }
         }
       }
-      if (id !== loadId.current) return;
-      setTemplate(html);
-      setSha(base);
-      setPublishedSha(data.published.sha);
-      setRecoveryBlocked(blocked);
-      setStale(isStale);
-      dispatch({ type: "load", model: m });
-      select(m.metadata.sections?.[0]?.id || "");
-      setSaveState(
-        recovered ? "Recovered browser draft" : "Published copy loaded",
-      );
-      if (reset) {
+      // Preserve compatible browser recovery from the previous About pilot.
+      if (!reset && !stored) {
         try {
-          localStorage.removeItem(KEY);
-          knownStorage.current = null;
-        } catch {}
-        setMessage(
-          "Loaded the current published copy. Your website is unchanged.",
-        );
+          const raw = localStorage.getItem("sl_editor_about_v1");
+          if (raw) {
+            const old = window.SaneEditorModel.importDraft(JSON.parse(raw));
+            if (old.sourceSha === d.versions.about) {
+              w.about = old.model;
+              w.aboutText = window.SaneContent.serializeAbout(old.model);
+              w.project = {
+                ...w.project,
+                pages: w.project.pages.map((p) =>
+                  p.id === "about" ? { ...p, active: true } : p,
+                ),
+              };
+              recovered = true;
+              notice(
+                "Your previous About browser draft has been brought into the website editor.",
+              );
+            }
+          }
+        } catch {
+          notice(
+            "The previous About recovery is retained and can still be downloaded from Draft tools.",
+          );
+        }
       }
+      let olderAbout = d.legacyAboutDraft || null;
+      try {
+        const local = JSON.parse(
+          localStorage.getItem("sl_studio_v1_about") || "null",
+        );
+        if (local?.content) olderAbout = local;
+      } catch {}
+      setAboutRecovery(olderAbout);
+      setData(d);
+      replace(w);
+      setStale(conflict);
+      setSaved(recovered ? JSON.stringify(w) : "");
+      setStatus(
+        conflict
+          ? "Older draft · publication blocked"
+          : recovered
+            ? "Recovered private browser draft"
+            : "Published website loaded",
+      );
+      setRelease(d.lastRelease || null);
     } catch (e) {
-      if (id === loadId.current) setLoadError((e as Error).message);
-    } finally {
-      if (id === loadId.current) setLoading(false);
+      if (version === loadVersion.current) {
+        setLoadError((e as Error).message);
+        setStatus("Source unavailable");
+      }
     }
   }, []);
   useEffect(() => {
     void load();
     return () => {
-      loadId.current++;
+      loadVersion.current++;
     };
   }, [load]);
-  useEffect(() => {
-    if (!model || loading) return;
-    if (recoveryBlocked) {
-      setSaveState(
-        "Older recovery retained — download it before starting over",
+  const save = useCallback(async () => {
+    const w = workRef.current;
+    if (!w || !data || savingLock.current) return;
+    if (recoveryBlocked.current) {
+      notice(
+        "Older recovery retained. Download it before replacing this browser draft.",
       );
       return;
     }
-    setSaveState("Saving on this browser…");
-    const t = setTimeout(saveLocal, 600);
-    return () => clearTimeout(t);
-  }, [model, sourceSha, loading, recoveryBlocked, saveLocal]);
-  useEffect(() => {
-    function flush(e: MessageEvent) {
-      if (
-        e.origin === location.origin &&
-        e.source === window.parent &&
-        e.data?.type === "sane-editor:flush"
-      )
-        saveLocal();
+    savingLock.current = true;
+    setSaving(true);
+    const text = JSON.stringify(w);
+    try {
+      revision.current = await saveDraft(
+        {
+          work: w,
+          head: data.head,
+          versions: data.versions,
+          layoutSha: data.layoutSha,
+          baseAbout: data.resources.about,
+        } satisfies Saved,
+        revision.current,
+      );
+      setSaved(text);
+      setStatus(
+        "Saved privately on this browser · " +
+          new Date().toLocaleTimeString([], {
+            hour: "numeric",
+            minute: "2-digit",
+          }),
+      );
+    } catch (e) {
+      notice((e as Error).message);
+      setStatus("Draft save failed · download to keep your work");
+      recoveryBlocked.current = true;
+    } finally {
+      savingLock.current = false;
+      setSaving(false);
     }
-    function leave(e: BeforeUnloadEvent) {
-      const v = current.current;
-      if (
-        v.model &&
-        v.sourceSha &&
-        lastSaved.current !==
-          JSON.stringify(
-            window.SaneEditorModel.exportDraft(v.model, v.sourceSha),
-          )
-      ) {
-        saveLocal();
-        if (
-          lastSaved.current !==
-          JSON.stringify(
-            window.SaneEditorModel.exportDraft(v.model, v.sourceSha),
-          )
-        ) {
-          e.preventDefault();
-          e.returnValue = "";
-        }
+  }, [data]);
+  useEffect(() => {
+    if (!work || !data || JSON.stringify(work) === saved || stale) return;
+    const t = setTimeout(() => void save(), 800);
+    return () => clearTimeout(t);
+  }, [work, data, saved, save, stale]);
+  useEffect(() => {
+    function logout(e: StorageEvent) {
+      if (e.key === "sl_studio_logout") {
+        setData(null);
+        setHistory({ now: null, past: [], future: [], group: "" });
+        setLoadError("Your team session ended. Sign in to open the editor.");
       }
     }
-    window.addEventListener("message", flush);
+    window.addEventListener("storage", logout);
+    return () => window.removeEventListener("storage", logout);
+  }, []);
+  useEffect(() => {
+    const t = setTimeout(() => notice(""), 10000);
+    return () => clearTimeout(t);
+  }, [message]);
+  useEffect(() => {
+    function leave(e: BeforeUnloadEvent) {
+      if (workRef.current && JSON.stringify(workRef.current) !== saved) {
+        e.preventDefault();
+        e.returnValue = "";
+      }
+    }
     window.addEventListener("beforeunload", leave);
-    return () => {
-      window.removeEventListener("message", flush);
-      window.removeEventListener("beforeunload", leave);
+    return () => window.removeEventListener("beforeunload", leave);
+  }, [saved]);
+  useEffect(() => {
+    function receive(e: MessageEvent) {
+      if (e.origin !== location.origin || e.source !== parent) return;
+      if (e.data?.type === "sane-editor:flush") void save();
+      if (e.data?.type === "studio:select-about") setPageId("about");
+    }
+    window.addEventListener("message", receive);
+    return () => window.removeEventListener("message", receive);
+  }, [save]);
+  useEffect(() => {
+    if (!release || release.state === "Live on the website") return;
+    let stopped = false,
+      attempts = 0;
+    const tick = async () => {
+      try {
+        const page = workRef.current?.project.pages.find(
+          (p) => p.id === pageId,
+        );
+        const r = await fetch(
+          (page?.route || "/") + "?studio-release=" + release.id,
+          { cache: "no-store" },
+        );
+        if (
+          r.ok &&
+          (await r.text()).includes(
+            'name="sane-release" content="' + release.id + '"',
+          )
+        ) {
+          if (!stopped)
+            setRelease((v) => (v ? { ...v, state: "Live on the website" } : v));
+          return;
+        }
+      } catch {}
+      if (!stopped && ++attempts < 18) timer = setTimeout(tick, 7000);
+      else if (!stopped)
+        setRelease((v) =>
+          v
+            ? { ...v, state: "Commit accepted · live deployment not verified" }
+            : v,
+        );
     };
-  }, [saveLocal]);
-  function change(fn: (m: About) => void, group: string = crypto.randomUUID()) {
-    if (!model) return;
-    const next = structuredClone(model);
-    fn(next);
-    dispatch({ type: "edit", model: next, group });
-  }
-  function add() {
-    const id = crypto.randomUUID();
-    change((m) => {
-      (m.metadata.sections ??= []).push({
-        id,
-        heading: "New section",
-        body: "Tell your story here.",
-        visible: true,
-      });
+    let timer = setTimeout(tick, 4000);
+    return () => {
+      stopped = true;
+      clearTimeout(timer);
+    };
+  }, [release?.id, pageId]);
+  function edit(
+    fn: (w: Workspace) => void,
+    group: string = crypto.randomUUID(),
+  ) {
+    setHistory((h) => {
+      if (!h.now) return h;
+      const next: Workspace = {
+        ...h.now,
+        project: structuredClone(h.now.project),
+        about: structuredClone(h.now.about),
+        assets: [...h.now.assets],
+      };
+      fn(next);
+      return {
+        now: next,
+        past: h.group === group ? h.past : [...h.past, h.now].slice(-50),
+        future: [],
+        group,
+      };
     });
-    select(id);
-    setTab("edit");
   }
-  function move(from: number, to: number) {
-    const list = model?.metadata.sections || [];
-    if (from < 0 || to < 0 || to >= list.length || from === to) return;
-    change((m) => {
-      const a = m.metadata.sections!;
-      a.splice(to, 0, a.splice(from, 1)[0]);
-    });
-    setMessage("Section order updated in your browser draft.");
+  function undo() {
+    setHistory((h) =>
+      h.now && h.past.length
+        ? {
+            now: h.past.at(-1)!,
+            past: h.past.slice(0, -1),
+            future: [h.now, ...h.future],
+            group: "",
+          }
+        : h,
+    );
   }
-  function duplicate() {
-    if (!model) return;
-    const i = model.metadata.sections!.findIndex((s) => s.id === selected);
-    if (i < 0) return;
-    const copy = structuredClone(model.metadata.sections![i]);
-    copy.id = crypto.randomUUID();
-    copy.heading += " (copy)";
-    copy.editorRole = "none";
-    change((m) => {
-      m.metadata.sections!.splice(i + 1, 0, copy);
+  function redo() {
+    setHistory((h) =>
+      h.now && h.future.length
+        ? {
+            now: h.future[0],
+            past: [...h.past, h.now].slice(-50),
+            future: h.future.slice(1),
+            group: "",
+          }
+        : h,
+    );
+  }
+  const page =
+      work?.project.pages.find((p) => p.id === pageId) ||
+      work?.project.pages[0],
+    block = page?.blocks.find((b) => b.id === selected);
+  const resources =
+    data && work ? { ...data.resources, about: work.aboutText } : {};
+  const errors =
+    data && work
+      ? ([
+          ...core.validate(work.project, data.registry, resources),
+          ...window.SaneEditorModel.check(work.about),
+        ] as string[])
+      : [];
+  const descriptors =
+    page && data
+      ? core.describe(core.registryFor(page, data.registry), resources).blocks
+      : [];
+  function pageEdit(fn: (p: Page) => void, group?: string) {
+    if (!page) return;
+    edit((w) => {
+      const p = w.project.pages.find((p) => p.id === page.id)!;
+      fn(p);
+      p.active = true;
+    }, group);
+  }
+  function blockEdit(fn: (b: Block) => void, group?: string) {
+    pageEdit((p) => {
+      const b = p.blocks.find((b) => b.id === selected);
+      if (b) fn(b);
+    }, group);
+  }
+  function choose(id: string) {
+    setPageId(id);
+    select("");
+    setMobile("canvas");
+  }
+  function add(type: string, after?: string) {
+    if (!page) return;
+    const b = core.block(type, crypto.randomUUID()) as Block;
+    pageEdit((p) => {
+      const at = p.blocks.findIndex((b) => b.id === (after || selected));
+      p.blocks.splice(at < 0 ? p.blocks.length : at + 1, 0, b);
     });
-    select(copy.id);
+    select(b.id);
+    setLeftTab("layers");
+    setMobile("right");
+    notice((LABELS[type] || type) + " added to " + page.name + ".");
+  }
+  function move(from: string, to: string) {
+    if (!page) return;
+    const a = page.blocks.findIndex((b) => b.id === from),
+      b = page.blocks.findIndex((b) => b.id === to);
+    if (a < 0 || b < 0 || a === b) return;
+    pageEdit((p) => {
+      p.blocks.splice(b, 0, p.blocks.splice(a, 1)[0]);
+    });
+    select(from);
+  }
+  function arrow(delta: number) {
+    if (!block || !page) return;
+    const i = page.blocks.indexOf(block),
+      next = page.blocks[i + delta];
+    if (next) move(block.id, next.id);
+  }
+  function aboutEdit(fn: (m: About) => void, group: string) {
+    edit((w) => {
+      fn(w.about);
+      w.aboutText = window.SaneContent.serializeAbout(w.about);
+      w.project.pages.find((p) => p.id === "about")!.active = true;
+    }, group);
   }
   function remove() {
-    if (
-      !model ||
-      !confirm(
-        "Remove this section from your browser draft? You can undo this.",
-      )
-    )
-      return;
-    const list = model.metadata.sections || [],
-      i = list.findIndex((s) => s.id === selected);
-    change((m) => {
-      m.metadata.sections = m.metadata.sections!.filter(
-        (s) => s.id !== selected,
+    if (!block) return;
+    if (block.source) {
+      blockEdit((b) => {
+        b.hidden = !b.hidden;
+      });
+      notice(
+        block.hidden
+          ? "Original section is visible."
+          : "Original section hidden. Its integration markup is retained.",
       );
+      return;
+    }
+    if (!confirm("Remove this block? You can Undo this.")) return;
+    pageEdit((p) => {
+      p.blocks = p.blocks.filter((b) => b.id !== selected);
     });
-    select(list[i + 1]?.id || list[i - 1]?.id || "");
+    select("");
   }
-  function download() {
-    if (!model) return;
-    const blob = new Blob(
-      [
-        JSON.stringify(
-          window.SaneEditorModel.exportDraft(model, sourceSha),
-          null,
-          2,
-        ) + "\n",
-      ],
-      { type: "application/json" },
+  function duplicate() {
+    if (!block || block.source) return;
+    const b = structuredClone(block);
+    b.id = crypto.randomUUID();
+    b.label += " copy";
+    pageEdit((p) =>
+      p.blocks.splice(p.blocks.findIndex((x) => x.id === selected) + 1, 0, b),
     );
-    const url = URL.createObjectURL(blob),
-      a = document.createElement("a");
-    a.href = url;
-    a.download = "sane-living-about-draft.json";
-    a.click();
-    setTimeout(() => URL.revokeObjectURL(url), 1000);
-    setMessage("Draft downloaded. This does not publish anything.");
+    select(b.id);
+  }
+  function openSource(section: string, tab?: string) {
+    if (parent === window) {
+      location.href = "/dash/#" + section;
+      return;
+    }
+    parent.postMessage(
+      { type: "studio:open-section", section, tab },
+      location.origin,
+    );
+  }
+  async function preview() {
+    if (!work || !data) return;
+    if (errors.length) {
+      notice(errors.join(" "));
+      return;
+    }
+    const popup = window.open("about:blank", "_blank");
+    if (popup) popup.opener = null;
+    try {
+      const id = await snapshot({
+        work: structuredClone(work),
+        registry: data.registry,
+        resources: { ...data.resources, about: work.aboutText },
+        pageId: page!.id,
+      } satisfies Snapshot);
+      const url = "/dash/editor/preview.html?snapshot=" + id;
+      if (popup) popup.location.replace(url);
+      else
+        notice(
+          "Preview tab was blocked. Allow popups for this website and press Preview again.",
+        );
+    } catch {
+      popup?.close();
+      notice(
+        "The private preview could not be saved. Download your draft to keep it.",
+      );
+    }
+  }
+  function create() {
+    if (!work || !data) return;
+    const id = "custom--" + slug,
+      entry = {
+        id,
+        name: newName.trim(),
+        route: "/" + slug + "/",
+        output: "public/site-pages/" + slug + ".html",
+        html: core.generic(newName.trim()),
+      };
+    const next = core.createProject([entry]).pages[0] as Page;
+    next.slug = slug;
+    next.menu = true;
+    next.active = true;
+    const candidate = structuredClone(work.project);
+    candidate.pages.push(next);
+    const issues = core.validate(candidate, data.registry, resources);
+    if (issues.length) {
+      notice(issues.join(" "));
+      return;
+    }
+    edit((w) => (w.project = candidate));
+    setPageId(id);
+    select(next.blocks[0]?.id || "");
+    setNewPage(false);
+    setLeftTab("layers");
+  }
+  async function upload(file: File, set: (url: string) => void) {
+    if (!work) return;
+    const extension = file.name.split(".").pop()?.toLowerCase();
+    if (
+      !["png", "jpg", "jpeg", "webp", "gif"].includes(extension || "") ||
+      file.size > 1024 * 1024
+    ) {
+      notice("Choose a PNG, JPG, WebP or GIF image up to 1 MB.");
+      return;
+    }
+    if (
+      work.assets.length >= 12 ||
+      work.assets.reduce((n, a) => n + atob(a.base64).length, 0) + file.size >
+        2 * 1024 * 1024
+    ) {
+      notice("Keep staged images under 2 MB total per release.");
+      return;
+    }
+    setUploading(true);
+    try {
+      const base64 = await new Promise<string>((resolve, reject) => {
+        const r = new FileReader();
+        r.onload = () => resolve(String(r.result).split(",")[1]);
+        r.onerror = reject;
+        r.readAsDataURL(file);
+      });
+      const url = "/images/studio-" + crypto.randomUUID() + "." + extension;
+      edit((w) => {
+        w.assets.push({ url, base64, name: file.name });
+      });
+      set(url);
+      notice(
+        "Image staged privately. It becomes public only when you publish.",
+      );
+    } catch {
+      notice("The image could not be opened.");
+    } finally {
+      setUploading(false);
+    }
+  }
+  async function publish() {
+    if (!data || !work) return;
+    setPublishing(true);
+    const current = structuredClone(work),
+      payloadText = JSON.stringify({
+        project: current.project,
+        about: current.aboutText,
+        assets: current.assets,
+      });
+    if (pendingRelease.current?.text !== payloadText)
+      pendingRelease.current = { text: payloadText, id: crypto.randomUUID() };
+    const releaseId = pendingRelease.current.id;
+    try {
+      const result = await api("/api/studio", {
+        version: 2,
+        expectedHead: data.head,
+        releaseId,
+        project: current.project,
+        about: current.aboutText,
+        assets: current.assets,
+      });
+      setRelease({
+        id: releaseId,
+        commit: result.commit,
+        state: "Commit accepted · deployment updating",
+      });
+      setReview(false);
+      notice(
+        "Published to GitHub main. The website is live only after deployment verification.",
+      );
+      // Re-read acknowledged sources, preserving any typing done while the release was in flight.
+      let fresh: Bootstrap;
+      try {
+        fresh = await api("/api/studio");
+      } catch {
+        setStatus("Commit accepted · source refresh needs attention");
+        notice(
+          "Your design was committed. Keep this draft and reload the published source before your next release.",
+        );
+        return;
+      }
+      setData(fresh);
+      setStale(false);
+      if (JSON.stringify(workRef.current) === JSON.stringify(current)) {
+        const next = {
+          ...current,
+          project: result.project || fresh.project,
+          assets: [],
+        };
+        replace(next);
+        setStatus("Published to main · deployment updating");
+        setSaved("");
+      } else
+        notice(
+          "The reviewed snapshot was committed. Newer local edits are retained for your next release.",
+        );
+    } catch (e) {
+      notice((e as Error).message);
+      setStatus("Publication needs attention · private draft retained");
+    } finally {
+      setPublishing(false);
+    }
   }
   async function importFile(file: File) {
     try {
-      if (file.size > 300000)
-        throw Error("Choose a draft smaller than 300 KB.");
-      const d = window.SaneEditorModel.importDraft(
-        JSON.parse(await file.text()),
-      );
+      if (file.size > 4000000) throw Error("Choose a draft smaller than 4 MB.");
+      const value = JSON.parse(await file.text());
+      let w: Workspace;
+      if (value.kind === "sane-about-pilot") {
+        const old = window.SaneEditorModel.importDraft(value);
+        if (old.sourceSha !== data?.versions.about)
+          throw Error(
+            "This About draft is based on an older published source.",
+          );
+        w = structuredClone(work!);
+        w.about = old.model;
+        w.aboutText = window.SaneContent.serializeAbout(old.model);
+        w.project.pages.find((p) => p.id === "about")!.active = true;
+      } else {
+        if (
+          value.kind !== "sane-website-draft" ||
+          value.version !== 2 ||
+          value.baseLayoutSha !== data?.layoutSha
+        )
+          throw Error(
+            "This draft is incompatible or based on a different published layout.",
+          );
+        w = value.work;
+        if (value.baseVersions?.about !== data?.versions.about) {
+          if (w.aboutText === value.baseAbout) {
+            w.aboutText = data!.resources.about;
+            w.about = window.SaneEditorModel.fromSource(w.aboutText, () =>
+              crypto.randomUUID(),
+            );
+          } else
+            throw Error(
+              "About changed since this draft was saved. Keep the draft and reconcile its About text before importing.",
+            );
+        }
+      }
+      const issues = core.validate(w.project, data!.registry, {
+        ...data!.resources,
+        about: w.aboutText,
+      });
+      if (issues.length) throw Error(issues.join(" "));
       if (
         !confirm(
-          "Replace this browser draft with the imported file? Download your current draft first if you want to keep both.",
+          "Replace this private working draft? Download your current copy first if you want to keep it.",
         )
       )
         return;
-      setStale(d.sourceSha !== publishedSha);
-      try {
-        knownStorage.current = localStorage.getItem(KEY);
-      } catch {}
-      setRecoveryBlocked(false);
-      setSha(d.sourceSha);
-      dispatch({ type: "load", model: d.model });
-      select(d.model.metadata.sections?.[0]?.id || "");
-      setMessage("Draft imported and saved on this browser.");
+      recoveryBlocked.current = false;
+      replace(w);
+      setSaved("");
+      notice("Draft imported. It has not been published.");
     } catch (e) {
-      setMessage("Import failed: " + (e as Error).message);
+      notice("Import failed: " + (e as Error).message);
     } finally {
-      if (importInput.current) importInput.current.value = "";
+      if (input.current) input.current.value = "";
     }
   }
   useEffect(() => {
-    function receipt(e: MessageEvent) {
-      if(e.origin!==location.origin || e.source!==window.parent || e.data?.type!=="sane-editor:review-result" || e.data.requestId!==reviewRequest.current)return;
-      setReviewing(false); setMessage(e.data.message || "Review opened in the dashboard.");
+    if (!review && !newPage) return;
+    const prior = document.activeElement as HTMLElement | null;
+    const dialog = document.querySelector(
+      ".studio-modal",
+    ) as HTMLElement | null;
+    dialog?.querySelector<HTMLElement>("input,button")?.focus();
+    function keys(e: KeyboardEvent) {
+      if (e.key === "Escape" && !publishing) {
+        setReview(false);
+        setNewPage(false);
+      }
+      if (e.key === "Tab" && dialog) {
+        const items = Array.from(
+          dialog.querySelectorAll<HTMLElement>(
+            "button:not(:disabled),input,select,textarea,a[href]",
+          ),
+        );
+        if (!items.length) return;
+        const first = items[0],
+          last = items.at(-1)!;
+        if (e.shiftKey && document.activeElement === first) {
+          e.preventDefault();
+          last.focus();
+        } else if (!e.shiftKey && document.activeElement === last) {
+          e.preventDefault();
+          first.focus();
+        }
+      }
     }
-    window.addEventListener("message",receipt);return ()=>window.removeEventListener("message",receipt);
-  },[]);
-  useEffect(()=>{if(!reviewing)return;const t=setTimeout(()=>{setReviewing(false);setMessage("The dashboard did not acknowledge the transfer. Your browser draft is retained. Reopen Page Editor from the dashboard and try again.");},15000);return ()=>clearTimeout(t);},[reviewing]);
-  function review() {
-    if(!model)return;
-    const issues=window.SaneEditorModel.check(model);
-    if(issues.length){setMessage(issues.join(" "));return;}
-    saveLocal();
-    if(window.parent===window){setMessage("Open Page Editor inside the dashboard to transfer this draft for review and publishing. Your browser draft is saved.");return;}
-    const requestId=crypto.randomUUID();reviewRequest.current=requestId;setReviewing(true);
-    window.parent.postMessage({type:"sane-editor:review",requestId,sourceSha,content:window.SaneContent.serializeAbout(model)},location.origin);
-  }
-  async function expand() {
-    try { if(document.fullscreenElement)await document.exitFullscreen();else await document.documentElement.requestFullscreen(); }
-    catch { setMessage("Full screen is unavailable here. Use Preview to expand the canvas."); }
-  }
-  useEffect(()=>{const changed=()=>setExpanded(!!document.fullscreenElement);document.addEventListener("fullscreenchange",changed);return ()=>document.removeEventListener("fullscreenchange",changed);},[]);
-  useEffect(()=>{if(!message)return;const t=setTimeout(()=>setMessage(""),8000);return ()=>clearTimeout(t);},[message]);
-  const sections = model?.metadata.sections || [],
-    section = sections.find((s) => s.id === selected),
-    errors = model ? window.SaneEditorModel.check(model) : [];
+    document.addEventListener("keydown", keys);
+    return () => {
+      document.removeEventListener("keydown", keys);
+      prior?.focus();
+    };
+  }, [review, newPage, publishing]);
+  const exportDraft = () => {
+    if (work && data)
+      download({
+        kind: "sane-website-draft",
+        version: 2,
+        baseLayoutSha: data.layoutSha,
+        baseVersions: data.versions,
+        baseAbout: data.resources.about,
+        work,
+      });
+  };
+  const orderChanged =
+    !!work &&
+    !!data &&
+    work.project.pages.map((p) => p.id).join(",") !==
+      data.project.pages.map((p) => p.id).join(",");
+  const changed =
+    work && data
+      ? work.project.pages.filter((p) => {
+          const old = data.project.pages.find((x) => x.id === p.id);
+          return (
+            JSON.stringify(p) !== JSON.stringify(old) ||
+            (p.id === "about" && work.aboutText !== data.resources.about)
+          );
+        })
+      : [];
+  const aboutSections = work?.about.metadata.sections || [],
+    story = aboutSections.find((s) => s.id === storyId) || aboutSections[0];
+  const start = () => {
+    fieldGroup.current = crypto.randomUUID();
+  };
   return (
     <div
-      className="editor-app"
+      className="studio-app"
       onKeyDown={(e) => {
         if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === "s") {
           e.preventDefault();
-          saveLocal();
+          void save();
         }
       }}
     >
-      <header className="editor-header">
-        <div className="editor-identity"><span className="studio-mark">S<span>l</span></span><div><h1>Website editor</h1><p>Sane Living / Team workspace</p></div></div>
-        <div className="header-links"><button onClick={expand}>{expanded ? "Exit full screen" : "Full screen"}</button><a href={route} target="_blank" rel="noopener noreferrer" className="text-link">View live page ↗</a></div>
-      </header>
-      <div className="toolbar">
-        <label className="page-choice"><span className="tiny-label">PAGE</span>
-          <select aria-label="Website page" value={route} onChange={e=>{if(PAGES.some(p=>p.path===e.target.value)){setRoute(e.target.value);setTab("canvas");}}}>
-            {PAGES.map(p=><option key={p.path} value={p.path}>{p.name}{p.path==="/about/"?" · Edit":" · Preview"}</option>)}
-          </select>
-        </label>
-        <div className="history-actions">
+      <header className="studio-top">
+        <div className="studio-brand">
+          <button
+            className="studio-back"
+            aria-label="Return to dashboard"
+            onClick={() => openSource("home")}
+          >
+            ‹
+          </button>
+          <span className="studio-monogram">Sl</span>
+          <div>
+            <strong>Sane Living</strong>
+            <small>Website studio</small>
+          </div>
+        </div>
+        <div className="device-switch" role="group" aria-label="Canvas device">
+          {[
+            [1440, "Desktop"],
+            [1024, "Laptop"],
+            [768, "Tablet"],
+            [375, "Phone"],
+          ].map(([n, label]) => (
+            <button
+              key={n}
+              aria-pressed={width === n}
+              onClick={() => setWidth(Number(n))}
+            >
+              {label}
+            </button>
+          ))}
+        </div>
+        <div className="studio-actions">
           <button
             aria-label="Undo"
-            disabled={!history.past.length || loading}
-            onClick={() => dispatch({ type: "undo" })}
+            disabled={!history.past.length}
+            onClick={undo}
           >
-            ↶ Undo
+            ↶
           </button>
           <button
             aria-label="Redo"
-            disabled={!history.future.length || loading}
-            onClick={() => dispatch({ type: "redo" })}
+            disabled={!history.future.length}
+            onClick={redo}
           >
-            ↷ Redo
+            ↷
           </button>
-        </div>
-        <div className="toolbar-actions">
-          <button disabled={!model || loading} onClick={saveLocal}>
-            Save on this browser
+          <button disabled={!work || saving} onClick={() => void save()}>
+            {saving ? "Saving…" : "Save draft"}
+          </button>
+          <button disabled={!work || !data} onClick={() => void preview()}>
+            Preview ↗
           </button>
           <button
-            className="primary"
-            disabled={!model || loading}
-            aria-pressed={clean}
-            onClick={() => {
-              setClean(!clean);
-              setTab("canvas");
-            }}
+            className="publish-action"
+            disabled={
+              !work ||
+              publishing ||
+              stale ||
+              (!changed.length && !orderChanged) ||
+              !!errors.length
+            }
+            onClick={() => setReview(true)}
           >
-            {clean ? "Back to editing" : "Preview"}
-          </button>
-          <button className="publish-action" disabled={!model || loading || reviewing || stale || errors.length>0 || route!=="/about/"} onClick={review}>
-            {reviewing ? "Opening review…" : "Review & publish →"}
+            Publish
           </button>
         </div>
-      </div>
-      <div className="status-row">
-        <span role="status" aria-live="polite">
-          {loading
-            ? "Loading About…"
-            : loadError
-              ? "Source unavailable"
-              : saveState}
-        </span>
+      </header>
+      <div className="studio-status">
+        <span role="status">{status}</span>
         <span>
-          {clean ? "Preview mode" : sections.length + " sections"} · {width}px
+          {page?.route || "Website"} · {page?.blocks.length || 0} sections
         </span>
       </div>
+      {aboutRecovery ? (
+        <div className="about-recovery">
+          <span>An earlier About draft is available.</span>
+          <button
+            onClick={() => {
+              if (aboutRecovery.baseSha !== data?.versions.about) {
+                notice(
+                  "This older About draft needs reconciliation. Download it to keep its text.",
+                );
+                return;
+              }
+              if (
+                !confirm(
+                  "Bring this earlier About draft into Page Editor? Your current private About working copy will be replaced.",
+                )
+              )
+                return;
+              edit((w) => {
+                w.about = window.SaneEditorModel.fromSource(
+                  aboutRecovery.content,
+                  () => crypto.randomUUID(),
+                );
+                w.aboutText = aboutRecovery.content;
+                w.project.pages.find((p) => p.id === "about")!.active = true;
+              });
+              setPageId("about");
+              setAboutRecovery(null);
+              notice(
+                "Earlier About draft imported privately. Nothing is published yet.",
+              );
+            }}
+          >
+            Bring into editor
+          </button>
+          <button
+            onClick={() => download(aboutRecovery, "previous-about-draft.json")}
+          >
+            Download copy
+          </button>
+          <button
+            aria-label="Dismiss earlier About draft"
+            onClick={() => setAboutRecovery(null)}
+          >
+            ×
+          </button>
+        </div>
+      ) : null}
+      {release ? (
+        <div className="release-status">
+          <strong>{release.state}</strong>
+          <a
+            href={
+              "https://github.com/carolcilliers/sane-living-website-live/commit/" +
+              release.commit
+            }
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            Commit {release.commit.slice(0, 7)} ↗
+          </a>
+        </div>
+      ) : null}
+      <nav className="studio-mobile" aria-label="Editor panels">
+        {(["left", "canvas", "right"] as const).map((t) => (
+          <button
+            key={t}
+            aria-pressed={mobile === t}
+            onClick={() => setMobile(t)}
+          >
+            {t === "left"
+              ? "Pages & blocks"
+              : t === "right"
+                ? "Inspector"
+                : "Canvas"}
+          </button>
+        ))}
+      </nav>
       {loadError ? (
         <div className="error-box" role="alert">
-          <h2>We couldn’t open this page</h2>
+          <h2>We couldn’t load the website</h2>
           <p>{loadError}</p>
           <button onClick={() => void load()}>Retry loading</button>
         </div>
       ) : null}
-      {!loading && !loadError && model ? (
-        <>
-          {recoveryBlocked ? (
-            <div className="warning" role="alert">
-              An incompatible older recovery is still stored. Download it before
-              loading the published copy or importing a replacement.{" "}
+      {data && work && page ? (
+        <div className={"studio-workspace mobile-" + mobile}>
+          <nav className="studio-rail" aria-label="Studio navigation">
+            {(
+              [
+                ["pages", "▤", "Pages"],
+                ["insert", "+", "Insert"],
+                ["layers", "▱", "Layers"],
+              ] as const
+            ).map(([tab, icon, label]) => (
               <button
+                key={tab}
+                aria-pressed={leftTab === tab}
                 onClick={() => {
-                  const raw = localStorage.getItem(KEY);
-                  if (!raw) return;
-                  const u = URL.createObjectURL(
-                    new Blob([raw], { type: "application/json" }),
-                  );
-                  const a = document.createElement("a");
-                  a.href = u;
-                  a.download = "sane-living-older-recovery.json";
-                  a.click();
-                  setTimeout(() => URL.revokeObjectURL(u), 1000);
+                  setLeftTab(tab);
+                  setMobile("left");
                 }}
               >
-                Download older recovery
-              </button>
-            </div>
-          ) : null}
-          {stale ? (
-            <div className="warning" role="alert">
-              This browser draft is based on an older published version.
-              Download it before loading the current copy. Load the current copy before transferring changes for review.
-            </div>
-          ) : null}
-          {errors.length ? (
-            <div className="warning" role="alert">
-              {errors.join(" ")} Your browser draft is retained while you
-              correct it.
-            </div>
-          ) : null}
-          <nav className="mobile-tabs" aria-label="Editor panels">
-            {(["sections", "canvas", "edit"] as const).map((t) => (
-              <button
-                key={t}
-                aria-pressed={tab === t}
-                onClick={() => setTab(t)}
-              >
-                {t === "canvas"
-                  ? "Canvas"
-                  : t === "edit"
-                    ? "Edit content"
-                    : "Sections"}
+                <span aria-hidden="true">{icon}</span>
+                <small>{label}</small>
               </button>
             ))}
+            <button
+              className="rail-settings"
+              onClick={() => openSource("settings")}
+            >
+              <span>⚙</span>
+              <small>Settings</small>
+            </button>
           </nav>
-          <div className={"workspace active-" + tab + (clean || route!=="/about/" ? " clean" : "")}>
-            {!clean && route === "/about/" ? (
-              <Layers
-                sections={sections}
-                selected={selected}
-                select={(id) => {
-                  select(id);
-                  setTab("edit");
-                }}
-                move={move}
-                add={add}
-              />
+          <aside className="studio-sidebar">
+            <div className="sidebar-heading">
+              <h2>
+                {leftTab === "pages"
+                  ? "Website pages"
+                  : leftTab === "insert"
+                    ? "Insert a block"
+                    : "Layers"}
+              </h2>
+              {leftTab === "pages" ? (
+                <button
+                  aria-label="Create page"
+                  onClick={() => {
+                    setNewName("");
+                    setSlug("");
+                    setNewPage(true);
+                  }}
+                >
+                  +
+                </button>
+              ) : null}
+            </div>
+            {leftTab === "pages" ? (
+              <>
+                <input
+                  className="studio-search"
+                  aria-label="Search pages"
+                  placeholder="Find a page…"
+                  value={search}
+                  onChange={(e) => setSearch(e.target.value)}
+                />
+                <div className="page-list">
+                  {work.project.pages
+                    .filter((p) =>
+                      (p.name + " " + p.route)
+                        .toLowerCase()
+                        .includes(search.toLowerCase()),
+                    )
+                    .map((p) => (
+                      <div
+                        className={
+                          "page-row " + (page.id === p.id ? "selected" : "")
+                        }
+                        key={p.id}
+                      >
+                        <button onClick={() => choose(p.id)}>
+                          <span aria-hidden="true" className="page-icon">
+                            ▤
+                          </span>
+                          <span>
+                            {p.name}
+                            <small>{p.route}</small>
+                          </span>
+                          {p.active ? <i title="Uses the page editor" /> : null}
+                        </button>
+                        <div>
+                          <button
+                            aria-label={"Move " + p.name + " page up"}
+                            disabled={work.project.pages.indexOf(p) === 0}
+                            onClick={() =>
+                              edit((w) => {
+                                const i = w.project.pages.findIndex(
+                                  (x) => x.id === p.id,
+                                );
+                                w.project.pages.splice(
+                                  i - 1,
+                                  0,
+                                  w.project.pages.splice(i, 1)[0],
+                                );
+                              })
+                            }
+                          >
+                            ↑
+                          </button>
+                          <button
+                            aria-label={"Move " + p.name + " page down"}
+                            disabled={
+                              work.project.pages.indexOf(p) ===
+                              work.project.pages.length - 1
+                            }
+                            onClick={() =>
+                              edit((w) => {
+                                const i = w.project.pages.findIndex(
+                                  (x) => x.id === p.id,
+                                );
+                                w.project.pages.splice(
+                                  i + 1,
+                                  0,
+                                  w.project.pages.splice(i, 1)[0],
+                                );
+                              })
+                            }
+                          >
+                            ↓
+                          </button>
+                        </div>
+                      </div>
+                    ))}
+                </div>
+                <button className="wide-add" onClick={() => setNewPage(true)}>
+                  + Create a page
+                </button>
+                <p className="sidebar-help">
+                  All current pages are here. Select one to edit its sections.
+                  Existing integrations keep their original sources.
+                </p>
+              </>
             ) : null}
-            <main className="canvas">
-              {route!=="/about/"?<div className="page-scope">Current website preview · Visual editing is available for About. <button onClick={()=>{setRoute("/about/");setTab("canvas");}}>Edit About</button></div>:null}
-              <div className="canvas-toolbar">
-                <span>{route === "/about/" ? (clean ? "DRAFT PREVIEW" : "CANVAS · Click a section to edit") : "LIVE PAGE PREVIEW"}</span>
-                <div role="group" aria-label="Preview width">
-                  {[
-                    [375, "Phone"],
-                    [768, "Tablet"],
-                    [1024, "Desktop"],
-                    [1440, "Wide"],
-                  ].map(([n, label]) => (
+            {leftTab === "insert" ? (
+              <>
+                <p className="sidebar-help">
+                  Click to add after the selected section, or drag a block onto
+                  the canvas.
+                </p>
+                <h3 className="palette-heading">Content & layout</h3>
+                <div className="block-palette">
+                  {core.TYPES.filter(
+                    (t: string) =>
+                      ![
+                        "gallery",
+                        "events",
+                        "pricing",
+                        "partners",
+                        "booking",
+                        "newsletter",
+                      ].includes(t),
+                  ).map((type: string) => (
                     <button
-                      key={n}
-                      aria-pressed={width === n}
-                      onClick={() => setWidth(Number(n))}
+                      key={type}
+                      draggable
+                      onDragStart={(e) =>
+                        e.dataTransfer.setData("application/sane-block", type)
+                      }
+                      onClick={() => add(type)}
                     >
-                      {label}
+                      <span aria-hidden="true">{SYMBOLS[type]}</span>
+                      {LABELS[type]}
                     </button>
                   ))}
                 </div>
-              </div>
-              <Preview
-                model={model}
-                template={template}
-                width={width}
-                selected={selected}
-                select={(id) => {
-                  select(id);
-                  setTab("edit");
-                }}
-                clean={clean || route!=="/about/"}
-                route={route} move={move} notice={setMessage}
-              />
-              <p className="preview-note">
-                About edits update this canvas immediately. Site navigation, branding and footer use the current website. Forms are preview-only.
-              </p>
-            </main>
-            {!clean && route === "/about/" ? (
-              <Inspector
-                model={model}
-                section={section}
-                change={change}
-                remove={remove}
-                duplicate={duplicate}
-              />
+                <h3 className="palette-heading">Connected to your website</h3>
+                <div className="block-palette">
+                  {[
+                    "gallery",
+                    "events",
+                    "pricing",
+                    "partners",
+                    "booking",
+                    "newsletter",
+                  ].map((type) => (
+                    <button
+                      key={type}
+                      draggable
+                      onDragStart={(e) =>
+                        e.dataTransfer.setData("application/sane-block", type)
+                      }
+                      onClick={() => add(type)}
+                    >
+                      <span aria-hidden="true">{SYMBOLS[type]}</span>
+                      {LABELS[type]}
+                    </button>
+                  ))}
+                </div>
+              </>
             ) : null}
-          </div>
-          <footer className="editor-footer">
-            <div>
-              <strong>Draft tools</strong>
-              <p>
-                Browser recovery is local. Review & publish opens the existing About workflow; transfer alone does not publish.
-              </p>
+            {leftTab === "layers" ? (
+              <>
+                <Layers
+                  sections={page.blocks.map((b) => ({
+                    id: b.id,
+                    heading: b.label,
+                    visible: !b.hidden,
+                    kindLabel: b.source
+                      ? "Original website section"
+                      : LABELS[b.type] || b.type,
+                  }))}
+                  selected={selected}
+                  select={(id) => {
+                    select(id);
+                    setMobile("right");
+                  }}
+                  move={(a, b) => move(page.blocks[a].id, page.blocks[b].id)}
+                  add={() => setLeftTab("insert")}
+                />
+                {block?.type === "about" ? (
+                  <div className="about-layer-list">
+                    <h3>About story sections</h3>
+                    {aboutSections.map((s) => (
+                      <button
+                        key={s.id}
+                        aria-pressed={story?.id === s.id}
+                        onClick={() => {
+                          setStoryId(s.id);
+                          setMobile("right");
+                        }}
+                      >
+                        {s.heading}
+                      </button>
+                    ))}
+                  </div>
+                ) : null}
+              </>
+            ) : null}
+          </aside>
+          <main
+            className="studio-center"
+            onDragOver={(e) => e.preventDefault()}
+            onDrop={(e) => {
+              const type = e.dataTransfer.getData("application/sane-block");
+              if (core.TYPES.includes(type)) {
+                e.preventDefault();
+                add(type);
+              }
+            }}
+          >
+            <div className="studio-page-bar">
+              <div>
+                <strong>{page.name}</strong>
+                <span>{page.route}</span>
+              </div>
+              <div>
+                <button
+                  onClick={() => {
+                    setLeftTab("insert");
+                    setMobile("left");
+                  }}
+                >
+                  + Add block
+                </button>
+                <button
+                  onClick={async () => {
+                    try {
+                      if (document.fullscreenElement)
+                        await document.exitFullscreen();
+                      else await document.documentElement.requestFullscreen();
+                    } catch {
+                      notice("Full screen is unavailable in this browser.");
+                    }
+                  }}
+                >
+                  Full screen
+                </button>
+                <a href={page.route} target="_blank" rel="noopener noreferrer">
+                  View live ↗
+                </a>
+              </div>
             </div>
-            <div>
-              <button onClick={download}>Download draft</button>
-              <button onClick={() => importInput.current?.click()}>
-                Import draft
-              </button>
-              <button
-                onClick={() => {
-                  if (
-                    confirm(
-                      "Load the published copy? Download this draft first if you want to keep it.",
-                    )
-                  )
-                    void load(true);
-                }}
-              >
-                Load published copy
-              </button>
-            </div>
-            <input
-              ref={importInput}
-              type="file"
-              accept="application/json,.json"
-              hidden
-              onChange={(e) => {
-                if (e.target.files?.[0]) void importFile(e.target.files[0]);
+            <SiteCanvas
+              page={page}
+              project={work.project}
+              registry={data.registry}
+              resources={resources}
+              assets={work.assets}
+              width={width}
+              selected={selected}
+              select={(id) => {
+                select(id);
+                setLeftTab("layers");
+                setMobile("right");
+              }}
+              move={move}
+              insert={add}
+              notice={notice}
+              onLink={(route) => {
+                const next = work.project.pages.find(
+                  (p) =>
+                    p.route === route || p.route.replace(/\/$/, "") === route,
+                );
+                if (next) choose(next.id);
+                else
+                  notice("This destination is outside the editable page list.");
               }}
             />
-          </footer>
-          <details className="next-steps">
-            <summary>What’s included, and what comes next?</summary>
-            <p>
-              About supports content editing, section reordering, image and layout changes, undo/redo and browser recovery. Review & publish transfers a checked copy into the existing About form, where you can save or publish explicitly. This uses the existing shared-team workflow; private editor drafts and automated release verification remain future stages.
-            </p>
-          </details>
-        </>
+            <div className="studio-canvas-note">
+              Draft canvas · saved privately on this browser · Preview opens a
+              full-page snapshot in a new tab
+            </div>
+          </main>
+          <aside className="studio-inspector">
+            <div className="sidebar-heading">
+              <h2>{block ? "Section inspector" : "Page settings"}</h2>
+              <span className="scope-chip">
+                {block?.source ? "Existing section" : "This page"}
+              </span>
+            </div>
+            {!block ? (
+              <>
+                <label className="field">
+                  Page name
+                  <input
+                    aria-label="Page name"
+                    value={page.name}
+                    onFocus={start}
+                    onChange={(e) =>
+                      pageEdit(
+                        (p) => (p.name = e.target.value),
+                        fieldGroup.current,
+                      )
+                    }
+                  />
+                </label>
+                <div className="inspector-empty">
+                  <span>↖</span>
+                  <h3>Select something to edit</h3>
+                  <p>
+                    Click a section on the page, choose a layer, or add a block
+                    from Insert.
+                  </p>
+                  <button
+                    onClick={() => {
+                      setLeftTab("insert");
+                      setMobile("left");
+                    }}
+                  >
+                    Explore blocks
+                  </button>
+                </div>
+                {page.id.startsWith("custom--") ? (
+                  <label className="check">
+                    <input
+                      type="checkbox"
+                      checked={page.menu}
+                      onChange={(e) =>
+                        pageEdit((p) => (p.menu = e.target.checked))
+                      }
+                    />
+                    Show this new page in navigation
+                  </label>
+                ) : (
+                  <p className="sidebar-help">
+                    Global navigation and branding remain in Settings.
+                  </p>
+                )}
+                <button onClick={() => openSource("settings")}>
+                  Open site settings
+                </button>
+              </>
+            ) : (
+              <>
+                <label className="field">
+                  Section name
+                  <input
+                    value={block.label}
+                    onFocus={start}
+                    onChange={(e) =>
+                      blockEdit(
+                        (b) => (b.label = e.target.value),
+                        fieldGroup.current,
+                      )
+                    }
+                  />
+                </label>
+                {["about", "aboutHero"].includes(block.type) ? (
+                  <>
+                    <p className="binding-note">
+                      Connected to the existing About source. Text, images and
+                      section order save and publish together.
+                    </p>
+                    {block.type === "about" ? (
+                      <label className="field">
+                        Story section
+                        <select
+                          value={story?.id || ""}
+                          onChange={(e) => setStoryId(e.target.value)}
+                        >
+                          {aboutSections.map((s) => (
+                            <option key={s.id} value={s.id}>
+                              {s.heading}
+                            </option>
+                          ))}
+                        </select>
+                      </label>
+                    ) : null}
+                    <Inspector
+                      model={work.about}
+                      section={block.type === "about" ? story : undefined}
+                      change={aboutEdit}
+                      remove={() => {
+                        if (
+                          !story ||
+                          !confirm("Remove this About story section?")
+                        )
+                          return;
+                        aboutEdit((m) => {
+                          m.metadata.sections = m.metadata.sections!.filter(
+                            (s) => s.id !== story.id,
+                          );
+                        }, crypto.randomUUID());
+                      }}
+                      duplicate={() => {
+                        if (!story) return;
+                        const copy = structuredClone(story);
+                        copy.id = crypto.randomUUID();
+                        copy.heading += " copy";
+                        copy.editorRole = "none";
+                        aboutEdit((m) => {
+                          m.metadata.sections!.push(copy);
+                        }, crypto.randomUUID());
+                        setStoryId(copy.id);
+                      }}
+                    />
+                    {block.type === "about" ? (
+                      <label className="upload-image">
+                        Upload story image
+                        <input
+                          type="file"
+                          accept="image/png,image/jpeg,image/webp,image/gif"
+                          hidden
+                          disabled={uploading || !story}
+                          onChange={(e) => {
+                            if (e.target.files?.[0] && story)
+                              void upload(e.target.files[0], (url) =>
+                                aboutEdit((m) => {
+                                  const s = m.metadata.sections!.find(
+                                    (s) => s.id === story.id,
+                                  );
+                                  if (s) s.image = url;
+                                }, crypto.randomUUID()),
+                              );
+                          }}
+                        />
+                      </label>
+                    ) : null}
+                    {block.type === "about" ? (
+                      <div className="about-story-actions">
+                        <button
+                          onClick={() => {
+                            if (!story) return;
+                            const i = aboutSections.indexOf(story);
+                            if (i > 0)
+                              aboutEdit((m) => {
+                                m.metadata.sections!.splice(
+                                  i - 1,
+                                  0,
+                                  m.metadata.sections!.splice(i, 1)[0],
+                                );
+                              }, crypto.randomUUID());
+                          }}
+                        >
+                          Story ↑
+                        </button>
+                        <button
+                          onClick={() => {
+                            if (!story) return;
+                            const i = aboutSections.indexOf(story);
+                            if (i < aboutSections.length - 1)
+                              aboutEdit((m) => {
+                                m.metadata.sections!.splice(
+                                  i + 1,
+                                  0,
+                                  m.metadata.sections!.splice(i, 1)[0],
+                                );
+                              }, crypto.randomUUID());
+                          }}
+                        >
+                          Story ↓
+                        </button>
+                        <button
+                          onClick={() => {
+                            const id = crypto.randomUUID();
+                            aboutEdit((m) => {
+                              (
+                                m.metadata.sections ||
+                                (m.metadata.sections = [])
+                              ).push({
+                                id,
+                                heading: "New story",
+                                body: "Write your story here.",
+                                editorRole: "none",
+                              });
+                            }, crypto.randomUUID());
+                            setStoryId(id);
+                          }}
+                        >
+                          + Story
+                        </button>
+                      </div>
+                    ) : null}
+                  </>
+                ) : null}
+                {block.type === "legacy" ? (
+                  <>
+                    <p className="binding-note">
+                      Edit supported text, images and links. Forms, collections
+                      and settings retain their existing connections.
+                    </p>
+                    {descriptors
+                      .find((d: any) => d.id === block.source)
+                      ?.fields.map((f: any) => (
+                        <label className="field" key={f.id}>
+                          {f.label}
+                          {f.kind === "text" && f.value.length > 100 ? (
+                            <textarea
+                              rows={5}
+                              value={block.edits?.[f.id] ?? f.value}
+                              onFocus={start}
+                              onChange={(e) =>
+                                blockEdit((b) => {
+                                  b.edits = {
+                                    ...b.edits,
+                                    [f.id]: e.target.value,
+                                  };
+                                }, fieldGroup.current)
+                              }
+                            />
+                          ) : (
+                            <input
+                              value={block.edits?.[f.id] ?? f.value}
+                              onFocus={start}
+                              onChange={(e) =>
+                                blockEdit((b) => {
+                                  b.edits = {
+                                    ...b.edits,
+                                    [f.id]: e.target.value,
+                                  };
+                                }, fieldGroup.current)
+                              }
+                            />
+                          )}{" "}
+                          {f.kind === "image" ? (
+                            <label className="upload-image">
+                              Replace image
+                              <input
+                                type="file"
+                                accept="image/png,image/jpeg,image/webp,image/gif"
+                                disabled={uploading}
+                                hidden
+                                onChange={(e) => {
+                                  if (e.target.files?.[0])
+                                    void upload(e.target.files[0], (url) =>
+                                      blockEdit((b) => {
+                                        b.edits = { ...b.edits, [f.id]: url };
+                                      }),
+                                    );
+                                }}
+                              />
+                            </label>
+                          ) : null}
+                        </label>
+                      ))}
+                    {[
+                      "gallery",
+                      "events",
+                      "rent--weddings",
+                      "rent--pricing",
+                      "partners",
+                      "contact",
+                      "home",
+                      "rent",
+                    ].includes(page.id) ? (
+                      <button
+                        className="source-action"
+                        onClick={() =>
+                          openSource(
+                            (
+                              {
+                                gallery: "gallery",
+                                events: "events",
+                                "rent--weddings": "weddings",
+                                "rent--pricing": "pricing",
+                                partners: "partners",
+                              } as Record<string, string>
+                            )[page.id] || "settings",
+                            page.id === "home"
+                              ? "home"
+                              : page.id === "contact"
+                                ? "contact"
+                                : "booking",
+                          )
+                        }
+                      >
+                        Edit connected content →
+                      </button>
+                    ) : null}
+                  </>
+                ) : null}
+                {!block.source
+                  ? Object.entries(block.props || {}).map(([key, value]) => (
+                      <label className="field" key={key}>
+                        {FIELD_LABELS[key] || key}
+                        {["text", "heading", "caption"].includes(key) &&
+                        key === "text" ? (
+                          <textarea
+                            aria-label={FIELD_LABELS[key] || key}
+                            rows={6}
+                            value={value}
+                            onFocus={start}
+                            onChange={(e) =>
+                              blockEdit((b) => {
+                                b.props![key] = e.target.value;
+                              }, fieldGroup.current)
+                            }
+                          />
+                        ) : ["level", "side", "section", "kind"].includes(
+                            key,
+                          ) ? (
+                          <select
+                            aria-label={FIELD_LABELS[key] || key}
+                            value={value}
+                            onChange={(e) =>
+                              blockEdit((b) => {
+                                b.props![key] = e.target.value;
+                              })
+                            }
+                          >
+                            {(key === "level"
+                              ? ["h1", "h2", "h3"]
+                              : key === "side"
+                                ? ["left", "right"]
+                                : key === "section"
+                                  ? ["venue", "weddings", "outdoor", "all"]
+                                  : ["rental", "contact", "availability"]
+                            ).map((v) => (
+                              <option key={v} value={v}>
+                                {v}
+                              </option>
+                            ))}
+                          </select>
+                        ) : (
+                          <input
+                            aria-label={FIELD_LABELS[key] || key}
+                            type={key === "height" ? "number" : "text"}
+                            value={value}
+                            onFocus={start}
+                            onChange={(e) =>
+                              blockEdit((b) => {
+                                b.props![key] =
+                                  key === "height"
+                                    ? Number(e.target.value)
+                                    : e.target.value;
+                              }, fieldGroup.current)
+                            }
+                          />
+                        )}{" "}
+                        {key === "src" ? (
+                          <label className="upload-image">
+                            Upload replacement
+                            <input
+                              type="file"
+                              accept="image/png,image/jpeg,image/webp,image/gif"
+                              hidden
+                              disabled={uploading}
+                              onChange={(e) => {
+                                if (e.target.files?.[0])
+                                  void upload(e.target.files[0], (url) =>
+                                    blockEdit((b) => {
+                                      b.props!.src = url;
+                                    }),
+                                  );
+                              }}
+                            />
+                          </label>
+                        ) : null}
+                      </label>
+                    ))
+                  : null}
+                {!block.source ? (
+                  <details open className="design-options">
+                    <summary>Design</summary>
+                    <label className="field">
+                      Surface
+                      <select
+                        value={block.theme || "white"}
+                        onChange={(e) =>
+                          blockEdit((b) => (b.theme = e.target.value))
+                        }
+                      >
+                        {["white", "soft", "accent", "dark"].map((v) => (
+                          <option key={v}>{v}</option>
+                        ))}
+                      </select>
+                    </label>
+                    <label className="field">
+                      Alignment
+                      <select
+                        value={block.align || "left"}
+                        onChange={(e) =>
+                          blockEdit((b) => (b.align = e.target.value))
+                        }
+                      >
+                        {["left", "center", "right"].map((v) => (
+                          <option key={v}>{v}</option>
+                        ))}
+                      </select>
+                    </label>
+                    <label className="field">
+                      Vertical spacing
+                      <input
+                        type="number"
+                        min={0}
+                        max={120}
+                        value={block.spacing ?? 48}
+                        onChange={(e) =>
+                          blockEdit((b) => (b.spacing = Number(e.target.value)))
+                        }
+                      />
+                    </label>
+                  </details>
+                ) : null}
+                <div className="block-actions">
+                  <button onClick={() => arrow(-1)}>Move ↑</button>
+                  <button onClick={() => arrow(1)}>Move ↓</button>
+                  {!block.source ? (
+                    <button onClick={duplicate}>Duplicate</button>
+                  ) : null}
+                  <button onClick={remove}>
+                    {block.source
+                      ? block.hidden
+                        ? "Show section"
+                        : "Hide section"
+                      : "Remove block"}
+                  </button>
+                </div>
+              </>
+            )}
+          </aside>
+        </div>
+      ) : null}
+      <footer className="studio-draft-tools">
+        <span>
+          {stale
+            ? "A newer published design needs reconciliation."
+            : saving
+              ? "Saving your private draft…"
+              : "Private draft · this browser only"}
+        </span>
+        <div>
+          {recoveryBlocked.current ? (
+            <button
+              onClick={async () => {
+                try {
+                  download(
+                    await readRecord("drafts", "website"),
+                    "sane-older-recovery.json",
+                  );
+                } catch {
+                  notice("The stored recovery could not be read.");
+                }
+              }}
+            >
+              Download older recovery
+            </button>
+          ) : null}
+          <button disabled={!work} onClick={exportDraft}>
+            Download draft
+          </button>
+          <button disabled={!data} onClick={() => input.current?.click()}>
+            Import
+          </button>
+          <button
+            onClick={async () => {
+              if (
+                !confirm(
+                  "Load the current published website? Download your private draft first if you want to keep it.",
+                )
+              )
+                return;
+              try {
+                await clearDraft(revision.current);
+                revision.current = 0;
+                recoveryBlocked.current = false;
+                await load(true);
+              } catch (error) {
+                notice((error as Error).message);
+              }
+            }}
+          >
+            Load published
+          </button>
+          <input
+            type="file"
+            ref={input}
+            hidden
+            accept="application/json,.json"
+            onChange={(e) => {
+              if (e.target.files?.[0]) void importFile(e.target.files[0]);
+            }}
+          />
+        </div>
+      </footer>
+      {errors.length ? (
+        <div className="studio-validation" role="alert">
+          {errors.join(" ")}
+        </div>
       ) : null}
       {message ? (
-        <div className="editor-message" role="status">
+        <div className="studio-toast" role="status">
           {message}
-          <button aria-label="Dismiss message" onClick={() => setMessage("")}>
+          <button aria-label="Dismiss message" onClick={() => notice("")}>
             ×
           </button>
+        </div>
+      ) : null}
+      {newPage ? (
+        <div className="studio-modal-backdrop">
+          <section
+            className="studio-modal"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="create-title"
+          >
+            <h2 id="create-title">Create a page</h2>
+            <p>
+              A new page uses the same Sane Living header, footer and design
+              system.
+            </p>
+            <label className="field">
+              Page name
+              <input
+                autoFocus
+                value={newName}
+                onChange={(e) => {
+                  setNewName(e.target.value);
+                  setSlug(
+                    e.target.value
+                      .toLowerCase()
+                      .replace(/[^a-z0-9]+/g, "-")
+                      .replace(/^-|-$/g, ""),
+                  );
+                }}
+              />
+            </label>
+            <label className="field">
+              URL slug
+              <input value={slug} onChange={(e) => setSlug(e.target.value)} />
+              <small>/{slug}/</small>
+            </label>
+            <div>
+              <button onClick={() => setNewPage(false)}>Cancel</button>
+              <button
+                className="publish-action"
+                disabled={!newName.trim() || !slug}
+                onClick={create}
+              >
+                Create page
+              </button>
+            </div>
+          </section>
+        </div>
+      ) : null}
+      {review ? (
+        <div className="studio-modal-backdrop">
+          <section
+            className="studio-modal"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="publish-title"
+          >
+            <h2 id="publish-title">Publish your website changes</h2>
+            <p>
+              This will commit the reviewed design to GitHub main. Vercel then
+              builds the website. Other content remains on its existing sources.
+            </p>
+            <ul>
+              {orderChanged ? <li>Page list order</li> : null}
+              {changed.map((p) => (
+                <li key={p.id}>
+                  {p.name} <small>{p.route}</small>
+                </li>
+              ))}
+            </ul>
+            <p>
+              {work?.assets.length || 0} staged images · About content included
+              only when edited
+            </p>
+            <div>
+              <button disabled={publishing} onClick={() => setReview(false)}>
+                Keep editing
+              </button>
+              <button
+                className="publish-action"
+                disabled={publishing || !!errors.length}
+                onClick={() => void publish()}
+              >
+                {publishing ? "Publishing…" : "Publish reviewed changes"}
+              </button>
+            </div>
+          </section>
         </div>
       ) : null}
     </div>
@@ -634,11 +1910,8 @@ class Boundary extends Component<{ children: ReactNode }, { failed: boolean }> {
   render() {
     return this.state.failed ? (
       <div className="error-box">
-        <h1>The editor needs to reload</h1>
-        <p>
-          Your saved browser draft has been retained. The public website has not
-          changed.
-        </p>
+        <h2>The editor needs to reload</h2>
+        <p>Your saved private draft is retained.</p>
         <button onClick={() => location.reload()}>Reload editor</button>
       </div>
     ) : (

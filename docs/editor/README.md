@@ -1,5 +1,7 @@
 # Sane Living editor — development handoff
 
+**Current implementation:** [14_WEBSITE_STUDIO_GUIDE.md](14_WEBSITE_STUDIO_GUIDE.md) and [IMPLEMENTATION_STATUS.md](IMPLEMENTATION_STATUS.md). The planning snapshot below is historical; its About-only next slice and proposed services do not describe the current installed workflow.
+
 **Current implementation:** see [IMPLEMENTATION_STATUS.md](IMPLEMENTATION_STATUS.md). The About editor is integrated with a current-site canvas and an explicit handoff to existing About review/publishing. New private editor storage and verified releases remain gated. The planning snapshot below is retained for context.
 
 Version 1.0 • October 20, 2026, America/Los_Angeles • Documentation and design contracts only

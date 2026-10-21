@@ -5,11 +5,11 @@
   "scripts": {
     "dev": "npx serve . -l 3000",
     "cms": "npx decap-server",
-    "build": "npm run build:editor && node scripts/build-content.cjs",
+    "build": "npm run build:editor && node scripts/build-pages.cjs && node scripts/build-content.cjs",
     "test": "node tests/content-api.cjs && node tests/studio-flow.cjs && node tests/studio-settings.cjs && npm run test:editor",
     "build:editor": "vite build --config editor/vite.config.mjs",
     "dev:editor": "node scripts/dev-editor.cjs",
-    "test:editor": "node tests/editor-contract.cjs && node tests/editor-flow.cjs",
+    "test:editor": "node tests/editor-contract.cjs && node tests/site-publisher.cjs && node tests/site-editor-flow.cjs && node tests/studio-recovery.cjs",
     "typecheck": "tsc -p editor/tsconfig.json",
     "pretest": "npm run build:editor"
   },
@@ -25,6 +25,7 @@
     "@dnd-kit/core": "6.3.1",
     "@dnd-kit/sortable": "10.0.0",
     "@dnd-kit/utilities": "3.2.2",
+    "parse5": "7.3.0",
     "react": "19.2.0",
     "react-dom": "19.2.0"
   }

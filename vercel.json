@@ -411,5 +411,10 @@
     }
   ],
   "buildCommand": "npm run build",
-  "outputDirectory": "public"
+  "outputDirectory": "public",
+  "functions": {
+    "api/studio.js": {
+      "maxDuration": 60
+    }
+  }
 }

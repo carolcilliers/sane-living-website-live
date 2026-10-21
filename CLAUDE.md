@@ -108,20 +108,12 @@ local editing run `npm run cms` and uncomment it.
   `/api/calendar-events?debug=2` to tell a data gap from an outage.
 
 
-## Page editor pilot (E01–E03)
+## Website Studio
 
-`editor/` is an isolated React/Vite About editor, lazy-loaded in the dashboard's
-Page Editor panel. Read `docs/editor/IMPLEMENTATION_STATUS.md` before expanding it.
-It reads a copy through authenticated `dash-content`, saves browser-only recovery
-and imports/exports its own draft format. It never calls a content-write API. Its Review & publish action transfers a validated, source-SHA-checked copy into the existing About form; the user saves/publishes there explicitly.
-New-editor publication stays disabled until the dev plan's private authoring and
-publication gates pass. Existing About/Settings publication remains unchanged.
+Read `docs/editor/14_WEBSITE_STUDIO_GUIDE.md` and `IMPLEMENTATION_STATUS.md` before editing the studio. The old About transfer pilot is replaced by a whole-site, structured editor. About belongs in Page Editor; Settings stays last.
 
-`public/about-renderer.js` is the shared About body renderer used by both the
-legacy build (via `content-renderer/about.cjs`) and the live-page canvas overlay. The canvas loads allowlisted trusted public pages, blocks real navigation/forms, and inserts only renderer-escaped content. Keep output
-parity and managed markers. No public route changed rendering ownership.
+`content-core/site.cjs` is shared by browser, preflight and build. Registered trusted source snapshots live in `content/page-templates.json`. `scripts/build-pages.cjs` activates only explicitly published layouts, followed by the existing canonical content build. Preserve source IDs/scripts and canonical content ownership. New frontend source changes require a matching template capture; active layouts need an explicit migration.
 
-Run `npm ci`, `npm run typecheck`, `npm test`, and `npm run build`.
-`npm run dev:editor` starts a local fixture-backed proof server; no production
-credentials or service writes. Compiled `public/dash/editor/` assets are built
-at deploy/test time and are not committed. Keep Settings last in the sidebar.
+Drafts, staged images and immutable preview snapshots stay in browser IndexedDB. `api/studio.js` publishes a validated reviewed snapshot through one non-force commit directly to main. Save is not Publish; accepted commit is not verified live. The existing staff cookie and server-side CMS GitHub credential remain required. No shared private database, per-user roles or durable deployment worker is installed.
+
+Run `npm ci`, `npm run typecheck`, `npm test`, `npm run build`. `npm run dev:editor` is fixture-backed and never writes real services. Compiled `public/dash/editor/` is generated and ignored. Do not commit test layouts or test release descriptors.

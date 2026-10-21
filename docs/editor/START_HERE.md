@@ -1,5 +1,7 @@
 # Sane Living editor — next-stage handoff
 
+Read [14_WEBSITE_STUDIO_GUIDE.md](14_WEBSITE_STUDIO_GUIDE.md) first for the current implemented profile. The original planning sequence below remains reference material.
+
 Prepared October 20, 2026 • Documentation only
 
 The development package is ready for a bounded local editor proof. It contains architecture decisions, current-source inventories, content/API/storage contracts, publication and rollback protocols, a dependency-ordered implementation backlog, test gates, developer instructions and a proposed team workflow guide.
