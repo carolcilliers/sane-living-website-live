@@ -113,12 +113,12 @@ local editing run `npm run cms` and uncomment it.
 `editor/` is an isolated React/Vite About editor, lazy-loaded in the dashboard's
 Page Editor panel. Read `docs/editor/IMPLEMENTATION_STATUS.md` before expanding it.
 It reads a copy through authenticated `dash-content`, saves browser-only recovery
-and imports/exports its own draft format. It never calls a content-write API.
+and imports/exports its own draft format. It never calls a content-write API. Its Review & publish action transfers a validated, source-SHA-checked copy into the existing About form; the user saves/publishes there explicitly.
 New-editor publication stays disabled until the dev plan's private authoring and
 publication gates pass. Existing About/Settings publication remains unchanged.
 
 `public/about-renderer.js` is the shared About body renderer used by both the
-legacy build (via `content-renderer/about.cjs`) and the pilot preview. Keep output
+legacy build (via `content-renderer/about.cjs`) and the live-page canvas overlay. The canvas loads allowlisted trusted public pages, blocks real navigation/forms, and inserts only renderer-escaped content. Keep output
 parity and managed markers. No public route changed rendering ownership.
 
 Run `npm ci`, `npm run typecheck`, `npm test`, and `npm run build`.

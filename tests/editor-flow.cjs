@@ -38,8 +38,8 @@ const createServer = require("./qa-server.cjs"),
     await e.getByLabel("Page heading", { exact: true }).waitFor();
     assert.equal(
       await e
-        .getByRole("button", { name: "Publish", exact: true })
-        .isDisabled(),
+        .getByRole("button", { name: "Review & publish →", exact: true })
+        .isEnabled(),
       true,
     );
     await e
@@ -76,10 +76,30 @@ const createServer = require("./qa-server.cjs"),
       "A welcoming **community** in Ojai.",
     );
     const preview = e.frameLocator('iframe[title="About page preview"]');
+    await preview.locator("strong").filter({hasText:"community"}).waitFor();
     assert.equal(
       await preview.locator("strong").filter({ hasText: "community" }).count(),
       1,
     );
+    await preview.locator("#site-nav .nav-logo img").waitFor();
+    await preview.locator("#site-footer .footer-links").waitFor();
+    assert.equal(await preview.locator("[data-animate-stagger] .card").first().evaluate(el=>getComputedStyle(el).opacity),"1","philosophy cards are visible");
+    // Browsing current pages is real, but unconverted pages are explicitly preview-only.
+    for(const [route, label] of [["/","Sane Living"],["/rent/","Rent"],["/rent/weddings/","Weddings"],["/gallery/","Gallery"],["/events/","Events"],["/contact/","Contact"]]) {
+      await e.getByLabel("Website page").selectOption(route);
+      await preview.locator("#site-footer .footer-links").waitFor();
+      assert.match(await preview.locator("body").textContent(),new RegExp(label,"i"));
+      assert.equal(await e.getByRole("button",{name:"Review & publish →",exact:true}).isDisabled(),true);
+    }
+    await e.getByLabel("Website page").selectOption("/about/");
+    await preview.locator("strong").filter({hasText:"community"}).waitFor();
+    await preview.locator('.footer-links a[href="/dash/"]').click();
+    assert.equal(await page.locator('#panel-editor.active').count(),1,"canvas links cannot navigate to the dashboard");
+    assert.equal(server.commits,0,"preview never writes");
+    await e.getByRole("button",{name:"Full screen",exact:true}).click();
+    await e.getByRole("button",{name:"Exit full screen",exact:true}).waitFor();
+    await e.getByRole("button",{name:"Exit full screen",exact:true}).click();
+    await e.getByRole("button",{name:"Full screen",exact:true}).waitFor();
     const sectionOrder = () => e.locator(".layer-name span").allTextContents();
     const initial = await sectionOrder();
     await e
@@ -171,6 +191,7 @@ const createServer = require("./qa-server.cjs"),
     );
     await page.reload();
     await e.getByLabel("Page heading", { exact: true }).waitFor();
+    await e.frameLocator('iframe[title="About page preview"]').locator("#site-footer .footer-links").waitFor();
     for (const width of [375, 768, 1024, 1440]) {
       await page.setViewportSize({ width, height: 1050 });
       await page.waitForTimeout(120);
@@ -225,6 +246,26 @@ const createServer = require("./qa-server.cjs"),
     await e
       .getByRole("button", { name: "Back to editing", exact: true })
       .click();
+    // Explicit transfer opens the existing About form, without an automatic write.
+    page.once("dialog",d=>d.accept());
+    await e.getByRole("button",{name:"Review & publish →",exact:true}).click();
+    await page.locator("#panel-about.active").waitFor();
+    assert.equal(await page.locator('[data-about-field="heading"]').first().inputValue(),"A clearer About story");
+    assert.equal(server.commits,0,"transfer itself does not write");
+    await page.locator('[data-draft="about"]').click();
+    await page.waitForFunction(()=>document.querySelector('#savebar-about .msg').textContent.startsWith('Draft saved'));
+    assert.match(JSON.parse(server.records.get('dashboard-drafts/about.json').content).content,/A clearer About story/);
+    assert.doesNotMatch(server.records.get('public/content/about.md').content,/A clearer About story/);
+    await page.locator('[data-save="about"]').click();
+    await page.waitForFunction(()=>document.querySelector('#savebar-about .msg').textContent.startsWith('Published ·'));
+    assert.match(server.records.get('public/content/about.md').content,/A clearer About story/);
+    const published=await context.newPage();await published.goto(server.url+'/about/');
+    assert.equal(await published.getByRole('heading',{name:'A clearer About story',exact:true}).count(),1);await published.close();
+    // A stale visual draft must not overwrite the newly published source.
+    await page.locator('[data-nav=editor]').click();
+    await e.getByRole("button",{name:"Review & publish →",exact:true}).click();
+    await e.locator('.editor-message').filter({hasText:'About changed since'}).waitFor();
+    assert.equal(await page.locator('#panel-editor.active').count(),1);
     await page.locator("#logoutBtn").click();
     await page.locator("#loginView").waitFor({ state: "visible" });
     assert.equal(await page.locator("#pageEditorFrame").count(), 0);
@@ -234,7 +275,7 @@ const createServer = require("./qa-server.cjs"),
     );
     assert.deepEqual(errors, []);
     console.log(
-      "PASS lazy dashboard integration, editing, pointer/keyboard sorting, undo/redo, recovery, import/export, real-width preview, storage failures, mobile layout, isolation, gated writes and logout",
+      "PASS lazy dashboard integration, editing, pointer/keyboard sorting, undo/redo, recovery, import/export, real-width preview, storage failures, mobile layout, isolation, review handoff, real-handler save/publish, stale-write protection and logout",
     );
     // An incompatible recovery must not be overwritten by hydration/autosave.
     const older = await context.newPage();

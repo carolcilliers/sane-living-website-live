@@ -11,7 +11,7 @@ import {
 import { createRoot } from "react-dom/client";
 import { Layers } from "./Layers";
 import { Inspector } from "./Inspector";
-import { Preview } from "./Preview";
+import { Preview, PAGES } from "./Preview";
 import type { About } from "./types";
 import "./style.css";
 const KEY = "sl_editor_about_v1";
@@ -64,6 +64,10 @@ function App() {
   const [selected, select] = useState("");
   const [width, setWidth] = useState(1024);
   const [clean, setClean] = useState(false);
+  const [route, setRoute] = useState("/about/");
+  const [reviewing, setReviewing] = useState(false);
+  const [expanded, setExpanded] = useState(false);
+  const reviewRequest = useRef("");
   const [tab, setTab] = useState<"sections" | "canvas" | "edit">("canvas");
   const [template, setTemplate] = useState("");
   const [sourceSha, setSha] = useState("");
@@ -102,7 +106,7 @@ function App() {
       localStorage.setItem(KEY, text);
       knownStorage.current = text;
       lastSaved.current = text;
-      setSaveState("Saved on this browser");
+      setSaveState("Saved on this browser · " + new Date().toLocaleTimeString([], {hour:"numeric",minute:"2-digit"}));
     } catch {
       setSaveState("Browser save failed — download your draft");
     }
@@ -356,6 +360,29 @@ function App() {
       if (importInput.current) importInput.current.value = "";
     }
   }
+  useEffect(() => {
+    function receipt(e: MessageEvent) {
+      if(e.origin!==location.origin || e.source!==window.parent || e.data?.type!=="sane-editor:review-result" || e.data.requestId!==reviewRequest.current)return;
+      setReviewing(false); setMessage(e.data.message || "Review opened in the dashboard.");
+    }
+    window.addEventListener("message",receipt);return ()=>window.removeEventListener("message",receipt);
+  },[]);
+  useEffect(()=>{if(!reviewing)return;const t=setTimeout(()=>{setReviewing(false);setMessage("The dashboard did not acknowledge the transfer. Your browser draft is retained. Reopen Page Editor from the dashboard and try again.");},15000);return ()=>clearTimeout(t);},[reviewing]);
+  function review() {
+    if(!model)return;
+    const issues=window.SaneEditorModel.check(model);
+    if(issues.length){setMessage(issues.join(" "));return;}
+    saveLocal();
+    if(window.parent===window){setMessage("Open Page Editor inside the dashboard to transfer this draft for review and publishing. Your browser draft is saved.");return;}
+    const requestId=crypto.randomUUID();reviewRequest.current=requestId;setReviewing(true);
+    window.parent.postMessage({type:"sane-editor:review",requestId,sourceSha,content:window.SaneContent.serializeAbout(model)},location.origin);
+  }
+  async function expand() {
+    try { if(document.fullscreenElement)await document.exitFullscreen();else await document.documentElement.requestFullscreen(); }
+    catch { setMessage("Full screen is unavailable here. Use Preview to expand the canvas."); }
+  }
+  useEffect(()=>{const changed=()=>setExpanded(!!document.fullscreenElement);document.addEventListener("fullscreenchange",changed);return ()=>document.removeEventListener("fullscreenchange",changed);},[]);
+  useEffect(()=>{if(!message)return;const t=setTimeout(()=>setMessage(""),8000);return ()=>clearTimeout(t);},[message]);
   const sections = model?.metadata.sections || [],
     section = sections.find((s) => s.id === selected),
     errors = model ? window.SaneEditorModel.check(model) : [];
@@ -370,39 +397,15 @@ function App() {
       }}
     >
       <header className="editor-header">
-        <div>
-          <span className="eyebrow">SANE LIVING · CONTENT STUDIO</span>
-          <h1>
-            Page editor <span className="pilot">About pilot</span>
-          </h1>
-          <p>A quieter space to shape your story.</p>
-        </div>
-        <a
-          href="/about/"
-          target="_blank"
-          rel="noopener noreferrer"
-          className="text-link"
-        >
-          View live page ↗
-        </a>
+        <div className="editor-identity"><span className="studio-mark">S<span>l</span></span><div><h1>Website editor</h1><p>Sane Living / Team workspace</p></div></div>
+        <div className="header-links"><button onClick={expand}>{expanded ? "Exit full screen" : "Full screen"}</button><a href={route} target="_blank" rel="noopener noreferrer" className="text-link">View live page ↗</a></div>
       </header>
-      <div className="pilot-note">
-        <span className="note-icon">✦</span>
-        <div>
-          <strong>Your live website stays untouched.</strong>
-          <p>
-            Edit, arrange and preview a copy of About. Drafts save on this
-            browser. Team saving and publishing will unlock after private
-            storage and release checks are ready.
-          </p>
-        </div>
-      </div>
       <div className="toolbar">
-        <div className="page-choice">
-          <span className="tiny-label">PAGE</span>
-          <strong>About Sane Living</strong>
-          <span>/about/</span>
-        </div>
+        <label className="page-choice"><span className="tiny-label">PAGE</span>
+          <select aria-label="Website page" value={route} onChange={e=>{if(PAGES.some(p=>p.path===e.target.value)){setRoute(e.target.value);setTab("canvas");}}}>
+            {PAGES.map(p=><option key={p.path} value={p.path}>{p.name}{p.path==="/about/"?" · Edit":" · Preview"}</option>)}
+          </select>
+        </label>
         <div className="history-actions">
           <button
             aria-label="Undo"
@@ -434,11 +437,8 @@ function App() {
           >
             {clean ? "Back to editing" : "Preview"}
           </button>
-          <button
-            disabled
-            title="Publishing unlocks after private team drafts and release verification are integrated."
-          >
-            Publish
+          <button className="publish-action" disabled={!model || loading || reviewing || stale || errors.length>0 || route!=="/about/"} onClick={review}>
+            {reviewing ? "Opening review…" : "Review & publish →"}
           </button>
         </div>
       </div>
@@ -488,8 +488,7 @@ function App() {
           {stale ? (
             <div className="warning" role="alert">
               This browser draft is based on an older published version.
-              Download it before loading the current copy. Publishing is
-              unavailable in this pilot.
+              Download it before loading the current copy. Load the current copy before transferring changes for review.
             </div>
           ) : null}
           {errors.length ? (
@@ -513,8 +512,8 @@ function App() {
               </button>
             ))}
           </nav>
-          <div className={"workspace active-" + tab + (clean ? " clean" : "")}>
-            {!clean ? (
+          <div className={"workspace active-" + tab + (clean || route!=="/about/" ? " clean" : "")}>
+            {!clean && route === "/about/" ? (
               <Layers
                 sections={sections}
                 selected={selected}
@@ -527,8 +526,9 @@ function App() {
               />
             ) : null}
             <main className="canvas">
+              {route!=="/about/"?<div className="page-scope">Current website preview · Visual editing is available for About. <button onClick={()=>{setRoute("/about/");setTab("canvas");}}>Edit About</button></div>:null}
               <div className="canvas-toolbar">
-                <span>{clean ? "PAGE PREVIEW" : "LIVE DRAFT PREVIEW"}</span>
+                <span>{route === "/about/" ? (clean ? "DRAFT PREVIEW" : "CANVAS · Click a section to edit") : "LIVE PAGE PREVIEW"}</span>
                 <div role="group" aria-label="Preview width">
                   {[
                     [375, "Phone"],
@@ -555,15 +555,14 @@ function App() {
                   select(id);
                   setTab("edit");
                 }}
-                clean={clean}
+                clean={clean || route!=="/about/"}
+                route={route} move={move} notice={setMessage}
               />
               <p className="preview-note">
-                Same About renderer as the website build. Navigation and forms
-                are inactive in preview. Shared header/footer stay managed by
-                the website.
+                About edits update this canvas immediately. Site navigation, branding and footer use the current website. Forms are preview-only.
               </p>
             </main>
-            {!clean ? (
+            {!clean && route === "/about/" ? (
               <Inspector
                 model={model}
                 section={section}
@@ -575,10 +574,9 @@ function App() {
           </div>
           <footer className="editor-footer">
             <div>
-              <strong>Keep a portable copy</strong>
+              <strong>Draft tools</strong>
               <p>
-                Download a draft to keep it outside this browser. Browser drafts
-                are cleared on logout. Download to keep a copy.
+                Browser recovery is local. Review & publish opens the existing About workflow; transfer alone does not publish.
               </p>
             </div>
             <div>
@@ -612,12 +610,7 @@ function App() {
           <details className="next-steps">
             <summary>What’s included, and what comes next?</summary>
             <p>
-              This first stage follows E01–E03 of the dev plan: About content
-              editing, section reordering, undo/redo, browser recovery and a
-              shared-renderer preview. Existing About Page and Settings
-              workflows continue separately. Private team drafts, individual
-              roles and verified publishing must pass G2–G4 before this editor
-              can change the live website.
+              About supports content editing, section reordering, image and layout changes, undo/redo and browser recovery. Review & publish transfers a checked copy into the existing About form, where you can save or publish explicitly. This uses the existing shared-team workflow; private editor drafts and automated release verification remain future stages.
             </p>
           </details>
         </>

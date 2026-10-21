@@ -1,71 +1,69 @@
-# About editor pilot — implementation status
+# Website editor — implementation status
 
-Implemented scope: E01–E03, integrated in the dashboard after the owner requested the new page. This report supersedes historical “not implemented” statements in the original planning snapshot. It does not mark the private-backend or publication stages complete.
+Current correction: October 21, 2026. This supersedes the earlier UI-only pilot report. E01–E03 remain the implemented foundation; G2–G4 private authoring and verified releases are not complete.
 
-## User-facing behavior
+## What team members can do
 
-The dashboard has a lazy-loaded **Page Editor** panel before About and Settings. Settings remains last. The editor reads a published About copy through the existing authenticated content API. It provides section selection, mouse and keyboard drag sorting, move buttons, text/Markdown formatting, image/link fields, supported layout variants, visibility, add/duplicate/remove, grouped undo/redo, browser recovery, portable draft import/export and full-width preview modes.
+Open **Page Editor** before About and Settings. Settings remains last. The editor loads only when selected.
 
-This is a working **About pilot**, not a whole-site visual editor. Its Publish action is explicitly disabled. Browser recovery is not a private team save. Drafts are cleared on logout, and users can download a portable copy. No new-editor action sends a content mutation request, uploads media or publishes user content. The existing About Page and Settings workflows remain available and unchanged.
+- Edit the existing About source: select sections on the real page or in Layers, edit text/images/links/layout, show/hide sections, add/duplicate/remove, reorder with mouse or keyboard, and undo/redo.
+- See edits immediately on the current website scaffold, including its real logo, navigation, fonts, header, footer and settings. Animation-dependent content is made visible in the canvas.
+- Preview at real iframe widths of 375, 768, 1024 and 1440 CSS pixels, scaled to fit. Preview hides the inspector; Full screen expands the workspace.
+- Browse the current Home, Rent, Weddings, Gallery, Events and Contact pages. These are clearly labeled preview-only; About is the supported visual editing scope.
+- Save browser recovery explicitly or automatically, recover after refresh, and download/import portable JSON drafts. Browser recovery is local and cleared on logout.
+- Choose **Review & publish →** to transfer an About snapshot into the existing About form. The dashboard re-reads published About first and rejects a stale source. A confirmation protects an existing About working copy/shared draft. Transfer itself performs no write. The existing **Save draft** and **Publish changes** actions remain explicit subsequent steps.
 
-An incompatible recovery is retained until explicitly replaced. Conditional browser-storage writes also avoid silently replacing another tab's newer recovery. Failed storage writes produce a persistent error and leave download available. Source load/authentication failures do not become empty editable pages.
+The editor is a structured section editor, not a free-positioning Framer clone or a whole-site migration. Unconverted pages are preview-only. The target private editor draft store, individual identities and atomic release/restore service are still future work. The existing shared-team About workflow keeps its existing public-repository draft storage semantics; this transfer does not claim to satisfy private authoring gates.
 
-## Architecture
+## Corrections prompted by the first pilot
 
-| Layer | Implemented location |
+The first preview stripped the scripts responsible for header/footer injection and failed to reveal stagger-animated children. Its oversized introductory area and nested scrolling made the usable canvas too small. A disabled Publish button also left no useful next action.
+
+The corrected workspace has a compact header/toolbar, page picker, readable fields, independently scrolling panels, one page scrollbar in the canvas, an expanded Preview mode and Full screen. Status notices do not cover the draft buttons and dismiss automatically. Review/publish has an acknowledged, version-checked handoff instead of an inert primary action.
+
+## Data and rendering boundaries
+
+| Layer | Location / behavior |
 | --- | --- |
-| Isolated React UI | `editor/src/` inside a dashboard iframe, loaded only on opening Page Editor |
-| Content adapter/validation | `public/editor-model.js`, shared Node entry `content-core/about.cjs` |
-| Shared About rendering | `public/about-renderer.js`, Node entry `content-renderer/about.cjs` |
-| Existing route owner | `scripts/build-content.cjs` remains responsible for the public About output |
-| Browser preview | Shared renderer + trusted existing template, sandbox without scripts/forms; escaped user content |
-| Local development harness | `scripts/dev-editor.cjs` uses isolated in-memory Git/API fixtures |
-| Compiled UI | `public/dash/editor/`, generated during build/tests, ignored by Git |
+| Isolated React UI | `editor/src/`, lazy dashboard iframe |
+| Adapter/validation | `public/editor-model.js`; shared Node entry `content-core/about.cjs` |
+| About renderer | `public/about-renderer.js`; shared Node entry `content-renderer/about.cjs` |
+| Route owner | Existing `scripts/build-content.cjs`; no route cutover or duplicate output |
+| Canvas | Allowlisted same-origin public pages; existing trusted website scripts load their current chrome/settings |
+| Draft overlay | Only the escaped, URL-validated canonical About renderer replaces the managed region; no arbitrary HTML/code import |
+| Review bridge | `public/dash/app.js`; checks exact iframe source/origin, payload size/type, content validation and a fresh published SHA |
+| Publishing | Existing About form, existing authenticated content API and revision checks; no new editor publication endpoint |
+| Development | `scripts/dev-editor.cjs`, fixture server and Vite proxies; no real service writes |
 
-The adapter assigns stable IDs and a founder attachment key to the working copy only. It does not migrate the published About source. Unknown frontmatter/section fields, hidden sections and the Markdown suffix survive export/import. Page structure/bindings are fixed to the supported About pilot contract; arbitrary imported components/paths are rejected.
+Canvas loading never becomes an empty editable page. The frame is hidden until interaction guards are installed. Its sandbox permits only same-origin and existing page scripts, with no forms/popups/top-navigation permission. Capture handlers block navigation/submissions, and embedded forms/media are replaced with explicit preview-only placeholders. The scripts are trusted existing public-site code, not user-authored code; allowing both scripts and same-origin is deliberately not treated as an isolation boundary for untrusted code. Do not broaden the allowlisted pages or add user scripts.
 
-Preview and build use the same section renderer. Only the preview adds selection annotations and removes interaction/scripts. Real iframe viewport widths remain unchanged when the viewport is scaled to fit. This preserves responsive CSS behavior; it is not a narrow `<div>` masquerading as a device viewport.
+About updates replace only the marker-bounded managed region, preserve page scroll during typing, retain attached philosophy content and use the same renderer as the build. Selection changes scroll to the corresponding section. Local draft IDs, founder attachment, unknown metadata, hidden sections and Markdown suffix survive round trips.
 
-The legacy render function was extracted without changing existing marketing output. New supported fields are optional and affect only working-copy previews until a future authorized content migration. No current content file, rewrite/redirect, Airtable function or public page markup was changed for this pilot.
+A failed or timed-out transfer leaves the visual recovery intact. A fresh source mismatch blocks transfer; a subsequent change after transfer is still rejected by the existing save API's expected SHA. The bridge never auto-saves or auto-publishes. It opens the canonical form rather than creating a second writer or bypassing the planned private-authoring gate.
 
-## Upstream provenance / core decision
+## Upstream provenance
 
-`editor/src/Layers.tsx` adapts the sortable-row/sensor structure of OpenPage's `src/editor/LayersPanel.tsx` at commit `9818eb43a88e01b23cb55752e19902d8285a853b`, copyright 2026 Federico De Ponte, MIT. The license is retained in `LICENSES/OpenPage.txt`.
+`editor/src/Layers.tsx` retains the small OpenPage-derived sortable-row/sensor slice from `src/editor/LayersPanel.tsx` at `9818eb43a88e01b23cb55752e19902d8285a853b`, copyright 2026 Federico De Ponte, MIT. Notice: `LICENSES/OpenPage.txt`. Project store, generic registry, upstream auth/deployment/export and media/template collections are not adopted. React and dnd-kit remain isolated from the vanilla dashboard.
 
-Modifications: remove project store, toast, icon catalogue, generic block registry and add-component orchestration; accept Sane Living section IDs/props/callbacks; expose keyboard move controls; use semantic buttons and the local About adapter; restyle for the current dashboard. The remaining UI/core/renderer is project-specific integration code. No other upstream application or media/template collection was copied.
+## Verification
 
-Retain this small OpenPage-derived sorting slice. The broader upstream dashboard/store/deployment/export implementations are not adopted. React + dnd-kit are isolated from existing vanilla dashboard code; there is no Next.js/Clerk/Prisma/WordPress migration. The compiled editor bundle is approximately 83 KB gzip plus 3.2 KB gzip CSS, and is not loaded on public marketing pages or before opening Page Editor.
+The correction is checked with `npm run typecheck`, `npm test`, and `npm run build`. Browser tests exercise actual content handlers with in-memory Git fixtures: edit → browser recovery → transfer → shared draft → publish → rebuilt About page. They also cover current header/footer, visible philosophy cards, preview-only page browsing, blocked canvas navigation, responsive iframe widths, mouse/keyboard sorting, import/export, storage failures, stale transfers, authentication failures and logout. Existing API/dashboard/settings suites remain required.
 
-## Verification evidence
+No production staff password is used. Fixture publication is not evidence of an authenticated production save or a Vercel release-verification service. The deployed bundle and Git-linked deployment are checked separately. The previously observed Airtable configuration gap and Vercel management team-grant restriction remain outside this UI correction.
 
-- `npm run typecheck` passes.
-- `npm ci --ignore-scripts` and `npm run build` succeed from the lockfile.
-- Existing content API and browser suites continue to pass: dashboard sections at 375/768/1024/1440, recovery, draft/publish, settings/media/metadata, stale writes and event form recovery.
-- New contract tests cover unknown metadata/suffix preservation, stable IDs, hidden content, founder attachment, unsupported bindings/version/layout and unsafe URL rejection.
-- New browser tests cover lazy mounting, editing, pointer/keyboard sorting, undo/redo, refresh recovery, portable import/export, storage failure, incompatible recovery preservation, actual iframe viewport width, mobile overflow, old form isolation, disabled mutation paths and logout cleanup.
-- New-editor browser flow records no content-write requests and zero fake repository commits.
-- An isolated comparison renders the baseline and extracted renderer and verifies **all 25 marketing HTML outputs are byte-identical**.
-- Local `npm run dev:editor` was exercised in a browser through fixture authentication, actual content handlers, Vite proxy and shared rendering.
-- `npm audit --omit=dev` reports zero production dependency advisories at verification time. This is not a full security audit.
-
-No production staff credential was requested or used. No real Airtable event/form mutation was performed. Deployed authenticated use still depends on the site's existing staff session/runtime configuration.
-
-## Gates / remaining work
+## Gates
 
 | Gate | Status |
 | --- | --- |
-| G0 source/route baseline | Complete, known Airtable/Vercel management gaps retained |
-| G1 local core/adapter/rendering proof | Passed for the implemented About scope |
-| G2 private team authoring | Not implemented; provider/identity decisions remain |
-| G3 verified publication/restore | Not implemented; new-editor publishing remains unavailable |
-| G4 production page-source cutover | Not performed; public routes keep existing ownership |
-| G5 wider site rollout | Not started |
+| G0 source/route baseline | Preserved |
+| G1 About core/adapter/rendering | Implemented and regression-tested |
+| G2 private team authoring | Not implemented |
+| G3 verified publication/restore service | Not implemented; existing About workflow remains the publisher |
+| G4 production source cutover | Not performed |
+| G5 whole-site visual editing | Not implemented; other listed pages are previews |
 
-The owner's request authorized deploying the dashboard pilot UI; it did not configure missing private storage or change the plan's publication invariants. Do not wire this pilot directly to the old public-repository draft API as a shortcut to G2/G3. The next work packages are E04–E08 after provider/identity decisions, then E09–E12 for publication, restoration and actual About source cutover. Re-estimate those packages after selecting the concrete services; no zero-regression guarantee is claimed.
+## Run and rollback
 
-## Run / rollback
+Run `npm ci`, `npm run typecheck`, `npm test`, `npm run build`. Install Playwright Chromium or set `CHROMIUM_EXECUTABLE_PATH`. `npm run dev:editor` is fixture-backed and binds to loopback. Compiled `public/dash/editor/` and QA screenshots remain ignored by Git.
 
-Install dependencies with `npm ci`. Install a normal Playwright Chromium browser with `npx playwright install chromium` or set `CHROMIUM_EXECUTABLE_PATH` for an existing executable. Run `npm run typecheck`, `npm test`, `npm run build`. Start the local fixture-only editor with `npm run dev:editor` and open the printed `/dash/editor/` URL. It binds to loopback and uses test-only credentials/data; it makes no real service writes.
-
-To disable the new UI, remove/hide its sidebar entry and lazy frame mount. To undo the implementation, restore this change as a normal Git commit; no content migration, database migration or route reset is needed. Retain the shared renderer entry or restore its original inline build code together—never remove the module while leaving the build dependent on it.
-
+To disable, hide the Page Editor navigation entry and lazy mount. Revert this correction as a normal commit to return to the first pilot. There is no content/schema/database migration to undo. Keep the shared renderer with its build consumer. Preserve existing routes, content files, integrations and Settings-last ordering.

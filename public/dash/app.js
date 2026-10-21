@@ -129,11 +129,34 @@
     if(editorFrame&&state.section==='editor'&&id!=='editor')editorFrame.contentWindow.postMessage({type:'sane-editor:flush'},location.origin);
     state.section = id;
     history.replaceState(null,'','#'+id);
-    if(id==='editor'&&!editorFrame){var host=document.getElementById('pageEditorHost');if(host){var frame=document.createElement('iframe');frame.id='pageEditorFrame';frame.title='Sane Living page editor';frame.src='/dash/editor/index.html';frame.style.cssText='width:100%;height:calc(100vh - 36px);min-height:880px;border:0;border-radius:16px;background:#f6f5f7;display:block';host.appendChild(frame);}}
+    if(id==='editor'&&!editorFrame){var host=document.getElementById('pageEditorHost');if(host){var frame=document.createElement('iframe');frame.id='pageEditorFrame';frame.title='Sane Living page editor';frame.src='/dash/editor/index.html';frame.allow='fullscreen';frame.style.cssText='width:100%;height:calc(100dvh - 52px);min-height:720px;border:0;border-radius:14px;background:#f7f8fa;display:block';host.appendChild(frame);}}
     $$('#mainNav [data-nav]').forEach(function (b) { b.classList.toggle('active', b.getAttribute('data-nav') === id); });
     $$('#panels .panel').forEach(function (p) { p.classList.toggle('active', p.id === 'panel-' + id); });
     window.scrollTo({ top: 0 });
   }
+  // Explicit, read-checked handoff; this bridge never writes a draft or publishes.
+  window.addEventListener('message', async function(e) {
+    var frame=document.getElementById('pageEditorFrame'),data=e.data;
+    if(e.origin!==location.origin || !frame || e.source!==frame.contentWindow || !data)return;
+    if(data.type!=='sane-editor:review')return;
+    var requestId=data.requestId;
+    function answer(message){frame.contentWindow.postMessage({type:'sane-editor:review-result',requestId:requestId,message:message},location.origin);}
+    if(typeof requestId!=='string' || typeof data.content!=='string' || data.content.length>262144 || !/^[a-f0-9]{40}$/.test(data.sourceSha||'')){answer('The draft transfer was invalid. Your browser draft is retained.');return;}
+    if(state.busy.about){answer('About is currently saving. Wait for it to finish before transferring.');return;}
+    try {
+      var model=SaneContent.parseAbout(data.content),errors=SaneContent.validateAbout(model);
+      if(errors.length)throw Error(errors.join(' '));
+      var fresh=await api('/api/dash-content?section=about');
+      if(!fresh.published || fresh.published.sha!==data.sourceSha)throw Error('About changed since this editor loaded. Download your draft, then load the latest published copy before transferring.');
+      if(state.busy.about)throw Error('About is currently saving. Try the transfer again when it finishes.');
+      if((state.dirty.about || fresh.draft) && !confirm('Replace the About form’s current working copy with this visual draft? Nothing is saved or published until you choose it on the About page.')){answer('Transfer cancelled. Your visual draft is retained.');return;}
+      state.versions.about={sha:fresh.published.sha,draftSha:fresh.draft?fresh.draft.sha:null,published:fresh.published.content};
+      state.loaded.about=true;state.loadErrors.about='';state.conflicts.about='';state.errors.about='';
+      putContent('about',data.content);setDirty('about',true);refreshPanel('about');goTo('about');
+      answer('Draft transferred to About for review. Choose Save draft or Publish there. Nothing has been published yet.');
+      toast('Visual draft ready for review. Save or publish when you are ready.');
+    }catch(err){answer(err.message||'The transfer failed. Your visual draft is retained.');}
+  });
   var RECOVERY_PREFIX = 'sl_studio_v1_';
   function contentText(id) { return id === 'about' ? state.aboutText : JSON.stringify(state.data[id], null, 2) + '\n'; }
   function applyDashboardBranding(value) {
