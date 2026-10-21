@@ -195,7 +195,12 @@ function assetFiles(assets, project, resources) {
     error("Use at most 12 staged images per release.");
   let total = 0;
   const names = new Set();
-  const used = JSON.stringify(project) + "\n" + resources.about;
+  const used =
+    JSON.stringify(project) +
+    "\n" +
+    resources.about +
+    "\n" +
+    resources.settings;
   return assets
     .filter((a) => used.includes(a?.url))
     .map((a) => {
@@ -253,6 +258,7 @@ async function publish(body) {
           "releaseId",
           "project",
           "about",
+          "settings",
           "assets",
         ].includes(k),
     )
@@ -294,7 +300,30 @@ async function publish(body) {
     error("The website changed during validation. Retry after reloading.", 409);
   if (typeof body.about !== "string" || Buffer.byteLength(body.about) > 262144)
     error("Invalid About document.");
-  const resources = { ...data.resources, about: body.about },
+  let settingsText = data.resources.settings;
+  if (body.settings != null) {
+    if (
+      typeof body.settings !== "string" ||
+      Buffer.byteLength(body.settings) > 262144
+    )
+      error("Invalid site settings.");
+    let value;
+    try {
+      value = JSON.parse(body.settings);
+    } catch {
+      error("Site settings must be valid JSON.");
+    }
+    if (!value || typeof value !== "object" || Array.isArray(value))
+      error("Invalid site settings.");
+    const issues = settings.validate(settings.normalize(value));
+    if (issues.length) error(issues.join(" "));
+    settingsText = body.settings;
+  }
+  const resources = {
+      ...data.resources,
+      about: body.about,
+      settings: settingsText,
+    },
     errors = core.validate(body.project, registry, resources);
   try {
     errors.push(...content.validateAbout(content.parseAbout(body.about)));
@@ -377,6 +406,7 @@ async function publish(body) {
     assets: assets.map((a) => a.path),
     layoutHash: sha(JSON.stringify(project)),
     aboutHash: sha(body.about),
+    settingsHash: sha(settingsText),
   };
   entries.push(
     {
@@ -398,6 +428,13 @@ async function publish(body) {
       mode: "100644",
       type: "blob",
       content: body.about,
+    });
+  if (settingsText !== data.resources.settings)
+    entries.push({
+      path: repo.FILES.settings,
+      mode: "100644",
+      type: "blob",
+      content: settingsText,
     });
   if (JSON.stringify(config) !== JSON.stringify(JSON.parse(configFile.content)))
     entries.push({

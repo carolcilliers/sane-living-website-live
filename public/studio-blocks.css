@@ -173,3 +173,58 @@
   font-size: 0.8rem;
   margin-top: 5px;
 }
+/* Flow stays responsive; desktop-only offsets are an explicit authoring choice. */
+@media (max-width: 600px) {
+  [data-studio-offset] {
+    translate: 0 0 !important;
+  }
+}
+.studio-carousel {
+  position: relative;
+  max-width: 100%;
+  min-width: 0;
+}
+.studio-carousel-track {
+  display: flex;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  scroll-behavior: smooth;
+  scrollbar-width: none;
+  gap: 0;
+}
+.studio-carousel-track > img {
+  flex: 0 0 100%;
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  object-fit: cover;
+  scroll-snap-align: start;
+}
+.studio-carousel-controls {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  padding: 10px;
+}
+.studio-carousel-controls button {
+  border: 1px solid #b9a4cc;
+  background: #fff;
+  color: #44304f;
+  border-radius: 50%;
+  width: 36px;
+  height: 36px;
+  cursor: pointer;
+}
+.studio-carousel-controls {
+  position: absolute;
+  inset-inline: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  justify-content: space-between;
+  pointer-events: none;
+  z-index: 3;
+}
+.studio-carousel-controls button {
+  pointer-events: auto;
+  background: #fffffff0;
+}

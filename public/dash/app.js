@@ -141,6 +141,7 @@
   window.addEventListener('message',function(e){
     var frame=document.getElementById('pageEditorFrame'),data=e.data;
     if(e.origin!==location.origin||!frame||e.source!==frame.contentWindow||!data)return;
+    if(data.type==='studio:theme'&&['light','dark'].indexOf(data.theme)!==-1)document.body.setAttribute('data-studio-theme',data.theme);
     if(data.type==='studio:open-section'&&['home','events','gallery','weddings','pricing','partners','settings'].indexOf(data.section)!==-1){
       goTo(data.section);
       if(data.section==='settings'&&SaneSettings.groups.some(function(g){return g.id===data.tab;}))selectSettingsTab(data.tab);

@@ -43,6 +43,13 @@ const { execFileSync } = require("node:child_process");
     });
     assert.equal((await call(invalid)).status, 400);
     assert.equal(s.commits, 0);
+    const invalidSettings = structuredClone(body);
+    invalidSettings.settings = JSON.stringify({
+      ...JSON.parse(data.resources.settings),
+      homeVideoUrl: "javascript:alert(1)",
+    });
+    assert.equal((await call(invalidSettings)).status, 400);
+    assert.equal(s.commits, 0);
     s.loseRefResponse = true;
     const result = await call(body);
     assert.equal(result.status, 200, JSON.stringify(result.data));

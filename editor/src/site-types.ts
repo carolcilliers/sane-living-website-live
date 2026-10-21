@@ -10,6 +10,24 @@ export interface Block {
   spacing?: number;
   props?: Record<string, string | number>;
   edits?: Record<string, string>;
+  elements?: Record<string, ElementChange>;
+  placement?: { section: string; parent: string; before?: string };
+}
+export interface ElementChange {
+  x?: number;
+  y?: number;
+  width?: number;
+  align?: string;
+  hidden?: boolean;
+  parent?: string;
+  order?: number;
+  gallery?: string[];
+  fontSize?: number;
+  color?: string;
+  background?: string;
+  padding?: number;
+  gap?: number;
+  radius?: number;
 }
 export interface Page {
   id: string;
@@ -35,6 +53,7 @@ export interface Workspace {
   project: Project;
   about: About;
   aboutText: string;
+  settingsText?: string;
   assets: Asset[];
 }
 export interface Bootstrap {
@@ -66,6 +85,7 @@ export interface Saved {
   versions: Record<string, string>;
   layoutSha: string | null;
   baseAbout?: string;
+  baseSettings?: string;
 }
 export interface Snapshot {
   work: Workspace;

@@ -19,6 +19,7 @@ const TYPES = [
   "partners",
   "booking",
   "newsletter",
+  "slideshow",
 ];
 const BASE = [
   "id",
@@ -31,6 +32,8 @@ const BASE = [
   "spacing",
   "props",
   "edits",
+  "elements",
+  "placement",
 ];
 const PROPS = {
   heading: ["text", "level"],
@@ -47,6 +50,7 @@ const PROPS = {
   partners: ["heading"],
   booking: ["heading", "kind"],
   newsletter: ["heading"],
+  slideshow: ["heading", "images"],
 };
 const MENU = [
   "/events/",
@@ -100,7 +104,16 @@ function prepared(entry, resources) {
   }
   return html;
 }
+const descriptionCache = new WeakMap();
 function describe(entry, resources) {
+  const key = entry.route === "/about/" ? resources?.about || "" : "";
+  const cached = descriptionCache.get(entry);
+  if (cached?.key === key) return cached.value;
+  const value = describeSource(entry, resources);
+  descriptionCache.set(entry, { key, value });
+  return value;
+}
+function describeSource(entry, resources) {
   const html = prepared(entry, resources),
     doc = parse(html, { sourceCodeLocationInfo: true });
   let body;
@@ -206,7 +219,82 @@ function describe(entry, resources) {
         });
       }
     });
+    const elements = [];
+    walk(node, (n) => {
+      const l = n.sourceCodeLocation;
+      if (
+        !l?.startTag ||
+        !/^(section|main|article|div|header|h[1-6]|p|a|img|video|button|figure|figcaption|span|ul|ol|li|blockquote|iframe)$/.test(
+          n.tagName || "",
+        )
+      )
+        return;
+      let parent = n.parentNode;
+      while (
+        parent &&
+        parent !== node.parentNode &&
+        !elements.some(
+          (e) =>
+            e.start ===
+            parent.sourceCodeLocation?.startOffset - loc.startOffset,
+        )
+      )
+        parent = parent.parentNode;
+      let owner = n,
+        managed = false;
+      while (owner && owner !== node.parentNode) {
+        if (ownedIds.has(attr(owner, "id"))) managed = true;
+        owner = owner.parentNode;
+      }
+      const start = l.startOffset - loc.startOffset,
+        end = l.endOffset - loc.startOffset;
+      const bindings = [];
+      for (const [attribute, kind] of [
+        ["data-site-text", "text"],
+        ["data-site-href", "link"],
+        ["data-site-src", "image"],
+      ]) {
+        const key = attr(n, attribute);
+        if (key) bindings.push({ key, kind, label: key });
+      }
+      if (
+        (n.attrs || []).some((a) => a.name === "data-site-hero-video") ||
+        attr(n, "class").split(" ").includes("video-hero-bg")
+      ) {
+        bindings.push(
+          { key: "homeVideoUrl", kind: "video", label: "Hero video URL" },
+          { key: "homePosterUrl", kind: "image", label: "Hero poster image" },
+        );
+      }
+      const el = {
+        id: "e" + start,
+        tag: n.tagName,
+        label:
+          n.tagName === "img"
+            ? attr(n, "alt") || "Image"
+            : n.tagName === "video"
+              ? "Hero video"
+              : text(n).trim().slice(0, 65) ||
+                attr(n, "class").split(" ")[0] ||
+                n.tagName,
+        parent: parent?.sourceCodeLocation
+          ? "e" + (parent.sourceCodeLocation.startOffset - loc.startOffset)
+          : "",
+        start,
+        end,
+        open: l.startTag.endOffset - loc.startOffset,
+        close: l.endTag ? l.endTag.startOffset - loc.startOffset : null,
+        bindings,
+        managed,
+      };
+      elements.push(el);
+    });
+    for (const f of fields)
+      f.element = elements
+        .filter((e) => f.start >= e.start && f.end <= e.end)
+        .at(-1)?.id;
     return {
+      elements,
       id: "original-" + i,
       type:
         entry.route === "/about/" && raw.includes("about-managed:start")
@@ -290,6 +378,10 @@ function block(type, id) {
     partners: { heading: "Our partners" },
     booking: { heading: "Plan your visit", kind: "rental" },
     newsletter: { heading: "Stay connected" },
+    slideshow: {
+      heading: "Image gallery",
+      images: "/images/about-center-exterior.jpg",
+    },
   };
   return {
     id,
@@ -451,6 +543,7 @@ function validate(project, registry, resources) {
           continue;
         }
         sources.add(b.source);
+        errors.push(...validateElements(d, b.elements));
         if (b.props != null)
           errors.push("Original section properties are not supported.");
         if (!b.edits || typeof b.edits !== "object" || Array.isArray(b.edits)) {
@@ -469,7 +562,12 @@ function validate(project, registry, resources) {
             errors.push("Use a safe image or page URL.");
         }
       } else {
-        if (!TYPES.includes(b.type) || b.source != null || b.edits != null) {
+        if (
+          !TYPES.includes(b.type) ||
+          b.source != null ||
+          b.edits != null ||
+          b.elements != null
+        ) {
           errors.push("Unsupported block type.");
           continue;
         }
@@ -491,6 +589,17 @@ function validate(project, registry, resources) {
               "Block content must be text (maximum 20,000 characters).",
             );
         }
+        if (
+          b.type === "slideshow" &&
+          (String(b.props.images || "")
+            .split("\n")
+            .filter(Boolean).length > 12 ||
+            String(b.props.images || "")
+              .split("\n")
+              .filter(Boolean)
+              .some((u) => !settings.safeUrl(u, "image")))
+        )
+          errors.push("Use up to 12 safe image URLs.");
         for (const [key, kind] of [
           ["src", "image"],
           ["url", "link"],
@@ -513,6 +622,32 @@ function validate(project, registry, resources) {
           errors.push("Choose an existing booking integration.");
       }
     }
+    for (const b of page.blocks) {
+      if (!b?.placement) continue;
+      const at = b.placement,
+        owner = page.blocks.find((x) => x.id === at.section),
+        d = descriptors.find((x) => x.id === owner?.source),
+        parent = d?.elements.find((e) => e.id === at.parent);
+      if (
+        b.source ||
+        !at ||
+        typeof at !== "object" ||
+        Object.keys(at).some(
+          (k) => !["section", "parent", "before"].includes(k),
+        ) ||
+        owner?.type !== "legacy" ||
+        !parent ||
+        parent.managed ||
+        !/^(div|section|main|article|figure)$/.test(parent.tag) ||
+        (at.before &&
+          !d.elements.some(
+            (e) =>
+              e.id === at.before &&
+              (owner.elements?.[e.id]?.parent ?? e.parent) === parent.id,
+          ))
+      )
+        errors.push("Choose an editable container for this block.");
+    }
     // Original DOM must stay available to its existing integration scripts. Hiding is supported.
     if (descriptors.some((d) => !sources.has(d.id)))
       errors.push(
@@ -525,33 +660,265 @@ function validate(project, registry, resources) {
     errors.push("Keep at least one navigation item.");
   return [...new Set(errors)];
 }
-function originalHtml(d, b, annotate) {
-  let html = d.raw;
-  const replacements = [];
-  for (const [id, value] of Object.entries(b.edits || {})) {
-    const f = d.fields.find((x) => x.id === id);
-    if (!f) continue;
-    const safe =
-      f.kind === "image"
-        ? settings.safeUrl(value, "image")
-        : f.kind === "link"
-          ? settings.safeUrl(value, "link")
-          : value;
-    replacements.push({
-      start: f.start,
-      end: f.end,
-      value: f.attribute ? f.attribute + '="' + esc(safe) + '"' : esc(safe),
-    });
+function validateElements(d, values) {
+  if (values == null) return [];
+  if (
+    typeof values !== "object" ||
+    Array.isArray(values) ||
+    Object.keys(values).length > 500
+  )
+    return ["Invalid element overrides."];
+  const errors = [];
+  for (const [id, v] of Object.entries(values)) {
+    const e = d.elements.find((e) => e.id === id);
+    if (
+      !e ||
+      !v ||
+      typeof v !== "object" ||
+      Array.isArray(v) ||
+      Object.keys(v).some(
+        (k) =>
+          ![
+            "x",
+            "y",
+            "width",
+            "align",
+            "hidden",
+            "parent",
+            "order",
+            "gallery",
+            "fontSize",
+            "color",
+            "background",
+            "padding",
+            "gap",
+            "radius",
+          ].includes(k),
+      )
+    ) {
+      errors.push("Invalid element properties.");
+      continue;
+    }
+    for (const k of ["x", "y"])
+      if (v[k] != null && (!Number.isInteger(v[k]) || Math.abs(v[k]) > 2000))
+        errors.push("Element offsets must be within 2,000 pixels.");
+    for (const [key, max] of [
+      ["fontSize", 160],
+      ["padding", 160],
+      ["gap", 120],
+      ["radius", 160],
+    ])
+      if (
+        v[key] != null &&
+        (!Number.isInteger(v[key]) || v[key] < 0 || v[key] > max)
+      )
+        errors.push("Invalid element styling.");
+    for (const key of ["color", "background"])
+      if (v[key] != null && !/^#[0-9a-fA-F]{6}$/.test(v[key]))
+        errors.push("Use a six-digit hex colour.");
+    if (
+      v.width != null &&
+      (!Number.isInteger(v.width) || v.width < 10 || v.width > 100)
+    )
+      errors.push("Element width must be 10–100 percent.");
+    if (v.align != null && !["left", "center", "right"].includes(v.align))
+      errors.push("Invalid element alignment.");
+    if (v.hidden != null && typeof v.hidden !== "boolean")
+      errors.push("Invalid element visibility.");
+    if (
+      v.order != null &&
+      (!Number.isInteger(v.order) || v.order < 0 || v.order > 100000)
+    )
+      errors.push("Invalid element order.");
+    if (
+      v.gallery != null &&
+      (e.tag !== "img" ||
+        !Array.isArray(v.gallery) ||
+        v.gallery.length > 12 ||
+        v.gallery.some(
+          (u) => typeof u !== "string" || !settings.safeUrl(u, "image"),
+        ))
+    )
+      errors.push("Use up to 12 safe gallery image URLs.");
+    if (v.parent != null) {
+      const p = d.elements.find((x) => x.id === v.parent);
+      if (
+        !e.parent ||
+        !p ||
+        p.managed ||
+        e.managed ||
+        !/^(div|section|main|article|figure|ul|ol)$/.test(p.tag)
+      )
+        errors.push("Invalid element container.");
+    }
+    let parent = v.parent ?? e.parent;
+    const seen = new Set([id]);
+    while (parent) {
+      if (seen.has(parent)) {
+        errors.push("An element cannot contain itself.");
+        break;
+      }
+      seen.add(parent);
+      const next = d.elements.find((x) => x.id === parent);
+      parent = values[parent]?.parent ?? next?.parent;
+    }
   }
-  replacements
-    .sort((a, b) => b.start - a.start)
-    .forEach((r) => {
-      html = html.slice(0, r.start) + r.value + html.slice(r.end);
-    });
-  let attrs =
+  return errors;
+}
+function originalHtml(d, b, annotate, nested = [], resources = {}) {
+  const overrides = b.elements || {},
+    nodes = new Map(d.elements.map((e) => [e.id, e]));
+  function range(start, end) {
+    let html = d.raw.slice(start, end);
+    const replacements = [];
+    for (const [id, value] of Object.entries(b.edits || {})) {
+      const f = d.fields.find((x) => x.id === id);
+      if (!f || f.start < start || f.end > end) continue;
+      const safe =
+        f.kind === "image"
+          ? settings.safeUrl(value, "image")
+          : f.kind === "link"
+            ? settings.safeUrl(value, "link")
+            : value;
+      replacements.push({
+        start: f.start - start,
+        end: f.end - start,
+        value: f.attribute ? f.attribute + '="' + esc(safe) + '"' : esc(safe),
+      });
+    }
+    replacements
+      .sort((a, b) => b.start - a.start)
+      .forEach((r) => {
+        html = html.slice(0, r.start) + r.value + html.slice(r.end);
+      });
+    return html;
+  }
+  function render(e) {
+    const v = overrides[e.id] || {};
+    let open = range(e.start, e.open),
+      close = e.close == null ? "" : range(e.close, e.end);
+    if (annotate)
+      open = open.replace(
+        /^<([\w-]+)/,
+        '<$1 data-studio-element="' + e.id + '"',
+      );
+    const style = [];
+    if (v.x || v.y)
+      style.push(
+        "position:relative",
+        "translate:" + Number(v.x || 0) + "px " + Number(v.y || 0) + "px",
+        "z-index:2",
+      );
+    if (v.width)
+      style.push(
+        "width:" + Math.max(10, Math.min(100, Number(v.width) || 100)) + "%",
+        "max-width:100%",
+      );
+    if (["left", "center", "right"].includes(v.align))
+      style.push("text-align:" + v.align);
+    for (const [key, css] of [
+      ["fontSize", "font-size"],
+      ["padding", "padding"],
+      ["gap", "gap"],
+      ["radius", "border-radius"],
+    ])
+      if (v[key] != null)
+        style.push(
+          css + ":" + Math.max(0, Math.min(160, Number(v[key]) || 0)) + "px",
+        );
+    for (const key of ["color", "background"])
+      if (/^#[0-9a-fA-F]{6}$/.test(v[key] || ""))
+        style.push(key + ":" + v[key]);
+    if (style.length) {
+      const joined = style.join(";");
+      open = /\sstyle=["']/.test(open)
+        ? open.replace(
+            /(\sstyle=)(["'])(.*?)\2/s,
+            (_, a, q, s) => a + q + esc(s + ";" + joined) + q,
+          )
+        : open.replace(/>$/, ' style="' + joined + '">');
+      if (v.x || v.y)
+        open = open.replace(/^<([\w-]+)/, "<$1 data-studio-offset");
+    }
+    if (v.hidden)
+      open = open.replace(/^<([\w-]+)/, "<$1 hidden data-studio-hidden");
+    if (e.close == null) {
+      const html = open;
+      return e.tag === "img" && v.gallery?.length
+        ? carousel(
+            html,
+            v.gallery.map(
+              (u) =>
+                '<img src="' +
+                esc(settings.safeUrl(u, "image")) +
+                '" alt="Gallery image" loading="lazy">',
+            ),
+          )
+        : html;
+    }
+    const original = d.elements
+      .filter((x) => x.parent === e.id)
+      .sort((a, b) => a.start - b.start);
+    // Keep trusted non-element gaps (including scripts) once, while structured elements can move.
+    let gaps = "",
+      cursor = e.open;
+    for (const child of original) {
+      gaps += range(cursor, child.start);
+      cursor = child.end;
+    }
+    gaps += range(cursor, e.close);
+    const children = d.elements
+      .filter((x) => (overrides[x.id]?.parent ?? x.parent) === e.id)
+      .sort(
+        (a, b) =>
+          (overrides[a.id]?.order ?? a.start) -
+          (overrides[b.id]?.order ?? b.start),
+      );
+    const hasStructural =
+      children.length !== original.length ||
+      children.some((x, i) => x.id !== original[i]?.id);
+    const inserts = nested.filter((x) => x.placement.parent === e.id);
+    let body = "";
+    if (!hasStructural && !inserts.length) {
+      cursor = e.open;
+      for (const child of original) {
+        body += range(cursor, child.start) + render(child);
+        cursor = child.end;
+      }
+      body += range(cursor, e.close);
+    } else {
+      for (const child of children) {
+        body +=
+          inserts
+            .filter((x) => x.placement.before === child.id)
+            .map((x) => renderBlock(x, resources, annotate))
+            .join("") + render(child);
+      }
+      body +=
+        inserts
+          .filter(
+            (x) =>
+              !x.placement.before ||
+              !children.some((c) => c.id === x.placement.before),
+          )
+          .map((x) => renderBlock(x, resources, annotate))
+          .join("") + gaps;
+    }
+    return open + body + close;
+  }
+  let html = render(d.elements[0]);
+  const attrs =
     (annotate ? ' data-studio-block="' + esc(b.id) + '"' : "") +
     (b.hidden ? " hidden data-studio-hidden" : "");
   return html.replace(/^<([\w-]+)/, "<$1" + attrs);
+}
+function carousel(first, others) {
+  return (
+    '<div class="studio-carousel" data-studio-carousel><div class="studio-carousel-track">' +
+    first +
+    others.join("") +
+    '</div><div class="studio-carousel-controls"><button type="button" data-slide="-1" aria-label="Previous image">←</button><button type="button" data-slide="1" aria-label="Next image">→</button></div></div>'
+  );
 }
 function jsonResources(resources, key) {
   try {
@@ -579,6 +946,21 @@ function renderBlock(b, resources, annotate) {
       "</" +
       (p.level || "h2") +
       ">";
+  if (b.type === "slideshow")
+    inner =
+      (p.heading ? "<h2>" + esc(p.heading) + "</h2>" : "") +
+      carousel(
+        "",
+        String(p.images || "")
+          .split("\n")
+          .filter(Boolean)
+          .map(
+            (u) =>
+              '<img src="' +
+              esc(settings.safeUrl(u, "image")) +
+              '" alt="Gallery image" loading="lazy">',
+          ),
+      );
   if (b.type === "text") inner = content.markdown(p.text || "");
   if (b.type === "image")
     inner =
@@ -739,9 +1121,16 @@ function renderPage(page, project, registry, resources, options = {}) {
   if (page.active || options.draft) {
     const byId = new Map(parts.blocks.map((b) => [b.id, b]));
     const blocks = page.blocks
+      .filter((b) => !b.placement)
       .map((b) =>
         byId.has(b.source)
-          ? originalHtml(byId.get(b.source), b, options.annotate)
+          ? originalHtml(
+              byId.get(b.source),
+              b,
+              options.annotate,
+              page.blocks.filter((x) => x.placement?.section === b.id),
+              resources,
+            )
           : renderBlock(b, resources, options.annotate),
       )
       .join("\n");
@@ -792,6 +1181,7 @@ function renderPage(page, project, registry, resources, options = {}) {
 }
 module.exports = {
   TYPES,
+  settings,
   templateRevision,
   block,
   createProject,

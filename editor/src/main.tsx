@@ -9,8 +9,14 @@ import {
 } from "react";
 import { createRoot } from "react-dom/client";
 import core from "../../content-core/site.cjs";
+import { PageSwitcher } from "./PageSwitcher";
 import { Inspector } from "./Inspector";
 import { Layers } from "./Layers";
+import {
+  ElementTree,
+  ElementInspector,
+  EditorSettings,
+} from "./ElementInspector";
 import { SiteCanvas } from "./SiteCanvas";
 import { readRecord, saveDraft, snapshot, clearDraft } from "./storage";
 import type {
@@ -39,6 +45,7 @@ const LABELS: Record<string, string> = {
   partners: "Partners",
   booking: "Booking form",
   newsletter: "Newsletter",
+  slideshow: "Image slideshow",
 };
 const SYMBOLS: Record<string, string> = {
   heading: "H",
@@ -55,6 +62,7 @@ const SYMBOLS: Record<string, string> = {
   partners: "♧",
   booking: "▤",
   newsletter: "✉",
+  slideshow: "▦",
 };
 const FIELD_LABELS: Record<string, string> = {
   text: "Text",
@@ -68,7 +76,21 @@ const FIELD_LABELS: Record<string, string> = {
   height: "Height",
   section: "Gallery section",
   kind: "Connected form",
+  images: "Images (one URL per line)",
 };
+function settingsState(text: string) {
+  try {
+    const value = core.settings.normalize(JSON.parse(text));
+    return { value, errors: core.settings.validate(value) };
+  } catch {
+    return {
+      value: core.settings.normalize({}),
+      errors: [
+        "The settings draft is unreadable. Import a valid draft or load the published version.",
+      ],
+    };
+  }
+}
 function download(value: unknown, name = "sane-living-website-draft.json") {
   const u = URL.createObjectURL(
     new Blob([JSON.stringify(value, null, 2)], { type: "application/json" }),
@@ -113,9 +135,27 @@ function App() {
   const [pageId, setPageId] = useState(
       new URLSearchParams(location.search).get("page") || "home",
     ),
-    [selected, select] = useState(""),
+    [selected, setSelected] = useState(""),
     [storyId, setStoryId] = useState(""),
-    [leftTab, setLeftTab] = useState<"pages" | "insert" | "layers">("pages");
+    [leftTab, setLeftTab] = useState<
+      "pages" | "insert" | "layers" | "settings"
+    >("pages");
+  const [elementId, setElementId] = useState("");
+  const [theme, setTheme] = useState(() => {
+    try {
+      return localStorage.getItem("sl_studio_theme") || "dark";
+    } catch {
+      return "dark";
+    }
+  });
+  function select(id: string, element = "") {
+    setSelected(id);
+    setElementId(element);
+  }
+  useEffect(() => {
+    if (parent !== window)
+      parent.postMessage({ type: "studio:theme", theme }, location.origin);
+  }, [theme]);
   const [mobile, setMobile] = useState<"left" | "canvas" | "right">("canvas"),
     [width, setWidth] = useState(() => (innerWidth < 850 ? 375 : 1024)),
     [search, setSearch] = useState(""),
@@ -164,6 +204,7 @@ function App() {
           crypto.randomUUID(),
         ),
         aboutText: d.resources.about,
+        settingsText: d.resources.settings,
         assets: [],
       };
       let recovered = false,
@@ -191,9 +232,14 @@ function App() {
           );
         } else {
           w = old.work;
+          const settingsEdited =
+            old.baseSettings != null && w.settingsText !== old.baseSettings;
+          if (!w.settingsText || !settingsEdited)
+            w.settingsText = d.resources.settings;
           recovered = true;
           conflict =
             old.layoutSha !== d.layoutSha ||
+            (old.versions.settings !== d.versions.settings && settingsEdited) ||
             (old.versions.about !== d.versions.about &&
               w.aboutText !== old.baseAbout);
           if (!conflict && old.versions.about !== d.versions.about) {
@@ -287,6 +333,7 @@ function App() {
           versions: data.versions,
           layoutSha: data.layoutSha,
           baseAbout: data.resources.about,
+          baseSettings: data.resources.settings,
         } satisfies Saved,
         revision.current,
       );
@@ -434,12 +481,19 @@ function App() {
       work?.project.pages[0],
     block = page?.blocks.find((b) => b.id === selected);
   const resources =
-    data && work ? { ...data.resources, about: work.aboutText } : {};
+    data && work
+      ? {
+          ...data.resources,
+          about: work.aboutText,
+          settings: work.settingsText || data.resources.settings,
+        }
+      : {};
   const errors =
     data && work
       ? ([
           ...core.validate(work.project, data.registry, resources),
           ...window.SaneEditorModel.check(work.about),
+          ...settingsState(work.settingsText || data.resources.settings).errors,
         ] as string[])
       : [];
   const descriptors =
@@ -460,14 +514,172 @@ function App() {
       if (b) fn(b);
     }, group);
   }
+  const selectedDescriptor = descriptors.find(
+    (d: any) => d.id === block?.source,
+  );
+  const settingsValue = settingsState(
+    work?.settingsText || data?.resources.settings || "{}",
+  ).value;
+  function settingEdit(key: string, value: any) {
+    edit((w) => {
+      const next = JSON.parse(w.settingsText || data!.resources.settings);
+      next[key] = value;
+      w.settingsText = JSON.stringify(next, null, 2) + "\n";
+    });
+  }
+  function elementEdit(
+    fn: (v: any) => void,
+    blockID = selected,
+    id = elementId,
+  ) {
+    pageEdit((p) => {
+      const b = p.blocks.find((b) => b.id === blockID);
+      if (!b || !id) return;
+      b.elements ||= {};
+      b.elements[id] ||= {};
+      fn(b.elements[id]);
+    });
+  }
+  function placementFor(blockID: string, id: string, after: boolean) {
+    const owner = page?.blocks.find((b) => b.id === blockID),
+      d = descriptors.find((d: any) => d.id === owner?.source),
+      e = d?.elements.find((x: any) => x.id === id);
+    if (!e || owner?.type !== "legacy") return;
+    const isContainer =
+      /^(div|section|main|article|figure)$/.test(e.tag) && !e.managed;
+    const parent = isContainer
+      ? e
+      : d.elements.find(
+          (x: any) => x.id === (owner.elements?.[e.id]?.parent ?? e.parent),
+        );
+    if (
+      !parent ||
+      parent.managed ||
+      !/^(div|section|main|article|figure)$/.test(parent.tag)
+    )
+      return;
+    const siblings = d.elements
+      .filter(
+        (x: any) => (owner.elements?.[x.id]?.parent ?? x.parent) === parent.id,
+      )
+      .sort(
+        (a: any, b: any) =>
+          (owner.elements?.[a.id]?.order ?? a.start) -
+          (owner.elements?.[b.id]?.order ?? b.start),
+      );
+    return {
+      section: blockID,
+      parent: parent.id,
+      ...(!isContainer
+        ? { before: after ? siblings[siblings.indexOf(e) + 1]?.id : e.id }
+        : {}),
+    };
+  }
+  function reorderElement(
+    blockID: string,
+    id: string,
+    targetBlock: string,
+    target: string,
+    after: boolean,
+    intoContainer = true,
+  ) {
+    if (blockID !== targetBlock) {
+      notice(
+        "Move the whole section between sections. Elements can move between containers inside their own section.",
+      );
+      return;
+    }
+    const owner = page?.blocks.find((b) => b.id === blockID),
+      d = descriptors.find((d: any) => d.id === owner?.source),
+      e = d?.elements.find((x: any) => x.id === id),
+      t = d?.elements.find((x: any) => x.id === target);
+    if (!e?.parent || !t || id === target) return;
+    const into =
+      intoContainer &&
+      /^(div|section|main|article|figure|ul|ol)$/.test(t.tag) &&
+      !t.managed;
+    const parent = into ? t.id : owner?.elements?.[target]?.parent || t.parent;
+    if (!parent) return;
+    const siblings = d.elements
+      .filter(
+        (x: any) =>
+          (owner?.elements?.[x.id]?.parent ?? x.parent) === parent &&
+          x.id !== id,
+      )
+      .sort(
+        (a: any, b: any) =>
+          (owner?.elements?.[a.id]?.order ?? a.start) -
+          (owner?.elements?.[b.id]?.order ?? b.start),
+      );
+    const at = into
+      ? after
+        ? siblings.length
+        : 0
+      : Math.max(
+          0,
+          siblings.findIndex((x: any) => x.id === target) + (after ? 1 : 0),
+        );
+    siblings.splice(at, 0, e);
+    const candidate = structuredClone(work!.project),
+      next = candidate.pages.find((p) => p.id === page!.id)!,
+      edited = next.blocks.find((b) => b.id === blockID)!;
+    edited.elements ||= {};
+    siblings.forEach((x: any, i: number) => {
+      edited.elements![x.id] = {
+        ...(edited.elements![x.id] || {}),
+        parent,
+        order: i,
+      };
+    });
+    const issues = core.validate(candidate, data!.registry, resources);
+    if (issues.length) {
+      notice(issues.join(" "));
+      return;
+    }
+    pageEdit((p) => {
+      p.blocks.find((b) => b.id === blockID)!.elements = edited.elements;
+    });
+    select(blockID, id);
+  }
+  function elementAction(blockID: string, id: string, action: string) {
+    select(blockID, id);
+    if (action === "remove") {
+      elementEdit(
+        (v) => {
+          v.hidden = !v.hidden;
+        },
+        blockID,
+        id,
+      );
+      return;
+    }
+    const owner = page?.blocks.find((b) => b.id === blockID),
+      d = descriptors.find((d: any) => d.id === owner?.source),
+      e = d?.elements.find((x: any) => x.id === id);
+    if (!e) return;
+    const parent = owner?.elements?.[id]?.parent ?? e.parent;
+    const siblings = d.elements
+      .filter(
+        (x: any) => (owner?.elements?.[x.id]?.parent ?? x.parent) === parent,
+      )
+      .sort(
+        (a: any, b: any) =>
+          (owner?.elements?.[a.id]?.order ?? a.start) -
+          (owner?.elements?.[b.id]?.order ?? b.start),
+      );
+    const next = siblings[siblings.indexOf(e) + (action === "up" ? -1 : 1)];
+    if (next)
+      reorderElement(blockID, id, blockID, next.id, action === "down", false);
+  }
   function choose(id: string) {
     setPageId(id);
     select("");
     setMobile("canvas");
   }
-  function add(type: string, after?: string) {
+  function add(type: string, after?: string, placement?: any) {
     if (!page) return;
     const b = core.block(type, crypto.randomUUID()) as Block;
+    if (placement) b.placement = placement;
     pageEdit((p) => {
       const at = p.blocks.findIndex((b) => b.id === (after || selected));
       p.blocks.splice(at < 0 ? p.blocks.length : at + 1, 0, b);
@@ -483,6 +695,7 @@ function App() {
       b = page.blocks.findIndex((b) => b.id === to);
     if (a < 0 || b < 0 || a === b) return;
     pageEdit((p) => {
+      delete p.blocks[a].placement;
       p.blocks.splice(b, 0, p.blocks.splice(a, 1)[0]);
     });
     select(from);
@@ -530,6 +743,11 @@ function App() {
     select(b.id);
   }
   function openSource(section: string, tab?: string) {
+    if (section === "settings") {
+      setLeftTab("settings");
+      setMobile("left");
+      return;
+    }
     if (parent === window) {
       location.href = "/dash/#" + section;
       return;
@@ -551,7 +769,11 @@ function App() {
       const id = await snapshot({
         work: structuredClone(work),
         registry: data.registry,
-        resources: { ...data.resources, about: work.aboutText },
+        resources: {
+          ...data.resources,
+          about: work.aboutText,
+          settings: work.settingsText || data.resources.settings,
+        },
         pageId: page!.id,
       } satisfies Snapshot);
       const url = "/dash/editor/preview.html?snapshot=" + id;
@@ -641,6 +863,7 @@ function App() {
       payloadText = JSON.stringify({
         project: current.project,
         about: current.aboutText,
+        settings: current.settingsText || data.resources.settings,
         assets: current.assets,
       });
     if (pendingRelease.current?.text !== payloadText)
@@ -653,6 +876,7 @@ function App() {
         releaseId,
         project: current.project,
         about: current.aboutText,
+        settings: current.settingsText || data.resources.settings,
         assets: current.assets,
       });
       setRelease({
@@ -722,6 +946,16 @@ function App() {
             "This draft is incompatible or based on a different published layout.",
           );
         w = value.work;
+        if (
+          value.baseVersions?.settings !== data?.versions.settings &&
+          w.settingsText &&
+          w.settingsText !== value.baseSettings
+        )
+          throw Error(
+            "Site settings changed. Keep this draft and reconcile its settings before importing.",
+          );
+        if (!w.settingsText || w.settingsText === value.baseSettings)
+          w.settingsText = data!.resources.settings;
         if (value.baseVersions?.about !== data?.versions.about) {
           if (w.aboutText === value.baseAbout) {
             w.aboutText = data!.resources.about;
@@ -799,9 +1033,15 @@ function App() {
         baseLayoutSha: data.layoutSha,
         baseVersions: data.versions,
         baseAbout: data.resources.about,
+        baseSettings: data.resources.settings,
         work,
       });
   };
+  const settingsChanged =
+    !!work &&
+    !!data &&
+    !!work.settingsText &&
+    work.settingsText !== data.resources.settings;
   const orderChanged =
     !!work &&
     !!data &&
@@ -824,7 +1064,7 @@ function App() {
   };
   return (
     <div
-      className="studio-app"
+      className={"studio-app theme-" + theme}
       onKeyDown={(e) => {
         if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === "s") {
           e.preventDefault();
@@ -847,6 +1087,11 @@ function App() {
             <small>Website studio</small>
           </div>
         </div>
+        <PageSwitcher
+          pages={work?.project.pages || []}
+          current={page}
+          choose={choose}
+        />
         <div className="device-switch" role="group" aria-label="Canvas device">
           {[
             [1440, "Desktop"],
@@ -864,6 +1109,18 @@ function App() {
           ))}
         </div>
         <div className="studio-actions">
+          <button
+            aria-label={theme === "dark" ? "Use light theme" : "Use dark theme"}
+            onClick={() => {
+              const next = theme === "dark" ? "light" : "dark";
+              setTheme(next);
+              try {
+                localStorage.setItem("sl_studio_theme", next);
+              } catch {}
+            }}
+          >
+            {theme === "dark" ? "☀" : "☾"}
+          </button>
           <button
             aria-label="Undo"
             disabled={!history.past.length}
@@ -890,7 +1147,7 @@ function App() {
               !work ||
               publishing ||
               stale ||
-              (!changed.length && !orderChanged) ||
+              (!changed.length && !orderChanged && !settingsChanged) ||
               !!errors.length
             }
             onClick={() => setReview(true)}
@@ -1013,7 +1270,11 @@ function App() {
             ))}
             <button
               className="rail-settings"
-              onClick={() => openSource("settings")}
+              aria-label="Settings"
+              onClick={() => {
+                setLeftTab("settings");
+                setMobile("left");
+              }}
             >
               <span>⚙</span>
               <small>Settings</small>
@@ -1026,7 +1287,9 @@ function App() {
                   ? "Website pages"
                   : leftTab === "insert"
                     ? "Insert a block"
-                    : "Layers"}
+                    : leftTab === "settings"
+                      ? "Site settings"
+                      : "Layers"}
               </h2>
               {leftTab === "pages" ? (
                 <button
@@ -1041,6 +1304,13 @@ function App() {
                 </button>
               ) : null}
             </div>
+            {leftTab === "settings" ? (
+              <EditorSettings
+                value={settingsValue}
+                set={settingEdit}
+                upload={upload}
+              />
+            ) : null}
             {leftTab === "pages" ? (
               <>
                 <input
@@ -1203,6 +1473,20 @@ function App() {
                   move={(a, b) => move(page.blocks[a].id, page.blocks[b].id)}
                   add={() => setLeftTab("insert")}
                 />
+                {block?.type === "legacy" && selectedDescriptor ? (
+                  <ElementTree
+                    descriptor={selectedDescriptor}
+                    block={block}
+                    selected={elementId}
+                    move={(from, to, after) =>
+                      reorderElement(block.id, from, block.id, to, after)
+                    }
+                    choose={(id) => {
+                      setElementId(id);
+                      setMobile("right");
+                    }}
+                  />
+                ) : null}
                 {block?.type === "about" ? (
                   <div className="about-layer-list">
                     <h3>About story sections</h3>
@@ -1240,6 +1524,23 @@ function App() {
                 <span>{page.route}</span>
               </div>
               <div>
+                {page.id === "home" ? (
+                  <button
+                    onClick={() => {
+                      const d = descriptors[0],
+                        el = d?.elements.find((e: any) =>
+                          e.bindings.some((b: any) => b.key === "homeVideoUrl"),
+                        );
+                      if (el) {
+                        select(page.blocks[0].id, el.id);
+                        setLeftTab("layers");
+                        setMobile("right");
+                      }
+                    }}
+                  >
+                    Hero media
+                  </button>
+                ) : null}
                 <button
                   onClick={() => {
                     setLeftTab("insert");
@@ -1274,8 +1575,23 @@ function App() {
               assets={work.assets}
               width={width}
               selected={selected}
-              select={(id) => {
-                select(id);
+              selectedElement={elementId}
+              tools={{
+                placement: placementFor,
+                reorder: reorderElement,
+                offset: (b, id, x, y) =>
+                  elementEdit(
+                    (v) => {
+                      v.x = x;
+                      v.y = y;
+                    },
+                    b,
+                    id,
+                  ),
+                action: elementAction,
+              }}
+              select={(id, element) => {
+                select(id, element);
                 setLeftTab("layers");
                 setMobile("right");
               }}
@@ -1352,7 +1668,12 @@ function App() {
                     Global navigation and branding remain in Settings.
                   </p>
                 )}
-                <button onClick={() => openSource("settings")}>
+                <button
+                  onClick={() => {
+                    setLeftTab("settings");
+                    setMobile("left");
+                  }}
+                >
                   Open site settings
                 </button>
               </>
@@ -1499,7 +1820,27 @@ function App() {
                     ) : null}
                   </>
                 ) : null}
-                {block.type === "legacy" ? (
+                {block.type === "legacy" && elementId && selectedDescriptor ? (
+                  <ElementInspector
+                    descriptor={selectedDescriptor}
+                    block={block}
+                    assets={work.assets}
+                    id={elementId}
+                    change={elementEdit}
+                    field={(id, value) =>
+                      blockEdit((b) => {
+                        b.edits = { ...b.edits, [id]: value };
+                      })
+                    }
+                    setting={settingEdit}
+                    settings={settingsValue}
+                    upload={upload}
+                    action={(action) =>
+                      elementAction(block.id, elementId, action)
+                    }
+                  />
+                ) : null}
+                {block.type === "legacy" && !elementId ? (
                   <>
                     <p className="binding-note">
                       Edit supported text, images and links. Forms, collections
@@ -1599,8 +1940,7 @@ function App() {
                   ? Object.entries(block.props || {}).map(([key, value]) => (
                       <label className="field" key={key}>
                         {FIELD_LABELS[key] || key}
-                        {["text", "heading", "caption"].includes(key) &&
-                        key === "text" ? (
+                        {["text", "images"].includes(key) ? (
                           <textarea
                             aria-label={FIELD_LABELS[key] || key}
                             rows={6}
@@ -1675,6 +2015,28 @@ function App() {
                       </label>
                     ))
                   : null}
+                {block.type === "slideshow" ? (
+                  <label className="asset-picker">
+                    Add gallery images
+                    <input
+                      type="file"
+                      multiple
+                      accept="image/png,image/jpeg,image/webp,image/gif"
+                      onChange={async (e) => {
+                        const files = Array.from(e.target.files || []);
+                        e.target.value = "";
+                        for (const file of files)
+                          await upload(file, (url) =>
+                            blockEdit((b) => {
+                              b.props!.images = [b.props!.images, url]
+                                .filter(Boolean)
+                                .join("\n");
+                            }),
+                          );
+                      }}
+                    />
+                  </label>
+                ) : null}
                 {!block.source ? (
                   <details open className="design-options">
                     <summary>Design</summary>
@@ -1727,8 +2089,8 @@ function App() {
                   <button onClick={remove}>
                     {block.source
                       ? block.hidden
-                        ? "Show section"
-                        : "Hide section"
+                        ? "Restore section"
+                        : "Remove section"
                       : "Remove block"}
                   </button>
                 </div>
@@ -1874,6 +2236,9 @@ function App() {
             </p>
             <ul>
               {orderChanged ? <li>Page list order</li> : null}
+              {settingsChanged ? (
+                <li>Site settings, hero media and button changes</li>
+              ) : null}
               {changed.map((p) => (
                 <li key={p.id}>
                   {p.name} <small>{p.route}</small>

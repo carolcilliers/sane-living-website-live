@@ -6,9 +6,9 @@ October 21, 2026. This is the current implementation contract. The earlier numbe
 
 Open **Page Editor** in the dashboard. About is included in its Pages panel; Settings remains the last dashboard section. Existing `#about` links select About in the editor. The compact toolbar, left Pages/Insert/Layers panels and right inspector are inspired by Framely's workspace layout. No Framely application source is incorporated.
 
-All 25 registered public pages load their current trusted HTML, scripts, navigation, typography and footer. Select an original section to change its exposed text, links and images, reorder it or hide it. Original sections cannot be deleted or duplicated: their IDs and script dependencies must survive. The inspector routes canonical Settings, Gallery, Events, Weddings, Pricing and Partners data back to their existing dashboard owners. Existing navigation order/visibility remains owned by Settings. Page-list ordering organizes the editor; it does not silently rewrite that navigation.
+All 25 registered public pages load their current trusted HTML, scripts, navigation, typography and footer. Select an original section to change its exposed text, links and images, reorder it or hide it. Original sections can be removed visually and restored; their hidden markup remains for script compatibility. They cannot be duplicated because their IDs must remain unique. The inspector routes canonical Gallery, Events, Weddings, Pricing and Partners data back to their existing dashboard owners. Canonical site Settings are also editable directly inside Studio. Existing navigation order/visibility remains owned by Settings. Page-list ordering organizes the editor; it does not silently rewrite that navigation.
 
-Insert supports Heading, Text, Image, Split, Button, Spacer, Divider, Callout, Gallery, Events, Pricing, Partners, Booking and Newsletter. These are approved structured blocks, not arbitrary HTML or user JavaScript. New blocks support reorder, duplicate, hide and remove. Create a page with a unique slug; its optional menu link is added to existing navigation. New routes have explicit rewrite ownership under `public/site-pages/`.
+Insert supports Heading, Text, Image, Split, Button, Spacer, Divider, Callout, Gallery, Events, Pricing, Partners, Booking, Newsletter and Image slideshow. These are approved structured blocks, not arbitrary HTML or user JavaScript. New blocks support reorder, duplicate, hide and remove. Create a page with a unique slug; its optional menu link is added to existing navigation. New routes have explicit rewrite ownership under `public/site-pages/`.
 
 About uses the existing Markdown adapter and renderer, including founder attachment, unknown metadata and suffix preservation. Its rich field inspector replaces the former raw dashboard form. Older About drafts can be imported explicitly; they are never silently published or deleted.
 
@@ -28,6 +28,7 @@ Gallery in the dashboard now groups each existing section into one labeled card 
 | Shared page model | `content-core/site.cjs`: validation, source-preserving original sections, approved block renderer |
 | Published layouts | `content/site-layouts.json`, created only by Publish; inactive pages retain developer-owned bodies |
 | About content | `public/content/about.md`, written only if About actually changed |
+| Settings | Existing `public/content/settings.json`; shared schema, private working copy and atomic publication from Studio; existing dashboard writer keeps revision checks |
 | Other canonical resources | Existing `public/content/` JSON and dashboard publishers; Studio reads their pinned versions |
 | New staged images | IndexedDB until Publish; referenced validated files become `/images/studio-UUID.ext` |
 | Atomic publication | `api/studio.js`, `api/_studio/service.js`: authentication, source checks, validation, Git tree/commit/ref |
@@ -48,9 +49,9 @@ Authenticated bootstrap compares its bundled registry to `main` and verifies ina
 ## Publication protocol and failures
 
 1. Bootstrap reads one immutable `main` SHA, the registry, layout and six canonical sources. Missing or invalid required content is an error, never an empty editable replacement.
-2. A reviewed request carries version 2, expected head, stable release UUID, layout, canonical About text and staged assets. The server validates exact fields, IDs, routes, props, safe URLs and source ownership. Limits: 50 pages, 100 blocks per page, 700 KB layout, 3.5 MB request, 12 images, 1 MB each and 2 MB combined. Raster magic bytes are checked; SVG uploads are not accepted.
+2. A reviewed request carries version 2, expected head, stable release UUID, layout, canonical About text, optional canonical Settings text and staged assets. The server validates exact fields, IDs, routes, props, safe URLs and source ownership. Limits: 50 pages, 100 blocks per page, 700 KB layout, 3.5 MB request, 12 images, 1 MB each and 2 MB combined. Raster magic bytes are checked; SVG uploads are not accepted.
 3. Only referenced staged assets are promoted. Identical existing Git blobs may be reused; a conflicting path is rejected. Unknown components, arbitrary markup, stale heads, changed canonical sources and conflicting rewrites fail before the ref advances.
-4. The server renders a preflight, preserves unrelated Vercel config and creates one tree containing the layout, changed About only, referenced images, new route rewrites if needed and release descriptor.
+4. The server renders a preflight, preserves unrelated Vercel config and creates one tree containing the layout, changed About/Settings only, referenced images, new route rewrites if needed and release descriptor.
 5. A commit with the expected parent is advanced using a non-force `main` update. Concurrent updates reject safely. The same release UUID and request hash resolves retries to the accepted commit. Lost ref responses are reconciled against Git ancestry. A reused UUID with a different payload is rejected.
 6. The UI acknowledges the reviewed version only. New typing during the request stays in the workspace. A failed post-commit refresh says the commit was accepted and requires refresh; it does not label it an unsaved failed publish.
 
@@ -69,3 +70,17 @@ Rollback code through a normal revert commit. If layouts have already been publi
 ## Remaining larger-plan work
 
 Shared private draft/media storage; cross-device previews; individual identity/roles; durable deployment verification and rollback jobs; active-template migration tools; richer typography/layout controls; additional approved integrations; publish-time integration health checks. Keep these as explicit future work, not implied behavior of the current buttons.
+
+## Direct manipulation update — October 21, 2026
+
+The dashboard sidebar stays visible beside the embedded editor. The header now has a dedicated searchable page dropdown, with keyboard selection, current-page state and page paths; the existing page-management panel remains available. Dark is the default editor theme, with a local light/dark preference. Theme affects editor chrome only, not the public design. Studio Settings opens inside the editor and uses the same existing settings schema.
+
+Original sections now expose a nested element tree. Click a heading, paragraph, button, image, video or container to select it. The canvas selection toolbar provides section/element drag handles, element up/down, reversible removal and a **Move freely** pointer handle. Drag elements into supported containers within the same original section. Move whole sections between sections. Desktop offsets, width, alignment, font size, colour, background, padding, gap and corners use validated properties. Offset transforms reset on narrow phones to retain the natural responsive flow.
+
+Drag an Insert block onto a supported container to place it within an existing section, or onto a text/image element to insert at that position. New top-level blocks still work. Add images to an existing source image to create a carousel; the first image and its original identifiers survive. A standalone Image slideshow block also accepts multiple uploads. Carousel arrows operate in the full Preview tab and public page. Source-dependent sections and elements are removed visually, with retained markup for existing scripts and a restore action in the editor.
+
+Hero background selection and the **Hero media** shortcut open video URL and poster controls. The homepage CTA exposes button text and destination when selected. These edits update a private settings working copy, not shadow fields in the layout. Save, export/import and Preview include that copy; Publish validates it and includes `public/content/settings.json` in the same atomic layout/image/release commit only when changed. Unedited settings adopt a newer canonical source on recovery; edited settings conflicts block publication. The existing dashboard Settings writer retains its stale-SHA protection.
+
+Element references use offsets within each registered source section. Structural overrides validate references, containers, cycles, order, safe URLs and style ranges; no arbitrary CSS or HTML is accepted. Nested blocks reference an existing source section/container and optional insertion sibling. The shared renderer consumes these references in browser, preflight and build. Existing version-2 layouts remain valid without these optional fields. Generated collections keep their canonical owners; this is not an arbitrary user-code/free-canvas engine or an automatic active-template migration.
+
+Additional checks: body element counts match all 25 unedited templates (including void images); invalid style/parent/URL references reject; browser tests exercise real pointer offsets and native drag/drop, in-header page switching, dark/light preference, nested image insertion, original-image carousel creation, private previews and atomic settings/layout/image publication.

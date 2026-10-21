@@ -89,3 +89,17 @@
   else run();
   document.addEventListener("sane:settings-ready", navigation);
 })();
+// Carousel buttons work on published pages and in full-page preview.
+document.addEventListener("click", function (e) {
+  var b = e.target.closest("[data-slide]");
+  if (!b) return;
+  e.preventDefault();
+  e.stopPropagation();
+  var c = b.closest("[data-studio-carousel]"),
+    t = c && c.querySelector(".studio-carousel-track");
+  if (t)
+    t.scrollBy({
+      left: Number(b.dataset.slide) * t.clientWidth,
+      behavior: "smooth",
+    });
+});
