@@ -428,6 +428,59 @@
       border-radius: 50%;
       flex: none;
     }
+    /* ---- Find Us: visit details beside a large map ---- */
+    .find-layout {
+      display: grid;
+      grid-template-columns: minmax(0, 4fr) minmax(0, 7fr);
+      gap: clamp(2rem, 5vw, 4.5rem);
+      align-items: stretch;
+    }
+    .find-intro h2 { margin-bottom: var(--space-md); }
+    .find-intro > p { font-size: 1.05rem; margin-bottom: var(--space-xl); }
+    .find-details { margin: 0 0 var(--space-xl); }
+    .find-details > div { padding: var(--space-md) 0; border-top: 1px solid var(--clr-border); }
+    .find-details > div:last-child { border-bottom: 1px solid var(--clr-border); }
+    .find-details dt {
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--clr-accent);
+      margin-bottom: 4px;
+    }
+    .find-details dd { margin: 0; color: var(--clr-text); line-height: 1.65; }
+    .find-details dd a { color: var(--clr-plum); }
+    .find-details dd a:hover { color: var(--clr-accent); }
+    .find-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 12.5px;
+      font-weight: 700;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--clr-plum);
+      padding-bottom: 6px;
+      border-bottom: 1px solid var(--clr-accent);
+      transition: gap 0.25s ease, color 0.25s ease;
+    }
+    .find-link:hover { gap: 12px; color: var(--clr-accent); }
+    .find-stay { margin-top: var(--space-lg); font-size: 0.98rem; color: var(--clr-text-muted); }
+    .find-stay a { color: var(--clr-plum); font-weight: 700; border-bottom: 1px solid var(--clr-accent); }
+    .find-map {
+      background: var(--clr-bg-card);
+      border-radius: 20px;
+      padding: 10px;
+      box-shadow: var(--shadow-soft);
+      min-height: 460px;
+      display: flex;
+    }
+    .find-map iframe { flex: 1; width: 100%; min-height: 440px; border: 0; border-radius: 14px; display: block; }
+    @media (max-width: 900px) {
+      .find-layout { grid-template-columns: 1fr; }
+      .find-map, .find-map iframe { min-height: 360px; }
+    }
+
     @media (max-width: 900px) {
       .avail-layout { grid-template-columns: 1fr; grid-template-areas: "intro" "calendar" "actions"; grid-template-rows: auto; }
       .home-availability-embed { height: 500px; }
@@ -563,21 +616,41 @@
     </div>
   </section>
 
-  <!-- 5. Map -->
-  <section class="section section-alt">
+  <!-- 5. Find Us -->
+  <section class="section section-alt" id="find-us">
     <div class="container">
-      <div class="home-section-header" data-animate>
-        <h2>Find Us</h2>
-        <p data-site-text="address">316 E Matilija St, Ojai, CA 93023</p>
+      <div class="find-layout">
+        <div class="find-intro" data-animate>
+          <span class="section-eyebrow">Visit us</span>
+          <h2>Find Us</h2>
+          <p>The Sane Living Center is right in downtown Ojai, California.</p>
+          <dl class="find-details">
+            <div>
+              <dt>Address</dt>
+              <dd data-site-text="address">316 E Matilija St, Ojai, CA 93023</dd>
+            </div>
+            <div>
+              <dt>Hours</dt>
+              <dd data-site-text="hours">7 am – 12 midnight</dd>
+            </div>
+            <div>
+              <dt>Contact</dt>
+              <dd><a data-site-href="phoneLink" data-site-text="phoneDisplay" href="tel:+18056466000">+1 (805) 646-6000</a><br><a data-site-email href="mailto:info@saneliving.com">info@saneliving.com</a></dd>
+            </div>
+          </dl>
+          <a class="find-link" data-site-href="directionsUrl" href="https://maps.google.com/?q=316+E+Matilija+St+Ojai+CA" target="_blank" rel="noopener">Get directions <span aria-hidden="true">&rarr;</span></a>
+          <p class="find-stay">Staying overnight? <a href="/rent/farm/">See nearby stays</a></p>
+        </div>
+        <div class="find-map" data-animate>
+          <iframe data-site-map
+            title="Map showing the Sane Living Center in downtown Ojai"
+            src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3290.125351082763!2d-119.24584842359567!3d34.44896577301026!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x80e9a5375bb93e5f%3A0x9ea225831ba53217!2sSane%20Living!5e0!3m2!1sen!2sus!4v1715032537096!5m2!1sen!2sus"
+            allowfullscreen=""
+            loading="lazy"
+            referrerpolicy="no-referrer-when-downgrade"
+          ></iframe>
+        </div>
       </div>
-      <iframe data-site-map
-        src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3290.125351082763!2d-119.24584842359567!3d34.44896577301026!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x80e9a5375bb93e5f%3A0x9ea225831ba53217!2sSane%20Living!5e0!3m2!1sen!2sus!4v1715032537096!5m2!1sen!2sus"
-        width="100%" height="400"
-        style="border:0; border-radius: 12px;"
-        allowfullscreen=""
-        loading="lazy"
-        referrerpolicy="no-referrer-when-downgrade"
-      ></iframe>
     </div>
   </section>
 
