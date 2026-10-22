@@ -781,7 +781,16 @@ function App() {
   function elementAction(blockID: string, id: string, action: string) {
     const targetBlock = page?.blocks.find(b=>b.id===blockID);
     if(action==="insert"){queueInsert(blockID,placementFor(blockID,id,true));return;}
-    if(action==="edit"){select(blockID,id);setMobile("right");document.querySelector(".studio-inspector")?.scrollTo({top:0});return;}
+    if(action==="edit"){
+      select(blockID,id);setMobile("right");
+      requestAnimationFrame(()=>{
+        const panel=document.querySelector<HTMLElement>(".studio-inspector");
+        const content=panel?.querySelector<HTMLElement>(".element-inspector") || panel;
+        if(panel && content)panel.scrollTop+=content.getBoundingClientRect().top-panel.getBoundingClientRect().top-12;
+        content?.querySelector<HTMLElement>("input:not([type=hidden]),textarea,select,button")?.focus({preventScroll:true});
+        panel?.animate([{boxShadow:"inset 0 0 0 2px #c9a9dc"},{boxShadow:"inset 0 0 0 2px transparent"}],{duration:600});
+      });return;
+    }
     if(targetBlock?.source && !id && (action==="up" || action==="down")){stepLayer(blockID,action==="up"?-1:1);return;}
     if(targetBlock && !targetBlock.source) {
       if(action === "remove" && id === "part:image" && ["split","card"].includes(targetBlock.type)) {

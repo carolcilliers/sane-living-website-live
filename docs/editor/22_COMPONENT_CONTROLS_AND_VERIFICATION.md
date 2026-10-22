@@ -40,3 +40,11 @@ Homepage hero media, booking links, email, map/contact/rental/availability embed
 - Guide 21 insertion/movement, theme readability, snapping and tool-mode regression tests remain required, as do existing recovery, concurrency, gallery/card integrity and atomic publishing checks.
 
 Generated per-element/page evidence stays in ignored `tests/qa-*.json`. Tests never publish to the production repository or change staff designs. A local capability inventory alone is not presented as visual or browser verification. Full upstream Webstudio/Instatic platform parity and private team-storage provisioning are separate from this component-controls scope.
+
+## Stable contextual toolbar
+
+The canvas toolbar uses a workspace position independent of the selected element. It starts at the bottom of the canvas rather than following the selection. The labelled **Move toolbar** handle is the only control for repositioning it; position survives selection, page changes and reload using the versioned `sane-studio-toolbar-v1` localStorage preference. Coordinates are clamped when the canvas viewport changes. This preference is separate from draft data, Undo, preview and publishing. If browser storage is unavailable, the current canvas toolbar retains its position during selection changes, but reload persistence is unavailable.
+
+Closing the toolbar keeps it closed while selecting or editing. **Element controls** explicitly restores it. Move freely and Resize are toggle buttons: click once to enable, drag the actual canvas element, click again to disable. **Done · Esc**, Escape, opening settings or closing controls also stops the tool. Toolbar buttons no longer move content when dragged. Only reorder handles and the toolbar handle show a grab cursor. Settings focuses the inspector with a brief outline so its destination is visible.
+
+`tests/toolbar-interaction.cjs` verifies real pointer dragging, retained coordinates across selections/routes/reload, persistent dismissal, toggle/Done/Escape behavior, cursor semantics and one-click settings focus. Existing movement tests now drag the canvas element after choosing a tool. All use isolated fixtures without publishing to production.

@@ -3,6 +3,18 @@ import { patchDocument, updateStyles, designStyles, structureKey, resolveAssets 
 import core from "../../content-core/site.cjs";
 import { LAYOUTS } from "./LayoutLibrary";
 import type { Page, Project, Registry, Asset } from "./site-types";
+// Workspace preferences are independent of draft content and published layouts.
+const toolbarKey = "sane-studio-toolbar-v1";
+type ToolbarLayout = { x?: number; y?: number; hidden?: boolean };
+function toolbarLayout(): ToolbarLayout {
+  try {
+    const value = JSON.parse(localStorage.getItem(toolbarKey) || "{}");
+    return { x: Number.isFinite(value.x) ? value.x : undefined, y: Number.isFinite(value.y) ? value.y : undefined, hidden: value.hidden === true };
+  } catch { return {}; }
+}
+function saveToolbarLayout(change: ToolbarLayout) {
+  try { localStorage.setItem(toolbarKey, JSON.stringify({...toolbarLayout(), ...change})); } catch { /* Session positioning still works when storage is unavailable. */ }
+}
 export function htmlFor(
   page: Page,
   project: Project,
@@ -145,7 +157,7 @@ export function prepareFrame(
       }
       if(el.closest("[data-studio-toolbar-close],[data-studio-toolbar-grip]")) return;
       const toolButton=el.closest("[data-studio-free],[data-studio-resize],[data-studio-select-tool]");
-      if(toolButton){e.preventDefault();e.stopImmediatePropagation();if(performance.now()<suppressToolsUntil)return;setTool(toolButton.hasAttribute("data-studio-free")?"move":toolButton.hasAttribute("data-studio-resize")?"resize":null);return;}
+      if(toolButton){e.preventDefault();e.stopImmediatePropagation();const next=toolButton.hasAttribute("data-studio-free")?"move":toolButton.hasAttribute("data-studio-resize")?"resize":null;setTool(activeTool===next?null:next);return;}
       const action = el
         .closest("[data-studio-action]")
         ?.getAttribute("data-studio-action");
@@ -155,6 +167,7 @@ export function prepareFrame(
         e.preventDefault();
         e.stopImmediatePropagation();
         const bar = d.getElementById("studio-canvas-tools")!;
+        setTool(null);
         tools?.action?.(bar.dataset.block!, bar.dataset.element || "", action);
         return;
       }
@@ -164,8 +177,6 @@ export function prepareFrame(
           e.preventDefault();
           e.stopImmediatePropagation();
           select(hit.block, hit.element);
-          const bar=d.getElementById("studio-canvas-tools");
-          if(bar?.dataset.selection===hit.block+":"+hit.element){bar.hidden=false;bar.style.display="flex";}
           return;
         }
       }
@@ -201,11 +212,15 @@ export function prepareFrame(
     n.setAttribute("draggable", "true"),
   );
   let dragging: { block: string; element?: string } | null = null,
-    free: any = null, activeTool: "move" | "resize" | null = null, suppressToolsUntil=0;
+    free: any = null, activeTool: "move" | "resize" | null = null;
   function setTool(tool: "move"|"resize"|null){
-    activeTool=tool;if(tool)d!.body.dataset.studioTool=tool;else delete d!.body.dataset.studioTool;
+    activeTool=tool;
+    const done=d!.querySelector<HTMLElement>('[data-studio-select-tool]');
+    if(done){done.textContent=tool ? "✓ Done · Esc" : "↖ Select";done.title="Stop moving or resizing (Escape)";}
+    if(tool)d!.body.dataset.studioTool=tool;else delete d!.body.dataset.studioTool;
     d!.querySelectorAll("[data-studio-free],[data-studio-resize],[data-studio-select-tool]").forEach(n=>n.setAttribute("aria-pressed",String(n.hasAttribute("data-studio-free")?tool==="move":n.hasAttribute("data-studio-resize")?tool==="resize":tool===null)));
   }
+  d.addEventListener("studio:stop-tool",()=>{clearGuides();setTool(null);});
   function clearGuides(){d?.querySelectorAll('[data-studio-guides]').forEach(n=>n.remove());}
   function showGuides(activeX?:number,activeY?:number){
     if(!d)return;
@@ -230,10 +245,10 @@ export function prepareFrame(
         target = e.target as Element;
       const grip = target.closest("[data-studio-toolbar-grip]");
       if(grip){const bar=grip.closest<HTMLElement>("#studio-canvas-tools")!;const r=bar.getBoundingClientRect();free={toolbar:true,bar,startX:e.clientX,startY:e.clientY,x:r.left,y:r.top,originalStyle:bar.style.cssText};target.setPointerCapture?.(e.pointerId);e.preventDefault();e.stopImmediatePropagation();return;}
-      const trigger=target.closest("[data-studio-free],[data-studio-resize]");
       const direct=!!activeTool && !target.closest("#studio-canvas-tools,[data-studio-boundary]") && !!target.closest("[data-studio-block]");
-      if(!trigger && !direct)return;
-      const bar=d.getElementById("studio-canvas-tools"),hit=direct?selectedFrom(target):{block:bar?.dataset.block || "",element:bar?.dataset.element || ""};
+      // Tool buttons choose a mode; only a gesture on the canvas moves content.
+      if(!direct)return;
+      const hit=selectedFrom(target);
       if(!hit.block)return;
       const blockID=hit.block,element=hit.element || "";
       if(direct)select?.(blockID,element);
@@ -255,8 +270,7 @@ export function prepareFrame(
         x: current[0] || 0,
         y: current[1] || 0,
         originalStyle: el.style.cssText,
-        resize: trigger ? trigger.hasAttribute("data-studio-resize") : activeTool==="resize",
-        fromTool:!!trigger,
+        resize: activeTool==="resize",
         width: el.getBoundingClientRect().width,
         height: el.getBoundingClientRect().height,
         parentWidth: el.parentElement?.getBoundingClientRect().width || win.innerWidth,
@@ -300,10 +314,9 @@ export function prepareFrame(
     () => {
       if (!free) return;
       clearGuides();
-      if(free.toolbar){free=null;return;}
+      if(free.toolbar){saveToolbarLayout({x:parseFloat(free.bar.style.left),y:parseFloat(free.bar.style.top)});free=null;return;}
       free.el.style.cssText=free.originalStyle;
       if(Math.abs(free.dx||0)<2 && Math.abs(free.dy||0)<2){free=null;return;}
-      if(free.fromTool)suppressToolsUntil=performance.now()+150;
       if (free.resize) {
         tools?.resize?.(free.block,free.element,Math.max(1,Math.min(100,Math.round((free.width+(free.dx||0))/free.parentWidth*100))),Math.round(Math.max(0,Math.min(2000,free.height+(free.dy||0)))));
         free = null; return;
@@ -604,17 +617,20 @@ export function SiteCanvas({
       const bar = sameBar ? previousBar! : d.createElement("div");
       bar.id = "studio-canvas-tools";
       bar.dataset.selection=selected+":"+(selectedElement || "");
+      const layout = toolbarLayout();
+      if(previousBar?.dataset.pinned && !sameBar){layout.x=parseFloat(previousBar.style.left);layout.y=parseFloat(previousBar.style.top);}
+      if(layout.x!==undefined && layout.y!==undefined)bar.dataset.pinned="true";
       bar.dataset.block = selected;
       bar.dataset.element = selectedElement || "";
       if(!sameBar)bar.style.cssText =
-        "position:fixed;z-index:2147483647;display:flex;flex-wrap:wrap;gap:4px;padding:5px;background:#29262e;color:#f5f2f7;border:1px solid #514a5b;border-radius:10px;box-shadow:0 8px 24px #0003;font:12px system-ui;max-width:95vw";
+        "position:fixed;z-index:2147483647;display:flex;flex-wrap:wrap;gap:4px;padding:5px;background:#29262e;color:#f5f2f7;border:1px solid #514a5b;border-radius:10px;box-shadow:0 8px 24px #0003;font:12px system-ui;max-width:95vw;box-sizing:border-box";
       const added=page.blocks.find(b=>b.id===selected && !b.source),imageSelected=chosen?.tagName==="IMG" || added?.type==="image";
       const type=selectedElement?.startsWith("part:") && core.PARTS[added?.type || ""] ? chosen?.tagName?.toLowerCase() || added?.type || "section" : added?.type || chosen?.tagName?.toLowerCase() || "section";
       const settingsLabel=imageSelected?"Image settings":["section","row","column"].includes(type)?"Layout settings":type==="a" || type==="button"?"Button settings":/^(h[1-6]|p|text|heading|span)$/.test(type)?"Text settings":type==="video"?"Video settings":"Edit settings";
       if(!sameBar)bar.innerHTML =
-        '<button data-studio-select-tool aria-label="Select tool">↖ Select</button><button data-studio-action="edit" title="Open settings for this selection">'+settingsLabel+'</button><button data-studio-action="insert">＋ Insert</button><button data-studio-action="up" aria-label="Move selected layer up">↑</button><button data-studio-action="down" aria-label="Move selected layer down">↓</button><button data-studio-toolbar-grip aria-label="Move toolbar" title="Drag this grip to move the toolbar">⠿</button>'+(!chosen && !added ? '<button draggable="true" data-studio-section-drag>↕ Section</button>' : '') +
+        '<button data-studio-toolbar-grip aria-label="Move toolbar" title="Drag to move this toolbar. Its position stays fixed while you edit." style="flex-basis:100%">⠿ Move toolbar</button><button data-studio-select-tool aria-label="Select tool">↖ Select</button><button data-studio-action="edit" title="Open settings for this selection">'+settingsLabel+'</button><button data-studio-action="insert">＋ Insert</button><button data-studio-action="up" aria-label="Move selected layer up">↑</button><button data-studio-action="down" aria-label="Move selected layer down">↓</button>'+(!chosen && !added ? '<button draggable="true" data-studio-section-drag>↕ Section</button>' : '') +
         (chosen || added
-          ? '<button draggable="true">↕ '+(chosen?.dataset.studioDragOwner?'Drag card':imageSelected?'Drag image':'Drag element')+'</button><button data-studio-free title="Drag to move on the current device layout">✥ Move freely</button><button data-studio-resize title="Drag to resize on the current device layout">⤡ Resize</button><button data-studio-action="remove">'+(imageSelected?'Remove image':'Remove')+'</button>'
+          ? '<button draggable="true">↕ '+(chosen?.dataset.studioDragOwner?'Drag card':imageSelected?'Drag image':'Drag element')+'</button><button data-studio-free title="Click to enable, then drag an element. Click again or press Escape to stop.">✥ Move freely</button><button data-studio-resize title="Click to enable, then drag an element to resize. Click again or press Escape to stop.">⤡ Resize</button><button data-studio-action="remove">'+(imageSelected?'Remove image':'Remove')+'</button>'
           : "") + ((chosen?.tagName === "VIDEO" || (chosen || active)?.querySelector("video")) ? '<button data-studio-media-play aria-label="Play / pause video">▶ / Ⅱ Video</button>' : '') + '<button data-studio-toolbar-close aria-label="Close element toolbar" title="Hide controls; your selection stays active">×</button>';
       if(selectedElement?.startsWith('part:') && core.PARTS[added?.type || '']){
         const name=selectedElement.slice(5),remove=bar.querySelector<HTMLButtonElement>('[data-studio-action="remove"]');
@@ -622,7 +638,7 @@ export function SiteCanvas({
         bar.querySelectorAll<HTMLButtonElement>('[data-studio-action="up"],[data-studio-action="down"]').forEach(button=>{button.title='Move whole '+added?.type+' '+button.dataset.studioAction;});
         const reorder=bar.querySelector<HTMLButtonElement>('[draggable="true"]');if(reorder)reorder.textContent='↕ Reorder '+added?.type;
       }
-      bar.querySelector<HTMLButtonElement>("[data-studio-toolbar-close]")!.onclick=()=>{bar.hidden=true;bar.style.display="none";};
+      bar.querySelector<HTMLButtonElement>("[data-studio-toolbar-close]")!.onclick=()=>{bar.hidden=true;bar.style.display="none";saveToolbarLayout({hidden:true});d.dispatchEvent(new Event("studio:stop-tool"));};
       const zoom =
         frame.current!.getBoundingClientRect().width /
           frame.current!.offsetWidth || 1;
@@ -634,28 +650,27 @@ export function SiteCanvas({
             (b.style.cssText =
               "background:#37323e;color:#f5f2f7;border:0;border-radius:6px;padding:" +
               6 / zoom +
-              "px;cursor:grab;font:inherit;touch-action:none"),
+              "px;cursor:"+(b.hasAttribute("data-studio-toolbar-grip") || b.draggable ? "grab":"pointer")+";font:inherit;touch-action:none"),
         );
       const tool=d.body.dataset.studioTool;
+      bar.querySelector<HTMLElement>("[data-studio-select-tool]")!.textContent=tool ? "✓ Done · Esc" : "↖ Select";
       bar.querySelectorAll('[data-studio-free],[data-studio-resize],[data-studio-select-tool]').forEach(n=>n.setAttribute('aria-pressed',String(n.hasAttribute('data-studio-free')?tool==='move':n.hasAttribute('data-studio-resize')?tool==='resize':!tool)));
       if(!sameBar)d.body.append(bar);
       d.dispatchEvent(new Event("studio:layout-updated"));
+      bar.hidden=layout.hidden === true;
+      bar.style.display=bar.hidden ? "none" : "flex";
+      const grip=bar.querySelector<HTMLElement>("[data-studio-toolbar-grip]")!;
+      grip.style.flexBasis="100%";grip.style.textAlign="left";
+      grip.style.color="#dac8e6";grip.style.background="#29262e";
       const position = () => {
-        if(bar.dataset.pinned)return;
-        const r = (chosen || active!).getBoundingClientRect();
-        const view=frame.current!.contentWindow!,height=bar.offsetHeight;
-        const left=Math.max(4,Math.min(view.innerWidth-bar.offsetWidth-4,r.left));
-        let top=r.top-height-8;
-        if(top<28)top=Math.max(28,r.bottom+8);
-        top=Math.max(28,Math.min(view.innerHeight-height-8,top));
-        // The toolbar must not intercept the insertion line beneath it. Its real
-        // height includes wrapping and canvas zoom, so a fixed 38px offset fails.
-        const lines=Array.from(d.querySelectorAll('[data-studio-boundary]')).map(n=>n.getBoundingClientRect()).sort((a,b)=>a.top-b.top);
-        for(const line of lines)if(left<line.right && left+bar.offsetWidth>line.left && top<line.bottom && top+height>line.top){
-          if(line.bottom+8+height<view.innerHeight)top=line.bottom+8;
-          else if(line.top-height-8>=28)top=line.top-height-8;
-        }
-        bar.style.top=top+"px";bar.style.left=left+"px";
+        const view=frame.current!.contentWindow!;
+        // Selection, scrolling and live edits never choose a new toolbar position.
+        // A newly created toolbar inherits the last workspace position.
+        const x=bar.dataset.pinned ? (bar.dataset.positioned ? parseFloat(bar.style.left) : layout.x ?? 8) : 8;
+        const y=bar.dataset.pinned ? (bar.dataset.positioned ? parseFloat(bar.style.top) : layout.y ?? 8) : Math.max(4,view.innerHeight-bar.offsetHeight-12);
+        bar.style.left=Math.max(4,Math.min(view.innerWidth-bar.offsetWidth-4,x))+"px";
+        bar.style.top=Math.max(4,Math.min(view.innerHeight-bar.offsetHeight-4,y))+"px";
+        bar.dataset.positioned="true";
       };
       position();
       const win = frame.current?.contentWindow;
@@ -709,7 +724,7 @@ export function SiteCanvas({
             : "Rendering your page…"}
         </div>
       ) : null}
-      {selected ? <button className="canvas-show-tools" onClick={()=>{const bar=frame.current?.contentDocument?.getElementById("studio-canvas-tools");if(bar){bar.hidden=false;bar.style.display="flex";}}}>Element controls</button> : null}
+      {selected ? <button className="canvas-show-tools" onClick={()=>{const bar=frame.current?.contentDocument?.getElementById("studio-canvas-tools");if(bar){saveToolbarLayout({hidden:false});bar.hidden=false;bar.style.display="flex";bar.ownerDocument.dispatchEvent(new Event("studio:layout-updated"));}}}>Element controls</button> : null}
       <div
         className="site-viewport"
         style={{ width: width * scale, height: size.height }}

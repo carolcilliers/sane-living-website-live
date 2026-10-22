@@ -80,7 +80,8 @@ const png = Buffer.from(
       name: "✥ Move freely",
       exact: true,
     });
-    const box = await free.boundingBox();
+    await free.click();
+    const box = await canvas.locator('a[data-site-text="homePrimaryLabel"]').boundingBox();
     assert(box);
     await page.mouse.move(box.x + box.width / 2, box.y + box.height / 2);
     await page.mouse.down();
@@ -97,6 +98,7 @@ const png = Buffer.from(
       ) > 36,
       "pointer drag updates saved coordinates",
     );
+    await free.click();
     // Actual HTML drag/drop, followed by renderer output and an undo.
     await canvas
       .locator("h1[data-site-text]")
