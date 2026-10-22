@@ -59,7 +59,7 @@
     {
       "route": "/about/",
       "label": "About",
-      "visible": true
+      "visible": false
     },
     {
       "route": "/contact/",
