@@ -37,18 +37,23 @@
   "siteDescription": "",
   "navigation": [
     {
-      "route": "/events/",
-      "label": "Events",
-      "visible": true
-    },
-    {
       "route": "/rent/",
       "label": "Rent",
       "visible": true
     },
     {
+      "route": "/events/",
+      "label": "Events",
+      "visible": true
+    },
+    {
       "route": "/rent/weddings/",
       "label": "Weddings",
+      "visible": true
+    },
+    {
+      "route": "/contact/",
+      "label": "Contact",
       "visible": true
     },
     {
@@ -60,11 +65,6 @@
       "route": "/about/",
       "label": "About",
       "visible": false
-    },
-    {
-      "route": "/contact/",
-      "label": "Contact",
-      "visible": true
     }
   ],
   "pageMeta": {}
