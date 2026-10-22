@@ -49,7 +49,7 @@ export function htmlFor(
   const style =
     "<style>[data-animate],[data-animate-stagger]>*{opacity:1!important;transform:none!important;transition:none!important}" +
     (annotate
-      ? "[data-studio-tool=move] :is([data-studio-element],[data-studio-block],[data-studio-part]){cursor:move!important}[data-studio-tool=resize] :is([data-studio-element],[data-studio-block],[data-studio-part]){cursor:nwse-resize!important}#studio-canvas-tools button[aria-pressed=true]{background:#725582!important;color:white!important}[data-studio-boundary][aria-pressed=true]{opacity:1!important;filter:brightness(1.2)}[data-studio-boundary]:hover{opacity:1!important}[data-studio-element]{cursor:pointer;outline-offset:-2px;transition:none!important;animation:none!important}[data-studio-block]{transition:none!important;animation:none!important}[data-studio-element]:hover{outline:1px dashed #aa8bdb}[data-studio-drop=before-x]{box-shadow:-4px 0 #c49bff!important}[data-studio-drop=after-x]{box-shadow:4px 0 #c49bff!important}[data-studio-drop=inside]{outline:2px solid #c49bff!important}[data-studio-drop=before]{box-shadow:0 -3px #a47af2!important}[data-studio-drop=after]{box-shadow:0 3px #a47af2!important}[data-studio-element-selected]{outline:2px solid #b789ff!important}.video-hero-overlay{pointer-events:none!important}video{pointer-events:auto!important}[data-studio-block]{cursor:pointer;outline-offset:-2px}[data-studio-block]:hover{outline:1px solid #a181c4}[data-studio-selected]{outline:2px solid #8559ad!important}"
+      ? "[data-studio-tool=move] :is([data-studio-element],[data-studio-block],[data-studio-part]){cursor:move!important}[data-studio-tool=resize] :is([data-studio-element],[data-studio-block],[data-studio-part]){cursor:nwse-resize!important}#studio-canvas-tools button[aria-pressed=true]{background:#725582!important;color:white!important}[data-studio-boundary][aria-pressed=true]{opacity:1!important;filter:brightness(1.2)}[data-studio-boundary]:hover{opacity:1!important}[data-studio-part]{transition:none!important;animation:none!important}[data-studio-element]{cursor:pointer;outline-offset:-2px;transition:none!important;animation:none!important}[data-studio-block]{transition:none!important;animation:none!important}[data-studio-element]:hover{outline:1px dashed #aa8bdb}[data-studio-drop=before-x]{box-shadow:-4px 0 #c49bff!important}[data-studio-drop=after-x]{box-shadow:4px 0 #c49bff!important}[data-studio-drop=inside]{outline:2px solid #c49bff!important}[data-studio-drop=before]{box-shadow:0 -3px #a47af2!important}[data-studio-drop=after]{box-shadow:0 3px #a47af2!important}[data-studio-element-selected]{outline:2px solid #b789ff!important}.video-hero-overlay{pointer-events:none!important}video{pointer-events:auto!important}[data-studio-block]{cursor:pointer;outline-offset:-2px}[data-studio-block]:hover{outline:1px solid #a181c4}[data-studio-selected]{outline:2px solid #8559ad!important}"
       : "") +
     "</style>";
   return html.replace(
@@ -101,7 +101,7 @@ export function prepareFrame(
       return (
         target
           .closest(".video-hero")
-          ?.querySelector("[data-site-hero-video]") || target
+          ?.querySelector("[data-site-hero-video],video") || target
       );
     const gallery = target.closest("[data-studio-carousel]");
     if (gallery && !target.hasAttribute("data-studio-element"))
@@ -241,7 +241,8 @@ export function prepareFrame(
         '[data-studio-block="' + blockID + '"][data-studio-element="' + element + '"], [data-studio-block="' + blockID + '"] [data-studio-element="' + element + '"]',
       ) : d.querySelector<HTMLElement>('[data-studio-block="'+blockID+'"]');
       if (!picked) return;
-      const el=element.startsWith("part:") ? picked.closest<HTMLElement>("[data-studio-block]")! : movementUnit(picked), movementID=el.getAttribute("data-studio-element") || element;
+      const owner=picked.closest<HTMLElement>('[data-studio-block]'),independent=element.startsWith('part:') && !!core.PARTS[owner?.dataset.studioType || '']?.[element.slice(5)];
+      const el=independent?picked:element.startsWith("part:") ? owner! : movementUnit(picked), movementID=independent?element:el.getAttribute("data-studio-element") || element;
       e.preventDefault();
       e.stopImmediatePropagation();
       const current = tools?.coordinates?.(blockID!,movementID) || (win.getComputedStyle(el).translate || "0px 0px").split(" ").map(parseFloat);
@@ -561,6 +562,7 @@ export function SiteCanvas({
         const map=win.__SANE_PREVIEW_RESOURCES__;
         if(map)for(const k of ["settings","gallery","weddings","pricing","partners"])try{map['/content/'+k+'.json']=JSON.parse(resources[k]||'{}');}catch{}
         if(previous?.resources!==nextState.resources || previous?.structure!==nextState.structure)win.SaneSite?.apply(core.settings.normalize(JSON.parse(resources.settings||"{}")));
+        f.contentDocument.querySelectorAll('video').forEach(video=>{video.controls=video.hasAttribute('controls');video.loop=video.hasAttribute('loop');video.muted=video.hasAttribute('muted') || video.hasAttribute('autoplay');});
         resolveAssets(f.contentDocument,assets);designStyles(f.contentDocument,page);
         f.contentDocument.dispatchEvent(new Event("sane:studio-updated"));f.contentDocument.dispatchEvent(new Event("studio:layout-updated"));
         f.contentWindow.scrollTo(0,y);htmlRef.current=next;
@@ -607,13 +609,19 @@ export function SiteCanvas({
       if(!sameBar)bar.style.cssText =
         "position:fixed;z-index:2147483647;display:flex;flex-wrap:wrap;gap:4px;padding:5px;background:#29262e;color:#f5f2f7;border:1px solid #514a5b;border-radius:10px;box-shadow:0 8px 24px #0003;font:12px system-ui;max-width:95vw";
       const added=page.blocks.find(b=>b.id===selected && !b.source),imageSelected=chosen?.tagName==="IMG" || added?.type==="image";
-      const type=added?.type || chosen?.tagName?.toLowerCase() || "section";
+      const type=selectedElement?.startsWith("part:") && core.PARTS[added?.type || ""] ? chosen?.tagName?.toLowerCase() || added?.type || "section" : added?.type || chosen?.tagName?.toLowerCase() || "section";
       const settingsLabel=imageSelected?"Image settings":["section","row","column"].includes(type)?"Layout settings":type==="a" || type==="button"?"Button settings":/^(h[1-6]|p|text|heading|span)$/.test(type)?"Text settings":type==="video"?"Video settings":"Edit settings";
       if(!sameBar)bar.innerHTML =
         '<button data-studio-select-tool aria-label="Select tool">↖ Select</button><button data-studio-action="edit" title="Open settings for this selection">'+settingsLabel+'</button><button data-studio-action="insert">＋ Insert</button><button data-studio-action="up" aria-label="Move selected layer up">↑</button><button data-studio-action="down" aria-label="Move selected layer down">↓</button><button data-studio-toolbar-grip aria-label="Move toolbar" title="Drag this grip to move the toolbar">⠿</button>'+(!chosen && !added ? '<button draggable="true" data-studio-section-drag>↕ Section</button>' : '') +
         (chosen || added
           ? '<button draggable="true">↕ '+(chosen?.dataset.studioDragOwner?'Drag card':imageSelected?'Drag image':'Drag element')+'</button><button data-studio-free title="Drag to move on the current device layout">✥ Move freely</button><button data-studio-resize title="Drag to resize on the current device layout">⤡ Resize</button><button data-studio-action="remove">'+(imageSelected?'Remove image':'Remove')+'</button>'
           : "") + ((chosen?.tagName === "VIDEO" || (chosen || active)?.querySelector("video")) ? '<button data-studio-media-play aria-label="Play / pause video">▶ / Ⅱ Video</button>' : '') + '<button data-studio-toolbar-close aria-label="Close element toolbar" title="Hide controls; your selection stays active">×</button>';
+      if(selectedElement?.startsWith('part:') && core.PARTS[added?.type || '']){
+        const name=selectedElement.slice(5),remove=bar.querySelector<HTMLButtonElement>('[data-studio-action="remove"]');
+        if(remove)remove.textContent=(added?.elements?.[selectedElement]?.hidden?'Restore ':'Remove ')+name;
+        bar.querySelectorAll<HTMLButtonElement>('[data-studio-action="up"],[data-studio-action="down"]').forEach(button=>{button.title='Move whole '+added?.type+' '+button.dataset.studioAction;});
+        const reorder=bar.querySelector<HTMLButtonElement>('[draggable="true"]');if(reorder)reorder.textContent='↕ Reorder '+added?.type;
+      }
       bar.querySelector<HTMLButtonElement>("[data-studio-toolbar-close]")!.onclick=()=>{bar.hidden=true;bar.style.display="none";};
       const zoom =
         frame.current!.getBoundingClientRect().width /

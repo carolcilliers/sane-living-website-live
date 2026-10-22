@@ -49,12 +49,13 @@ const BASE = [
   "responsive",
   "states",
 ];
+const PARTS={card:{image:'img',heading:'h2',text:'div',button:'a'},split:{image:'img',heading:'h2',text:'div'},callout:{heading:'h2',text:'div'},quote:{text:'p'},details:{summary:'summary',text:'div'}};
 const PROPS = {
-  video: ["src", "poster", "caption"],
+  video: ["src", "poster", "caption", "controls", "autoplay", "loop", "muted"],
   list: ["items", "style"],
   quote: ["text", "citation"],
   details: ["summary", "text"],
-  card: ["heading", "text", "src", "alt", "buttonText", "url"],
+  card: ["heading", "text", "src", "alt", "buttonText", "url", "target"],
   badge: ["text"],
   section: [],
   row: [],
@@ -63,7 +64,7 @@ const PROPS = {
   text: ["text"],
   image: ["src", "alt", "caption"],
   split: ["heading", "text", "src", "alt", "side"],
-  button: ["text", "url"],
+  button: ["text", "url", "target"],
   spacer: ["height"],
   divider: [],
   callout: ["heading", "text"],
@@ -308,6 +309,7 @@ function describeSource(entry, resources) {
         open: l.startTag.endOffset - loc.startOffset,
         close: l.endTag ? l.endTag.startOffset - loc.startOffset : null,
         bindings,
+        attributes:Object.fromEntries((n.attrs||[]).filter(a=>["title","alt","target","aria-label"].includes(a.name)).map(a=>[a.name,a.value])),
         managed,
       };
       elements.push(el);
@@ -320,6 +322,34 @@ function describeSource(entry, resources) {
       const owner=elements.find(e=>raw.slice(e.start,e.open).includes('id="wedding-details"'));
       if(owner)for(const [key,label] of [["includesText","What's included"],["cateringPolicy","Catering policy"],["alcoholPolicy","Alcohol policy"],["parkingNote","Parking note"]])elements.push({id:"policy-"+key,tag:"p",label,parent:owner.id,start:0,end:0,open:0,close:null,bindings:[],managed:true,virtual:true,contentKey:key});
     }
+    // Append stable, named fields; never renumber the legacy f0/f1 draft keys.
+    walk(node,n=>{
+      const l=n.sourceCodeLocation;if(!l)return;
+      let ancestor=n.nodeName==='#text'?n.parentNode:n,blocked=false;
+      while(ancestor && ancestor!==node.parentNode){if(ownedIds.has(attr(ancestor,'id')) || attr(ancestor,'data-site-text') || attr(ancestor,'data-site-src'))blocked=true;ancestor=ancestor.parentNode;}
+      if(blocked)return;
+      if(n.nodeName==='#text' && n.value.trim() && /^(h[1-6]|p|a|span|li|button|strong|em|b|i)$/.test(n.parentNode?.tagName||'')){
+        const start=l.startOffset-loc.startOffset,end=l.endOffset-loc.startOffset;
+        if(!fields.some(f=>start>=f.start && end<=f.end))fields.push({id:'inline-'+start,kind:'text',label:'Text · '+n.value.trim().slice(0,50),value:n.value,start,end});
+      }
+      if(!['iframe','video','source'].includes(n.tagName))return;
+      const canonical=n.tagName==='iframe' && ['data-site-map','data-site-inquiry','data-site-rental-inquiry','data-site-availability'].some(key=>(n.attrs||[]).some(a=>a.name===key));
+      if(n.tagName==='video' && (n.attrs||[]).some(a=>a.name==='data-site-hero-video'))return;
+      for(const key of n.tagName==='iframe'?['src','title']:['src','poster']){
+        if(canonical && key==='src')continue;
+        const a=l.attrs?.[key];if(!a)continue;
+        fields.push({id:'attr-'+(l.startOffset-loc.startOffset)+'-'+key,kind:key==='poster'?'image':key==='src'?(n.tagName==='iframe'?'link':'video'):'text',attribute:key,label:key==='title'?'Embed description':key==='poster'?'Video poster':'Media URL',value:attr(n,key),start:a.startOffset-loc.startOffset,end:a.endOffset-loc.startOffset});
+      }
+    });
+    walk(node,n=>{
+      const e=elements.find(e=>e.start===n.sourceCodeLocation?.startOffset-loc.startOffset);if(!e)return;
+      for(const [attribute,key,label,kind] of [['data-site-booking','bookingPageUrl','Booking page URL','link'],['data-site-email','email','Contact email','text']])if((n.attrs||[]).some(a=>a.name===attribute))e.bindings.push({key,label,kind});
+      if(entry.id==='rent--weddings' && n.tagName==='h1')e.connection={section:'weddings',label:'Wedding content',reason:'The title is shared with the Weddings content manager.'};
+      if(n.tagName==='video')e.media={src:attr(n,'src') || (n.childNodes||[]).filter(c=>c.tagName==='source').map(c=>attr(c,'src'))[0] || '',poster:attr(n,'poster'),...Object.fromEntries(['controls','autoplay','loop','muted'].map(key=>[key,(n.attrs||[]).some(a=>a.name===key)]))};
+      for(const [a,key,label,kind] of [['data-site-map','mapEmbedUrl','Map embed URL','map'],['data-site-inquiry','contactFormUrl','Contact form URL','airtable'],['data-site-rental-inquiry','rentalFormUrl','Rental form URL','airtable'],['data-site-availability','availabilityEmbedUrl','Availability embed URL','airtable']]){
+        if((n.attrs||[]).some(x=>x.name===a)){e.bindings.push({key,kind,label});e.connection={section:'settings',label,reason:'This integration uses a shared website URL. Changing it updates every instance.'};}
+      }
+    });
     for (const f of fields)
       f.element = elements
         .filter((e) => f.start >= e.start && f.end <= e.end)
@@ -620,8 +650,7 @@ function validate(project, registry, resources) {
         if (
           !TYPES.includes(b.type) ||
           b.source != null ||
-          b.edits != null ||
-          b.elements != null
+          b.edits != null
         ) {
           errors.push("Unsupported block type.");
           continue;
@@ -662,11 +691,18 @@ function validate(project, registry, resources) {
         ])
           if (b.props[key] && !settings.safeUrl(b.props[key], kind))
             errors.push("Use a safe image or page URL.");
+        if(b.props.target!=null && !['_self','_blank'].includes(b.props.target))errors.push('Choose a valid link target.');
+        if(b.type==='video')for(const key of ['controls','autoplay','loop','muted'])if(b.props[key]!=null && !['true','false'].includes(b.props[key]))errors.push('Choose a valid video playback option.');
         if (b.type === "list" && !["bullets","numbered"].includes(b.props.style))errors.push("Choose a list style.");
         if (b.props.level && !["h1", "h2", "h3"].includes(b.props.level))
           errors.push("Choose a supported heading level.");
         if (b.props.side && !["left", "right"].includes(b.props.side))
           errors.push("Choose a supported image position.");
+        if(b.elements!=null){
+          const allowed=PARTS[b.type]||{},elements=Object.entries(allowed).map(([name,tag])=>({id:'part:'+name,tag,parent:'',managed:false}));
+          if(Object.values(b.elements).some(v=>v && Object.keys(v).some(k=>['parent','order','gallery','attributes','media'].includes(k))))errors.push('Component parts retain their layout owner.');
+          errors.push(...validateElements({elements},b.elements));
+        }
         if (
           b.props.section &&
           !["all", "venue", "weddings", "outdoor"].includes(b.props.section)
@@ -735,12 +771,28 @@ function validateElements(d, values) {
             "radius",
             "responsive",
             "states",
+            "media",
+            "attributes",
             ...design.keys,
           ].includes(k),
       )
     ) {
       errors.push("Invalid element properties.");
       continue;
+    }
+    if(v.attributes!=null){
+      if(!v.attributes || typeof v.attributes!=='object' || Array.isArray(v.attributes))errors.push('Invalid element attributes.');
+      else for(const [key,value] of Object.entries(v.attributes)){
+        const allowed=['title','aria-label',...(e.tag==='img'?['alt']:[]),...(e.tag==='a'?['target']:[])];
+        if(!allowed.includes(key) || typeof value!=='string' || value.length>1000 || key==='target' && !['_self','_blank'].includes(value))errors.push('Invalid element attribute.');
+      }
+    }
+    if(v.media!=null){
+      if(e.tag!=='video' || !v.media || typeof v.media!=='object' || Array.isArray(v.media) || Object.keys(v.media).some(k=>!['src','poster','controls','autoplay','loop','muted'].includes(k)))errors.push('Invalid video controls.');
+      else for(const [key,value] of Object.entries(v.media)){
+        if(['src','poster'].includes(key)){if(typeof value!=='string' || value && !settings.safeUrl(value,key==='poster'?'image':'link'))errors.push('Use a safe video or poster URL.');if(e.bindings?.some(b=>['homeVideoUrl','homePosterUrl'].includes(b.key)))errors.push('Edit the hero media in site settings.');}
+        else if(typeof value!=='boolean')errors.push('Video playback options must be boolean.');
+      }
     }
     const styleValues = Object.fromEntries(Object.entries(v).filter(([k]) => design.keys.includes(k)));
     // Existing zero-size legacy values remain valid for old drafts.
@@ -802,7 +854,7 @@ function originalHtml(d, b, annotate, nested = [], resources = {}, blocks = []) 
       const safe =
         f.kind === "image"
           ? settings.safeUrl(value, "image")
-          : f.kind === "link"
+          : ["link","video"].includes(f.kind)
             ? settings.safeUrl(value, "link")
             : value;
       replacements.push({
@@ -822,6 +874,13 @@ function originalHtml(d, b, annotate, nested = [], resources = {}, blocks = []) 
     const v = overrides[e.id] || {};
     let open = range(e.start, e.open),
       close = e.close == null ? "" : range(e.close, e.end);
+    const attribute=(key,value)=>{const re=new RegExp(String.raw`\s${key}(?:\s*=\s*(?:"[^"]*"|'[^']*'|[^\s>]+))?(?=\s|>)`,'gi');open=open.replace(re,'');if(value!==false && value!=='')open=open.replace(/>$/, ' '+key+(value===true?'':'="'+esc(value)+'"')+'>');};
+    for(const [key,value] of Object.entries(v.attributes||{}))attribute(key,value);
+    if(v.attributes?.target==='_blank')attribute('rel','noopener noreferrer');
+    if(e.tag==='video' && v.media){
+      for(const [key,value] of Object.entries(v.media))attribute(key,['src','poster'].includes(key)?settings.safeUrl(value,key==='poster'?'image':'link'):value);
+      if(v.media.autoplay)attribute('muted',true);
+    }
     if (v.states || v.responsive || Object.keys(v).some(k => design.keys.includes(k)))
       open = open.replace(/^<([\w-]+)/, '<$1 data-studio-style="' + design.token(b.id + ":" + e.id) + '"');
     if (annotate)
@@ -967,18 +1026,20 @@ function renderBlock(b, resources, annotate, blocks = [], depth = 0) {
     inner = children.map(child=>renderBlock(child,resources,annotate,blocks,depth+1)).join("");
     if(!inner && annotate)inner='<div class="studio-empty-layout">Click to add or drop elements into this '+b.type+'</div>';
   }
+  const part=(name)=>(b.elements?.['part:'+name]?.hidden?' hidden data-studio-hidden style="display:none!important"':'')+' data-studio-style="'+design.token(b.id+':part:'+name)+'"'+(annotate?' data-studio-part="'+name+'"':'');
+  const body=()=>'<div'+part('text')+'>'+content.markdown(p.text||'')+'</div>';
   const img = () => !settings.safeUrl(p.src,"image") ? "" :
-    '<img' + (annotate ? ' data-studio-part="image"' : "") + ' src="' +
+    '<img' + part('image') + ' src="' +
     esc(settings.safeUrl(p.src, "image")) +
     '" alt="' +
     esc(p.alt || "") +
     '" loading="lazy">';
-  if (b.type === "video") inner='<figure><video controls playsinline preload="metadata" poster="'+esc(settings.safeUrl(p.poster,"image"))+'" src="'+esc(settings.safeUrl(p.src,"url"))+'"></video>'+(p.caption?'<figcaption>'+esc(p.caption)+'</figcaption>':'')+'</figure>';
+  if (b.type === "video") inner='<figure><video'+(p.controls!=="false"?" controls":"")+(p.autoplay==="true"?" autoplay":"")+(p.loop==="true"?" loop":"")+(p.muted==="true" || p.autoplay==="true"?" muted":"")+' playsinline preload="metadata" poster="'+esc(settings.safeUrl(p.poster,"image"))+'" src="'+esc(settings.safeUrl(p.src,"url"))+'"></video>'+(p.caption?'<figcaption>'+esc(p.caption)+'</figcaption>':'')+'</figure>';
   if (b.type === "list") {const tag=p.style==='numbered'?'ol':'ul';inner='<'+tag+' class="studio-list">'+String(p.items||'').split('\n').filter(Boolean).map(x=>'<li>'+esc(x)+'</li>').join('')+'</'+tag+'>';}
-  if (b.type === "quote") inner='<blockquote class="studio-quote"><p>'+esc(p.text||'')+'</p>'+(p.citation?'<cite>'+esc(p.citation)+'</cite>':'')+'</blockquote>';
-  if (b.type === "details") inner='<details class="studio-details"><summary>'+esc(p.summary||'Details')+'</summary>'+content.markdown(p.text||'')+'</details>';
+  if (b.type === "quote") inner='<blockquote class="studio-quote"><p'+part('text')+'>'+esc(p.text||'')+'</p>'+(p.citation?'<cite>'+esc(p.citation)+'</cite>':'')+'</blockquote>';
+  if (b.type === "details") inner='<details class="studio-details"><summary'+part('summary')+'>'+esc(p.summary||'Details')+'</summary>'+body()+'</details>';
   if (b.type === "badge") inner='<span class="studio-badge">'+esc(p.text||'')+'</span>';
-  if (b.type === "card") inner='<article class="studio-content-card">'+(p.src?img():'')+'<h2>'+esc(p.heading||'')+'</h2>'+content.markdown(p.text||'')+(p.buttonText?'<a class="btn btn-primary" href="'+esc(settings.safeUrl(p.url,"link")||'#')+'">'+esc(p.buttonText)+'</a>':'')+'</article>';
+  if (b.type === "card") inner='<article class="studio-content-card">'+(p.src?img():'')+'<h2'+part('heading')+'>'+esc(p.heading||'')+'</h2>'+body()+(p.buttonText?'<a'+part('button')+(p.target==='_blank'?' target="_blank" rel="noopener noreferrer"':'')+' class="btn btn-primary" href="'+esc(settings.safeUrl(p.url,"link")||'#')+'">'+esc(p.buttonText)+'</a>':'')+'</article>';
   if (b.type === "heading")
     inner =
       "<" +
@@ -1014,16 +1075,16 @@ function renderBlock(b, resources, annotate, blocks = [], depth = 0) {
     inner =
       '<div class="studio-split ' +
       (p.side === "left" ? "image-first" : "") + (!p.src ? " studio-without-image" : "") +
-      '"><div><h2>' +
+      '"><div><h2'+part('heading')+'>' +
       esc(p.heading || "") +
       "</h2>" +
-      content.markdown(p.text || "") +
+      body() +
       "</div>" +
       img() +
       "</div>";
   if (b.type === "button")
     inner =
-      '<a class="btn btn-primary" href="' +
+      '<a'+(p.target==='_blank'?' target="_blank" rel="noopener noreferrer"':'')+' class="btn btn-primary" href="' +
       esc(settings.safeUrl(p.url, "link") || "#") +
       '">' +
       esc(p.text || "Learn more") +
@@ -1036,10 +1097,10 @@ function renderBlock(b, resources, annotate, blocks = [], depth = 0) {
       'px" aria-hidden="true"></div>';
   if (b.type === "callout")
     inner =
-      '<div class="studio-callout"><h2>' +
+      '<div class="studio-callout"><h2'+part('heading')+'>' +
       esc(p.heading || "") +
       "</h2>" +
-      content.markdown(p.text || "") +
+      body() +
       "</div>";
   if (b.type === "gallery") {
     const photos = (jsonResources(resources, "gallery").photos || []).filter(
@@ -1238,6 +1299,7 @@ function renderPage(page, project, registry, resources, options = {}) {
 }
 module.exports = {
   TYPES,
+  PARTS,
   settings,
   design,
   cardLayout,

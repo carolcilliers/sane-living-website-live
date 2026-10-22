@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+import controls from "../../content-core/editor-controls.cjs";
 import core from "../../content-core/site.cjs";
 import type { Design, Device } from "./site-types";
 
@@ -41,7 +42,8 @@ function ValidatedDesignInput({property,name,value,commit}:{property:string;name
   return <><input aria-label={name} aria-invalid={!!error} value={text} placeholder={core.design.lengths.includes(property)?"Original / basic size":"Original"} onChange={e=>{const next=e.target.value;setText(next);if(!next || !core.design.validate({[property]:next}).length){setError("");commit(next);}}} onBlur={apply} onKeyDown={e=>{if(e.key==='Enter'){e.preventDefault();apply();}if(e.key==='Escape'){setText(value);setError("");}}}/>{error?<small className="field-error" role="alert">{error}</small>:null}</>;
 }
 
-export function DesignInspector({ value:normalValue, inherited:normalInherited = {}, device, change:changeDefault, reset:resetDefault, optimize, upload, states, stateChange, target }: {
+export function DesignInspector({ kind="layout", value:normalValue, inherited:normalInherited = {}, device, change:changeDefault, reset:resetDefault, optimize, upload, states, stateChange, target }: {
+  kind?: string;
   target?: {block:string;element?:string};
   states?: Partial<Record<"hover"|"focus",Partial<Record<Device,Design>>>>;
   stateChange?: (state:"hover"|"focus",fn:(value:Design)=>void)=>void;
@@ -53,6 +55,10 @@ export function DesignInspector({ value:normalValue, inherited:normalInherited =
   reset: () => void;
   optimize: () => void;
 }) {
+  const role=controls.profile(kind);
+  const [showAll,setShowAll]=useState(false);
+  const relevant=(key:string)=>showAll || controls.supports(role,key,kind);
+  const shownGroups=groups.filter(g=>g.keys.some(relevant));
   const [mode,setMode]=useState<"normal"|"hover"|"focus">("normal");
   const value=mode==='normal'?normalValue:states?.[mode]?.[device]||{};
   const inherited=mode==='normal'?normalInherited:{...normalInherited,...normalValue};
@@ -65,7 +71,7 @@ export function DesignInspector({ value:normalValue, inherited:normalInherited =
     let chosen:Element|null|undefined;
     const apply=()=>{
       const owner=doc.querySelector('[data-studio-block="'+target.block+'"]');
-      chosen=target.element ? (owner?.getAttribute('data-studio-element')===target.element?owner:owner?.querySelector('[data-studio-element="'+target.element+'"]')) : owner;
+      chosen=target.element?.startsWith('part:') ? owner?.querySelector('[data-studio-part="'+target.element.slice(5)+'"]') : target.element ? (owner?.getAttribute('data-studio-element')===target.element?owner:owner?.querySelector('[data-studio-element="'+target.element+'"]')) : owner;
       if(mode!=='normal' && chosen?.getAttribute('data-studio-state')!==mode)chosen?.setAttribute('data-studio-state',mode);
     };
     apply();
@@ -90,8 +96,9 @@ export function DesignInspector({ value:normalValue, inherited:normalInherited =
         </button>
         <button onClick={reset}>Reset {device} overrides</button>
       </div>
-      <nav className="design-navigation" aria-label="Inspector sections">{groups.map((g,i)=><button key={g.nav} onClick={()=>{const target=root.current?.querySelector<HTMLDetailsElement>('[data-design-group="'+i+'"]');if(!target)return;target.open=true;const panel=root.current?.closest<HTMLElement>('.studio-inspector');if(panel)panel.scrollTo({top:panel.scrollTop+target.getBoundingClientRect().top-panel.getBoundingClientRect().top-58,behavior:'smooth'});}}>{g.nav}</button>)}</nav>
-      {groups.map((group,i) => (
+      <label className="check control-depth"><input type="checkbox" checked={showAll} onChange={e=>setShowAll(e.target.checked)}/>Show all design controls</label>
+      <nav className="design-navigation" aria-label="Inspector sections">{shownGroups.map(g=>{const i=groups.indexOf(g);return <button key={g.nav} onClick={()=>{const target=root.current?.querySelector<HTMLDetailsElement>('[data-design-group="'+i+'"]');if(!target)return;target.open=true;const panel=root.current?.closest<HTMLElement>('.studio-inspector');if(panel)panel.scrollTo({top:panel.scrollTop+target.getBoundingClientRect().top-panel.getBoundingClientRect().top-58,behavior:'smooth'});}}>{g.nav}</button>;})}</nav>
+      {shownGroups.map(group => {const i=groups.indexOf(group);return (
         <details className="design-options" data-design-group={i} open={i<5} key={group.title}>
           <summary>{group.title}</summary>
           <p className="design-help">{group.help}</p>
@@ -104,7 +111,7 @@ export function DesignInspector({ value:normalValue, inherited:normalInherited =
             </div>
           </> : null}
           <div className="element-coordinates">
-            {group.keys.filter(key=>(mode==='normal' || key!=='backgroundVideo') && (!key.startsWith("shadow") || key === "shadow" || value.shadow === "custom") && (!key.startsWith("gradient") || key === "gradient" || value.gradient === "linear")).map(key => {
+            {group.keys.filter(key=>relevant(key) && (mode==='normal' || key!=='backgroundVideo') && (!key.startsWith("shadow") || key === "shadow" || value.shadow === "custom") && (!key.startsWith("gradient") || key === "gradient" || value.gradient === "linear")).map(key => {
               const limits = core.design.numbers[key], options = core.design.enums[key];
               const scale = ["lineHeight","letterSpacing"].includes(key) ? 10 : 1;
               return (
@@ -141,7 +148,7 @@ export function DesignInspector({ value:normalValue, inherited:normalInherited =
             })}
           </div>
         </details>
-      ))}
+      );})}
     </section>
   );
 }

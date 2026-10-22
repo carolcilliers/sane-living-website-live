@@ -38,6 +38,7 @@ function Layer({ section, selected, select, move, first, last }: RowProps) {
   return (
     <div
       ref={setNodeRef}
+      data-layer-id={section.id}
       className={"layer " + (selected ? "selected" : "")}
       style={{
         transform: CSS.Transform.toString(transform),

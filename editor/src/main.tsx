@@ -1,3 +1,5 @@
+import controls from "../../content-core/editor-controls.cjs";
+import { ImageDisplayControls, applyImagePreset, LayoutControls, VideoControls } from "./ComponentControls";
 import { PanelResizer } from "./PanelResizer";
 import patterns from "../../content-core/patterns.cjs";
 import { siblings as blockSiblings, relocate, normaliseOrder, isContainer as typedContainer } from "./block-placement";
@@ -644,11 +646,14 @@ function App() {
       fn(b.elements[id]);
     });
   }
+  function isPart(b:Block|undefined,id:string){return !!b && !b.source && id.startsWith("part:") && !!core.PARTS[b.type]?.[id.slice(5)];}
+  const selectedPart=isPart(block,elementId)?elementId:"";
+  function partEdit(fn:(v:any)=>void){elementEdit(fn,block!.id,selectedPart);}
   function targetDesignEdit(blockID: string, id: string, values: Record<string, number>) {
     const owner=page?.blocks.find(b=>b.id===blockID);
     if(!owner)return;
     const apply=(v:Record<string,any>)=>{if("width" in values || "height" in values)for(const key of ["widthCss","heightCss","maxWidthCss","viewportHeight"])delete v[key];Object.assign(v,values);};
-    if(owner.source && id)elementEdit(v=>{v.responsive ||= {};v.responsive[device] ||= {};apply(v.responsive[device]);},blockID,id);
+    if(owner.source && id || isPart(owner,id))elementEdit(v=>{v.responsive ||= {};v.responsive[device] ||= {};apply(v.responsive[device]);},blockID,id);
     else pageEdit(p=>{const b=p.blocks.find(b=>b.id===blockID)!;b.responsive ||= {};b.responsive[device] ||= {};apply(b.responsive[device]!);});
   }
   function placementFor(blockID: string, id: string, after: boolean, inside = true) {
@@ -782,6 +787,7 @@ function App() {
       if(action === "remove" && id === "part:image" && ["split","card"].includes(targetBlock.type)) {
         pageEdit(p=>{p.blocks.find(b=>b.id===blockID)!.props!.src="";});select(blockID);notice("Image removed. The section and its other content are kept. Undo restores it.");return;
       }
+      if(action==='remove' && isPart(targetBlock,id)){elementEdit(v=>{v.hidden=!v.hidden;},blockID,id);select(blockID,id);return;}
       if(action === "remove") {
         pageEdit(p=>{const ids=new Set([blockID]);for(let i=0;i<10;i++)p.blocks.forEach(b=>{if(b.placement && ids.has(b.placement.section))ids.add(b.id);});p.blocks=p.blocks.filter(b=>!ids.has(b.id));});select("");
       } else {
@@ -1707,7 +1713,7 @@ function App() {
               selected={selected}
               selectedElement={elementId}
               tools={{
-                coordinates: (b,id) => {const owner=page.blocks.find(x=>x.id===b),base=owner?.source ? owner.elements?.[id] || {} : owner?.design || {},scoped=owner?.source ? owner.elements?.[id]?.responsive?.[device] || {} : owner?.responsive?.[device] || {};return [Number(scoped.x ?? (device === "phone" ? 0 : base.x)) || 0,Number(scoped.y ?? (device === "phone" ? 0 : base.y)) || 0];},
+                coordinates: (b,id) => {const owner=page.blocks.find(x=>x.id===b),base=owner?.source || isPart(owner,id) ? owner?.elements?.[id] || {} : owner?.design || {},scoped=owner?.source || isPart(owner,id) ? owner?.elements?.[id]?.responsive?.[device] || {} : owner?.responsive?.[device] || {};return [Number(scoped.x ?? (device === "phone" ? 0 : base.x)) || 0,Number(scoped.y ?? (device === "phone" ? 0 : base.y)) || 0];},
                 placement: placementFor,
                 placeBlock,
                 resize: (b,id,width,height) => targetDesignEdit(b,id,{width,height}),
@@ -1814,6 +1820,7 @@ function App() {
                   {elementId ? <button onClick={()=>select(block.id)}>↑ {block.label}</button> : null}
                   <strong>{elementId ? "Selected element" : block.label}</strong>
                 </nav>
+                {!block.source && core.PARTS[block.type]?<nav className="component-part-picker" aria-label="Component parts"><button aria-pressed={!selectedPart} onClick={()=>select(block.id)}>Whole {block.type}</button>{Object.keys(core.PARTS[block.type]).map(name=><button key={name} aria-pressed={selectedPart==="part:"+name} onClick={()=>select(block.id,"part:"+name)}>{name[0].toUpperCase()+name.slice(1)}</button>)}</nav>:null}
                 <div className="selection-context-actions">
                   <button onClick={()=>{queueInsert(block.id,placementFor(block.id,elementId,true));}}>＋ Insert here</button>
                   <button onClick={()=>{select(block.id);setTimeout(()=>{const group=document.querySelector<HTMLElement>('.studio-inspector [data-design-group="3"]');group?.scrollIntoView({block:"start",behavior:"smooth"});},0);}}>Section background</button>
@@ -1968,7 +1975,19 @@ function App() {
                     assets={work.assets}
                     id={elementId}
                     device={device}
-                    openContent={() => openSource("weddings")}
+                    pageId={page.id}
+                    openContent={(section) => {if(section==="settings"){setLeftTab("settings");setMobile("left");}else openSource(section || "weddings");}}
+                    imageBackground={parallax=>{
+                      const e=selectedDescriptor.elements.find((e:any)=>e.id===elementId),srcField=selectedDescriptor.fields.find((f:any)=>f.element===elementId && f.attribute==="src"),src=e?.bindings?.find((b:any)=>b.kind==="image")?.key;
+                      const url=src?settingsValue[src]:block.edits?.[srcField?.id] ?? srcField?.value;
+                      if(!url){notice("Choose an image first.");return;}
+                      let parent=selectedDescriptor.elements.find((x:any)=>x.id===(block.elements?.[elementId]?.parent ?? e?.parent));
+                      while(parent && !/^(section|main|article|div|figure)$/.test(parent.tag))parent=selectedDescriptor.elements.find((x:any)=>x.id===parent.parent);
+                      if(!parent || parent.managed){notice("Select a section background to use this image as its background.");return;}
+                      const parentId=parent.id;
+                      pageEdit(p=>{const b=p.blocks.find(b=>b.id===block.id)!;b.elements ||= {};const background=b.elements[parentId] ||= {};background.responsive ||= {};Object.assign(background.responsive[device] ||= {},{backgroundImage:url,backgroundSize:"cover",backgroundPosition:"center",backgroundAttachment:parallax?"fixed":"scroll",viewportHeight:"full"});const image=b.elements[elementId] ||= {};image.responsive ||= {};Object.assign(image.responsive[device] ||= {},{display:"none"});});
+                      select(block.id,parentId);notice("Image applied to its parent background on "+device+". Undo restores the foreground image.");
+                    }}
                     change={elementEdit}
                     field={(id, value) =>
                       blockEdit((b) => {
@@ -2080,7 +2099,7 @@ function App() {
                   </>
                 ) : null}
                 {!block.source
-                  ? Object.entries(block.props || {}).map(([key, value]) => (
+                  ? Object.entries(block.props || {}).filter(([key])=>!["controls","autoplay","loop","muted","target"].includes(key) && (!selectedPart || (({image:["src","alt"],heading:["heading"],text:["text"],button:["buttonText","url"],summary:["summary"]} as Record<string,string[]>)[selectedPart.slice(5)] || []).includes(key))).map(([key, value]) => (
                       <label className="field" key={key}>
                         {FIELD_LABELS[key] || key}
                         {["text", "images", "items"].includes(key) ? (
@@ -2180,19 +2199,25 @@ function App() {
                     />
                   </label>
                 ) : null}
-                {block.type==="image" ? <section className="image-presets" aria-label="Image display modes"><h3>Image display · {device}</h3><p>Choose a starting point, then fine-tune size, crop, focal point, borders and position below. Background modes fill this image layer; select its parent to edit the whole section.</p><div className="image-preset-grid">{["Natural size","Fill / crop","Small card","Full screen","Background","Parallax"].map(mode=><button key={mode} onClick={()=>blockEdit(b=>{
-                  b.responsive ||= {};const v=b.responsive[device] ||= {};
-                  for(const key of ["height","heightCss","widthCss","maxWidthCss","minHeight","viewportHeight","aspectRatio","backgroundImage","backgroundAttachment","backgroundSize","backgroundPosition"])delete v[key];
-                  Object.assign(v,{width:100,padding:0,radius:0,x:0,y:0,objectFit:mode==="Natural size"?"contain":"cover"});
-                  
-                  if(mode==="Fill / crop")Object.assign(v,{height:480,overflow:"hidden"});
-                  if(mode==="Small card")Object.assign(v,{maxWidthCss:"24rem",aspectRatio:"4 / 3",radius:16,overflow:"hidden"});
-                  if(mode==="Full screen")Object.assign(v,{viewportHeight:"full",heightCss:"100svh",overflow:"hidden"});
-                  if(mode==="Background" || mode==="Parallax")Object.assign(v,{backgroundImage:b.props?.src || "",backgroundSize:"cover",backgroundPosition:"center",backgroundAttachment:mode==="Parallax"?"fixed":"scroll",viewportHeight:"full",overflow:"hidden"});
-                })}>{mode}</button>)}</div></section> : null}
+                {block.type==="image" ? <ImageDisplayControls device={device} apply={mode=>blockEdit(b=>{b.responsive ||= {};applyImagePreset(b.responsive[device] ||= {},mode);})} background={parallax=>blockEdit(b=>{b.responsive ||= {};const v=b.responsive[device] ||= {};applyImagePreset(v,"Full screen");Object.assign(v,{backgroundImage:b.props?.src || "",backgroundSize:"cover",backgroundPosition:"center",backgroundAttachment:parallax?"fixed":"scroll"});})}/> : null}
+                {!selectedPart && !block.source && ["section","row","column","split","card","callout"].includes(block.type)?<LayoutControls device={device} change={fn=>blockEdit(b=>{b.responsive ||= {};fn(b.responsive[device] ||= {});})}/>:null}
+                {['button','card'].includes(block.type) && (!selectedPart || selectedPart==='part:button')?<label className="check"><input aria-label="Open link in a new tab" type="checkbox" checked={block.props?.target==='_blank'} onChange={event=>blockEdit(b=>{b.props ||= {};b.props.target=event.target.checked?'_blank':'_self';})}/>Open link in a new tab</label>:null}
+                {block.type==="video"?<VideoControls value={block.props || {}} change={(key,value)=>blockEdit(b=>{b.props ||= {};b.props[key]=value;})}/>:null}
+                {!block.source && ["events","gallery","pricing","partners","booking","newsletter"].includes(block.type)?<section className="connection-card"><strong>{controls.titles.connected}</strong><p>Edit the collection in its content manager. Sizing, spacing and appearance are set below.</p><button onClick={()=>openSource(({events:"events",gallery:"gallery",pricing:"pricing",partners:"partners",booking:"settings",newsletter:"settings"} as Record<string,string>)[block.type])}>Edit connected content →</button></section>:null}
                 {!block.source ? <details className="design-options"><summary>Shared section defaults</summary><p className="design-help">These presets affect every screen size. Use the device controls below for size-specific changes.</p><label className="field">Colour preset<select aria-label="Shared colour preset" value={block.theme || "white"} onChange={e=>blockEdit(b=>{b.theme=e.target.value;})}>{["white","soft","accent","dark"].map(v=><option key={v}>{v}</option>)}</select></label><label className="field">Section padding (all sizes)<input type="number" min={0} max={120} value={block.spacing ?? 48} onChange={e=>blockEdit(b=>{b.spacing=Math.max(0,Math.min(120,Number(e.target.value)));})}/></label></details> : null}
-                {!elementId || block.type !== "legacy" ? <DesignInspector
+                {selectedPart ? <>
+                  {selectedPart==="part:image"?<ImageDisplayControls device={device} apply={mode=>partEdit(v=>{v.responsive ||= {};applyImagePreset(v.responsive[device] ||= {},mode);})} background={parallax=>{blockEdit(b=>{b.responsive ||= {};Object.assign(b.responsive[device] ||= {},{backgroundImage:b.props?.src || "",backgroundSize:"cover",backgroundPosition:"center",backgroundAttachment:parallax?"fixed":"scroll",viewportHeight:"full"});b.elements ||= {};const part=b.elements[selectedPart] ||= {};part.responsive ||= {};Object.assign(part.responsive[device] ||= {},{display:"none"});});select(block.id);}}/>:null}
+                  <DesignInspector key={block.id+selectedPart+device} kind={selectedPart==="part:text" || selectedPart==="part:summary"?"text":core.PARTS[block.type][selectedPart.slice(5)]} device={device} upload={upload} target={{block:block.id,element:selectedPart}}
+                    states={block.elements?.[selectedPart]?.states}
+                    stateChange={(state,fn)=>partEdit(v=>{v.states ||= {};v.states[state] ||= {};fn(v.states[state][device] ||= {});})}
+                    value={block.elements?.[selectedPart]?.responsive?.[device] || {}} inherited={block.elements?.[selectedPart] || {}}
+                    change={fn=>partEdit(v=>{v.responsive ||= {};fn(v.responsive[device] ||= {});})}
+                    reset={()=>partEdit(v=>{if(v.responsive)delete v.responsive[device];})}
+                    optimize={()=>partEdit(v=>{v.responsive ||= {};Object.assign(v.responsive[device] ||= {},{x:0,y:0,width:100});})}/>
+                </> : null}
+                {!selectedPart && (!elementId || block.type !== "legacy") ? <DesignInspector
                   key={block.id+":"+device}
+                  kind={block.type}
                   upload={upload}
                   device={device}
                   target={{block:block.id}}

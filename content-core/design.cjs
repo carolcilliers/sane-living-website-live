@@ -88,7 +88,8 @@ function mediaMarkup(id,base={},responsive={}) {
 function token(id){return Array.from(String(id)).map(x=>x.charCodeAt(0).toString(16)).join('-');}
 const media={desktop:'(min-width:1025px)',tablet:'(min-width:601px) and (max-width:1024px)',phone:'(max-width:600px)'};
 function rules(id,base,responsive,attribute="data-studio-style",states){
- const rootSelector='['+attribute+'="'+token(id)+'"]';
+ let rootSelector='['+attribute+'="'+token(id)+'"]';
+ if(attribute==='data-studio-style' && id.includes(':part:'))rootSelector='.studio-block[data-studio-layout="'+token(id.split(':part:')[0])+'"] '+rootSelector+rootSelector;
  const rule = (value,state) => {
   const selector=rootSelector+(state?':is('+(state==='focus'?':focus-visible,:has(:focus-visible)':':hover')+',[data-studio-state="'+state+'"])':'');
   const layoutKeys=['display','direction','justify','items','columns','gridTemplate','gridRows','rowGap','columnGap','wrap','gap'];
@@ -96,6 +97,10 @@ function rules(id,base,responsive,attribute="data-studio-style",states){
   if(!general && !Object.keys(value).some(k=>layoutKeys.includes(k)))return '';
   let out=selector+'{'+general+'}';
   if(value.background!=null || value.backgroundImage!=null || value.backgroundVideo || value.gradient==='linear')out+=selector+'>.video-hero-bg,'+selector+'>.video-hero-overlay{display:none!important}';
+  if(attribute==='data-studio-style' && id.endsWith(':part:text')){
+   const typography=css(Object.fromEntries(Object.entries(value).filter(([key])=>['fontSize','fontWeight','fontFamily','letterSpacing','lineHeight','color','align','textDecoration','textTransform'].includes(key))));
+   if(typography)out+=selector+' :is(p,li,a,strong,em){'+typography+'}';
+  }
   if(attribute==='data-studio-layout') {
    const pick=allowed=>Object.fromEntries(Object.entries(value).filter(([k])=>allowed.includes(k)));
    const layout=css(pick(['display','direction','justify','items','columns','gridTemplate','gridRows','rowGap','columnGap','wrap','gap']));
@@ -114,6 +119,13 @@ function rules(id,base,responsive,attribute="data-studio-style",states){
    }
    if(value.backgroundImage!=null)out+=imageRoot+' img{display:'+(value.backgroundImage?'none':'block')+'!important}';
    const button=css(pick(['background','backgroundImage','backgroundSize','backgroundPosition','backgroundOverlay','gradient','gradientFrom','gradientTo','gradientAngle','padding','paddingTop','paddingRight','paddingBottom','paddingLeft','radius','radiusTopLeft','radiusTopRight','radiusBottomLeft','radiusBottomRight','borderStyle','borderWidth','borderColor','shadow','shadowX','shadowY','shadowBlur','shadowSpread','shadowOpacity','shadowColor']));
+   // Composite controls style the visible card/callout surface, rather than
+   // painting a second border/background around its outer layout section.
+   for(const [type,surface] of [['card','.studio-content-card'],['callout','.studio-callout'],['quote','.studio-quote'],['details','.studio-details']]){
+    const root=selector+'[data-studio-type="'+type+'"]';
+    if(button){out+=root+'{background:transparent!important;border:0!important;border-radius:0!important;box-shadow:none!important;padding-block:var(--studio-section-padding,48px)!important;padding-inline:0!important}'+root+'>.container>'+surface+'{'+button+'}';}
+    if(value.backgroundVideo)out+=root+'>.container>'+surface+'{background:transparent!important}';
+   }
    if(button){out+=selector+'[data-studio-type="button"]{background:transparent!important;border:0!important;border-radius:0!important;box-shadow:none!important;padding-block:var(--studio-section-padding,48px)!important;padding-inline:0!important}';out+=selector+'[data-studio-type="button"]>.container>.btn{'+button+'}';}
    if(value.width!=null || value.widthCss!=null)out+=selector+'[data-studio-type="button"]>.container>.btn{width:100%!important;box-sizing:border-box}';
   }
