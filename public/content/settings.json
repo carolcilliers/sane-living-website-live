@@ -54,7 +54,7 @@
     {
       "route": "/sculpture/",
       "label": "Sculpture",
-      "visible": true
+      "visible": false
     },
     {
       "route": "/about/",
