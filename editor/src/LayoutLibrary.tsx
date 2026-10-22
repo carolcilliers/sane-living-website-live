@@ -31,12 +31,14 @@ export function resolveBlockInsertion(page: Page, selected: string) {
 }
 
 export function makeLayout(id:string):Block[] {
-  const preset=LAYOUTS.find(l=>l.id===id);if(!preset)throw new Error("Unknown layout");
+  const custom=/^grid-([1-6])-([1-6])$/.exec(id);
+  const preset=custom ? {name:custom[1]+" × "+custom[2]+" grid",columns:Number(custom[2])} : LAYOUTS.find(l=>l.id===id);if(!preset)throw new Error("Unknown layout");
   const blocks:Block[]=[];
   const create=(type:string,parent?:Block):Block=>{const b=core.block(type,crypto.randomUUID()) as Block;b.spacing=0;b.theme="white";if(parent)b.placement={section:parent.id,parent:"content"};blocks.push(b);return b;};
   const section=create("section");section.label=preset.name;section.spacing=48;
   section.design={paddingLeft:24,paddingRight:24};
   if(id==="section")return blocks;
+  for(let r=0;r<(custom?Number(custom[1]):1);r++){
   const row=create("row",section);row.design={display:"grid",columns:preset.columns,gap:24};row.responsive={phone:{columns:1},tablet:{columns:Math.min(2,preset.columns)}};
   if(id==="sidebar")row.design.gridTemplate="1fr 2fr";
   for(let i=0;i<preset.columns;i++){
@@ -44,6 +46,7 @@ export function makeLayout(id:string):Block[] {
     if(id==="hero"){section.design={...section.design,minHeight:640,background:"#eee9f2"};const h=create("heading",col);h.props={text:"Make something meaningful",level:"h1"};create("text",col);create("button",col);}
     if(id==="features")create("card",col);
     if(id==="story"){if(i===0)create("image",col);else{create("heading",col);create("text",col);create("button",col);}}
+  }
   }
   return blocks;
 }

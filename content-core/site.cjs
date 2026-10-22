@@ -47,6 +47,7 @@ const BASE = [
   "placement",
   "design",
   "responsive",
+  "states",
 ];
 const PROPS = {
   video: ["src", "poster", "caption"],
@@ -459,10 +460,25 @@ function validate(project, registry, resources) {
   if (
     Object.keys(project).some(
       (k) =>
-        !["version", "templateRevision", "lastReleaseId", "pages"].includes(k),
+        !["version", "templateRevision", "lastReleaseId", "patterns", "pages"].includes(k),
     )
   )
     errors.push("Unknown website fields.");
+  if(project.patterns!=null){
+    if(!Array.isArray(project.patterns)||project.patterns.length>20)errors.push("Keep at most 20 reusable sections.");
+    else {
+      const patternIDs=new Set();
+      for(const pattern of project.patterns){
+        if(!pattern || typeof pattern!=='object' || Object.keys(pattern).some(k=>!['id','name','blocks'].includes(k)) || typeof pattern.id!=='string' || !/^[a-f0-9-]{36}$/.test(pattern.id) || patternIDs.has(pattern.id) || typeof pattern.name!=='string' || !pattern.name.trim() || pattern.name.length>80 || !Array.isArray(pattern.blocks) || !pattern.blocks.length || pattern.blocks.length>60 || pattern.blocks.some(b=>!b || b.source || !TYPES.includes(b.type))){errors.push("Invalid reusable section.");continue;}
+        patternIDs.add(pattern.id);
+        const entry={id:'pattern-validation',name:'Pattern validation',route:'/contact/',output:'public/site-pages/pattern-validation.html',html:generic('Pattern validation')};
+        const candidate=createProject([entry]);
+        candidate.pages[0].blocks.push(...pattern.blocks);
+        if(pattern.blocks[0].placement || pattern.blocks.slice(1).some(b=>!b.placement || !pattern.blocks.some(parent=>parent.id===b.placement.section)))errors.push('Reusable sections must contain one self-contained layer tree.');
+        errors.push(...validate(candidate,[entry],resources).map(e=>'Reusable section: '+e));
+      }
+    }
+  }
   for (const page of project.pages) {
     if (!page || typeof page !== "object") {
       errors.push("Invalid page.");
@@ -570,6 +586,7 @@ function validate(project, registry, resources) {
         errors.push("Section names must be short text.");
       if (b.design != null) errors.push(...design.validate(b.design));
       errors.push(...design.validateResponsive(b.responsive));
+      errors.push(...design.validateStates(b.states));
       if (["legacy", "about", "aboutHero"].includes(b.type)) {
         const d = descriptors.find(
           (x) => x.id === b.source && x.type === b.type,
@@ -717,6 +734,7 @@ function validateElements(d, values) {
             "gap",
             "radius",
             "responsive",
+            "states",
             ...design.keys,
           ].includes(k),
       )
@@ -728,6 +746,7 @@ function validateElements(d, values) {
     // Existing zero-size legacy values remain valid for old drafts.
     errors.push(...design.validate(Object.fromEntries(Object.entries(styleValues).filter(([k,val]) => !(k === "fontSize" && val === 0)))));
     errors.push(...design.validateResponsive(v.responsive));
+    errors.push(...design.validateStates(v.states));
     if (v.hidden != null && typeof v.hidden !== "boolean")
       errors.push("Invalid element visibility.");
     if (
@@ -803,7 +822,7 @@ function originalHtml(d, b, annotate, nested = [], resources = {}, blocks = []) 
     const v = overrides[e.id] || {};
     let open = range(e.start, e.open),
       close = e.close == null ? "" : range(e.close, e.end);
-    if (v.responsive || Object.keys(v).some(k => design.keys.includes(k)))
+    if (v.states || v.responsive || Object.keys(v).some(k => design.keys.includes(k)))
       open = open.replace(/^<([\w-]+)/, '<$1 data-studio-style="' + design.token(b.id + ":" + e.id) + '"');
     if (annotate)
       open = open.replace(
@@ -1120,6 +1139,7 @@ function renderBlock(b, resources, annotate, blocks = [], depth = 0) {
           esc(s.newsletterUrl) +
           '" method="post" target="_blank"><label>Email address <input name="EMAIL" type="email" required></label><button type="submit" class="btn btn-primary">Subscribe</button></form>'
         : "<p>Enable newsletter signup in Settings → Newsletter.</p>");
+  const spacing=b.type==="spacer"?0:Math.max(0,Math.min(120,Number(b.spacing??48)||0));
   return (
     '<section class="studio-block studio-' +
     esc(b.theme || "white") +
@@ -1128,12 +1148,11 @@ function renderBlock(b, resources, annotate, blocks = [], depth = 0) {
     esc(b.align || "left") +
     '"' +
     ' data-studio-layout="' + design.token(b.id) + '"' +
+    ' data-studio-type="' + esc(b.type) + '"' +
     (annotate ? ' data-studio-block="' + esc(b.id) + '"' : "") +
     (b.hidden ? " hidden data-studio-hidden" : "") +
-    ' style="padding-block:' +
-    (b.type === "spacer"
-      ? 0
-      : Math.max(0, Math.min(120, Number(b.spacing ?? 48) || 0))) +
+    ' style="--studio-section-padding:' + spacing + 'px;padding-block:' +
+    spacing +
     'px">' + design.mediaMarkup(b.id,b.design,b.responsive) + '<div class="container"' + (annotate && ["section", "row", "column"].includes(b.type) ? ' data-studio-element="content"' : "") + '>' +
     inner +
     "</div></section>"
@@ -1199,9 +1218,9 @@ function renderPage(page, project, registry, resources, options = {}) {
   }
   let styles = "";
   for (const b of page.blocks) {
-    styles += design.rules(b.id, b.design, b.responsive, "data-studio-layout");
+    styles += design.rules(b.id, b.design, b.responsive, "data-studio-layout", b.states);
     for (const [id, v] of Object.entries(b.elements || {}))
-      styles += design.rules(b.id + ":" + id, {...Object.fromEntries(Object.entries(v).filter(([k]) => design.keys.includes(k))),...(v.hidden?{display:"none"}:{})}, v.responsive);
+      styles += design.rules(b.id + ":" + id, {...Object.fromEntries(Object.entries(v).filter(([k]) => design.keys.includes(k))),...(v.hidden?{display:"none"}:{})}, v.responsive, "data-studio-style", v.states);
   }
   const partsMap=[];
   for(const b of page.blocks){const descriptor=parts.blocks.find(d=>d.id===b.source);for(const e of descriptor?.elements||[])if(e.virtual)partsMap.push({key:e.contentKey,style:design.token(b.id+":"+e.id),block:b.id,element:e.id,annotate:!!options.annotate});}

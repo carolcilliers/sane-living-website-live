@@ -11,6 +11,7 @@ export interface Block {
   props?: Record<string, string | number>;
   edits?: Record<string, string>;
   elements?: Record<string, ElementChange>;
+  states?: Partial<Record<"hover"|"focus",Partial<Record<Device,Design>>>>;
   design?: Design;
   responsive?: Partial<Record<Device, Design>>;
   placement?: { section: string; parent: string; before?: string };
@@ -48,6 +49,7 @@ export interface Project {
   version: 2;
   templateRevision: string;
   lastReleaseId?: string;
+  patterns?: {id:string;name:string;blocks:Block[]}[];
   pages: Page[];
 }
 export interface Asset {

@@ -88,8 +88,8 @@ export function updateStyles(doc: Document, source: Document) {
 export function designStyles(doc: Document, page: Page) {
   let css='';
   for(const b of page.blocks){
-    css+=core.design.rules(b.id,b.design,b.responsive,'data-studio-layout');
-    for(const [id,v] of Object.entries(b.elements||{}))css+=core.design.rules(b.id+':'+id,{...Object.fromEntries(Object.entries(v).filter(([k])=>core.design.keys.includes(k))),...(v.hidden?{display:'none'}:{})},v.responsive);
+    css+=core.design.rules(b.id,b.design,b.responsive,'data-studio-layout',b.states);
+    for(const [id,v] of Object.entries(b.elements||{}))css+=core.design.rules(b.id+':'+id,{...Object.fromEntries(Object.entries(v).filter(([k])=>core.design.keys.includes(k))),...(v.hidden?{display:'none'}:{})},v.responsive,'data-studio-style',v.states);
   }
   doc.head.querySelectorAll('[data-studio-design-rules]').forEach(n=>n.remove());
   let style=doc.getElementById('studio-live-design') as HTMLStyleElement|null;
@@ -105,8 +105,8 @@ export function structureKey(page: Page) {
   // CSS-only changes do not enter reconciliation. Video sources/posters are DOM content.
   const responsiveMedia=(values:Record<string,Record<string,any>>={})=>Object.fromEntries(Object.entries(values).map(([device,value])=>[device,media(value)]));
   return JSON.stringify({...page,blocks:page.blocks.map(b=>({...b,
-    design:media(b.design),responsive:responsiveMedia(b.responsive),
-    elements:Object.fromEntries(Object.entries(b.elements||{}).map(([id,v])=>[id,{...v,responsive:responsiveMedia(v.responsive)}]))
+    design:media(b.design),responsive:responsiveMedia(b.responsive),states:undefined,
+    elements:Object.fromEntries(Object.entries(b.elements||{}).map(([id,v])=>[id,{...v,states:undefined,responsive:responsiveMedia(v.responsive)}]))
   }))});
 }
 export function resolveAssets(doc: Document, assets: Asset[]) {

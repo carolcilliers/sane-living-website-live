@@ -365,7 +365,7 @@ export function prepareFrame(
       const targetAfter = boundary ? boundary.dataset.studioBoundary === "after" : after;
       let sectionDrag: any = null;
       try {sectionDrag = JSON.parse(e.dataTransfer?.getData("application/sane-section") || "null");}catch{}
-      if (kind && (core.TYPES.includes(kind) || LAYOUTS.some(l=>"layout:"+l.id===kind)) && insert) {
+      if (kind && (core.TYPES.includes(kind) || /^pattern:[a-f0-9-]{36}$/.test(kind) || /^layout:grid-[1-6]-[1-6]$/.test(kind) || LAYOUTS.some(l=>"layout:"+l.id===kind)) && insert) {
         insert(
           kind,
           destinationBlock,

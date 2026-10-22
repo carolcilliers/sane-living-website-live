@@ -1,3 +1,5 @@
+import { PanelResizer } from "./PanelResizer";
+import patterns from "../../content-core/patterns.cjs";
 import { LAYOUTS, makeLayout, LayoutWire, resolveBlockInsertion } from "./LayoutLibrary";
 import {
   StrictMode,
@@ -180,6 +182,7 @@ function App() {
   const cloudRevision = useRef(0), cloudLastSaved = useRef(""), cloudLock = useRef(false);
   const [cloud, setCloud] = useState<"loading" | "local" | "ready" | "saving" | "conflict" | "error">("loading");
   const [cloudMessage, setCloudMessage] = useState("");
+  const [gridRows,setGridRows]=useState(1),[gridColumns,setGridColumns]=useState(2),[patternName,setPatternName]=useState("");
   const insertionTarget = useRef<{block: string; placement?: any} | null>(null);
   const [theme, setTheme] = useState(() => {
     try {
@@ -811,7 +814,9 @@ function App() {
   }
   function add(type: string, after?: string, placement?: any) {
     if (!page) return;
-    const inserted = type.startsWith("layout:") ? makeLayout(type.slice(7)) : [core.block(type, crypto.randomUUID()) as Block];
+    const savedPattern=type.startsWith("pattern:") ? work?.project.patterns?.find(x=>x.id===type.slice(8)) : undefined;
+    if(type.startsWith("pattern:") && !savedPattern){notice("This reusable section is no longer available.");return;}
+    const inserted = savedPattern ? patterns.instantiate(savedPattern.blocks,()=>crypto.randomUUID()) : type.startsWith("layout:") ? makeLayout(type.slice(7)) : [core.block(type, crypto.randomUUID()) as Block];
     const b = inserted[0];
     const target = after ? {block: after, placement} : insertionTarget.current || {
       block: selected, placement: block?.source ? placementFor(selected, elementId, true) : resolveBlockInsertion(page, selected)
@@ -1511,6 +1516,11 @@ function App() {
                   Select a section, row or column to insert inside it. Select an element to insert after it. Drag onto a section line for an exact position.
                 </p>
                 <div className="insertion-context" role="status">Inserting {block ? (["section","row","column"].includes(block.type) || block.source && !elementId ? "inside " : "after ") + block.label : "at the top of the page"}</div>
+                <h3 className="palette-heading">Your reusable sections</h3>
+                <p className="sidebar-help">Saved with this website draft. Insert an independent copy on any page.</p>
+                <div className="pattern-list">{(work.project.patterns||[]).filter(p=>p.name.toLowerCase().includes(search.toLowerCase())).map(p=><div className="pattern-item" key={p.id}><button draggable onDragStart={e=>e.dataTransfer.setData("application/sane-block","pattern:"+p.id)} onClick={()=>add("pattern:"+p.id)}><strong>{p.name}</strong><small>{p.blocks.length} editable layers · Insert copy</small></button><button className="pattern-remove" aria-label={"Remove reusable "+p.name} onClick={()=>edit(w=>{w.project.patterns=w.project.patterns?.filter(x=>x.id!==p.id);})}>×</button></div>)}</div>
+                <h3 className="palette-heading">Custom grid</h3>
+                <div className="custom-grid-builder"><div className="element-coordinates"><label className="field">Rows<input aria-label="Grid rows" type="number" min={1} max={6} value={gridRows} onChange={e=>setGridRows(Math.max(1,Math.min(6,Number(e.target.value)||1)))}/></label><label className="field">Columns<input aria-label="Grid columns" type="number" min={1} max={6} value={gridColumns} onChange={e=>setGridColumns(Math.max(1,Math.min(6,Number(e.target.value)||1)))}/></label></div><LayoutWire columns={gridColumns}/><button onClick={()=>add("layout:grid-"+gridRows+"-"+gridColumns)}>Insert {gridRows} × {gridColumns} grid</button></div>
                 <h3 className="palette-heading">Layouts</h3>
                 <div className="layout-library">{LAYOUTS.filter(l=>(l.name+" "+l.description).toLowerCase().includes(search.toLowerCase())).map(layout=><button key={layout.id} draggable onDragStart={e=>e.dataTransfer.setData("application/sane-block","layout:"+layout.id)} onClick={()=>add("layout:"+layout.id)}><LayoutWire columns={layout.columns}/><strong>{layout.name}</strong><small>{layout.description}</small></button>)}</div>
                 <h3 className="palette-heading">Elements</h3>
@@ -1618,6 +1628,7 @@ function App() {
               </>
             ) : null}
           </aside>
+          <PanelResizer side="left"/>
           <main
             className="studio-center"
             onDragOver={(e) => e.preventDefault()}
@@ -1724,6 +1735,7 @@ function App() {
               full-page snapshot in a new tab
             </div>
           </main>
+          <PanelResizer side="right"/>
           <aside className="studio-inspector">
             <div className="sidebar-heading">
               <h2>{block ? "Section inspector" : "Page settings"}</h2>
@@ -1800,6 +1812,7 @@ function App() {
                   <button onClick={()=>{insertionTarget.current={block:block.id,placement:placementFor(block.id,elementId,true)};setLeftTab("insert");setMobile("left");}}>＋ Insert here</button>
                   <button onClick={()=>{select(block.id);setTimeout(()=>{const group=document.querySelector<HTMLElement>('.studio-inspector [data-design-group="3"]');group?.scrollIntoView({block:"start",behavior:"smooth"});},0);}}>Section background</button>
                 </div>
+                {!block.source ? <div className="reusable-builder"><label className="field">Reusable section name<input aria-label="Reusable section name" maxLength={80} value={patternName} placeholder={block.label} onChange={e=>setPatternName(e.target.value)}/></label><button onClick={()=>{try{const blocks=patterns.collect(page,block.id);const pattern={id:crypto.randomUUID(),name:(patternName.trim()||block.label).slice(0,80),blocks};const next=structuredClone(work.project);next.patterns=[...(next.patterns||[]),pattern];const issues=core.validate(next,data.registry,resources);if(issues.length)throw Error(issues.join(" "));edit(w=>{w.project=next;});setPatternName("");notice("Reusable section saved with your draft. Find it under Insert.");}catch(e){notice((e as Error).message);}}}>Save reusable section</button></div> : null}
                 {!block.source && ["image","split","card"].includes(block.type) && block.props?.src ? <div className="selection-actions"><strong>{block.type === "image" ? "Image" : "Image in this section"}</strong><button onClick={()=>elementAction(block.id,"part:image","remove")}>Remove image</button><small>{block.type === "image" ? "Removes this image element. Its parent row or section stays." : "Removes only the image; keeps the text, buttons and section."} Undo restores it.</small></div> : null}
                 <label className="field">
                   Section name
@@ -2163,8 +2176,12 @@ function App() {
                 ) : null}
                 {!block.source ? <details className="design-options"><summary>Shared section defaults</summary><p className="design-help">These presets affect every screen size. Use the device controls below for size-specific changes.</p><label className="field">Colour preset<select aria-label="Shared colour preset" value={block.theme || "white"} onChange={e=>blockEdit(b=>{b.theme=e.target.value;})}>{["white","soft","accent","dark"].map(v=><option key={v}>{v}</option>)}</select></label><label className="field">Section padding (all sizes)<input type="number" min={0} max={120} value={block.spacing ?? 48} onChange={e=>blockEdit(b=>{b.spacing=Math.max(0,Math.min(120,Number(e.target.value)));})}/></label></details> : null}
                 {!elementId || block.type !== "legacy" ? <DesignInspector
+                  key={block.id+":"+device}
                   upload={upload}
                   device={device}
+                  target={{block:block.id}}
+                  states={block.states}
+                  stateChange={(state,fn)=>blockEdit(b=>{b.states ||= {};b.states[state] ||= {};b.states[state]![device] ||= {};fn(b.states[state]![device]!);})}
                   value={block.responsive?.[device] || {}}
                   inherited={block.design || {}}
                   change={fn => blockEdit(b => { b.responsive ||= {}; b.responsive[device] ||= {}; fn(b.responsive[device]!); })}

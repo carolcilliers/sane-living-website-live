@@ -195,8 +195,12 @@ export function ElementInspector({
         </p>
       ) : null}
       <DesignInspector
+        key={id+":"+device}
         upload={upload}
         device={device}
+        target={{block:block.id,element:id}}
+        states={v.states}
+        stateChange={(state,fn)=>change(x=>{x.states ||= {};x.states[state] ||= {};x.states[state][device] ||= {};fn(x.states[state][device]);})}
         value={v.responsive?.[device] || {}}
         inherited={Object.fromEntries(Object.entries(v).filter(([k]) => core.design.keys.includes(k))) as Design}
         change={(fn) => change(x => { x.responsive ||= {}; x.responsive[device] ||= {}; fn(x.responsive[device]!); })}
