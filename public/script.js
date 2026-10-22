@@ -31,9 +31,6 @@ function injectNav() {
   el.innerHTML = `
     <div class="nav-inner">
       <a href="/" class="nav-logo"><img src="/images/logo.png" alt="Sane Living" height="72"></a>
-      <button class="nav-toggle" id="nav-toggle" aria-label="Toggle menu">
-        <span></span><span></span><span></span>
-      </button>
       <ul class="nav-links" id="nav-links">
         <li class="nav-dropdown">
           <a href="/events/"${isActive(currentPath, '/events/')}>Events</a>
@@ -64,6 +61,12 @@ function injectNav() {
         </li>
         <li><a href="/contact/"${isActive(currentPath, '/contact/')}>Contact</a></li>
       </ul>
+      <div class="nav-end">
+        <a href="/rent/#calendar" class="btn btn-primary nav-cta" aria-label="Check availability"><span class="nav-cta-full">Check Availability</span><span class="nav-cta-short">Availability</span></a>
+        <button class="nav-toggle" id="nav-toggle" aria-label="Toggle menu">
+          <span></span><span></span><span></span>
+        </button>
+      </div>
     </div>
   `;
 

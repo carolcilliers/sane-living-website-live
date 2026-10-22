@@ -4,7 +4,9 @@
    Dark charcoal bg · Purple accent · Calibri/Open Sans/Nunito
    ============================================================ */
 
-@import url('https://fonts.googleapis.com/css2?family=Nunito:wght@300;400;600;700&family=Open+Sans:wght@300;400;500;600;700&display=swap');
+/* Nunito and Cormorant Garamond are self-hosted in /fonts (see the V3 section at the end of this file).
+   Open Sans is still loaded here because a few older pages and subpage.css use it directly. */
+@import url('https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;400;500;600;700&display=swap');
 
 /* ---- CSS Custom Properties ---- */
 :root {
@@ -1146,3 +1148,158 @@ img { border-radius: 2px; }
 body.has-announcement { padding-top:var(--site-announcement-height); }
 .has-announcement .site-nav { top:var(--site-announcement-height); }
 .about-managed-section { margin-bottom:var(--space-2xl); }
+
+/* ============================================================
+   V3 FOUNDATION — warm & refined (Oct 22, 2026)
+   Keeps Sane Living's purple and logo; adds a warm cream palette,
+   Cormorant Garamond headings with Nunito text, calmer spacing,
+   refined buttons and an immersive home-page menu. See DESIGN.md.
+   ============================================================ */
+@font-face { font-family: 'Nunito'; src: url('/fonts/nunito-latin.woff') format('woff'); font-weight: 200 1000; font-style: normal; font-display: swap; }
+@font-face { font-family: 'Cormorant Garamond'; src: url('/fonts/cormorant-garamond-latin.woff') format('woff'); font-weight: 300 700; font-style: normal; font-display: swap; }
+@font-face { font-family: 'Cormorant Garamond'; src: url('/fonts/cormorant-garamond-italic-latin.woff') format('woff'); font-weight: 300 700; font-style: italic; font-display: swap; }
+
+:root {
+  /* Warm neutrals around the brand purple */
+  --clr-bg:           #faf6f0;   /* cream canvas */
+  --clr-bg-elevated:  #f3ece2;   /* sand: alternating sections */
+  --clr-bg-card:      #fffdf9;
+  --clr-bg-hover:     #f1e9de;
+  --clr-surface:      #f5efe6;
+  --clr-border:       #e6dccf;
+  --clr-text:         #2b2230;   /* plum-tinted ink */
+  --clr-text-muted:   #5d5361;
+  --clr-text-dim:     #736979;
+  --clr-accent:       #8a56a0;   /* Sane Living purple (unchanged) */
+  --clr-accent-hover: #74468a;
+  --clr-plum:         #2a1a33;
+  --clr-tint:         #f1e8f4;
+
+  --font-display: 'Cormorant Garamond', 'Cormorant', Georgia, 'Times New Roman', serif;
+  --font-body:    'Nunito', -apple-system, 'Segoe UI', sans-serif;
+  --font-nav:     'Nunito', -apple-system, 'Segoe UI', sans-serif;
+
+  --shadow-soft: 0 12px 34px rgba(42, 26, 51, 0.08);
+  --shadow-lift: 0 20px 48px rgba(42, 26, 51, 0.14);
+  --shadow-btn:  0 8px 22px rgba(138, 86, 160, 0.26);
+  --ease-soft:   cubic-bezier(0.22, 0.61, 0.36, 1);
+}
+
+body { background: var(--clr-bg); color: var(--clr-text); line-height: 1.75; }
+
+/* ---- Type: elegant serif headings, Nunito for reading ---- */
+h1, h2, h3 {
+  font-family: var(--font-display);
+  font-weight: 500;
+  line-height: 1.12;
+  letter-spacing: -0.005em;
+  color: var(--clr-plum);
+  text-transform: none;
+}
+h1 { font-size: clamp(2.6rem, 6vw, 4.4rem); }
+h2 { font-size: clamp(2.1rem, 3.9vw, 3.1rem); }
+h3 { font-size: clamp(1.4rem, 2.2vw, 1.75rem); font-weight: 600; line-height: 1.2; }
+h4 { font-family: var(--font-body); }
+h1 em, h2 em, h3 em { font-style: italic; }
+
+.section-header h2 { font-size: clamp(2.1rem, 3.9vw, 3.1rem); letter-spacing: -0.005em; }
+.section-header .label, .page-hero .label { letter-spacing: 0.2em; }
+
+/* ---- Calmer rhythm ---- */
+.section { padding: clamp(4.5rem, 9vw, 7rem) 0; }
+.section-alt { background: var(--clr-bg-elevated); }
+.section-divider { background: var(--clr-border); }
+
+/* ---- Buttons: refined pills ---- */
+.btn {
+  font-family: var(--font-body);
+  font-size: 12.5px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  padding: 15px 30px;
+  border-radius: 999px;
+  transition: background-color 0.25s var(--ease-soft), color 0.25s var(--ease-soft), border-color 0.25s var(--ease-soft), transform 0.25s var(--ease-soft), box-shadow 0.25s var(--ease-soft);
+}
+.btn { line-height: 1.35; text-align: center; justify-content: center; }
+.btn-primary { background: var(--clr-accent); color: #fff; box-shadow: var(--shadow-btn); }
+.btn-primary:hover { background: var(--clr-accent-hover); color: #fff; transform: translateY(-2px); box-shadow: 0 12px 28px rgba(116, 70, 138, 0.32); }
+.btn-outline { background: transparent; color: var(--clr-plum); border: 1.5px solid var(--clr-accent); }
+.btn-outline:hover { background: var(--clr-accent); color: #fff; border-color: var(--clr-accent); transform: translateY(-2px); }
+.btn-light { background: #fff; color: var(--clr-plum); box-shadow: 0 8px 22px rgba(0, 0, 0, 0.18); }
+.btn-light:hover { background: var(--clr-tint); color: var(--clr-plum); transform: translateY(-2px); }
+
+/* ---- Cards & images: soft and warm ---- */
+.card { background: var(--clr-bg-card); }
+#wedding-details { background: var(--clr-bg-card); border-color: var(--clr-border); }
+
+/* ---- Sub-page title band: same plum → purple, with the serif headline ---- */
+.page-hero { padding: calc(var(--nav-height) + clamp(3.5rem, 7vw, 5.5rem)) 0 clamp(3rem, 6vw, 4.5rem); }
+.page-hero h1 { font-size: clamp(2.7rem, 6vw, 4.2rem); line-height: 1.08; letter-spacing: -0.005em; color: #fff; margin-bottom: var(--space-md); }
+
+/* ---- Menu: lighter, cream, with an always-visible "Check Availability" ---- */
+.site-nav {
+  background: rgba(250, 246, 240, 0.94);
+  -webkit-backdrop-filter: saturate(140%) blur(12px);
+  backdrop-filter: saturate(140%) blur(12px);
+  border-bottom: 1px solid rgba(230, 220, 207, 0.8);
+  transition: background-color 0.35s var(--ease-soft), border-color 0.35s var(--ease-soft), box-shadow 0.35s var(--ease-soft);
+}
+.site-nav.scrolled { box-shadow: 0 6px 24px rgba(42, 26, 51, 0.06); }
+.nav-logo img { height: 64px; transition: filter 0.35s var(--ease-soft); }
+.nav-links > li > a {
+  font-family: var(--font-nav);
+  font-size: 15.5px;
+  font-weight: 600;
+  letter-spacing: 0.03em;
+  color: var(--clr-plum);
+  padding: 0 16px;
+  transition: color 0.25s var(--ease-soft);
+}
+.nav-links > li > a:hover, .nav-links > li > a.active { color: var(--clr-accent); }
+.nav-dropdown-menu {
+  background: var(--clr-bg-card);
+  border-top: none;
+  border-radius: 14px;
+  padding: 8px;
+  min-width: 220px;
+  box-shadow: 0 18px 44px rgba(42, 26, 51, 0.14);
+}
+.nav-dropdown-menu a { font-size: 14px; font-weight: 600; color: var(--clr-text); border-bottom: none; border-radius: 9px; padding: 10px 14px; }
+.nav-dropdown-menu a:hover { background: var(--clr-tint); color: var(--clr-plum); }
+.nav-end { display: flex; align-items: center; gap: 10px; }
+.nav-cta.btn { padding: 11px 20px; font-size: 11.5px; margin-left: 14px; box-shadow: none; white-space: nowrap; }
+.nav-cta .nav-cta-short { display: none; }
+@media (max-width: 959px) {
+  /* A blur on the bar would trap the fixed menu panel inside it, so phones get a solid bar */
+  .site-nav { -webkit-backdrop-filter: none; backdrop-filter: none; background: var(--clr-bg); }
+  .nav-logo img { height: 54px; }
+  .nav-end { order: 2; }
+  .nav-cta.btn { margin-left: 0; }
+  .nav-links > li > a { line-height: 1.4; padding: 14px var(--space-lg); }
+  .nav-dropdown-menu { box-shadow: none; background: transparent; padding: 0 0 6px var(--space-md); border-radius: 0; }
+}
+@media (max-width: 520px) {
+  .nav-cta .nav-cta-full { display: none; }
+  .nav-cta .nav-cta-short { display: inline; }
+  .nav-cta.btn { padding: 9px 14px; letter-spacing: 0.1em; font-size: 11px; }
+  .nav-logo img { height: 46px; }
+}
+
+/* Home page: the menu floats over the opening video until the visitor scrolls */
+body:has(.video-hero) .site-nav:not(.scrolled):not(:has(.nav-toggle.active)) {
+  background: transparent;
+  border-bottom-color: transparent;
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
+}
+body:has(.video-hero) .site-nav:not(.scrolled):not(:has(.nav-toggle.active)) .nav-logo img { filter: brightness(0) invert(1); }
+body:has(.video-hero) .site-nav:not(.scrolled):not(:has(.nav-toggle.active)) .nav-toggle span { background: #fff; }
+@media (min-width: 960px) {
+  body:has(.video-hero) .site-nav:not(.scrolled) .nav-links > li > a { color: #fff; }
+  body:has(.video-hero) .site-nav:not(.scrolled) .nav-links > li > a:hover { color: #fff; opacity: 0.8; }
+}
+
+/* ---- Footer: warm plum-ink, serif heading ---- */
+.site-footer { background: #241b29; border-top: none; }
+.site-footer h4 { font-family: var(--font-display); font-weight: 500; font-size: 1.6rem; letter-spacing: 0; }
+.footer-copy { color: #a99fae; }

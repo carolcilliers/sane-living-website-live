@@ -1,74 +1,94 @@
 # Sane Living — Design System (DESIGN.md)
-Adopted Oct 20, 2026, following the DESIGN.md format (see
-VoltAgent/awesome-design-md). Any person or AI tool working on this site
-should follow this file so every page looks like one place. The live tokens
-live in `public/style.css` (`:root` + the "V2 DESIGN POLISH" section).
+Adopted Oct 20, 2026; **V3 foundation adopted Oct 22, 2026.** Follows the
+DESIGN.md format (see VoltAgent/awesome-design-md). Any person or AI tool
+working on this site should follow this file so every page looks like one
+place. The live tokens are in `public/style.css` — the "V3 FOUNDATION"
+section at the end overrides the older `:root` and "V2 DESIGN POLISH" values.
 
 ## Visual theme & atmosphere
-Warm, calm, premium — a photography-first venue site (weddings and gatherings
-in Ojai). Soft shadows and gentle motion, never harsh or neon. Style reference:
-"Soft UI Evolution" (soft shadows, subtle depth, calming, premium feel).
-Borrowed patterns: Airbnb (photography-driven, rounded UI, warm accent),
-Stripe/Linear (single purple accent, generous whitespace, precise type).
+Warm, calm, immersive and professional — a photography-first venue site
+(weddings, workshops and gatherings in downtown Ojai) that guides visitors
+from first impression to booking. Sane Living's purple and logo stay the
+brand anchor; everything around them is warm cream and sand rather than stark
+white and grey. Inspiration (feel only, never copied): boutique wellness and
+gathering spaces — Behind the Lids, Wild Qi, Light and Space Yoga — for warm
+neutrals, elegant serif headings, big real photography and generous space.
 
 ## Color palette & roles
 | Role | Value | Use |
 |---|---|---|
-| Ink | `#231f20` | Text, footer, dark bands |
-| Deep plum | `#2a1a33` | Page-hero gradient start, headings on dark |
-| Brand purple (accent) | `#8a56a0` | Primary buttons, links, labels, prices accents |
-| Accent hover | `#7a489a` | Hover state of accent |
-| Light violet | `#a678c4` | Gradient end, soft highlights |
-| Tint wash | `#f3ecf9` | Hover washes, chip backgrounds |
-| Background | `#ffffff` | Page canvas |
-| Elevated bg | `#f7f7f7` | Alternating sections |
-| Card bg | `#ffffff` | Cards sit on elevated bg with shadow |
-| Border | `#e0e0e0` | Hairlines only; prefer shadow over borders |
-| Muted text | `#555555` | Secondary text (4.5:1+ on white) |
+| Plum ink | `#2b2230` | Body text |
+| Deep plum | `#2a1a33` | Headings, page-hero gradient start, dark text on light |
+| Footer plum | `#241b29` | Footer background |
+| Brand purple (accent) | `#8a56a0` | Primary buttons, links, labels — unchanged brand colour |
+| Accent hover | `#74468a` | Hover state of accent |
+| Light violet | `#a678c4` | Gradient end, focus ring |
+| Tint wash | `#f1e8f4` | Hover washes, chips, dropdown hover |
+| Cream (canvas) | `#faf6f0` | Page background, menu bar |
+| Sand (elevated) | `#f3ece2` | Alternating sections |
+| Card | `#fffdf9` | Cards, dropdowns, embedded calendars |
+| Border | `#e6dccf` | Hairlines only; prefer shadow over borders |
+| Muted text | `#5d5361` | Secondary text (6.2:1+ on cream and sand) |
+| Dim text | `#736979` | Small meta text only (4.4:1+) |
 
-Rules: one accent (purple) — no second brand color. Gradients only
-plum → purple → light violet, and only on heroes and primary headers.
-Never purple text on purple; white text on purple bands.
+Rules: one accent (purple) — no second brand colour; warmth comes from the
+neutrals, not from new hues. Gradients only plum → purple → light violet, and
+only on page-title bands. Never purple text on purple; white text on purple.
+All text pairs above meet WCAG 4.5:1 except "dim", which is for small meta only.
 
 ## Typography
-- Display/headings: **Nunito** (700–800), body: **Nunito/Open Sans**.
-- Page titles: `clamp(2rem, 5vw, 3.1rem)`, tight leading (1.15), headings are
-  NOT all-caps except small labels.
-- Eyebrow labels: 12px, 700, uppercase, letter-spacing 0.15em, accent color,
-  shown as a small pill on hero bands.
-- Body: 17px / 1.75 line-height. Secondary text 0.95rem muted.
-- Numbers/prices: 700 weight, ink color (accent only in table headers).
+- **Headings: Cormorant Garamond** (500; 600 for h3), sentence case, tight
+  leading (1.02–1.15), deep plum. Self-hosted in `public/fonts/` (OFL licence
+  in `LICENSES/`).
+- **Text, menu, buttons, labels: Nunito** (Sane Living's existing brand font),
+  also self-hosted. Body 17px / 1.75.
+- Sizes: h1 `clamp(2.6rem, 6vw, 4.4rem)`; home hero headline up to 5.8rem;
+  h2 `clamp(2.1rem, 3.9vw, 3.1rem)`; h3 `clamp(1.4rem, 2.2vw, 1.75rem)`.
+- Eyebrow labels: Nunito 12px, 700, uppercase, letter-spacing 0.2em, accent
+  colour (white on photos, with a short rule before it on the home hero).
+- Numbers/prices: Nunito 700, ink colour.
+- Open Sans is still loaded only for a few older pages that use it directly.
 
 ## Layout principles
 - Max content width 1100px; text blocks 800px.
-- 8-point spacing rhythm via the `--space-*` scale (xs .25rem → 3xl 6rem).
-- Sections: `--space-2xl` vertical padding; alternate white / elevated bg.
-- Cards: radius 16px, soft shadow (`--shadow-soft`), hover lift −4px.
+- 8-point spacing rhythm via the `--space-*` scale; sections breathe:
+  `clamp(4.5rem, 9vw, 7rem)` vertical padding, alternating cream / sand.
+- Cards: radius 16px, soft warm shadow (`--shadow-soft`), hover lift −4px.
 - Images: radius 14–16px, `object-fit: cover`, subtle zoom on hover (1.04).
 
 ## Components
-- **Buttons:** pill radius (999px), 12px uppercase 700 label, primary =
-  purple bg/white text with soft purple shadow; hover lifts 2px and deepens.
-  Outline = 2px purple border, fills on hover. Every clickable gets
-  `cursor: pointer`, a 150–300ms transition, and a visible focus ring.
-- **Page hero:** plum→purple gradient band, white title, soft white subtitle,
+- **Menu:** cream bar with a soft blur, Nunito 15.5px links in deep plum, and
+  an always-visible purple **Check Availability** pill (→ `/rent/#calendar`).
+  On the home page it floats transparently over the opening video with a
+  white logo, then turns cream once the visitor scrolls. Phones get a solid
+  bar (a blur would trap the slide-out menu panel).
+- **Home opening image:** full-screen video, plum gradient overlay (darker at
+  top, bottom and left), eyebrow + large serif headline + intro set low and
+  left, purple "Rent the Space" pill plus an underlined white text link.
+  Headline, intro and main button stay editable in dashboard Settings.
+- **Buttons:** pill (999px), Nunito 12.5px uppercase 700, letter-spacing
+  0.14em. Primary = purple / white with soft purple shadow; hover deepens and
+  lifts 2px. Outline = 1.5px purple border, plum text, fills on hover.
+  `.btn-light` = white / plum for use on photos. Visible focus ring always.
+- **Page hero (sub-pages):** plum→purple gradient band, large white serif title,
   label as translucent pill. One hero pattern for every sub-page.
-- **Event cards / rent cards:** photo top (16:10), padded body, date in accent.
-- **Calendar:** white card, radius 16, soft shadow; day headers small caps
-  muted; today = purple ring; events = purple pill chips.
-- **Tables (pricing):** dark ink header row, zebra rows, hover wash `#f3ecf9`.
-- **Gallery:** uniform grid tiles, caption under photo, filter pills
-  (active = purple fill).
+- **Event cards / rent cards:** photo top, padded body, date in accent.
+- **Calendar embeds:** white card, radius 16, hairline border; legend below.
+- **Tables (pricing):** dark ink header row, zebra rows, hover wash.
+- **Gallery:** story chapters with mosaic tiles and an on-page photo viewer.
+- **Footer:** footer-plum background, serif heading, muted light text.
 
 ## Motion & accessibility (pre-delivery checklist, from UI UX Pro Max)
-- Transitions 150–300ms ease; respect `prefers-reduced-motion`.
+- Transitions 150–350ms with a soft ease; respect `prefers-reduced-motion`.
 - Text contrast ≥ 4.5:1; focus states always visible.
 - No emojis as icons — use SVG or typographic symbols only.
 - Check responsive at 375 / 768 / 1024 / 1440 px before calling a page done.
 
 ## Don'ts
 - No new fonts without updating this file. No stock/AI imagery for the venue —
-  only real Sane Living photos. No drop shadows heavier than `--shadow-lg`.
+  only real Sane Living photos. No drop shadows heavier than `--shadow-lift`.
+- Don't copy another site's text, images, logos or signature layouts — borrow
+  the feel only.
 
 ## Staff dashboard and editor workspace (October 22, 2026)
 
