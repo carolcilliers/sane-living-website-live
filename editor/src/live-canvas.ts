@@ -83,7 +83,7 @@ export function patchDocument(doc: Document, before: Document, after: Document) 
       if(updated!==cursor)live.insertBefore(updated,cursor);
       previousChild=updated;
     });
-    Array.from(live.childNodes).forEach(n=>{if(!retained.has(n) && !(n.nodeType===1 && ((n as Element).id==='studio-canvas-tools' || (n as Element).hasAttribute('data-studio-boundary'))))live.removeChild(n);});
+    Array.from(live.childNodes).forEach(n=>{if(!retained.has(n) && !(n.nodeType===1 && ((n as Element).id==='studio-canvas-tools' || (n as Element).hasAttribute('data-studio-boundary') || (n as Element).hasAttribute('data-studio-runtime'))))live.removeChild(n);});
     return live;
   }
   morph(doc.body,before.body,after.body);
@@ -95,7 +95,7 @@ export function updateStyles(doc: Document, source: Document) {
   if(!style){style=doc.createElement('style');style.id='studio-live-base-styles';doc.head.append(style);}
   const text=Array.from(source.head.querySelectorAll('style:not([data-studio-design-rules])')).map(n=>n.textContent).join('\n');
   // Remove only template inline styles: stylesheet links and runtime-owned styles remain intact.
-  doc.head.querySelectorAll('style:not(#studio-live-base-styles):not([data-studio-design-rules]):not(#studio-live-design)').forEach(n=>n.remove());
+  doc.head.querySelectorAll('style:not(#studio-live-base-styles):not([data-studio-design-rules]):not(#studio-live-design):not([data-styled-id])').forEach(n=>n.remove());
   if(style.textContent!==text)style.textContent=text;
 }
 export function designStyles(doc: Document, page: Page) {

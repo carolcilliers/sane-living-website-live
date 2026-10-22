@@ -7,12 +7,13 @@ function safeMedia(value){return typeof value==="string" && (value==="" || /^(\/
 const lengths=['widthCss','heightCss','minWidthCss','maxWidthCss','minHeightCss','maxHeightCss','topCss','rightCss','bottomCss','leftCss','flexBasisCss'];
 function safeLength(v,key){return typeof v==='string' && ((['auto','none','min-content','max-content','fit-content'].includes(v) && (!key || (key.endsWith('Css') && (!/^(top|right|bottom|left)Css$/.test(key) || v==='auto') && (v!=='none' || /^max(Width|Height)Css$/.test(key)))))||/^(?:0|(?:[0-9]{1,4}(?:\.[0-9]{1,3})?)(?:px|%|rem|em|vw|vh|svh))$/.test(v));}
 const colors = ['gradientFrom','gradientTo','color','background','borderColor','shadowColor'];
-const keys = [...Object.keys(numbers),...Object.keys(enums),...colors,...urls,...lengths];
+const keys = [...Object.keys(numbers),...Object.keys(enums),...colors,...urls,...lengths,"gridTracks"];
 function validate(v) {
  if (!v || typeof v!=='object'||Array.isArray(v)) return ['Invalid design settings.'];
  const errors=[];
  for(const [k,value] of Object.entries(v)) {
   if(numbers[k]) { const [min,max]=numbers[k]; if(!Number.isInteger(value)||value<min||value>max)errors.push('Invalid '+k+' design value.'); }
+  else if(k==='gridTracks'){if(typeof value!=='string'||!/^\d+(?:\.\d{1,3})?fr(?: \d+(?:\.\d{1,3})?fr){0,5}$/.test(value)||value.split(' ').some(n=>parseFloat(n)<=0||parseFloat(n)>10000))errors.push('Invalid grid track sizes.');}
   else if(lengths.includes(k)){if(!safeLength(value,k))errors.push("Use auto or a size such as 320px, 50%, 24rem or 100svh.");}
   else if(enums[k]) {if(!enums[k].includes(value))errors.push('Invalid '+k+' design value.');}
   else if(urls.includes(k)) {if(!safeMedia(value))errors.push("Use a local path or HTTPS media URL.");}
@@ -47,6 +48,7 @@ function css(v={}) {
   if(k==='x'||k==='y'||k.startsWith('shadow')||urls.includes(k)||k==='backgroundOverlay')continue;
   if(k==='background') {put('background-color',value);continue;}
   if(k==='viewportHeight'){put('min-height',value==='full'?'100svh':'0');continue;}
+  if(k==='gridTracks')continue;
   if(k==='gridTemplate'){put('grid-template-columns',value);continue;}
   if(k.startsWith('background')){put(k.replace(/[A-Z]/g,x=>'-'+x.toLowerCase()),value);continue;}
   if(k==='columns'){if(!v.display)put('display','grid');put('grid-template-columns','repeat('+value+',minmax(0,1fr))');}else if(k==='direction'){if(!v.display)put('display','flex');put(name,value);}
@@ -74,6 +76,7 @@ function css(v={}) {
   const number=(k,defaultValue)=>!validate({[k]:v[k]}).length?v[k]:defaultValue;
   put('box-shadow',[number('shadowX',0)+'px',number('shadowY',8)+'px',number('shadowBlur',24)+'px',number('shadowSpread',0)+'px','rgba('+rgb+','+number('shadowOpacity',18)/100+')'].join(' '));
  }
+ if(v.gridTracks && !validate({gridTracks:v.gridTracks}).length)put('grid-template-columns',v.gridTracks);
  if(v.x!=null||v.y!=null){if(!v.position)put('position','relative');put('translate',(Number(v.x)||0)+'px '+(Number(v.y)||0)+'px');}
  return result.join(';');
 }
@@ -92,7 +95,7 @@ function rules(id,base,responsive,attribute="data-studio-style",states){
  if(attribute==='data-studio-style' && id.includes(':part:'))rootSelector='.studio-block[data-studio-layout="'+token(id.split(':part:')[0])+'"] '+rootSelector+rootSelector;
  const rule = (value,state) => {
   const selector=rootSelector+(state?':is('+(state==='focus'?':focus-visible,:has(:focus-visible)':':hover')+',[data-studio-state="'+state+'"])':'');
-  const layoutKeys=['display','direction','justify','items','columns','gridTemplate','gridRows','rowGap','columnGap','wrap','gap'];
+  const layoutKeys=['display','direction','justify','items','columns','gridTemplate','gridTracks','gridRows','rowGap','columnGap','wrap','gap'];
   const general=css(attribute==='data-studio-layout'?Object.fromEntries(Object.entries(value).filter(([k])=>!layoutKeys.includes(k))):value);
   if(!general && !Object.keys(value).some(k=>layoutKeys.includes(k)))return '';
   let out=selector+'{'+general+'}';
@@ -103,7 +106,7 @@ function rules(id,base,responsive,attribute="data-studio-style",states){
   }
   if(attribute==='data-studio-layout') {
    const pick=allowed=>Object.fromEntries(Object.entries(value).filter(([k])=>allowed.includes(k)));
-   const layout=css(pick(['display','direction','justify','items','columns','gridTemplate','gridRows','rowGap','columnGap','wrap','gap']));
+   const layout=css(pick(['display','direction','justify','items','columns','gridTemplate','gridTracks','gridRows','rowGap','columnGap','wrap','gap']));
    const type=css(pick(['fontSize','fontWeight','fontFamily','letterSpacing','lineHeight','color','align','textDecoration','textTransform']));
    const image=css(pick(['objectFit','objectPosition','aspectRatio','height','radius']));
    if(layout)out+='.studio-block'+selector+'>.container{'+layout+'}';

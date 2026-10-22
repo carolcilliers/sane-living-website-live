@@ -120,6 +120,7 @@ export function DesignInspector({ kind="layout", value:normalValue, inherited:no
                   {core.design.lengths.includes(key) ? <ValidatedDesignInput property={key} name={labels[key]} value={String(value[key] ?? "")} commit={text=>change(v=>{if(text)v[key]=text;else delete v[key];})}/> : options ? (
                     <select aria-label={labels[key]} value={value[key] ?? ""}
                       onChange={event => change(v => {
+                        if(["columns","gridTemplate","display"].includes(key))delete v.gridTracks;
                         if (event.target.value) v[key] = event.target.value;
                         else delete v[key];
                       })}>
@@ -136,6 +137,7 @@ export function DesignInspector({ kind="layout", value:normalValue, inherited:no
                       value={value[key] != null && limits ? Number(value[key]) / scale : value[key] ?? ""}
                       placeholder={inherited[key] != null ? "Inherited: " + inherited[key] : "Original"}
                       onChange={event => change(v => {
+                        if(["columns","gridTemplate","display"].includes(key))delete v.gridTracks;
                         if (event.target.value === "") delete v[key];
                         else v[key] = limits
                           ? Math.max(limits[0], Math.min(limits[1], Math.round(Number(event.target.value) * scale || 0)))

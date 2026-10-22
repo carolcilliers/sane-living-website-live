@@ -1,3 +1,5 @@
+import type { GridResize } from "./CanvasTransform";
+import geometryRecovery from "../../content-core/geometry.cjs";
 import controls from "../../content-core/editor-controls.cjs";
 import { ImageDisplayControls, applyImagePreset, LayoutControls, VideoControls } from "./ComponentControls";
 import { PanelResizer } from "./PanelResizer";
@@ -259,6 +261,7 @@ function App() {
         settingsText: d.resources.settings,
         assets: [],
       };
+      let offsetRepairs=0;
       let recovered = false,
         conflict = false;
       let stored: any;
@@ -289,7 +292,8 @@ function App() {
       recoveryBlocked.current = false;
       autoSaveFailed.current = false;
       if (!reset && stored) {
-        const old = stored.value as Saved;
+        const old = structuredClone(stored.value) as Saved;
+        offsetRepairs=geometryRecovery.repairFractionalOffsets(old?.work?.project);
         const errors = core.validate(old?.work?.project, d.registry, {
           ...d.resources,
           about: old?.work?.aboutText,
@@ -373,7 +377,8 @@ function App() {
       if(detachedCount){setHistory({now:w,past:[beforeRepair],future:[],group:""});select("");}
       else replace(w);
       setStale(conflict);
-      setSaved(recovered && revision.current > 0 ? JSON.stringify(detachedCount ? beforeRepair : w) : "");
+      if(offsetRepairs)notice("Recovered subpixel placement values from the previous editor. Your content is kept; grid insertion is available again.");
+      setSaved(!offsetRepairs && recovered && revision.current > 0 ? JSON.stringify(detachedCount ? beforeRepair : w) : "");
       setStatus(
         conflict
           ? "Older draft · publication blocked"
@@ -649,12 +654,23 @@ function App() {
   function isPart(b:Block|undefined,id:string){return !!b && !b.source && id.startsWith("part:") && !!core.PARTS[b.type]?.[id.slice(5)];}
   const selectedPart=isPart(block,elementId)?elementId:"";
   function partEdit(fn:(v:any)=>void){elementEdit(fn,block!.id,selectedPart);}
-  function targetDesignEdit(blockID: string, id: string, values: Record<string, number>) {
-    const owner=page?.blocks.find(b=>b.id===blockID);
-    if(!owner)return;
-    const apply=(v:Record<string,any>)=>{if("width" in values || "height" in values)for(const key of ["widthCss","heightCss","maxWidthCss","viewportHeight"])delete v[key];Object.assign(v,values);};
-    if(owner.source && id || isPart(owner,id))elementEdit(v=>{v.responsive ||= {};v.responsive[device] ||= {};apply(v.responsive[device]);},blockID,id);
-    else pageEdit(p=>{const b=p.blocks.find(b=>b.id===blockID)!;b.responsive ||= {};b.responsive[device] ||= {};apply(b.responsive[device]!);});
+  function targetDesignEdit(blockID: string, id: string, values: Record<string, string|number>, grid?:GridResize) {
+    if(core.design.validate(values).length || (grid && core.design.validate({gridTracks:grid.tracks}).length)){notice("These dimensions are outside the supported range. Your previous size is kept.");return;}
+    pageEdit(p=>{
+      const apply=(target:string,element:string,changes:Record<string,string|number>)=>{
+        const b=p.blocks.find(b=>b.id===target);if(!b)return;
+        let scope:any;
+        if(b.source && element || isPart(b,element)){b.elements ||= {};const v=b.elements[element] ||= {};v.responsive ||= {};scope=v.responsive[device] ||= {};}
+        else {b.responsive ||= {};scope=b.responsive[device] ||= {};}
+        if("width" in changes || "height" in changes)for(const key of ["widthCss","heightCss","maxWidthCss","viewportHeight"])delete scope[key];
+        Object.assign(scope,changes);
+      };
+      if(grid){
+        const row=p.blocks.find(b=>b.id===grid.row),column=p.blocks.find(b=>b.id===grid.column);
+        if(row?.type!=="row" || column?.type!=="column" || column.placement?.section!==row.id)return;
+        apply(row.id,"",{gridTracks:grid.tracks});apply(column.id,"",{...values,x:0,y:0,widthCss:"100%"});
+      } else apply(blockID,id,values);
+    });
   }
   function placementFor(blockID: string, id: string, after: boolean, inside = true) {
     const owner = page?.blocks.find((b) => b.id === blockID),
@@ -780,6 +796,14 @@ function App() {
   }
   function elementAction(blockID: string, id: string, action: string) {
     const targetBlock = page?.blocks.find(b=>b.id===blockID);
+    if(action==="reset-position"){targetDesignEdit(blockID,id,{x:0,y:0});notice("Position reset on "+device+". Layout order is unchanged; Undo is available.");return;}
+    if(action==="reset-size"){
+      const keys=["width","height","widthCss","heightCss","maxWidthCss","minWidthCss","viewportHeight","aspectRatio","flexBasisCss","flexGrow","flexShrink"];
+      const reset=(v:any)=>{for(const k of keys)delete v[k];};
+      if(targetBlock?.source && id || isPart(targetBlock,id))elementEdit(v=>{if(v.responsive?.[device])reset(v.responsive[device]);},blockID,id);
+      else pageEdit(p=>{const b=p.blocks.find(b=>b.id===blockID);if(b?.responsive?.[device])reset(b.responsive[device]);if(b?.type==='column'){const row=p.blocks.find(x=>x.id===b.placement?.section);if(row?.responsive?.[device])delete (row.responsive[device] as any).gridTracks;}});
+      notice("Size reset on "+device+". Undo is available.");return;
+    }
     if(action==="insert"){queueInsert(blockID,placementFor(blockID,id,true));return;}
     if(action==="edit"){
       select(blockID,id);setMobile("right");
@@ -834,8 +858,8 @@ function App() {
           (owner?.elements?.[b.id]?.order ?? b.start),
       );
     const next = siblings[siblings.indexOf(e) + (action === "up" ? -1 : 1)];
-    if (next)
-      reorderElement(blockID, id, blockID, next.id, action === "down", false);
+    if (next)reorderElement(blockID, id, blockID, next.id, action === "down", false);
+    else notice("Already at the "+(action=== "up"?"first":"last")+" position in this container.");
   }
   function choose(id: string) {
     insertionTarget.current = null;setPendingInsert(null);setSearch("");
@@ -902,6 +926,7 @@ function App() {
     const moving=page?.blocks.find(b=>b.id===id);if(!page || !moving)return;
     const peers=blockSiblings(page,moving),next=peers[peers.indexOf(moving)+delta];
     if(next)placeBlock(id,next.id,delta>0,placementFor(next.id,"",delta>0,false));
+    else notice("Already at the "+(delta<0?"first":"last")+" position in this container.");
   }
   function arrow(delta: number) {
     if (!block || !page) return;
@@ -1722,6 +1747,7 @@ function App() {
               selected={selected}
               selectedElement={elementId}
               tools={{
+                geometry: targetDesignEdit,
                 coordinates: (b,id) => {const owner=page.blocks.find(x=>x.id===b),base=owner?.source || isPart(owner,id) ? owner?.elements?.[id] || {} : owner?.design || {},scoped=owner?.source || isPart(owner,id) ? owner?.elements?.[id]?.responsive?.[device] || {} : owner?.responsive?.[device] || {};return [Number(scoped.x ?? (device === "phone" ? 0 : base.x)) || 0,Number(scoped.y ?? (device === "phone" ? 0 : base.y)) || 0];},
                 placement: placementFor,
                 placeBlock,
