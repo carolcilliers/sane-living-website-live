@@ -11,9 +11,15 @@ export interface Block {
   props?: Record<string, string | number>;
   edits?: Record<string, string>;
   elements?: Record<string, ElementChange>;
+  design?: Design;
+  responsive?: Partial<Record<Device, Design>>;
   placement?: { section: string; parent: string; before?: string };
 }
+export type Device = "desktop" | "tablet" | "phone";
+export type Design = Record<string, string | number>;
 export interface ElementChange {
+  responsive?: Partial<Record<Device, Design>>;
+  [key: string]: any;
   x?: number;
   y?: number;
   width?: number;

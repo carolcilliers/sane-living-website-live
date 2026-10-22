@@ -1,4 +1,6 @@
 import type { Asset, Block, ElementChange } from "./site-types";
+import { DesignInspector } from "./DesignInspector";
+import type { Device, Design } from "./site-types";
 import core from "../../content-core/site.cjs";
 type Upload = (file: File, set: (url: string) => void) => Promise<void>;
 export function ElementTree({
@@ -14,16 +16,24 @@ export function ElementTree({
   choose: (id: string) => void;
   move: (from: string, to: string, after: boolean) => void;
 }) {
-  const items = descriptor?.elements || [];
+  const original = descriptor?.elements || [];
+  const items: any[] = [];
+  function visit(parent: string | null) {
+    original.filter((e: any) => (block.elements?.[e.id]?.parent ?? e.parent) === parent)
+      .sort((a: any,b: any) => (block.elements?.[a.id]?.order ?? a.start) - (block.elements?.[b.id]?.order ?? b.start))
+      .forEach((e: any) => { if(items.some(x=>x.id===e.id))return; items.push(e); visit(e.id); });
+  }
+  visit(null);
+  if(!items.length)items.push(...original);
   return (
     <div className="element-tree" aria-label="Elements in section">
       <p>Click an element, or drag its canvas handle.</p>
       {items.map((e: any) => {
         let depth = 0,
-          parent = e.parent;
+          parent = block.elements?.[e.id]?.parent ?? e.parent;
         while (parent && depth < 8) {
           depth++;
-          parent = items.find((x: any) => x.id === parent)?.parent;
+          parent = block.elements?.[parent]?.parent ?? items.find((x: any) => x.id === parent)?.parent;
         }
         return (
           <button
@@ -102,6 +112,7 @@ export function ElementInspector({
   upload,
   action,
   assets,
+  device,
 }: {
   descriptor: any;
   block: Block;
@@ -113,6 +124,7 @@ export function ElementInspector({
   upload: Upload;
   action: (s: string) => void;
   assets: Asset[];
+  device: Device;
 }) {
   const e = descriptor.elements.find((e: any) => e.id === id);
   if (!e) return null;
@@ -177,138 +189,19 @@ export function ElementInspector({
             : "This is a layout container. Select its text, image or button in the element list to edit the content."}
         </p>
       ) : null}
-      <details open className="design-options">
-        <summary>Position & size</summary>
-        <p className="sidebar-help">
-          Drag the canvas handle to reorder in the section. Move freely adds
-          desktop offsets; phones keep the natural flow.
-        </p>
-        <div className="element-coordinates">
-          {(["x", "y"] as const).map((k) => (
-            <label className="field" key={k}>
-              {k.toUpperCase()} offset
-              <input
-                aria-label={k.toUpperCase() + " offset"}
-                type="number"
-                min={-2000}
-                max={2000}
-                value={v[k] || 0}
-                onChange={(event) =>
-                  change((x) => {
-                    x[k] = Math.max(
-                      -2000,
-                      Math.min(2000, Number(event.target.value)),
-                    );
-                  })
-                }
-              />
-            </label>
-          ))}
-        </div>
-        <label className="field">
-          Width (%)
-          <input
-            type="number"
-            min={10}
-            max={100}
-            value={v.width || ""}
-            placeholder="Natural width"
-            onChange={(event) =>
-              change((x) => {
-                if (event.target.value)
-                  x.width = Math.max(
-                    10,
-                    Math.min(100, Number(event.target.value)),
-                  );
-                else delete x.width;
-              })
-            }
-          />
-        </label>
-        <label className="field">
-          Alignment
-          <select
-            value={v.align || "left"}
-            onChange={(event) =>
-              change((x) => {
-                x.align = event.target.value;
-              })
-            }
-          >
-            {["left", "center", "right"].map((x) => (
-              <option key={x}>{x}</option>
-            ))}
-          </select>
-        </label>
-        <div className="element-coordinates">
-          {(["fontSize", "padding", "gap", "radius"] as const).map((k) => (
-            <label className="field" key={k}>
-              {
-                {
-                  fontSize: "Font size",
-                  padding: "Padding",
-                  gap: "Gap",
-                  radius: "Corner radius",
-                }[k]
-              }
-              <input
-                type="number"
-                min={0}
-                max={k === "gap" ? 120 : 160}
-                value={v[k] ?? ""}
-                placeholder="Original"
-                onChange={(event) =>
-                  change((x) => {
-                    if (event.target.value)
-                      x[k] = Math.max(
-                        0,
-                        Math.min(
-                          k === "gap" ? 120 : 160,
-                          Number(event.target.value),
-                        ),
-                      );
-                    else delete x[k];
-                  })
-                }
-              />
-            </label>
-          ))}
-        </div>
-        {(["color", "background"] as const).map((k) => (
-          <label className="field" key={k}>
-            {k === "color" ? "Text colour" : "Background colour"}
-            <input
-              placeholder="Original colour"
-              value={v[k] || ""}
-              onChange={(event) =>
-                change((x) => {
-                  if (event.target.value) x[k] = event.target.value;
-                  else delete x[k];
-                })
-              }
-            />
-          </label>
-        ))}
-        <div className="block-actions">
-          <button onClick={() => action("up")}>Element ↑</button>
-          <button onClick={() => action("down")}>Element ↓</button>
-          <button
-            onClick={() =>
-              change((x) => {
-                delete x.x;
-                delete x.y;
-                delete x.width;
-                delete x.align;
-              })
-            }
-          >
-            Reset position
-          </button>
-          <button onClick={() => action("remove")}>
-            {v.hidden ? "Restore element" : "Remove element"}
-          </button>
-        </div>
-      </details>
+      <DesignInspector
+        device={device}
+        value={v.responsive?.[device] || {}}
+        inherited={Object.fromEntries(Object.entries(v).filter(([k]) => core.design.keys.includes(k))) as Design}
+        change={(fn) => change(x => { x.responsive ||= {}; x.responsive[device] ||= {}; fn(x.responsive[device]!); })}
+        reset={() => change(x => { if(x.responsive) delete x.responsive[device]; })}
+        optimize={() => change(x => { x.responsive ||= {}; x.responsive[device] = { ...x.responsive[device], x:0,y:0,width:100, ...(e.tag === "img" ? {objectFit:"cover"} : {}), ...(device !== "desktop" && /^(div|section|article|main)$/.test(e.tag) ? {display:"flex",direction:"column",gap:16,columns:1} : {}) }; delete x.responsive[device]!.height; })}
+      />
+      <div className="block-actions">
+        <button onClick={() => action("up")}>Element ↑</button>
+        <button onClick={() => action("down")}>Element ↓</button>
+        <button onClick={() => action("remove")}>{v.hidden ? "Restore element" : "Remove element"}</button>
+      </div>
       {e.tag === "img" ? (
         <details open className="design-options">
           <summary>Turn this image into a gallery</summary>

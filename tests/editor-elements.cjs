@@ -74,9 +74,8 @@ const png = Buffer.from(
       .waitFor();
     assert.equal(new URL(page.url()).hash, "#editor");
     await editor.getByLabel("X offset", { exact: true }).fill("36");
-    await canvas
-      .locator('a[data-site-text="homePrimaryLabel"][style*="36px"]')
-      .waitFor();
+    await page.waitForTimeout(650);
+    assert((await canvas.locator('a[data-site-text="homePrimaryLabel"]').evaluate(el=>getComputedStyle(el).translate)).startsWith("36px"));
     const free = canvas.getByRole("button", {
       name: "✥ Move freely",
       exact: true,

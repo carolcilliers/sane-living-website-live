@@ -73,6 +73,7 @@ module.exports=async function createServer(){
    if(u.pathname==='/api/dash-content')return await read(req,res);
    if(u.pathname==='/api/dash-save')return await save(req,res);
    if(u.pathname==='/api/studio')return await studio(req,res);
+   if(u.pathname==='/api/studio-draft')return await require('../api/studio-draft')(req,res);
    if(u.pathname==='/api/calendar-events'||u.pathname==='/api/calendar-events-past')return res.json({events:[{id:'public-fixture',title:'Community gathering',date:'2026-11-20',blurb:'A published fixture event',rsvpUrl:'https://example.com/event'}]});
    if(u.pathname==='/api/dash-login'){if(req.method==='DELETE'){res.setHeader('Set-Cookie',login.clearSessionCookie());return res.json({loggedIn:false});}return res.json({loggedIn:login.isLoggedIn(req)});}
    if(u.pathname==='/api/dash-events'){

@@ -69,7 +69,7 @@ const create = require("./qa-server.cjs"),
     await page.reload();
     await editor.locator(".page-row").first().waitFor();
     await editor.getByRole("button", { name: "Layers", exact: true }).click();
-    await editor.locator(".layer-name").last().click();
+    await editor.locator(".layer-name").filter({hasText:"Heading"}).first().click();
     assert.equal(
       await editor.getByLabel("Text", { exact: true }).inputValue(),
       "Recoverable private design",

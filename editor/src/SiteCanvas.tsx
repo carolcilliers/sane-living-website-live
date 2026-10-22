@@ -120,6 +120,12 @@ export function prepareFrame(
     (event) => {
       const e = event as MouseEvent,
         el = e.target as Element;
+      const boundary = el.closest("[data-studio-boundary]") as HTMLElement | null;
+      if (boundary && select) {
+        e.preventDefault(); e.stopImmediatePropagation();
+        tools?.pickInsert?.(boundary.dataset.block!, {boundary:boundary.dataset.studioBoundary});
+        return;
+      }
       const action = el
         .closest("[data-studio-action]")
         ?.getAttribute("data-studio-action");
@@ -177,20 +183,16 @@ export function prepareFrame(
     (event) => {
       const e = event as PointerEvent,
         target = e.target as Element;
-      if (!target.closest("[data-studio-free]")) return;
+      if (!target.closest("[data-studio-free],[data-studio-resize]")) return;
       const bar = d.getElementById("studio-canvas-tools")!,
         element = bar.dataset.element || "";
       const el = d.querySelector<HTMLElement>(
-        '[data-studio-block="' +
-          bar.dataset.block +
-          '"] [data-studio-element="' +
-          element +
-          '"]',
+        '[data-studio-block="' + bar.dataset.block + '"][data-studio-element="' + element + '"], [data-studio-block="' + bar.dataset.block + '"] [data-studio-element="' + element + '"]',
       );
       if (!el) return;
       e.preventDefault();
       e.stopImmediatePropagation();
-      const current = (el.style.translate || "0px 0px")
+      const current = (win.getComputedStyle(el).translate || "0px 0px")
         .split(" ")
         .map(parseFloat);
       free = {
@@ -201,6 +203,11 @@ export function prepareFrame(
         startY: e.clientY,
         x: current[0] || 0,
         y: current[1] || 0,
+        originalStyle: el.style.cssText,
+        resize: !!target.closest("[data-studio-resize]"),
+        width: el.getBoundingClientRect().width,
+        height: el.getBoundingClientRect().height,
+        parentWidth: el.parentElement?.getBoundingClientRect().width || win.innerWidth,
       };
       target.setPointerCapture?.(e.pointerId);
     },
@@ -213,17 +220,26 @@ export function prepareFrame(
       const e = event as PointerEvent;
       free.dx = Math.round(e.clientX - free.startX);
       free.dy = Math.round(e.clientY - free.startY);
-      free.el.style.position = "relative";
-      free.el.style.translate =
-        free.x + free.dx + "px " + (free.y + free.dy) + "px";
+      if (free.resize) {
+        free.el.style.setProperty("width", Math.max(1,Math.min(100,Math.round((free.width + free.dx)/free.parentWidth*100))) + "%", "important");
+        free.el.style.setProperty("height", Math.max(0,Math.min(2000,free.height+free.dy)) + "px", "important");
+        event.preventDefault(); return;
+      }
+      free.el.style.setProperty("position", "relative", "important");
+      free.el.style.setProperty("translate", free.x + free.dx + "px " + (free.y + free.dy) + "px", "important");
       event.preventDefault();
     },
     true,
   );
+  win.addEventListener("pointercancel", () => { if(free){free.el.style.cssText=free.originalStyle;free=null;} },true);
   win.addEventListener(
     "pointerup",
     () => {
       if (!free) return;
+      if (free.resize) {
+        tools?.resize?.(free.block,free.element,Math.max(1,Math.min(100,Math.round((free.width+(free.dx||0))/free.parentWidth*100))),Math.round(Math.max(0,Math.min(2000,free.height+(free.dy||0)))));
+        free = null; return;
+      }
       tools?.offset?.(
         free.block,
         free.element,
@@ -249,6 +265,7 @@ export function prepareFrame(
           }
         : selectedFrom(target);
       if (!hit.block) return;
+      if(hit.element === "content")hit.element="";
       dragging = hit;
       e.dataTransfer?.setData(
         hit.element ? "application/sane-element" : "application/sane-section",
@@ -269,12 +286,13 @@ export function prepareFrame(
       const target = (e.target as Element).closest(
         "[data-studio-element],[data-studio-block]",
       ) as HTMLElement | null;
+      const boundary = (e.target as Element).closest("[data-studio-boundary]");
       d.querySelectorAll("[data-studio-drop]").forEach((n) =>
         n.removeAttribute("data-studio-drop"),
       );
-      if (target) {
-        target.setAttribute("data-studio-drop", "");
-        indicator = target;
+      if (boundary || target) {
+        (boundary || target)!.setAttribute("data-studio-drop", "");
+        indicator = (boundary || target) as HTMLElement;
       }
       if (e.clientY < 70) win.scrollBy(0, -18);
       else if (e.clientY > win.innerHeight - 70) win.scrollBy(0, 18);
@@ -288,6 +306,7 @@ export function prepareFrame(
       e.preventDefault();
       e.stopImmediatePropagation();
       indicator?.removeAttribute("data-studio-drop");
+      const boundary = (e.target as Element).closest("[data-studio-boundary]") as HTMLElement | null;
       const target = elementAt(e.target as Element),
         hit = selectedFrom(target),
         r = target.getBoundingClientRect(),
@@ -306,12 +325,19 @@ export function prepareFrame(
         } catch {}
       }
       const kind = e.dataTransfer?.getData("application/sane-block");
+      const destination = boundary ? {boundary:boundary.dataset.studioBoundary} : tools?.placement?.(hit.block, hit.element, after);
+      const destinationBlock = boundary?.dataset.block || hit.block;
+      const targetAfter = boundary ? boundary.dataset.studioBoundary === "after" : after;
+      let sectionDrag: any = null;
+      try {sectionDrag = JSON.parse(e.dataTransfer?.getData("application/sane-section") || "null");}catch{}
       if (kind && core.TYPES.includes(kind) && insert) {
         insert(
           kind,
-          hit.block,
-          tools?.placement?.(hit.block, hit.element, after),
+          destinationBlock,
+          destination,
         );
+      } else if ((sectionDrag?.block || (dragging?.block && !dragging.element)) && destinationBlock) {
+        tools?.placeBlock?.(sectionDrag?.block || dragging!.block, destinationBlock, targetAfter, destination);
       } else if (dragging?.element && hit.element)
         tools?.reorder?.(
           dragging.block,
@@ -326,6 +352,21 @@ export function prepareFrame(
     },
     true,
   );
+  // Explicit insertion lines at every top-level section boundary, plus the final edge.
+  const topBlocks = Array.from(d.querySelectorAll<HTMLElement>("[data-studio-block]")).filter(n=>!n.parentElement?.closest("[data-studio-block]"));
+  const lines: {el:HTMLButtonElement; target:HTMLElement; after:boolean}[] = [];
+  const makeLine = (target:HTMLElement,after:boolean) => {
+    const el=d.createElement("button"); el.type="button"; el.dataset.studioBoundary=after?"after":"before"; el.dataset.block=target.dataset.studioBlock;
+    el.innerHTML='<span style="display:inline-block;background:#493659;color:#fff;padding:3px 12px;border-radius:9px;box-shadow:0 2px 8px #0003">+ Insert here</span>';el.setAttribute("aria-label",(after?"Insert after ":"Insert before ")+target.dataset.studioBlock);
+    el.style.cssText="position:absolute;left:12px;right:12px;z-index:2147483600;height:22px;border:0;border-radius:0;background:linear-gradient(#ab8bce,#ab8bce) center/100% 1px no-repeat;color:white;font:14px system-ui;cursor:copy;opacity:.6";
+    el.onmouseenter=()=>el.style.opacity="1";el.onmouseleave=()=>el.style.opacity=".55";
+    d.body.append(el);lines.push({el,target,after});
+  };
+  topBlocks.forEach(n=>makeLine(n,false));if(topBlocks.length)makeLine(topBlocks[topBlocks.length-1],true);
+  const positionLines=()=>lines.forEach(({el,target,after})=>{const r=target.getBoundingClientRect();el.style.top=Math.max(0,win.scrollY+(after?r.bottom:r.top)-12)+"px";});
+  positionLines();win.addEventListener("resize",positionLines);win.addEventListener("load",positionLines);
+  const observer=new ResizeObserver(positionLines); observer.observe(d.body);
+  win.addEventListener("pagehide",()=>observer.disconnect(),{once:true});
   win.addEventListener(
     "dragend",
     () => {
@@ -336,6 +377,9 @@ export function prepareFrame(
   );
 }
 export interface CanvasTools {
+  pickInsert?: (block:string, placement:any) => void;
+  placeBlock?: (from:string,target:string,after:boolean,placement?:any) => void;
+  resize?: (block:string,element:string,width:number,height:number) => void;
   action?: (block: string, element: string, action: string) => void;
   offset?: (block: string, element: string, x: number, y: number) => void;
   reorder?: (
@@ -443,10 +487,9 @@ export function SiteCanvas({
     );
     d?.getElementById("studio-canvas-tools")?.remove();
     if (d && active) {
+      const selector = '[data-studio-element="' + selectedElement + '"]';
       const chosen = selectedElement
-        ? active.querySelector<HTMLElement>(
-            '[data-studio-element="' + selectedElement + '"]',
-          )
+        ? active.matches(selector) ? active as HTMLElement : active.querySelector<HTMLElement>(selector)
         : null;
       (chosen || active).setAttribute("data-studio-element-selected", "");
       const bar = d.createElement("div");
@@ -458,7 +501,7 @@ export function SiteCanvas({
       bar.innerHTML =
         '<button draggable="true" data-studio-section-drag>↕ Section</button>' +
         (chosen
-          ? '<button draggable="true">↕ Drag element</button><button data-studio-free title="Drag this handle to move freely on desktop">✥ Move freely</button><button data-studio-action="up" aria-label="Move element up">↑</button><button data-studio-action="down" aria-label="Move element down">↓</button><button data-studio-action="remove">Remove</button>'
+          ? '<button draggable="true">↕ Drag element</button><button data-studio-free title="Drag to move on the current device layout">✥ Move freely</button><button data-studio-resize title="Drag to resize on the current device layout">⤡ Resize</button><button data-studio-action="up" aria-label="Move element up">↑</button><button data-studio-action="down" aria-label="Move element down">↓</button><button data-studio-action="remove">Remove</button>'
           : "");
       const zoom =
         frame.current!.getBoundingClientRect().width /
@@ -519,6 +562,9 @@ export function SiteCanvas({
       (type, after, placement) => refs.current.insert(type, after, placement),
       {
         action: (...args) => refs.current.tools?.action?.(...args),
+        resize: (...args) => refs.current.tools?.resize?.(...args),
+        placeBlock: (...args) => refs.current.tools?.placeBlock?.(...args),
+        pickInsert: (...args) => refs.current.tools?.pickInsert?.(...args),
         offset: (...args) => refs.current.tools?.offset?.(...args),
         reorder: (...args) => refs.current.tools?.reorder?.(...args),
         placement: (...args) => refs.current.tools?.placement?.(...args),

@@ -43,6 +43,7 @@ function Layer({ section, selected, select, move, first, last }: RowProps) {
         transform: CSS.Transform.toString(transform),
         transition,
         opacity: isDragging ? 0.55 : 1,
+        marginLeft: Number(section.depth || 0) * 12,
       }}
     >
       <button

@@ -112,7 +112,7 @@ const create = require("./qa-server.cjs"),
       "A newer local design",
     );
     const before = await e.locator(".layer-name span").allTextContents();
-    await e.getByRole("button", { name: "Move ↑", exact: true }).click();
+    await e.getByRole("button", { name: "Move ↓", exact: true }).click();
     const after = await e.locator(".layer-name span").allTextContents();
     assert.notDeepEqual(after, before);
     await e.getByRole("button", { name: "Undo", exact: true }).click();

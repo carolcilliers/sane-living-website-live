@@ -1,0 +1,71 @@
+const assert=require('node:assert/strict'),create=require('./qa-server.cjs'),{launch}=require('./browser.cjs');
+(async()=>{const server=await create();let browser;try{
+ browser=await launch();const c=await browser.newContext({viewport:{width:1800,height:1100}});
+ c.setDefaultTimeout(12000);
+ await c.addCookies([{name:'sl_dash',value:server.cookie.split('=')[1],url:server.url}]);
+ await c.route('**/*',r=>r.request().url().startsWith(server.url)?r.continue():r.abort());
+ const page=await c.newPage();const errors=[];page.on('pageerror',e=>errors.push(e.message));
+ await page.goto(server.url+'/dash/#editor');const editor=page.frameLocator('#pageEditorFrame'),canvas=editor.frameLocator('iframe[title="Website design canvas"]');
+ await editor.locator('.page-row').first().waitFor();
+ await canvas.locator('a[data-site-text="homePrimaryLabel"]').click();
+ await editor.getByLabel('Width (%)',{exact:true}).fill('65');
+ await editor.getByLabel('Font size',{exact:true}).fill('25');
+ await editor.getByLabel('Padding',{exact:true}).fill('20');
+ await page.waitForTimeout(650);
+ let measure=()=>canvas.locator('a[data-site-text="homePrimaryLabel"]').evaluate(el=>({font:getComputedStyle(el).fontSize,padding:getComputedStyle(el).padding,width:el.getBoundingClientRect().width,viewport:innerWidth}));
+ assert.equal((await measure()).font,'25px');assert.equal((await measure()).viewport,1440);
+ await editor.getByRole('button',{name:'Phone',exact:true}).click();
+ await page.waitForTimeout(200);assert.notEqual((await measure()).font,'25px','desktop typography does not leak to phone');
+ await editor.getByLabel('Font size',{exact:true}).fill('17');
+ await editor.getByLabel('Width (%)',{exact:true}).fill('100');
+ await editor.getByLabel('Padding',{exact:true}).fill('8');
+ await page.waitForTimeout(650);assert.equal((await measure()).font,'17px');assert.equal((await measure()).padding,'8px');
+ await editor.getByRole('button',{name:'Desktop',exact:true}).click();await page.waitForTimeout(200);assert.equal((await measure()).font,'25px');assert.equal((await measure()).padding,'20px');
+ // A clicked section line selects the insertion point; palette clicks insert there, never at the end.
+ const firstID=await canvas.locator('[data-studio-boundary="before"]').first().getAttribute('data-block');
+ await canvas.locator('[data-studio-boundary="before"]').first().click({force:true});
+ await editor.locator('.block-palette').getByRole('button',{name:'Heading',exact:true}).click();
+ await editor.getByLabel('Text',{exact:true}).fill('Inserted above the hero');await page.waitForTimeout(650);
+ const first=await canvas.locator('[data-studio-block]').first().textContent();assert.match(first,/Inserted above the hero/);
+ await editor.getByLabel('Width (%)',{exact:true}).fill('80');await page.waitForTimeout(450);
+ assert.equal(await canvas.locator('[data-studio-block]').first().evaluate(el=>el.hasAttribute('data-studio-layout')),true);
+ console.log('Responsive controls and section insertion passed; checking row nesting');
+ // New rows contain real blocks; duplicating/removing a row preserves or removes its descendants together.
+ await editor.getByRole('button',{name:'Insert',exact:true}).click();await editor.locator('.block-palette').getByRole('button',{name:'Row',exact:true}).click();
+ await canvas.locator('.studio-empty-layout').click();console.log('Empty row selected');
+ const resize=await canvas.getByRole('button',{name:'⤡ Resize',exact:true}).boundingBox();assert(resize);await page.mouse.move(resize.x+resize.width/2,resize.y+resize.height/2);await page.mouse.down();await page.mouse.move(resize.x+resize.width/2+30,resize.y+resize.height/2+10,{steps:5});await page.mouse.up();await page.waitForTimeout(600);assert(Number(await editor.getByLabel('Width (%)',{exact:true}).inputValue())>0,'row container supports direct resize without invalid source overrides');
+ await editor.getByRole('button',{name:'Insert',exact:true}).click();await editor.locator('.block-palette').getByRole('button',{name:'Text',exact:true}).click();
+ await editor.getByLabel('Text',{exact:true}).fill('A real nested row element');await page.waitForTimeout(650);
+ assert.equal(await canvas.locator('.studio-layout-row .studio-block').count(),1);
+ await editor.locator('.layer-name').filter({hasText:'Row'}).first().click();await editor.getByRole('button',{name:'Duplicate',exact:true}).click();await page.waitForTimeout(650);
+ assert.equal(await canvas.locator('.studio-layout-row .studio-block').count(),2,'row duplication includes the nested block');
+ await editor.getByRole('button',{name:'Remove block',exact:true}).click();await page.waitForTimeout(650);assert.equal(await canvas.locator('.studio-layout-row .studio-block').count(),1,'row removal removes its descendants');
+ await editor.getByRole('button',{name:'Undo',exact:true}).click();await page.waitForTimeout(650);assert.equal(await canvas.locator('.studio-layout-row .studio-block').count(),2);
+ await editor.locator('.layer-name').first().click();
+ console.log('Row nesting passed; checking preview fallback');
+ // Popup blocker must open a usable in-dashboard preview instead of an error.
+ const frame=page.frames().find(f=>f.url().includes('/dash/editor/index.html'));
+ await frame.evaluate(()=>{window.open=()=>null;});
+ await editor.getByRole('button',{name:'Preview ↗',exact:true}).click();
+ const modal=editor.getByRole('dialog',{name:'Draft preview',exact:true});await modal.waitFor();
+ const preview=modal.frameLocator('iframe[title="Draft preview fallback"]');
+ const full=preview.frameLocator('iframe[title="Full-page draft preview"]');
+ await full.getByRole('heading',{name:'Inserted above the hero',exact:true}).waitFor();
+ assert.equal(server.commits,0,'preview does not publish');
+ await modal.getByRole('button',{name:'Back to editor',exact:true}).click();
+ // Autosave, previous-version recovery and reload use actual IndexedDB.
+ await editor.locator('.studio-status').filter({hasText:'Saved privately'}).waitFor();
+ await editor.getByLabel('Text',{exact:true}).fill('Newer automatic save');
+ await editor.locator('.studio-status').filter({hasText:'Saved privately'}).waitFor();
+ await editor.getByRole('button',{name:'Recovery history',exact:true}).click();
+ const recovery=editor.getByRole('dialog',{name:'Draft recovery history',exact:true});await recovery.locator('.recovery-version').first().waitFor();
+ await recovery.getByRole('button',{name:'Close recovery',exact:true}).click();
+ await page.reload();await editor.locator('.page-row').first().waitFor();await editor.getByRole('button',{name:'Layers',exact:true}).click();await editor.locator('.layer-name').first().click();assert.equal(await editor.getByLabel('Text',{exact:true}).inputValue(),'Newer automatic save');
+ assert.deepEqual(errors,[]);
+ await editor.getByRole('button',{name:'Publish',exact:true}).click();await editor.getByRole('dialog').getByRole('button',{name:'Publish reviewed changes',exact:true}).click();await editor.locator('.release-status').filter({hasText:'Commit accepted'}).waitFor();assert.equal(server.commits,1);
+ const published=JSON.parse(server.records.get('content/site-layouts.json').content).pages.find(p=>p.id==='home');assert(published.blocks.some(b=>b.type==='row'));assert(published.blocks.some(b=>b.responsive?.desktop?.width===80));
+ const live=await c.newPage();await live.goto(server.url+'/');await live.setViewportSize({width:1440,height:1000});assert.equal(await live.locator('a[data-site-text="homePrimaryLabel"]').evaluate(el=>getComputedStyle(el).fontSize),'25px');await live.setViewportSize({width:375,height:900});await live.waitForFunction(()=>getComputedStyle(document.querySelector('a[data-site-text="homePrimaryLabel"]')).fontSize==='17px');assert.equal(await live.locator('a[data-site-text="homePrimaryLabel"]').evaluate(el=>getComputedStyle(el).fontSize),'17px');await live.close();
+
+ await page.screenshot({path:require('node:path').join(__dirname,'qa-depth-desktop.png'),fullPage:true});
+ console.log('PASS independent desktop/phone typography and sizing, exact section-line insertion, new block styling, popup-blocked preview fallback, autosave recovery history and refresh persistence');
+}finally{await browser?.close();await server.close();}})().catch(e=>{console.error(e);process.exitCode=1;});

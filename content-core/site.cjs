@@ -1,5 +1,6 @@
 "use strict";
 const { parse } = require("parse5");
+const design = require("./design.cjs");
 const content = require("../public/content-model.js"),
   settings = require("../public/site-config.js"),
   aboutRenderer = require("../public/about-renderer.js");
@@ -20,6 +21,8 @@ const TYPES = [
   "booking",
   "newsletter",
   "slideshow",
+  "row",
+  "column",
 ];
 const BASE = [
   "id",
@@ -34,8 +37,12 @@ const BASE = [
   "edits",
   "elements",
   "placement",
+  "design",
+  "responsive",
 ];
 const PROPS = {
+  row: [],
+  column: [],
   heading: ["text", "level"],
   text: ["text"],
   image: ["src", "alt", "caption"],
@@ -532,6 +539,8 @@ function validate(project, registry, resources) {
         (typeof b.label !== "string" || b.label.length > 160)
       )
         errors.push("Section names must be short text.");
+      if (b.design != null) errors.push(...design.validate(b.design));
+      errors.push(...design.validateResponsive(b.responsive));
       if (["legacy", "about", "aboutHero"].includes(b.type)) {
         const d = descriptors.find(
           (x) => x.id === b.source && x.type === b.type,
@@ -624,29 +633,12 @@ function validate(project, registry, resources) {
     }
     for (const b of page.blocks) {
       if (!b?.placement) continue;
-      const at = b.placement,
-        owner = page.blocks.find((x) => x.id === at.section),
-        d = descriptors.find((x) => x.id === owner?.source),
-        parent = d?.elements.find((e) => e.id === at.parent);
-      if (
-        b.source ||
-        !at ||
-        typeof at !== "object" ||
-        Object.keys(at).some(
-          (k) => !["section", "parent", "before"].includes(k),
-        ) ||
-        owner?.type !== "legacy" ||
-        !parent ||
-        parent.managed ||
-        !/^(div|section|main|article|figure)$/.test(parent.tag) ||
-        (at.before &&
-          !d.elements.some(
-            (e) =>
-              e.id === at.before &&
-              (owner.elements?.[e.id]?.parent ?? e.parent) === parent.id,
-          ))
-      )
-        errors.push("Choose an editable container for this block.");
+      const at=b.placement, owner=page.blocks.find(x=>x.id===at.section), d=descriptors.find(x=>x.id===owner?.source), parent=d?.elements.find(e=>e.id===at.parent);
+      const layout = owner && ['row','column'].includes(owner.type);
+      const before = !at.before || (layout ? page.blocks.some(x=>x.id===at.before && x.placement?.section===owner.id) : d?.elements.some(e=>e.id===at.before && (owner.elements?.[e.id]?.parent ?? e.parent)===parent?.id));
+      if(b.source || !at || typeof at!=='object' || Object.keys(at).some(k=>!['section','parent','before'].includes(k)) || !before || (layout ? at.parent!=='content' : owner?.type!=='legacy' || !parent || parent.managed || !/^(div|section|main|article|figure)$/.test(parent.tag)))errors.push('Invalid nested block placement.');
+      const seen=new Set([b.id]);let node=owner,depth=0;
+      while(node){if(seen.has(node.id)||depth++>10){errors.push('A block cannot contain itself or exceed ten nested containers.');break;}seen.add(node.id);node=page.blocks.find(x=>x.id===node.placement?.section);}
     }
     // Original DOM must stay available to its existing integration scripts. Hiding is supported.
     if (descriptors.some((d) => !sources.has(d.id)))
@@ -693,36 +685,18 @@ function validateElements(d, values) {
             "padding",
             "gap",
             "radius",
+            "responsive",
+            ...design.keys,
           ].includes(k),
       )
     ) {
       errors.push("Invalid element properties.");
       continue;
     }
-    for (const k of ["x", "y"])
-      if (v[k] != null && (!Number.isInteger(v[k]) || Math.abs(v[k]) > 2000))
-        errors.push("Element offsets must be within 2,000 pixels.");
-    for (const [key, max] of [
-      ["fontSize", 160],
-      ["padding", 160],
-      ["gap", 120],
-      ["radius", 160],
-    ])
-      if (
-        v[key] != null &&
-        (!Number.isInteger(v[key]) || v[key] < 0 || v[key] > max)
-      )
-        errors.push("Invalid element styling.");
-    for (const key of ["color", "background"])
-      if (v[key] != null && !/^#[0-9a-fA-F]{6}$/.test(v[key]))
-        errors.push("Use a six-digit hex colour.");
-    if (
-      v.width != null &&
-      (!Number.isInteger(v.width) || v.width < 10 || v.width > 100)
-    )
-      errors.push("Element width must be 10–100 percent.");
-    if (v.align != null && !["left", "center", "right"].includes(v.align))
-      errors.push("Invalid element alignment.");
+    const styleValues = Object.fromEntries(Object.entries(v).filter(([k]) => design.keys.includes(k)));
+    // Existing zero-size legacy values remain valid for old drafts.
+    errors.push(...design.validate(Object.fromEntries(Object.entries(styleValues).filter(([k,val]) => !(k === "fontSize" && val === 0)))));
+    errors.push(...design.validateResponsive(v.responsive));
     if (v.hidden != null && typeof v.hidden !== "boolean")
       errors.push("Invalid element visibility.");
     if (
@@ -765,7 +739,7 @@ function validateElements(d, values) {
   }
   return errors;
 }
-function originalHtml(d, b, annotate, nested = [], resources = {}) {
+function originalHtml(d, b, annotate, nested = [], resources = {}, blocks = []) {
   const overrides = b.elements || {},
     nodes = new Map(d.elements.map((e) => [e.id, e]));
   function range(start, end) {
@@ -797,6 +771,8 @@ function originalHtml(d, b, annotate, nested = [], resources = {}) {
     const v = overrides[e.id] || {};
     let open = range(e.start, e.open),
       close = e.close == null ? "" : range(e.close, e.end);
+    if (v.responsive || Object.keys(v).some(k => design.keys.includes(k)))
+      open = open.replace(/^<([\w-]+)/, '<$1 data-studio-style="' + design.token(b.id + ":" + e.id) + '"');
     if (annotate)
       open = open.replace(
         /^<([\w-]+)/,
@@ -891,7 +867,7 @@ function originalHtml(d, b, annotate, nested = [], resources = {}) {
         body +=
           inserts
             .filter((x) => x.placement.before === child.id)
-            .map((x) => renderBlock(x, resources, annotate))
+            .map((x) => renderBlock(x, resources, annotate, blocks))
             .join("") + render(child);
       }
       body +=
@@ -901,13 +877,14 @@ function originalHtml(d, b, annotate, nested = [], resources = {}) {
               !x.placement.before ||
               !children.some((c) => c.id === x.placement.before),
           )
-          .map((x) => renderBlock(x, resources, annotate))
+          .map((x) => renderBlock(x, resources, annotate, blocks))
           .join("") + gaps;
     }
     return open + body + close;
   }
   let html = render(d.elements[0]);
   const attrs =
+    ' data-studio-layout="' + design.token(b.id) + '"' +
     (annotate ? ' data-studio-block="' + esc(b.id) + '"' : "") +
     (b.hidden ? " hidden data-studio-hidden" : "");
   return html.replace(/^<([\w-]+)/, "<$1" + attrs);
@@ -927,10 +904,16 @@ function jsonResources(resources, key) {
     return {};
   }
 }
-function renderBlock(b, resources, annotate) {
+function renderBlock(b, resources, annotate, blocks = [], depth = 0) {
+  if (depth > 10) return "";
   const p = b.props || {},
     s = settings.normalize(jsonResources(resources, "settings"));
   let inner = "";
+  if (["row", "column"].includes(b.type)) {
+    const children = blocks.filter(x=>x.placement?.section===b.id);
+    inner = children.map(child=>renderBlock(child,resources,annotate,blocks,depth+1)).join("");
+    if(!inner && annotate)inner='<div class="studio-empty-layout">Drop elements into this '+b.type+'</div>';
+  }
   const img = () =>
     '<img src="' +
     esc(settings.safeUrl(p.src, "image")) +
@@ -1100,16 +1083,18 @@ function renderBlock(b, resources, annotate) {
   return (
     '<section class="studio-block studio-' +
     esc(b.theme || "white") +
+    (["row", "column"].includes(b.type) ? " studio-layout-" + b.type : "") +
     " studio-align-" +
     esc(b.align || "left") +
     '"' +
+    ' data-studio-layout="' + design.token(b.id) + '"' +
     (annotate ? ' data-studio-block="' + esc(b.id) + '"' : "") +
     (b.hidden ? " hidden data-studio-hidden" : "") +
     ' style="padding-block:' +
     (b.type === "spacer"
       ? 0
       : Math.max(0, Math.min(120, Number(b.spacing ?? 48) || 0))) +
-    'px"><div class="container">' +
+    'px"><div class="container"' + (annotate && ["row", "column"].includes(b.type) ? ' data-studio-element="content"' : "") + '>' +
     inner +
     "</div></section>"
   );
@@ -1120,19 +1105,22 @@ function renderPage(page, project, registry, resources, options = {}) {
   let html = parts.html;
   if (page.active || options.draft) {
     const byId = new Map(parts.blocks.map((b) => [b.id, b]));
-    const blocks = page.blocks
+    const first = page.blocks.find(b=>!b.placement && !b.hidden);
+    let blocks = page.blocks
       .filter((b) => !b.placement)
-      .map((b) =>
-        byId.has(b.source)
+      .map((b) => {
+        const output = byId.has(b.source)
           ? originalHtml(
               byId.get(b.source),
               b,
               options.annotate,
               page.blocks.filter((x) => x.placement?.section === b.id),
               resources,
+              page.blocks,
             )
-          : renderBlock(b, resources, options.annotate),
-      )
+          : renderBlock(b, resources, options.annotate, page.blocks);
+        return b.id===first?.id && !b.source ? output.replace(/^<section/, "<section data-studio-first") : output;
+      })
       .join("\n");
     // Preserve any non-section markup in the body region, including integration scripts/modals.
     let gaps = "",
@@ -1169,6 +1157,13 @@ function renderPage(page, project, registry, resources, options = {}) {
       jsJson(map) +
       ',f=window.fetch.bind(window);window.fetch=(u,o)=>{const p=new URL(typeof u==="string"?u:u.url,document.baseURI).pathname;return (!o||!o.method||o.method==="GET")&&Object.prototype.hasOwnProperty.call(m,p)?Promise.resolve(new Response(JSON.stringify(m[p]),{headers:{"Content-Type":"application/json"}})):f(u,o);};}</script>';
   }
+  let styles = "";
+  for (const b of page.blocks) {
+    styles += design.rules(b.id, b.design, b.responsive, "data-studio-layout");
+    for (const [id, v] of Object.entries(b.elements || {}))
+      styles += design.rules(b.id + ":" + id, Object.fromEntries(Object.entries(v).filter(([k]) => design.keys.includes(k))), v.responsive);
+  }
+  if (styles) assets += "<style>" + styles + "</style>";
   html = html.replace("</head>", assets + "\n</head>");
   if (options.release)
     html = html.replace(
@@ -1182,6 +1177,7 @@ function renderPage(page, project, registry, resources, options = {}) {
 module.exports = {
   TYPES,
   settings,
+  design,
   templateRevision,
   block,
   createProject,

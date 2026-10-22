@@ -1,6 +1,7 @@
 import {
   StrictMode,
   useCallback,
+  useMemo,
   useEffect,
   useRef,
   useState,
@@ -9,6 +10,7 @@ import {
 } from "react";
 import { createRoot } from "react-dom/client";
 import core from "../../content-core/site.cjs";
+import { DesignInspector } from "./DesignInspector";
 import { PageSwitcher } from "./PageSwitcher";
 import { Inspector } from "./Inspector";
 import { Layers } from "./Layers";
@@ -18,7 +20,7 @@ import {
   EditorSettings,
 } from "./ElementInspector";
 import { SiteCanvas } from "./SiteCanvas";
-import { readRecord, saveDraft, snapshot, clearDraft } from "./storage";
+import { readRecord, saveDraft, snapshot, clearDraft, draftHistory } from "./storage";
 import type {
   Workspace,
   Block,
@@ -26,11 +28,14 @@ import type {
   Bootstrap,
   Saved,
   Snapshot,
+  Device,
 } from "./site-types";
 import type { About } from "./types";
 import "./style.css";
 import "./site-style.css";
 const LABELS: Record<string, string> = {
+  row: "Row",
+  column: "Column",
   heading: "Heading",
   text: "Text",
   image: "Image",
@@ -48,6 +53,8 @@ const LABELS: Record<string, string> = {
   slideshow: "Image slideshow",
 };
 const SYMBOLS: Record<string, string> = {
+  row: "▤",
+  column: "▥",
   heading: "H",
   text: "T",
   image: "▧",
@@ -121,6 +128,17 @@ async function api(url: string, body?: unknown) {
     );
   return d;
 }
+function fingerprint(value: unknown) {
+ return JSON.stringify(value,(_key,v)=>v && typeof v === "object" && !Array.isArray(v) ? Object.fromEntries(Object.entries(v).sort(([a],[b])=>a.localeCompare(b))) : v);
+}
+function downloadSaved(value: Saved, name: string) {
+ download({kind:"sane-website-draft",version:2,baseLayoutSha:value.layoutSha,baseVersions:value.versions,baseAbout:value.baseAbout,baseSettings:value.baseSettings,work:value.work},name);
+}
+function sourceBase(d: Bootstrap | Saved) {
+  return {head:d.head,versions:d.versions,layoutSha:d.layoutSha,
+    baseAbout:"resources" in d ? d.resources.about : d.baseAbout,
+    baseSettings:"resources" in d ? d.resources.settings : d.baseSettings};
+}
 function App() {
   const [data, setData] = useState<Bootstrap | null>(null),
     [history, setHistory] = useState<{
@@ -130,6 +148,8 @@ function App() {
       group: string;
     }>({ now: null, past: [], future: [], group: "" });
   const work = history.now;
+  const workJSON = useMemo(()=>work ? JSON.stringify(work) : "",[work]);
+  const workFingerprint = useMemo(()=>fingerprint(work),[work]);
   const workRef = useRef(work);
   workRef.current = work;
   const [pageId, setPageId] = useState(
@@ -141,6 +161,14 @@ function App() {
       "pages" | "insert" | "layers" | "settings"
     >("pages");
   const [elementId, setElementId] = useState("");
+  const [previewURL, setPreviewURL] = useState("");
+  const [recoveryVersions, setRecoveryVersions] = useState<any[] | null>(null);
+  const autoSaveFailed = useRef(false);
+  const draftBase = useRef<ReturnType<typeof sourceBase> | null>(null);
+  const cloudRevision = useRef(0), cloudLastSaved = useRef(""), cloudLock = useRef(false);
+  const [cloud, setCloud] = useState<"loading" | "local" | "ready" | "saving" | "conflict" | "error">("loading");
+  const [cloudMessage, setCloudMessage] = useState("");
+  const insertionTarget = useRef<{block: string; placement?: any} | null>(null);
   const [theme, setTheme] = useState(() => {
     try {
       return localStorage.getItem("sl_studio_theme") || "dark";
@@ -157,7 +185,7 @@ function App() {
       parent.postMessage({ type: "studio:theme", theme }, location.origin);
   }, [theme]);
   const [mobile, setMobile] = useState<"left" | "canvas" | "right">("canvas"),
-    [width, setWidth] = useState(() => (innerWidth < 850 ? 375 : 1024)),
+    [width, setWidth] = useState(() => (innerWidth < 850 ? 375 : 1440)),
     [search, setSearch] = useState(""),
     [status, setStatus] = useState("Loading website…"),
     [message, notice] = useState(""),
@@ -217,8 +245,25 @@ function App() {
           "Private browser storage is unavailable. You can edit and download a draft, but recovery cannot be saved here.",
         );
       }
+      let teamRecord: any = null;
+      try {
+        const remote = await api("/api/studio-draft");
+        if(version !== loadVersion.current) return;
+        if(remote.configured) {
+          teamRecord = remote.record;
+          cloudRevision.current = teamRecord?.revision || 0;
+          cloudLastSaved.current = teamRecord ? fingerprint(teamRecord.value.work) : "";
+          setCloud("ready");
+          // Adopt the private team draft only when there is no browser draft to overwrite.
+          if(!stored && teamRecord && !reset) stored = {revision:0,value:teamRecord.value};
+          else if(stored && teamRecord && fingerprint(stored.value.work)!==cloudLastSaved.current) {
+            setCloud("conflict");setCloudMessage("A different team draft is available. Your browser draft is retained. Download or load the team version before resuming sync.");
+          }
+        } else setCloud("local");
+      } catch {setCloud("error");setCloudMessage("Team storage could not be reached. Browser autosave remains available.");}
       revision.current = stored?.revision || 0;
       recoveryBlocked.current = false;
+      autoSaveFailed.current = false;
       if (!reset && stored) {
         const old = stored.value as Saved;
         const errors = core.validate(old?.work?.project, d.registry, {
@@ -288,10 +333,11 @@ function App() {
         if (local?.content) olderAbout = local;
       } catch {}
       setAboutRecovery(olderAbout);
+      draftBase.current = sourceBase(conflict && stored ? stored.value : d);
       setData(d);
       replace(w);
       setStale(conflict);
-      setSaved(recovered ? JSON.stringify(w) : "");
+      setSaved(recovered && revision.current > 0 ? JSON.stringify(w) : "");
       setStatus(
         conflict
           ? "Older draft · publication blocked"
@@ -322,18 +368,15 @@ function App() {
       );
       return;
     }
+    autoSaveFailed.current = false;
     savingLock.current = true;
     setSaving(true);
     const text = JSON.stringify(w);
     try {
       revision.current = await saveDraft(
         {
+          ...(draftBase.current || sourceBase(data)),
           work: w,
-          head: data.head,
-          versions: data.versions,
-          layoutSha: data.layoutSha,
-          baseAbout: data.resources.about,
-          baseSettings: data.resources.settings,
         } satisfies Saved,
         revision.current,
       );
@@ -346,19 +389,44 @@ function App() {
           }),
       );
     } catch (e) {
+      autoSaveFailed.current = true;
       notice((e as Error).message);
       setStatus("Draft save failed · download to keep your work");
-      recoveryBlocked.current = true;
+      recoveryBlocked.current = /Another tab/.test((e as Error).message);
     } finally {
       savingLock.current = false;
       setSaving(false);
     }
   }, [data]);
   useEffect(() => {
-    if (!work || !data || JSON.stringify(work) === saved || stale) return;
+    if (!work || !data || workJSON === saved || autoSaveFailed.current) return;
     const t = setTimeout(() => void save(), 800);
     return () => clearTimeout(t);
-  }, [work, data, saved, save, stale]);
+  }, [work, workJSON, data, saved, save, saving]);
+  useEffect(() => {
+    if (!work || !data || (cloud !== "ready" && cloud !== "error") || saved !== workJSON || cloudLastSaved.current === workFingerprint || cloudLock.current) return;
+    // Offline/failed cloud saves require an explicit retry; never spin or overwrite a conflicting team draft.
+    if(cloud === "error")return;
+    const timer=setTimeout(async()=>{
+      cloudLock.current=true;setCloud("saving");
+      try {
+        const result=await api("/api/studio-draft",{expected:cloudRevision.current,requestId:crypto.randomUUID(),value:{...(draftBase.current || sourceBase(data)),work}});
+        cloudRevision.current=result.record.revision;cloudLastSaved.current=fingerprint(work);setCloudMessage("");setCloud("ready");
+      }catch(e){const message=(e as Error).message;setCloudMessage(message);setCloud(message.includes("Another team member")?"conflict":"error");}
+      finally{cloudLock.current=false;}
+    },2000);
+    return ()=>clearTimeout(timer);
+  },[work,workJSON,workFingerprint,data,saved,cloud]);
+  useEffect(() => {
+    const flush = () => { if(document.visibilityState === "hidden") void save(); };
+    document.addEventListener("visibilitychange", flush);
+    window.addEventListener("pagehide", flush);
+    return () => { document.removeEventListener("visibilitychange", flush); window.removeEventListener("pagehide", flush); };
+  }, [save]);
+  useEffect(() => {
+    // Ask the browser to protect stored drafts from routine storage eviction when supported.
+    void navigator.storage?.persist?.().catch(() => false);
+  }, []);
   useEffect(() => {
     function logout(e: StorageEvent) {
       if (e.key === "sl_studio_logout") {
@@ -386,6 +454,8 @@ function App() {
   }, [saved]);
   useEffect(() => {
     function receive(e: MessageEvent) {
+      const previewFrame = document.querySelector<HTMLIFrameElement>('iframe[title="Draft preview fallback"]');
+      if(e.origin === location.origin && e.source === previewFrame?.contentWindow && e.data?.type === "studio:close-preview") {setPreviewURL("");return;}
       if (e.origin !== location.origin || e.source !== parent) return;
       if (e.data?.type === "sane-editor:flush") void save();
       if (e.data?.type === "studio:select-about") setPageId("about");
@@ -476,6 +546,7 @@ function App() {
         : h,
     );
   }
+  useEffect(()=>{document.querySelector<HTMLElement>(".studio-inspector")?.scrollTo({top:0});},[selected,elementId,pageId]);
   const page =
       work?.project.pages.find((p) => p.id === pageId) ||
       work?.project.pages[0],
@@ -514,6 +585,12 @@ function App() {
       if (b) fn(b);
     }, group);
   }
+  const device: Device = width <= 600 ? "phone" : width <= 1024 ? "tablet" : "desktop";
+  const layerBlocks: Block[] = [];
+  function visitLayers(parent?: string) {
+    page?.blocks.filter(b=>parent ? b.placement?.section === parent : !b.placement).forEach(b=>{if(layerBlocks.some(x=>x.id===b.id))return;layerBlocks.push(b);visitLayers(b.id);});
+  }
+  visitLayers();
   const selectedDescriptor = descriptors.find(
     (d: any) => d.id === block?.source,
   );
@@ -540,10 +617,18 @@ function App() {
       fn(b.elements[id]);
     });
   }
+  function targetDesignEdit(blockID: string, id: string, values: Record<string, number>) {
+    const owner=page?.blocks.find(b=>b.id===blockID);
+    if(!owner)return;
+    if(owner.source && id)elementEdit(v=>{v.responsive ||= {};v.responsive[device] ||= {};Object.assign(v.responsive[device],values);},blockID,id);
+    else pageEdit(p=>{const b=p.blocks.find(b=>b.id===blockID)!;b.responsive ||= {};b.responsive[device] ||= {};Object.assign(b.responsive[device],values);});
+  }
   function placementFor(blockID: string, id: string, after: boolean) {
     const owner = page?.blocks.find((b) => b.id === blockID),
       d = descriptors.find((d: any) => d.id === owner?.source),
       e = d?.elements.find((x: any) => x.id === id);
+    if(owner && ["row", "column"].includes(owner.type)) return {section:owner.id,parent:"content"};
+    if(owner?.placement) return {...owner.placement};
     if (!e || owner?.type !== "legacy") return;
     const isContainer =
       /^(div|section|main|article|figure)$/.test(e.tag) && !e.managed;
@@ -642,6 +727,17 @@ function App() {
     select(blockID, id);
   }
   function elementAction(blockID: string, id: string, action: string) {
+    const targetBlock = page?.blocks.find(b=>b.id===blockID);
+    if(targetBlock && !targetBlock.source) {
+      if(action === "remove") {
+        pageEdit(p=>{const ids=new Set([blockID]);for(let i=0;i<10;i++)p.blocks.forEach(b=>{if(b.placement && ids.has(b.placement.section))ids.add(b.id);});p.blocks=p.blocks.filter(b=>!ids.has(b.id));});select("");
+      } else {
+        const siblings=page!.blocks.filter(b=>b.placement?.section===targetBlock.placement?.section);
+        const next=siblings[siblings.indexOf(targetBlock)+(action === "up"?-1:1)];
+        if(next)pageEdit(p=>{const from=p.blocks.findIndex(b=>b.id===blockID),to=p.blocks.findIndex(b=>b.id===next.id);p.blocks.splice(to,0,p.blocks.splice(from,1)[0]);});
+      }
+      return;
+    }
     select(blockID, id);
     if (action === "remove") {
       elementEdit(
@@ -672,6 +768,7 @@ function App() {
       reorderElement(blockID, id, blockID, next.id, action === "down", false);
   }
   function choose(id: string) {
+    insertionTarget.current = null;
     setPageId(id);
     select("");
     setMobile("canvas");
@@ -679,15 +776,40 @@ function App() {
   function add(type: string, after?: string, placement?: any) {
     if (!page) return;
     const b = core.block(type, crypto.randomUUID()) as Block;
-    if (placement) b.placement = placement;
+    const target = after ? {block: after, placement} : insertionTarget.current || {
+      block: selected, placement: elementId || ["row", "column"].includes(block?.type || "") ? placementFor(selected, elementId, true) : undefined
+    };
+    if (target.placement && !target.placement.boundary) b.placement = target.placement;
     pageEdit((p) => {
-      const at = p.blocks.findIndex((b) => b.id === (after || selected));
-      p.blocks.splice(at < 0 ? p.blocks.length : at + 1, 0, b);
+      const at = p.blocks.findIndex((x) => x.id === target.block);
+      p.blocks.splice(at < 0 ? 0 : at + (target.placement?.boundary === "before" ? 0 : 1), 0, b);
     });
+    insertionTarget.current = null;
     select(b.id);
     setLeftTab("layers");
     setMobile("right");
     notice((LABELS[type] || type) + " added to " + page.name + ".");
+  }
+  function placeBlock(from: string, target: string, after: boolean, placement?: any) {
+    const moving = page?.blocks.find(b => b.id === from);
+    if (!moving || from === target) return;
+    if (moving.source && placement && !placement.boundary) {
+      notice("Original sections move as a whole between section lines. Their connected elements stay inside the section."); return;
+    }
+    const candidate = structuredClone(work!.project);
+    const p = candidate.pages.find(x=>x.id===page!.id)!;
+    {
+      const index = p.blocks.findIndex(b=>b.id===from);
+      const [b] = p.blocks.splice(index,1);
+      if (placement && !placement.boundary && !b.source) b.placement = placement;
+      else delete b.placement;
+      const at = p.blocks.findIndex(x=>x.id===target);
+      p.blocks.splice(at<0?p.blocks.length:at+(after?1:0),0,b);
+    }
+    const issues = core.validate(candidate,data!.registry,resources);
+    if(issues.length){notice(issues.join(" "));return;}
+    pageEdit(next=>{next.blocks=p.blocks;});
+    select(from);
   }
   function move(from: string, to: string) {
     if (!page) return;
@@ -726,21 +848,28 @@ function App() {
       );
       return;
     }
-    if (!confirm("Remove this block? You can Undo this.")) return;
     pageEdit((p) => {
-      p.blocks = p.blocks.filter((b) => b.id !== selected);
+      const removeIDs = new Set([selected]);
+      for(let i=0;i<10;i++)p.blocks.forEach(b=>{if(b.placement && removeIDs.has(b.placement.section))removeIDs.add(b.id);});
+      p.blocks = p.blocks.filter((b) => !removeIDs.has(b.id));
     });
     select("");
   }
   function duplicate() {
     if (!block || block.source) return;
-    const b = structuredClone(block);
-    b.id = crypto.randomUUID();
-    b.label += " copy";
-    pageEdit((p) =>
-      p.blocks.splice(p.blocks.findIndex((x) => x.id === selected) + 1, 0, b),
-    );
-    select(b.id);
+    const ids = new Map<string,string>([[block.id,crypto.randomUUID()]]);
+    for(let i=0;i<10;i++)page!.blocks.forEach(b=>{if(b.placement && ids.has(b.placement.section) && !ids.has(b.id))ids.set(b.id,crypto.randomUUID());});
+    const copies = page!.blocks.filter(b=>ids.has(b.id)).map(source=>{
+      const b=structuredClone(source);b.id=ids.get(source.id)!;
+      if(source.id===block.id)b.label+=" copy";
+      if(b.placement && ids.has(b.placement.section))b.placement.section=ids.get(b.placement.section)!;
+      if(b.placement?.before && ids.has(b.placement.before))b.placement.before=ids.get(b.placement.before)!;
+      return b;
+    });
+    const candidate=structuredClone(work!.project),next=candidate.pages.find(p=>p.id===page!.id)!;
+    next.blocks.splice(next.blocks.findIndex(b=>b.id===selected)+1,0,...copies);
+    const issues=core.validate(candidate,data!.registry,resources);if(issues.length){notice(issues.join(" "));return;}
+    pageEdit(p=>{p.blocks=next.blocks;});select(ids.get(block.id)!);
   }
   function openSource(section: string, tab?: string) {
     if (section === "settings") {
@@ -763,7 +892,8 @@ function App() {
       notice(errors.join(" "));
       return;
     }
-    const popup = window.open("about:blank", "_blank");
+    let popup: Window | null = null;
+    try { popup = window.open("about:blank", "_blank"); } catch {}
     if (popup) popup.opener = null;
     try {
       const id = await snapshot({
@@ -778,10 +908,7 @@ function App() {
       } satisfies Snapshot);
       const url = "/dash/editor/preview.html?snapshot=" + id;
       if (popup) popup.location.replace(url);
-      else
-        notice(
-          "Preview tab was blocked. Allow popups for this website and press Preview again.",
-        );
+      else setPreviewURL(url);
     } catch {
       popup?.close();
       notice(
@@ -899,6 +1026,7 @@ function App() {
         );
         return;
       }
+      draftBase.current=sourceBase(fresh);
       setData(fresh);
       setStale(false);
       if (JSON.stringify(workRef.current) === JSON.stringify(current)) {
@@ -980,6 +1108,9 @@ function App() {
       )
         return;
       recoveryBlocked.current = false;
+      autoSaveFailed.current = false;
+      draftBase.current=sourceBase(data!);
+      setStale(false);
       replace(w);
       setSaved("");
       notice("Draft imported. It has not been published.");
@@ -1030,10 +1161,10 @@ function App() {
       download({
         kind: "sane-website-draft",
         version: 2,
-        baseLayoutSha: data.layoutSha,
-        baseVersions: data.versions,
-        baseAbout: data.resources.about,
-        baseSettings: data.resources.settings,
+        baseLayoutSha: draftBase.current ? draftBase.current.layoutSha : data.layoutSha,
+        baseVersions: draftBase.current?.versions || data.versions,
+        baseAbout: draftBase.current?.baseAbout ?? data.resources.about,
+        baseSettings: draftBase.current?.baseSettings ?? data.resources.settings,
         work,
       });
   };
@@ -1095,7 +1226,7 @@ function App() {
         <div className="device-switch" role="group" aria-label="Canvas device">
           {[
             [1440, "Desktop"],
-            [1024, "Laptop"],
+            [1280, "Laptop"],
             [768, "Tablet"],
             [375, "Phone"],
           ].map(([n, label]) => (
@@ -1157,11 +1288,23 @@ function App() {
         </div>
       </header>
       <div className="studio-status">
-        <span role="status">{status}</span>
+        <span role="status">{saving ? "Saving private draft…" : work && saved !== workJSON && !recoveryBlocked.current && !autoSaveFailed.current ? "Unsaved changes · autosave pending" : status}</span>
         <span>
           {page?.route || "Website"} · {page?.blocks.length || 0} sections
         </span>
       </div>
+      {recoveryVersions ? <div className="recovery-dialog" role="dialog" aria-modal="true" aria-label="Draft recovery history"><h2>Previous autosaves</h2><p>Restore a previous save into the editor. Review it before publishing.</p>{recoveryVersions.length ? recoveryVersions.map(record=><div className="recovery-version" key={record.revision}><span>{new Date(record.updatedAt).toLocaleString()} · Save {record.revision}</span><button onClick={()=>downloadSaved(record.value,"sane-living-recovery-"+record.revision+".json")}>Download</button><button onClick={()=>{
+        const w=record.value?.work;
+        if(!w || !data || core.validate(w.project,data.registry,{...data.resources,about:w.aboutText}).length){notice("This version needs importing and reconciliation. Download it first.");return;}
+        draftBase.current=sourceBase(record.value);
+        edit(next=>Object.assign(next,structuredClone(w)));
+        setStale(record.value.layoutSha!==data.layoutSha || (w.aboutText!==record.value.baseAbout && record.value.versions.about!==data.versions.about) || (w.settingsText!==record.value.baseSettings && record.value.versions.settings!==data.versions.settings));
+        autoSaveFailed.current=false;setRecoveryVersions(null);notice("Previous autosave restored privately. Use Undo to return to your latest work.");
+      }}>Restore</button></div>):<p>Previous versions appear after your next autosaves.</p>}<button onClick={()=>setRecoveryVersions(null)}>Close recovery</button></div> : null}
+      {previewURL ? <div className="preview-overlay" role="dialog" aria-modal="true" aria-label="Draft preview">
+        <header><strong>Draft preview · not published</strong><a href={previewURL} target="_blank" rel="noopener noreferrer">Open preview in new tab ↗</a><button onClick={() => setPreviewURL("")}>Back to editor</button></header>
+        <iframe title="Draft preview fallback" src={previewURL}/>
+      </div> : null}
       {aboutRecovery ? (
         <div className="about-recovery">
           <span>An earlier About draft is available.</span>
@@ -1209,6 +1352,22 @@ function App() {
           </button>
         </div>
       ) : null}
+      {cloud !== "local" && cloud !== "loading" ? <div className="team-draft-status" role="status"><span>{cloud === "saving" ? "Backing up private team draft…" : cloud === "ready" ? cloudLastSaved.current === workFingerprint ? "Team draft backed up privately" : "Team backup pending" : cloudMessage}</span>
+        <button onClick={async()=>{try{const remote=await api("/api/studio-draft");if(!remote.configured){setCloud("local");return;}if(remote.record){downloadSaved(remote.record.value,"sane-living-team-draft.json");}else notice("No team draft has been saved yet.");}catch(e){notice((e as Error).message);}}}>Download team draft</button>
+        <button disabled={cloud === "saving"} onClick={async()=>{
+          try {const remote=await api("/api/studio-draft");if(!remote.configured){setCloud("local");return;}const record=remote.record;
+            if(record && fingerprint(record.value.work)!==fingerprint(work)) {
+              if(!confirm("Load the shared team draft? Your current browser draft will be downloaded first."))return;
+              exportDraft(); const next=record.value as Saved;
+              if(core.validate(next.work.project,data!.registry,{...data!.resources,about:next.work.aboutText}).length)throw Error("The team draft needs reconciliation. Download it to retain it.");
+              draftBase.current=sourceBase(next);
+              edit(w=>Object.assign(w,structuredClone(next.work)));
+              setStale(next.layoutSha!==data!.layoutSha || (next.work.aboutText!==next.baseAbout && next.versions.about!==data!.versions.about) || (next.work.settingsText!==next.baseSettings && next.versions.settings!==data!.versions.settings));
+            }
+            cloudRevision.current=record?.revision||0;cloudLastSaved.current=record?fingerprint(record.value.work):"";setCloud("ready");setCloudMessage("");
+          }catch(e){notice((e as Error).message);}
+        }}>{cloud === "conflict" ? "Load team draft" : "Reconnect team backup"}</button>
+      </div>:null}
       {release ? (
         <div className="release-status">
           <strong>{release.state}</strong>
@@ -1400,8 +1559,7 @@ function App() {
             {leftTab === "insert" ? (
               <>
                 <p className="sidebar-help">
-                  Click to add after the selected section, or drag a block onto
-                  the canvas.
+                  Click a + section line to choose an insertion point, or drag a block onto a line or into a container. Click adds beside your selection.
                 </p>
                 <h3 className="palette-heading">Content & layout</h3>
                 <div className="block-palette">
@@ -1457,10 +1615,11 @@ function App() {
             {leftTab === "layers" ? (
               <>
                 <Layers
-                  sections={page.blocks.map((b) => ({
+                  sections={layerBlocks.map((b) => ({
                     id: b.id,
                     heading: b.label,
                     visible: !b.hidden,
+                    depth: (()=>{let depth=0,parent=b.placement?.section;while(parent&&depth<10){depth++;parent=page.blocks.find(x=>x.id===parent)?.placement?.section;}return depth;})(),
                     kindLabel: b.source
                       ? "Original website section"
                       : LABELS[b.type] || b.type,
@@ -1470,7 +1629,7 @@ function App() {
                     select(id);
                     setMobile("right");
                   }}
-                  move={(a, b) => move(page.blocks[a].id, page.blocks[b].id)}
+                  move={(a, b) => move(layerBlocks[a].id, layerBlocks[b].id)}
                   add={() => setLeftTab("insert")}
                 />
                 {block?.type === "legacy" && selectedDescriptor ? (
@@ -1578,16 +1737,14 @@ function App() {
               selectedElement={elementId}
               tools={{
                 placement: placementFor,
+                placeBlock,
+                resize: (b,id,width,height) => targetDesignEdit(b,id,{width,height}),
+                pickInsert: (block, placement) => {
+                  insertionTarget.current = {block, placement};
+                  setLeftTab("insert"); setMobile("left");
+                },
                 reorder: reorderElement,
-                offset: (b, id, x, y) =>
-                  elementEdit(
-                    (v) => {
-                      v.x = x;
-                      v.y = y;
-                    },
-                    b,
-                    id,
-                  ),
+                offset: (b,id,x,y) => targetDesignEdit(b,id,{x,y}),
                 action: elementAction,
               }}
               select={(id, element) => {
@@ -1826,6 +1983,7 @@ function App() {
                     block={block}
                     assets={work.assets}
                     id={elementId}
+                    device={device}
                     change={elementEdit}
                     field={(id, value) =>
                       blockEdit((b) => {
@@ -2080,6 +2238,14 @@ function App() {
                     </label>
                   </details>
                 ) : null}
+                {!elementId || block.type !== "legacy" ? <DesignInspector
+                  device={device}
+                  value={block.responsive?.[device] || {}}
+                  inherited={block.design || {}}
+                  change={fn => blockEdit(b => { b.responsive ||= {}; b.responsive[device] ||= {}; fn(b.responsive[device]!); })}
+                  reset={() => blockEdit(b => { if(b.responsive) delete b.responsive[device]; })}
+                  optimize={() => blockEdit(b => { b.responsive ||= {}; b.responsive[device] = {...b.responsive[device], x:0,y:0,width:100,padding:device === "phone" ? 16 : 32}; })}
+                /> : null}
                 <div className="block-actions">
                   <button onClick={() => arrow(-1)}>Move ↑</button>
                   <button onClick={() => arrow(1)}>Move ↓</button>
@@ -2124,6 +2290,7 @@ function App() {
               Download older recovery
             </button>
           ) : null}
+          <button disabled={!work} onClick={async()=>{try{setRecoveryVersions(await draftHistory());}catch{notice("Recovery history could not be read. Download your current draft.");}}}>Recovery history</button>
           <button disabled={!work} onClick={exportDraft}>
             Download draft
           </button>

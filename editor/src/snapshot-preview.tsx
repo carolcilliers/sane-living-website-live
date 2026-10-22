@@ -118,7 +118,7 @@ function Preview() {
             </option>
           ))}
         </select>
-        <button onClick={() => window.close()}>Close preview</button>
+        <button onClick={() => { if(parent !== window) parent.postMessage({type:"studio:close-preview"},location.origin); else window.close(); }}>Close preview</button>
       </header>
       {!ready ? (
         <div className="preview-loading" role="status">

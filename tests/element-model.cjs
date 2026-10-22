@@ -103,3 +103,15 @@ for (const page of baseline.pages) {
 console.log(
   "PASS body structure preserved across all 25 source pages, including void image elements",
 );
+
+const responsive=core.createProject(registry), rp=responsive.pages.find(p=>p.id==='home');rp.active=true;
+rp.blocks[0].elements={[button.id]:{responsive:{desktop:{fontSize:36,width:70},phone:{fontSize:17,width:100,objectFit:'cover'}}}};
+assert.deepEqual(core.validate(responsive,registry,resources),[]);
+let responsiveHTML=core.renderPage(rp,responsive,registry,resources);
+assert.match(responsiveHTML,/@media \(min-width:1025px\)/);assert.match(responsiveHTML,/@media \(max-width:600px\)/);
+const unsafe=structuredClone(responsive);unsafe.pages.find(p=>p.id==='home').blocks[0].elements[button.id].responsive.phone.background='</style><script>alert(1)</script>';
+assert(core.validate(unsafe,registry,resources).length);assert(!core.renderPage(unsafe.pages.find(p=>p.id==='home'),unsafe,registry,resources).includes('<script>alert(1)</script>'));
+const row=core.block('row','layout-row'),child=core.block('text','row-child');child.placement={section:row.id,parent:'content'};rp.blocks.push(row,child);
+assert.deepEqual(core.validate(responsive,registry,resources),[]);assert.match(core.renderPage(rp,responsive,registry,resources),/studio-layout-row/);
+row.placement={section:row.id,parent:'content'};assert(core.validate(responsive,registry,resources).length);
+console.log('PASS scoped responsive style rules, CSS/HTML injection rejection, nested rows and container-cycle rejection');
