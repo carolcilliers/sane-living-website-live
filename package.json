@@ -9,7 +9,7 @@
     "test": "node tests/content-api.cjs && node tests/studio-flow.cjs && node tests/studio-settings.cjs && npm run test:editor",
     "build:editor": "vite build --config editor/vite.config.mjs",
     "dev:editor": "node scripts/dev-editor.cjs",
-    "test:editor": "node tests/editor-contract.cjs && node tests/element-model.cjs && node tests/site-publisher.cjs && node tests/site-editor-flow.cjs && node tests/studio-recovery.cjs && node tests/editor-elements.cjs && node tests/editor-depth.cjs && node tests/team-drafts.cjs && node tests/team-draft-flow.cjs && node tests/stale-draft-base.cjs && node tests/studio-smooth.cjs",
+    "test:editor": "node tests/editor-contract.cjs && node tests/element-model.cjs && node tests/site-publisher.cjs && node tests/site-editor-flow.cjs && node tests/studio-recovery.cjs && node tests/editor-elements.cjs && node tests/editor-depth.cjs && node tests/team-drafts.cjs && node tests/team-draft-flow.cjs && node tests/stale-draft-base.cjs && node tests/studio-smooth.cjs && node tests/image-card-drag.cjs && node tests/image-removal.cjs",
     "typecheck": "tsc -p editor/tsconfig.json",
     "pretest": "npm run build:editor"
   },

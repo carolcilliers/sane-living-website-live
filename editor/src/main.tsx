@@ -677,8 +677,13 @@ function App() {
     }
     const owner = page?.blocks.find((b) => b.id === blockID),
       d = descriptors.find((d: any) => d.id === owner?.source),
-      e = d?.elements.find((x: any) => x.id === id),
-      t = d?.elements.find((x: any) => x.id === target);
+      e0 = d?.elements.find((x: any) => x.id === id),
+      t0 = d?.elements.find((x: any) => x.id === target);
+    if(e0?.dragOwner){
+      if(!t0?.dragOwner || d.elements.find((x:any)=>x.id===e0.dragOwner)?.parent !== d.elements.find((x:any)=>x.id===t0.dragOwner)?.parent){notice("Drop beside another image card in this row. Images and captions move together.");return;}
+      id=e0.dragOwner;target=t0.dragOwner;intoContainer=false;
+    } else if(t0?.dragOwner){notice("Drop outside the image card. Its image and caption stay together.");return;}
+    const e=d?.elements.find((x:any)=>x.id===id), t=d?.elements.find((x:any)=>x.id===target);
     if (!e?.parent || !t || id === target) return;
     const into =
       intoContainer &&
@@ -729,9 +734,16 @@ function App() {
     });
     select(blockID, id);
   }
+  function restoreImageCards(blockID?: string) {
+    pageEdit(p=>{for(const b of p.blocks){if(blockID && b.id!==blockID)continue;const descriptor=descriptors.find((d:any)=>d.id===b.source);if(descriptor?.elements.some((e:any)=>e.dragOwner))b.elements=core.cardLayout.restore(descriptor,b.elements);}});
+    notice("Image card layout restored. Image choices, captions and other page edits are kept. You can Undo this.");
+  }
   function elementAction(blockID: string, id: string, action: string) {
     const targetBlock = page?.blocks.find(b=>b.id===blockID);
     if(targetBlock && !targetBlock.source) {
+      if(action === "remove" && id === "part:image" && ["split","card"].includes(targetBlock.type)) {
+        pageEdit(p=>{p.blocks.find(b=>b.id===blockID)!.props!.src="";});select(blockID);notice("Image removed. The section and its other content are kept. Undo restores it.");return;
+      }
       if(action === "remove") {
         pageEdit(p=>{const ids=new Set([blockID]);for(let i=0;i<10;i++)p.blocks.forEach(b=>{if(b.placement && ids.has(b.placement.section))ids.add(b.id);});p.blocks=p.blocks.filter(b=>!ids.has(b.id));});select("");
       } else {
@@ -740,6 +752,9 @@ function App() {
         if(next)pageEdit(p=>{const from=p.blocks.findIndex(b=>b.id===blockID),to=p.blocks.findIndex(b=>b.id===next.id);p.blocks.splice(to,0,p.blocks.splice(from,1)[0]);});
       }
       return;
+    }
+    if(action === "restore-cards") {
+      restoreImageCards(blockID);return;
     }
     select(blockID, id);
     if (action === "remove") {
@@ -754,8 +769,9 @@ function App() {
     }
     const owner = page?.blocks.find((b) => b.id === blockID),
       d = descriptors.find((d: any) => d.id === owner?.source),
-      e = d?.elements.find((x: any) => x.id === id);
+      e = d?.elements.find((x: any) => x.id === core.cardLayout.owner(d,id));
     if (!e) return;
+    id=e.id;
     const parent = owner?.elements?.[id]?.parent ?? e.parent;
     const siblings = d.elements
       .filter(
@@ -1600,6 +1616,7 @@ function App() {
                     Hero media
                   </button>
                 ) : null}
+                {descriptors.some((d:any)=>d.elements.some((e:any)=>e.dragOwner)) ? <button onClick={()=>restoreImageCards()} title="Restore image frames and card positions without discarding your content edits">Restore image cards</button> : null}
                 <button
                   onClick={() => {
                     setLeftTab("insert");
@@ -1737,6 +1754,7 @@ function App() {
               </>
             ) : (
               <>
+                {!block.source && ["image","split","card"].includes(block.type) && block.props?.src ? <div className="selection-actions"><strong>{block.type === "image" ? "Image" : "Image in this section"}</strong><button onClick={()=>elementAction(block.id,"part:image","remove")}>Remove image</button><small>{block.type === "image" ? "Removes this image element. Its parent row or section stays." : "Removes only the image; keeps the text, buttons and section."} Undo restores it.</small></div> : null}
                 <label className="field">
                   Section name
                   <input

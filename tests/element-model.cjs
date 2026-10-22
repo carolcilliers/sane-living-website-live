@@ -138,3 +138,14 @@ const weddingHTML=core.renderPage(wedding,extended,registry,resources);
 assert.match(weddingHTML,/studio-managed-parts/);assert.match(weddingHTML,/background:#f0e8fa/);
 assert(!weddingHTML.includes('data-studio-element='));
 console.log('PASS six new typed inserts, automatic grid/flex, bounded custom shadows and publishable managed policy styles');
+
+const cardDescriptor=description.blocks.find(b=>b.elements.some(e=>e.dragOwner));
+const cardImage=cardDescriptor.elements.find(e=>e.dragOwner&&e.tag==='img');
+const cardRoot=cardDescriptor.elements.find(e=>e.id===cardImage.dragOwner);
+assert.equal(core.cardLayout.owner(cardDescriptor,cardImage.id),cardRoot.id);
+assert.equal(cardDescriptor.fields.find(f=>f.id==='f7').value,'Conference Room','existing field IDs stay unchanged');
+assert.equal(cardDescriptor.fields.filter(f=>f.id.startsWith('card-caption-')).length,3);
+const damaged={[cardImage.id]:{parent:cardRoot.parent,order:0,x:20,gallery:['/images/hero-center.jpg'],responsive:{desktop:{width:60,color:'#123456'},phone:{y:30,shadow:'soft'}}},[cardRoot.id]:{order:2,responsive:{desktop:{height:300,borderColor:'#123456'}}},untouched:{x:90}};
+const repaired=core.cardLayout.restore(cardDescriptor,damaged);
+assert.equal(repaired[cardImage.id].parent,undefined);assert.equal(repaired[cardImage.id].x,undefined);assert.deepEqual(repaired[cardImage.id].responsive.desktop,{color:'#123456'});assert.deepEqual(repaired[cardImage.id].responsive.phone,{shadow:'soft'});assert.deepEqual(repaired[cardImage.id].gallery,damaged[cardImage.id].gallery);assert.equal(repaired[cardRoot.id].order,undefined);assert.deepEqual(repaired.untouched,{x:90});assert.equal(damaged[cardImage.id].parent,cardRoot.parent,'repair never mutates Undo history');
+console.log('PASS stable card ownership/caption IDs and immutable frame restoration retaining content, appearance and unrelated elements');

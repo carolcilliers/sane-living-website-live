@@ -57,15 +57,18 @@ export function patchDocument(doc: Document, before: Document, after: Document) 
     }
     const oldChildren=Array.from(old?.childNodes||[]), nextChildren=Array.from(next.childNodes);
     if(old && oldChildren.length===nextChildren.length && oldChildren.every((n,i)=>n.isEqualNode(nextChildren[i])))return live;
-    const retained=new Set<Node>();let cursor=live.firstChild;
+    const retained=new Set<Node>();let previousChild:Node|null=null;
     nextChildren.forEach((child,index)=>{
       const id=key(child), oldChild=id?oldKeys.get(id):oldChildren[index];
       let current=id?liveKeys.get(id):oldChild?pairs.get(oldChild):undefined;
       if(current && !compatible(current,child))current=undefined;
       const updated=current?morph(current,oldChild,child):inertClone(child,doc);
       retained.add(updated);
+      // Recursion may move the old insertion anchor into another container.
+      // Resolve the next sibling after morphing, from the already placed prefix.
+      const cursor=previousChild?.parentNode===live ? previousChild.nextSibling : live.firstChild;
       if(updated!==cursor)live.insertBefore(updated,cursor);
-      cursor=updated.nextSibling;
+      previousChild=updated;
     });
     Array.from(live.childNodes).forEach(n=>{if(!retained.has(n) && !(n.nodeType===1 && ((n as Element).id==='studio-canvas-tools' || (n as Element).hasAttribute('data-studio-boundary'))))live.removeChild(n);});
     return live;

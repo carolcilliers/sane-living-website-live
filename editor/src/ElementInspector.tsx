@@ -138,6 +138,8 @@ export function ElementInspector({
         <code>{e.tag}</code>
         <h3>{e.label}</h3>
       </div>
+      {e.tag === "img" ? <div className="selection-actions"><button onClick={()=>action("remove")}>{v.hidden ? "Restore image" : "Remove image"}</button><small>Removes only this image from the page. The frame, caption and surrounding section stay. Undo restores it.</small></div> : null}
+      {descriptor.elements.some((part:any)=>part.dragOwner) ? <div className="binding-note"><p>Drag an image to reorder its whole card. Its frame and caption stay together. Click the image to edit it.</p><button onClick={()=>action("restore-cards")}>Restore image card layout</button><small>Restores this row’s frames and positions, keeping image choices, captions and other page edits. Undo is available.</small></div> : null}
       {e.virtual ? <div className="binding-note"><p>This paragraph is connected to the Weddings content. Its appearance can be styled here.</p><button onClick={openContent}>Edit wedding policy text</button></div> : null}
       {e.bindings.map((b: any) => (
         <label className="field" key={b.key}>

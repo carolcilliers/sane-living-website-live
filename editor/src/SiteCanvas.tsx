@@ -46,7 +46,7 @@ export function htmlFor(
   const style =
     "<style>[data-animate],[data-animate-stagger]>*{opacity:1!important;transform:none!important;transition:none!important}" +
     (annotate
-      ? "[data-studio-element]{cursor:pointer;outline-offset:-2px;transition:none!important;animation:none!important}[data-studio-block]{transition:none!important;animation:none!important}[data-studio-element]:hover{outline:1px dashed #aa8bdb}[data-studio-drop=inside]{outline:2px solid #c49bff!important}[data-studio-drop=before]{box-shadow:0 -3px #a47af2!important}[data-studio-drop=after]{box-shadow:0 3px #a47af2!important}[data-studio-element-selected]{outline:2px solid #b789ff!important}.video-hero-overlay{pointer-events:none!important}video{pointer-events:auto!important}[data-studio-block]{cursor:pointer;outline-offset:-2px}[data-studio-block]:hover{outline:1px solid #a181c4}[data-studio-selected]{outline:2px solid #8559ad!important}"
+      ? "[data-studio-element]{cursor:pointer;outline-offset:-2px;transition:none!important;animation:none!important}[data-studio-block]{transition:none!important;animation:none!important}[data-studio-element]:hover{outline:1px dashed #aa8bdb}[data-studio-drop=before-x]{box-shadow:-4px 0 #c49bff!important}[data-studio-drop=after-x]{box-shadow:4px 0 #c49bff!important}[data-studio-drop=inside]{outline:2px solid #c49bff!important}[data-studio-drop=before]{box-shadow:0 -3px #a47af2!important}[data-studio-drop=after]{box-shadow:0 3px #a47af2!important}[data-studio-element-selected]{outline:2px solid #b789ff!important}.video-hero-overlay{pointer-events:none!important}video{pointer-events:auto!important}[data-studio-block]{cursor:pointer;outline-offset:-2px}[data-studio-block]:hover{outline:1px solid #a181c4}[data-studio-selected]{outline:2px solid #8559ad!important}"
       : "") +
     "</style>";
   return html.replace(
@@ -105,13 +105,27 @@ export function prepareFrame(
       return gallery.querySelector("[data-studio-element]") || target;
     return target;
   };
+  const movementUnit = (target: Element): HTMLElement => {
+    const part=target.closest<HTMLElement>("[data-studio-element]") || target as HTMLElement;
+    const owner=part.dataset.studioDragOwner,block=part.closest("[data-studio-block]");
+    return owner ? (block?.querySelector<HTMLElement>('[data-studio-element="'+owner+'"]') || part) : part;
+  };
+  const movingCard = () => {
+    if(!dragging?.element)return false;
+    return !!d.querySelector('[data-studio-block="'+dragging.block+'"] [data-studio-element="'+dragging.element+'"][data-studio-drag-owner]');
+  };
+  const horizontalCard = (target: HTMLElement) => {
+    const parent=target.parentElement;if(!parent)return false;
+    const style=win.getComputedStyle(parent);
+    return (style.display==='grid' && style.gridTemplateColumns.split(' ').length>1) || (style.display==='flex' && style.flexDirection==='row');
+  };
   const selectedFrom = (target: Element) => {
     const el = elementAt(target);
     return {
       block:
         el.closest("[data-studio-block]")?.getAttribute("data-studio-block") ||
         "",
-      element:
+      element: el.closest("[data-studio-part]") ? "part:"+el.closest("[data-studio-part]")!.getAttribute("data-studio-part") :
         el
           .closest("[data-studio-element]")
           ?.getAttribute("data-studio-element") || "",
@@ -147,6 +161,8 @@ export function prepareFrame(
           e.preventDefault();
           e.stopImmediatePropagation();
           select(hit.block, hit.element);
+          const bar=d.getElementById("studio-canvas-tools");
+          if(bar?.dataset.selection===hit.block+":"+hit.element){bar.hidden=false;bar.style.display="flex";}
           return;
         }
       }
@@ -193,16 +209,17 @@ export function prepareFrame(
       if (!target.closest("[data-studio-free],[data-studio-resize]")) return;
       const bar = d.getElementById("studio-canvas-tools")!,
         element = bar.dataset.element || "";
-      const el = d.querySelector<HTMLElement>(
+      const picked = element.startsWith("part:") ? d.querySelector<HTMLElement>('[data-studio-block="'+bar.dataset.block+'"] [data-studio-part="'+element.slice(5)+'"]') : element ? d.querySelector<HTMLElement>(
         '[data-studio-block="' + bar.dataset.block + '"][data-studio-element="' + element + '"], [data-studio-block="' + bar.dataset.block + '"] [data-studio-element="' + element + '"]',
-      );
-      if (!el) return;
+      ) : d.querySelector<HTMLElement>('[data-studio-block="'+bar.dataset.block+'"]');
+      if (!picked) return;
+      const el=element.startsWith("part:") ? picked.closest<HTMLElement>("[data-studio-block]")! : movementUnit(picked), movementID=el.getAttribute("data-studio-element") || element;
       e.preventDefault();
       e.stopImmediatePropagation();
-      const current = tools?.coordinates?.(bar.dataset.block!,element) || (win.getComputedStyle(el).translate || "0px 0px").split(" ").map(parseFloat);
+      const current = tools?.coordinates?.(bar.dataset.block!,movementID) || (win.getComputedStyle(el).translate || "0px 0px").split(" ").map(parseFloat);
       free = {
         block: bar.dataset.block,
-        element,
+        element:movementID,
         el,
         startX: e.clientX,
         startY: e.clientY,
@@ -243,6 +260,7 @@ export function prepareFrame(
     () => {
       if (!free) return;
       if(free.toolbar){free=null;return;}
+      free.el.style.cssText=free.originalStyle;
       if (free.resize) {
         tools?.resize?.(free.block,free.element,Math.max(1,Math.min(100,Math.round((free.width+(free.dx||0))/free.parentWidth*100))),Math.round(Math.max(0,Math.min(2000,free.height+(free.dy||0)))));
         free = null; return;
@@ -272,8 +290,13 @@ export function prepareFrame(
           }
         : selectedFrom(target);
       if (!hit.block) return;
-      if(hit.element === "content")hit.element="";
+      if(hit.element) {
+        const selected=d.querySelector('[data-studio-block="'+hit.block+'"] [data-studio-element="'+hit.element+'"]');
+        if(selected)hit.element=movementUnit(selected).dataset.studioElement;
+      }
+      if(hit.element === "content" || hit.element?.startsWith("part:"))hit.element="";
       dragging = hit;
+      const toolbar=d.getElementById("studio-canvas-tools");if(toolbar)toolbar.style.pointerEvents="none";
       e.dataTransfer?.setData(
         hit.element ? "application/sane-element" : "application/sane-section",
         JSON.stringify(hit),
@@ -290,16 +313,17 @@ export function prepareFrame(
       e.preventDefault();
       if (e.dataTransfer)
         e.dataTransfer.dropEffect = dragging ? "move" : "copy";
-      const target = (e.target as Element).closest(
+      let target = (e.target as Element).closest(
         "[data-studio-element],[data-studio-block]",
       ) as HTMLElement | null;
+      if(target && movingCard())target=movementUnit(target);
       const boundary = (e.target as Element).closest("[data-studio-boundary]");
       d.querySelectorAll("[data-studio-drop]").forEach((n) =>
         n.removeAttribute("data-studio-drop"),
       );
       if (boundary || target) {
         const r=(boundary || target)!.getBoundingClientRect();
-        const edge=e.clientY<r.top+r.height*.25?'before':e.clientY>r.bottom-r.height*.25?'after':'inside';
+        const edge=target && movingCard() ? (horizontalCard(target) ? (e.clientX<r.left+r.width/2?'before-x':'after-x') : (e.clientY<r.top+r.height/2?'before':'after')) : e.clientY<r.top+r.height*.25?'before':e.clientY>r.bottom-r.height*.25?'after':'inside';
         (boundary || target)!.setAttribute("data-studio-drop", boundary?boundary.getAttribute('data-studio-boundary') || edge:edge);
         indicator = (boundary || target) as HTMLElement;
       }
@@ -316,11 +340,6 @@ export function prepareFrame(
       e.stopImmediatePropagation();
       indicator?.removeAttribute("data-studio-drop");
       const boundary = (e.target as Element).closest("[data-studio-boundary]") as HTMLElement | null;
-      const target = elementAt(e.target as Element),
-        hit = selectedFrom(target),
-        r = target.getBoundingClientRect(),
-        after = e.clientY > r.top + r.height / 2;
-      const inside = e.clientY > r.top+r.height*.25 && e.clientY < r.bottom-r.height*.25;
       if (!dragging) {
         try {
           const data = JSON.parse(
@@ -334,6 +353,9 @@ export function prepareFrame(
             dragging = data;
         } catch {}
       }
+      const card=movingCard(), target=card ? movementUnit(e.target as Element) : elementAt(e.target as Element), hit=selectedFrom(target), r=target.getBoundingClientRect();
+      const after=card && horizontalCard(target as HTMLElement) ? e.clientX>r.left+r.width/2 : e.clientY>r.top+r.height/2;
+      const inside=!card && e.clientY>r.top+r.height*.25 && e.clientY<r.bottom-r.height*.25;
       const kind = e.dataTransfer?.getData("application/sane-block");
       const destination = boundary ? {boundary:boundary.dataset.studioBoundary} : tools?.placement?.(hit.block, hit.element, after);
       const destinationBlock = boundary?.dataset.block || hit.block;
@@ -360,6 +382,7 @@ export function prepareFrame(
       else if (dragging?.block && hit.block && move)
         move(dragging.block, hit.block);
       dragging = null;
+      const toolbar=d.getElementById("studio-canvas-tools");if(toolbar)toolbar.style.pointerEvents="";
     },
     true,
   );
@@ -382,6 +405,7 @@ export function prepareFrame(
     "dragend",
     () => {
       dragging = null;
+      const toolbar=d.getElementById("studio-canvas-tools");if(toolbar)toolbar.style.pointerEvents="";
       indicator?.removeAttribute("data-studio-drop");
     },
     true,
@@ -518,7 +542,7 @@ export function SiteCanvas({
     const sameBar = previousBar?.dataset.selection === selected+":"+(selectedElement || "");
     if(!sameBar)previousBar?.remove();
     if (d && active) {
-      const selector = '[data-studio-element="' + selectedElement + '"]';
+      const selector = selectedElement?.startsWith("part:") ? '[data-studio-part="'+selectedElement.slice(5)+'"]' : '[data-studio-element="' + selectedElement + '"]';
       const chosen = selectedElement
         ? active.matches(selector) ? active as HTMLElement : active.querySelector<HTMLElement>(selector)
         : null;
@@ -530,11 +554,12 @@ export function SiteCanvas({
       bar.dataset.element = selectedElement || "";
       if(!sameBar)bar.style.cssText =
         "position:fixed;z-index:2147483647;display:flex;flex-wrap:wrap;gap:4px;padding:5px;background:#282331;color:#fff;border:1px solid #a88ad1;border-radius:7px;box-shadow:0 4px 20px #0005;font:12px system-ui;max-width:95vw";
+      const added=page.blocks.find(b=>b.id===selected && !b.source),imageSelected=chosen?.tagName==="IMG" || added?.type==="image";
       if(!sameBar)bar.innerHTML =
         '<button data-studio-toolbar-grip aria-label="Move toolbar" title="Drag this grip to move the toolbar">⠿</button><button draggable="true" data-studio-section-drag>↕ Section</button>' +
-        (chosen
-          ? '<button draggable="true">↕ Drag element</button><button data-studio-free title="Drag to move on the current device layout">✥ Move freely</button><button data-studio-resize title="Drag to resize on the current device layout">⤡ Resize</button><button data-studio-action="up" aria-label="Move element up">↑</button><button data-studio-action="down" aria-label="Move element down">↓</button><button data-studio-action="remove">Remove</button>'
-          : "") + ((chosen?.tagName === "VIDEO" || (chosen || active)?.querySelector("video")) ? '<button data-studio-media-play aria-label="Play / pause video">▶ / Ⅱ Video</button>' : '') + '<button data-studio-toolbar-close aria-label="Close element toolbar" title="Hide controls; your selection stays active">×</button>';
+        (chosen || added
+          ? '<button draggable="true">↕ '+(chosen?.dataset.studioDragOwner?'Drag card':imageSelected?'Drag image':'Drag element')+'</button><button data-studio-free title="Drag to move on the current device layout">✥ Move freely</button><button data-studio-resize title="Drag to resize on the current device layout">⤡ Resize</button><button data-studio-action="up" aria-label="Move element up">↑</button><button data-studio-action="down" aria-label="Move element down">↓</button><button data-studio-action="remove">'+(imageSelected?'Remove image':'Remove')+'</button>'
+          : "") + ((chosen?.tagName === "VIDEO" || (chosen || active)?.querySelector("video")) ? '<button data-studio-media-play aria-label="Play / pause video">▶ / Ⅱ Video</button>' : '') + (active.querySelector('[data-studio-drag-owner]') ? '<button data-studio-action="restore-cards">Restore cards</button>' : '') + '<button data-studio-toolbar-close aria-label="Close element toolbar" title="Hide controls; your selection stays active">×</button>';
       bar.querySelector<HTMLButtonElement>("[data-studio-toolbar-close]")!.onclick=()=>{bar.hidden=true;bar.style.display="none";};
       const zoom =
         frame.current!.getBoundingClientRect().width /

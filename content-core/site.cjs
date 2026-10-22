@@ -1,6 +1,7 @@
 "use strict";
 const { parse } = require("parse5");
 const design = require("./design.cjs");
+const cardLayout = require("./card-layout.cjs");
 const content = require("../public/content-model.js"),
   settings = require("../public/site-config.js"),
   aboutRenderer = require("../public/about-renderer.js");
@@ -308,6 +309,10 @@ function describeSource(entry, resources) {
       };
       elements.push(el);
     });
+    // Image frames with overlays must travel as a unit, even when their image is selected.
+    const cardRoots=elements.filter(e=>/\bclass=["'][^"']*\brent-card\b[^"']*["']/.test(raw.slice(e.start,e.open)) && !/\brent-card-label\b/.test(raw.slice(e.start,e.open)));
+    for(const element of elements){const card=cardRoots.find(c=>element.start>=c.start && element.end<=c.end);if(card)element.dragOwner=card.id;}
+    for(const element of elements.filter(e=>e.dragOwner && e.tag==='div' && /\brent-card-label\b/.test(raw.slice(e.start,e.open))))fields.push({id:'card-caption-'+element.id,kind:'text',label:'Card caption · '+element.label,value:text(parse(raw.slice(element.open,element.close))),start:element.open,end:element.close});
     if(entry.route === "/rent/weddings/") {
       const owner=elements.find(e=>raw.slice(e.start,e.open).includes('id="wedding-details"'));
       if(owner)for(const [key,label] of [["includesText","What's included"],["cateringPolicy","Catering policy"],["alcoholPolicy","Alcohol policy"],["parkingNote","Parking note"]])elements.push({id:"policy-"+key,tag:"p",label,parent:owner.id,start:0,end:0,open:0,close:null,bindings:[],managed:true,virtual:true,contentKey:key});
@@ -801,7 +806,7 @@ function originalHtml(d, b, annotate, nested = [], resources = {}, blocks = []) 
     if (annotate)
       open = open.replace(
         /^<([\w-]+)/,
-        '<$1 data-studio-element="' + e.id + '"',
+        '<$1 data-studio-element="' + e.id + '"' + (e.dragOwner ? ' data-studio-drag-owner="'+e.dragOwner+'"' : ''),
       );
     const style = [];
     if (v.x || v.y)
@@ -939,8 +944,8 @@ function renderBlock(b, resources, annotate, blocks = [], depth = 0) {
     inner = children.map(child=>renderBlock(child,resources,annotate,blocks,depth+1)).join("");
     if(!inner && annotate)inner='<div class="studio-empty-layout">Drop elements into this '+b.type+'</div>';
   }
-  const img = () =>
-    '<img src="' +
+  const img = () => !settings.safeUrl(p.src,"image") ? "" :
+    '<img' + (annotate ? ' data-studio-part="image"' : "") + ' src="' +
     esc(settings.safeUrl(p.src, "image")) +
     '" alt="' +
     esc(p.alt || "") +
@@ -985,7 +990,7 @@ function renderBlock(b, resources, annotate, blocks = [], depth = 0) {
   if (b.type === "split")
     inner =
       '<div class="studio-split ' +
-      (p.side === "left" ? "image-first" : "") +
+      (p.side === "left" ? "image-first" : "") + (!p.src ? " studio-without-image" : "") +
       '"><div><h2>' +
       esc(p.heading || "") +
       "</h2>" +
@@ -1212,6 +1217,7 @@ module.exports = {
   TYPES,
   settings,
   design,
+  cardLayout,
   templateRevision,
   block,
   createProject,
