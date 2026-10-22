@@ -965,7 +965,7 @@ function renderBlock(b, resources, annotate, blocks = [], depth = 0) {
     // Placement.before is authoritative for sibling order, including a moved child.
     for(const child of [...children]) { const before=child.placement?.before; const anchor=children.find(x=>x.id===before); if(anchor && anchor!==child){children.splice(children.indexOf(child),1);children.splice(children.indexOf(anchor),0,child);} }
     inner = children.map(child=>renderBlock(child,resources,annotate,blocks,depth+1)).join("");
-    if(!inner && annotate)inner='<div class="studio-empty-layout">Drop elements into this '+b.type+'</div>';
+    if(!inner && annotate)inner='<div class="studio-empty-layout">Click to add or drop elements into this '+b.type+'</div>';
   }
   const img = () => !settings.safeUrl(p.src,"image") ? "" :
     '<img' + (annotate ? ' data-studio-part="image"' : "") + ' src="' +

@@ -91,13 +91,15 @@ export function Layers({
   selected,
   select,
   move,
-  add,
+  add, step, canStep,
 }: {
   sections: Section[];
   selected: string;
   select: (id: string) => void;
   move: (from: number, to: number) => void;
   add: () => void;
+  step?: (id:string,delta:number)=>void;
+  canStep?: (id:string,delta:number)=>boolean;
 }) {
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 6 } }),
@@ -135,9 +137,9 @@ export function Layers({
                 section={s}
                 selected={selected === s.id}
                 select={() => select(s.id)}
-                move={(delta) => move(i, i + delta)}
-                first={i === 0}
-                last={i === sections.length - 1}
+                move={(delta) => step ? step(s.id,delta) : move(i,i+delta)}
+                first={canStep ? !canStep(s.id,-1) : i===0}
+                last={canStep ? !canStep(s.id,1) : i===sections.length-1}
               />
             ))}
           </div>

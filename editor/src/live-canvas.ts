@@ -41,9 +41,22 @@ export function patchDocument(doc: Document, before: Document, after: Document) 
     });
   }
   pair(before.body,doc.body);
+  function create(next: Node): Node {
+    // A new wrapper can contain existing keyed descendants. Move those nodes;
+    // deep-cloning the wrapper would leave duplicate sections and toolbars behind.
+    const id=key(next), existing=id?liveKeys.get(id):undefined;
+    if(existing && compatible(existing,next))return morph(existing,oldKeys.get(id),next);
+    const copy=inertClone(next,doc);
+    if(copy.nodeType===1){
+      while(copy.firstChild)copy.removeChild(copy.firstChild);
+      next.childNodes.forEach(child=>copy.appendChild(create(child)));
+    }
+    if(id)liveKeys.set(id,copy);
+    return copy;
+  }
   function morph(live: Node, old: Node | undefined, next: Node): Node {
     if (old?.isEqualNode(next)) return live;
-    if (!compatible(live,next)) return inertClone(next,doc);
+    if (!compatible(live,next)) return create(next);
     if (next.nodeType === 3 || next.nodeType === 8) { if(live.nodeValue!==next.nodeValue)live.nodeValue=next.nodeValue;return live; }
     if(next.nodeType !== 1)return live;
     const el=live as Element, prev=old as Element|undefined, desired=next as Element;
@@ -59,10 +72,10 @@ export function patchDocument(doc: Document, before: Document, after: Document) 
     if(old && oldChildren.length===nextChildren.length && oldChildren.every((n,i)=>n.isEqualNode(nextChildren[i])))return live;
     const retained=new Set<Node>();let previousChild:Node|null=null;
     nextChildren.forEach((child,index)=>{
-      const id=key(child), oldChild=id?oldKeys.get(id):oldChildren[index];
+      const id=key(child), oldChild=id?oldKeys.get(id):oldChildren[index] && !key(oldChildren[index])?oldChildren[index]:undefined;
       let current=id?liveKeys.get(id):oldChild?pairs.get(oldChild):undefined;
       if(current && !compatible(current,child))current=undefined;
-      const updated=current?morph(current,oldChild,child):inertClone(child,doc);
+      const updated=current?morph(current,oldChild,child):create(child);
       retained.add(updated);
       // Recursion may move the old insertion anchor into another container.
       // Resolve the next sibling after morphing, from the already placed prefix.

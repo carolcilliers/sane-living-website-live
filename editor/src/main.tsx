@@ -1,5 +1,6 @@
 import { PanelResizer } from "./PanelResizer";
 import patterns from "../../content-core/patterns.cjs";
+import { siblings as blockSiblings, relocate, normaliseOrder, isContainer as typedContainer } from "./block-placement";
 import { LAYOUTS, makeLayout, LayoutWire, resolveBlockInsertion } from "./LayoutLibrary";
 import {
   StrictMode,
@@ -183,7 +184,11 @@ function App() {
   const [cloud, setCloud] = useState<"loading" | "local" | "ready" | "saving" | "conflict" | "error">("loading");
   const [cloudMessage, setCloudMessage] = useState("");
   const [gridRows,setGridRows]=useState(1),[gridColumns,setGridColumns]=useState(2),[patternName,setPatternName]=useState("");
+  const [pendingInsert, setPendingInsert] = useState<{block:string;placement?:any}|null>(null);
   const insertionTarget = useRef<{block: string; placement?: any} | null>(null);
+  function queueInsert(block:string, placement?:any) {
+    insertionTarget.current={block,placement};setPendingInsert({block,placement});setSearch("");setLeftTab("insert");setMobile("left");
+  }
   const [theme, setTheme] = useState(() => {
     try {
       return localStorage.getItem("sl_studio_theme") || "dark";
@@ -192,6 +197,7 @@ function App() {
     }
   });
   function select(id: string, element = "") {
+    insertionTarget.current=null;setPendingInsert(null);
     setSelected(id);
     setElementId(element);
   }
@@ -641,18 +647,27 @@ function App() {
   function targetDesignEdit(blockID: string, id: string, values: Record<string, number>) {
     const owner=page?.blocks.find(b=>b.id===blockID);
     if(!owner)return;
-    if(owner.source && id)elementEdit(v=>{v.responsive ||= {};v.responsive[device] ||= {};Object.assign(v.responsive[device],values);},blockID,id);
-    else pageEdit(p=>{const b=p.blocks.find(b=>b.id===blockID)!;b.responsive ||= {};b.responsive[device] ||= {};Object.assign(b.responsive[device],values);});
+    const apply=(v:Record<string,any>)=>{if("width" in values || "height" in values)for(const key of ["widthCss","heightCss","maxWidthCss","viewportHeight"])delete v[key];Object.assign(v,values);};
+    if(owner.source && id)elementEdit(v=>{v.responsive ||= {};v.responsive[device] ||= {};apply(v.responsive[device]);},blockID,id);
+    else pageEdit(p=>{const b=p.blocks.find(b=>b.id===blockID)!;b.responsive ||= {};b.responsive[device] ||= {};apply(b.responsive[device]!);});
   }
-  function placementFor(blockID: string, id: string, after: boolean) {
+  function placementFor(blockID: string, id: string, after: boolean, inside = true) {
     const owner = page?.blocks.find((b) => b.id === blockID),
       d = descriptors.find((d: any) => d.id === owner?.source),
       e = id ? d?.elements.find((x: any) => x.id === id) : d?.elements[0];
-    if(owner && ["section", "row", "column"].includes(owner.type)) return {section:owner.id,parent:"content"};
-    if(owner?.placement) return after ? resolveBlockInsertion(page!, owner.id) : {...owner.placement,before:owner.id};
+    if(!owner)return;
+    if(inside && typedContainer(owner))return {section:owner.id,parent:"content"};
+    if(!inside || !id){
+      if(!owner.placement)return {boundary:after?"after":"before"};
+      const parent=page!.blocks.find(b=>b.id===owner.placement!.section);
+      if(parent?.source)return {...owner.placement};
+      const peers=blockSiblings(page!,owner),next=peers[peers.indexOf(owner)+(after?1:0)];
+      return {section:owner.placement.section,parent:owner.placement.parent,...(next?{before:next.id}:{})};
+    }
+    if(owner.placement)return {...owner.placement};
     if (!e || owner?.type !== "legacy") return;
     const isContainer =
-      /^(div|section|main|article|figure)$/.test(e.tag) && !e.managed;
+      inside && /^(div|section|main|article|figure)$/.test(e.tag) && !e.managed;
     const parent = isContainer
       ? e
       : d.elements.find(
@@ -760,6 +775,9 @@ function App() {
   }
   function elementAction(blockID: string, id: string, action: string) {
     const targetBlock = page?.blocks.find(b=>b.id===blockID);
+    if(action==="insert"){queueInsert(blockID,placementFor(blockID,id,true));return;}
+    if(action==="edit"){select(blockID,id);setMobile("right");document.querySelector(".studio-inspector")?.scrollTo({top:0});return;}
+    if(targetBlock?.source && !id && (action==="up" || action==="down")){stepLayer(blockID,action==="up"?-1:1);return;}
     if(targetBlock && !targetBlock.source) {
       if(action === "remove" && id === "part:image" && ["split","card"].includes(targetBlock.type)) {
         pageEdit(p=>{p.blocks.find(b=>b.id===blockID)!.props!.src="";});select(blockID);notice("Image removed. The section and its other content are kept. Undo restores it.");return;
@@ -767,9 +785,7 @@ function App() {
       if(action === "remove") {
         pageEdit(p=>{const ids=new Set([blockID]);for(let i=0;i<10;i++)p.blocks.forEach(b=>{if(b.placement && ids.has(b.placement.section))ids.add(b.id);});p.blocks=p.blocks.filter(b=>!ids.has(b.id));});select("");
       } else {
-        const siblings=page!.blocks.filter(b=>b.placement?.section===targetBlock.placement?.section);
-        const next=siblings[siblings.indexOf(targetBlock)+(action === "up"?-1:1)];
-        if(next)pageEdit(p=>{const from=p.blocks.findIndex(b=>b.id===blockID),to=p.blocks.findIndex(b=>b.id===next.id);p.blocks.splice(to,0,p.blocks.splice(from,1)[0]);});
+        stepLayer(blockID,action === "up" ? -1 : 1);
       }
       return;
     }
@@ -807,7 +823,7 @@ function App() {
       reorderElement(blockID, id, blockID, next.id, action === "down", false);
   }
   function choose(id: string) {
-    insertionTarget.current = null;
+    insertionTarget.current = null;setPendingInsert(null);setSearch("");
     setPageId(id);
     select("");
     setMobile("canvas");
@@ -831,7 +847,9 @@ function App() {
       for(let depth=0;depth<10;depth++)next.blocks.forEach(child=>{if(child.placement && descendants.has(child.placement.section))descendants.add(child.id);});
       next.blocks.forEach((child,i)=>{if(descendants.has(child.id))index=Math.max(index,i+1);});
     }
+    normaliseOrder(next);
     next.blocks.splice(index,0,...inserted);
+    normaliseOrder(next);
     const issues=core.validate(candidate,data!.registry,resources);
     if(issues.length){notice(issues.join(" "));return;}
     pageEdit(p=>{p.blocks=next.blocks;});
@@ -849,19 +867,8 @@ function App() {
     }
     const candidate = structuredClone(work!.project);
     const p = candidate.pages.find(x=>x.id===page!.id)!;
-    {
-      const index = p.blocks.findIndex(b=>b.id===from);
-      const [b] = p.blocks.splice(index,1);
-      if (placement && !placement.boundary && !b.source) b.placement = placement;
-      else delete b.placement;
-      const at = p.blocks.findIndex(x=>x.id===target);
-      p.blocks.splice(at<0?p.blocks.length:at+(after?1:0),0,b);
-      p.blocks.forEach(child=>{
-        if(child.placement?.before===from)delete child.placement.before;
-        const owner=p.blocks.find(x=>x.id===child.placement?.section);
-        if(owner && ["section","row","column"].includes(owner.type) && child.placement)delete child.placement.before;
-      });
-    }
+    try { if(!relocate(p,from,target,after,placement))return; }
+    catch(error){notice((error as Error).message);return;}
     const issues = core.validate(candidate,data!.registry,resources);
     if(issues.length){notice(issues.join(" "));return;}
     pageEdit(next=>{next.blocks=p.blocks;});
@@ -871,17 +878,19 @@ function App() {
     if (!page || from===to) return;
     const moving=page.blocks.find(b=>b.id===from),target=page.blocks.find(b=>b.id===to);
     if(!moving || !target)return;
-    const peers=page.blocks.filter(b=>b.placement?.section===moving.placement?.section && b.placement?.parent===moving.placement?.parent);
-    const after=peers.indexOf(moving)<peers.indexOf(target);
-    // Layer sorting changes sibling order; it never silently detaches a column.
-    if(moving.placement?.section!==target.placement?.section || moving.placement?.parent!==target.placement?.parent){notice("Drop on a canvas container to change parents. Layer sorting keeps elements in their current container.");return;}
-    placeBlock(from,to,after,target.placement ? {...target.placement} : undefined);
+    const same=moving.placement?.section===target.placement?.section && moving.placement?.parent===target.placement?.parent;
+    const peers=blockSiblings(page,moving);
+    const after=same ? peers.indexOf(moving)<peers.indexOf(target) : page.blocks.indexOf(moving)<page.blocks.indexOf(target);
+    placeBlock(from,to,after,placementFor(to,"",after,false));
+  }
+  function stepLayer(id:string,delta:number) {
+    const moving=page?.blocks.find(b=>b.id===id);if(!page || !moving)return;
+    const peers=blockSiblings(page,moving),next=peers[peers.indexOf(moving)+delta];
+    if(next)placeBlock(id,next.id,delta>0,placementFor(next.id,"",delta>0,false));
   }
   function arrow(delta: number) {
     if (!block || !page) return;
-    const peers=page.blocks.filter(b=>b.placement?.section===block.placement?.section && b.placement?.parent===block.placement?.parent);
-    const next=peers[peers.indexOf(block)+delta];
-    if(next)move(block.id,next.id);
+    stepLayer(block.id,delta);
   }
   function aboutEdit(fn: (m: About) => void, group: string) {
     edit((w) => {
@@ -1515,7 +1524,7 @@ function App() {
                 <p className="sidebar-help">
                   Select a section, row or column to insert inside it. Select an element to insert after it. Drag onto a section line for an exact position.
                 </p>
-                <div className="insertion-context" role="status">Inserting {block ? (["section","row","column"].includes(block.type) || block.source && !elementId ? "inside " : "after ") + block.label : "at the top of the page"}</div>
+                <div className="insertion-context" role="status">Inserting {pendingInsert ? (pendingInsert.placement?.boundary ? pendingInsert.placement.boundary+" "+page.blocks.find(b=>b.id===pendingInsert.block)?.label : "in the selected container") : block ? (["section","row","column"].includes(block.type) || block.source && !elementId ? "inside " : "after ") + block.label : "at the top of the page"}</div>
                 <h3 className="palette-heading">Your reusable sections</h3>
                 <p className="sidebar-help">Saved with this website draft. Insert an independent copy on any page.</p>
                 <div className="pattern-list">{(work.project.patterns||[]).filter(p=>p.name.toLowerCase().includes(search.toLowerCase())).map(p=><div className="pattern-item" key={p.id}><button draggable onDragStart={e=>e.dataTransfer.setData("application/sane-block","pattern:"+p.id)} onClick={()=>add("pattern:"+p.id)}><strong>{p.name}</strong><small>{p.blocks.length} editable layers · Insert copy</small></button><button className="pattern-remove" aria-label={"Remove reusable "+p.name} onClick={()=>edit(w=>{w.project.patterns=w.project.patterns?.filter(x=>x.id!==p.id);})}>×</button></div>)}</div>
@@ -1592,6 +1601,8 @@ function App() {
                     setMobile("right");
                   }}
                   move={(a, b) => move(layerBlocks[a].id, layerBlocks[b].id)}
+                  step={stepLayer}
+                  canStep={(id,delta)=>{const b=page.blocks.find(b=>b.id===id)!;const peers=blockSiblings(page,b);return !!peers[peers.indexOf(b)+delta];}}
                   add={() => setLeftTab("insert")}
                 />
                 {block?.type === "legacy" && selectedDescriptor ? (
@@ -1633,11 +1644,7 @@ function App() {
             className="studio-center"
             onDragOver={(e) => e.preventDefault()}
             onDrop={(e) => {
-              const type = e.dataTransfer.getData("application/sane-block");
-              if (core.TYPES.includes(type)) {
-                e.preventDefault();
-                add(type);
-              }
+              if(e.dataTransfer.getData("application/sane-block")) {e.preventDefault();notice("Drop on a highlighted section line or container inside the page.");}
             }}
           >
             <div className="studio-page-bar">
@@ -1705,8 +1712,7 @@ function App() {
                 placeBlock,
                 resize: (b,id,width,height) => targetDesignEdit(b,id,{width,height}),
                 pickInsert: (block, placement) => {
-                  insertionTarget.current = {block, placement};
-                  setLeftTab("insert"); setMobile("left");
+                  queueInsert(block,placement);
                 },
                 reorder: reorderElement,
                 offset: (b,id,x,y) => targetDesignEdit(b,id,{x,y}),
@@ -1809,7 +1815,7 @@ function App() {
                   <strong>{elementId ? "Selected element" : block.label}</strong>
                 </nav>
                 <div className="selection-context-actions">
-                  <button onClick={()=>{insertionTarget.current={block:block.id,placement:placementFor(block.id,elementId,true)};setLeftTab("insert");setMobile("left");}}>＋ Insert here</button>
+                  <button onClick={()=>{queueInsert(block.id,placementFor(block.id,elementId,true));}}>＋ Insert here</button>
                   <button onClick={()=>{select(block.id);setTimeout(()=>{const group=document.querySelector<HTMLElement>('.studio-inspector [data-design-group="3"]');group?.scrollIntoView({block:"start",behavior:"smooth"});},0);}}>Section background</button>
                 </div>
                 {!block.source ? <div className="reusable-builder"><label className="field">Reusable section name<input aria-label="Reusable section name" maxLength={80} value={patternName} placeholder={block.label} onChange={e=>setPatternName(e.target.value)}/></label><button onClick={()=>{try{const blocks=patterns.collect(page,block.id);const pattern={id:crypto.randomUUID(),name:(patternName.trim()||block.label).slice(0,80),blocks};const next=structuredClone(work.project);next.patterns=[...(next.patterns||[]),pattern];const issues=core.validate(next,data.registry,resources);if(issues.length)throw Error(issues.join(" "));edit(w=>{w.project=next;});setPatternName("");notice("Reusable section saved with your draft. Find it under Insert.");}catch(e){notice((e as Error).message);}}}>Save reusable section</button></div> : null}
@@ -2174,6 +2180,16 @@ function App() {
                     />
                   </label>
                 ) : null}
+                {block.type==="image" ? <section className="image-presets" aria-label="Image display modes"><h3>Image display · {device}</h3><p>Choose a starting point, then fine-tune size, crop, focal point, borders and position below. Background modes fill this image layer; select its parent to edit the whole section.</p><div className="image-preset-grid">{["Natural size","Fill / crop","Small card","Full screen","Background","Parallax"].map(mode=><button key={mode} onClick={()=>blockEdit(b=>{
+                  b.responsive ||= {};const v=b.responsive[device] ||= {};
+                  for(const key of ["height","heightCss","widthCss","maxWidthCss","minHeight","viewportHeight","aspectRatio","backgroundImage","backgroundAttachment","backgroundSize","backgroundPosition"])delete v[key];
+                  Object.assign(v,{width:100,padding:0,radius:0,x:0,y:0,objectFit:mode==="Natural size"?"contain":"cover"});
+                  
+                  if(mode==="Fill / crop")Object.assign(v,{height:480,overflow:"hidden"});
+                  if(mode==="Small card")Object.assign(v,{maxWidthCss:"24rem",aspectRatio:"4 / 3",radius:16,overflow:"hidden"});
+                  if(mode==="Full screen")Object.assign(v,{viewportHeight:"full",heightCss:"100svh",overflow:"hidden"});
+                  if(mode==="Background" || mode==="Parallax")Object.assign(v,{backgroundImage:b.props?.src || "",backgroundSize:"cover",backgroundPosition:"center",backgroundAttachment:mode==="Parallax"?"fixed":"scroll",viewportHeight:"full",overflow:"hidden"});
+                })}>{mode}</button>)}</div></section> : null}
                 {!block.source ? <details className="design-options"><summary>Shared section defaults</summary><p className="design-help">These presets affect every screen size. Use the device controls below for size-specific changes.</p><label className="field">Colour preset<select aria-label="Shared colour preset" value={block.theme || "white"} onChange={e=>blockEdit(b=>{b.theme=e.target.value;})}>{["white","soft","accent","dark"].map(v=><option key={v}>{v}</option>)}</select></label><label className="field">Section padding (all sizes)<input type="number" min={0} max={120} value={block.spacing ?? 48} onChange={e=>blockEdit(b=>{b.spacing=Math.max(0,Math.min(120,Number(e.target.value)));})}/></label></details> : null}
                 {!elementId || block.type !== "legacy" ? <DesignInspector
                   key={block.id+":"+device}

@@ -104,6 +104,15 @@ function rules(id,base,responsive,attribute="data-studio-style",states){
    if(layout)out+='.studio-block'+selector+'>.container{'+layout+'}';
    if(type)out+='.studio-block'+selector+'>.container :is(h1,h2,h3,p,a){'+type+'}';
    if(image)out+='.studio-block'+selector+' img{'+image+'}';
+   // Image layer dimensions describe the visible image, not only its outer section.
+   const imageRoot=selector+'[data-studio-type="image"]';
+   if(value.width!=null || value.widthCss!=null || value.height!=null || value.heightCss!=null || value.viewportHeight || value.aspectRatio || value.maxWidthCss){
+    out+=imageRoot+'>.container{width:100%!important;max-width:none!important;padding-inline:0!important}'+imageRoot+' figure{width:100%;margin:0}'+imageRoot+' img{display:block;width:100%!important}';
+    const sizing=css(pick(['heightCss','maxHeightCss','minHeightCss']));
+    if(sizing)out+=imageRoot+' img{'+sizing+'}';
+    if(value.viewportHeight==='full' && !value.backgroundImage)out+=imageRoot+' img{height:100svh!important;object-fit:cover}';
+   }
+   if(value.backgroundImage!=null)out+=imageRoot+' img{display:'+(value.backgroundImage?'none':'block')+'!important}';
    const button=css(pick(['background','backgroundImage','backgroundSize','backgroundPosition','backgroundOverlay','gradient','gradientFrom','gradientTo','gradientAngle','padding','paddingTop','paddingRight','paddingBottom','paddingLeft','radius','radiusTopLeft','radiusTopRight','radiusBottomLeft','radiusBottomRight','borderStyle','borderWidth','borderColor','shadow','shadowX','shadowY','shadowBlur','shadowSpread','shadowOpacity','shadowColor']));
    if(button){out+=selector+'[data-studio-type="button"]{background:transparent!important;border:0!important;border-radius:0!important;box-shadow:none!important;padding-block:var(--studio-section-padding,48px)!important;padding-inline:0!important}';out+=selector+'[data-studio-type="button"]>.container>.btn{'+button+'}';}
    if(value.width!=null || value.widthCss!=null)out+=selector+'[data-studio-type="button"]>.container>.btn{width:100%!important;box-sizing:border-box}';

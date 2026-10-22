@@ -49,7 +49,7 @@ export function htmlFor(
   const style =
     "<style>[data-animate],[data-animate-stagger]>*{opacity:1!important;transform:none!important;transition:none!important}" +
     (annotate
-      ? "[data-studio-element]{cursor:pointer;outline-offset:-2px;transition:none!important;animation:none!important}[data-studio-block]{transition:none!important;animation:none!important}[data-studio-element]:hover{outline:1px dashed #aa8bdb}[data-studio-drop=before-x]{box-shadow:-4px 0 #c49bff!important}[data-studio-drop=after-x]{box-shadow:4px 0 #c49bff!important}[data-studio-drop=inside]{outline:2px solid #c49bff!important}[data-studio-drop=before]{box-shadow:0 -3px #a47af2!important}[data-studio-drop=after]{box-shadow:0 3px #a47af2!important}[data-studio-element-selected]{outline:2px solid #b789ff!important}.video-hero-overlay{pointer-events:none!important}video{pointer-events:auto!important}[data-studio-block]{cursor:pointer;outline-offset:-2px}[data-studio-block]:hover{outline:1px solid #a181c4}[data-studio-selected]{outline:2px solid #8559ad!important}"
+      ? "[data-studio-tool=move] :is([data-studio-element],[data-studio-block],[data-studio-part]){cursor:move!important}[data-studio-tool=resize] :is([data-studio-element],[data-studio-block],[data-studio-part]){cursor:nwse-resize!important}#studio-canvas-tools button[aria-pressed=true]{background:#725582!important;color:white!important}[data-studio-boundary][aria-pressed=true]{opacity:1!important;filter:brightness(1.2)}[data-studio-boundary]:hover{opacity:1!important}[data-studio-element]{cursor:pointer;outline-offset:-2px;transition:none!important;animation:none!important}[data-studio-block]{transition:none!important;animation:none!important}[data-studio-element]:hover{outline:1px dashed #aa8bdb}[data-studio-drop=before-x]{box-shadow:-4px 0 #c49bff!important}[data-studio-drop=after-x]{box-shadow:4px 0 #c49bff!important}[data-studio-drop=inside]{outline:2px solid #c49bff!important}[data-studio-drop=before]{box-shadow:0 -3px #a47af2!important}[data-studio-drop=after]{box-shadow:0 3px #a47af2!important}[data-studio-element-selected]{outline:2px solid #b789ff!important}.video-hero-overlay{pointer-events:none!important}video{pointer-events:auto!important}[data-studio-block]{cursor:pointer;outline-offset:-2px}[data-studio-block]:hover{outline:1px solid #a181c4}[data-studio-selected]{outline:2px solid #8559ad!important}"
       : "") +
     "</style>";
   return html.replace(
@@ -124,15 +124,8 @@ export function prepareFrame(
   };
   const selectedFrom = (target: Element) => {
     const el = elementAt(target);
-    return {
-      block:
-        el.closest("[data-studio-block]")?.getAttribute("data-studio-block") ||
-        "",
-      element: el.closest("[data-studio-part]") ? "part:"+el.closest("[data-studio-part]")!.getAttribute("data-studio-part") :
-        el
-          .closest("[data-studio-element]")
-          ?.getAttribute("data-studio-element") || "",
-    };
+    const owner=el.closest("[data-studio-block]"), part=el.closest("[data-studio-part]"), element=el.closest("[data-studio-element]");
+    return {block:owner?.getAttribute("data-studio-block") || "",element:el===owner ? "" : part?.closest("[data-studio-block]")===owner ? "part:"+part.getAttribute("data-studio-part") : element?.closest("[data-studio-block]")===owner ? element.getAttribute("data-studio-element") || "" : ""};
   };
   win.addEventListener(
     "click",
@@ -142,10 +135,17 @@ export function prepareFrame(
       const boundary = el.closest("[data-studio-boundary]") as HTMLElement | null;
       if (boundary && select) {
         e.preventDefault(); e.stopImmediatePropagation();
-        tools?.pickInsert?.(boundary.dataset.block!, {boundary:boundary.dataset.studioBoundary});
+        d.querySelectorAll('[data-studio-boundary][aria-pressed="true"]').forEach(n=>n.setAttribute("aria-pressed","false"));
+        boundary.setAttribute("aria-pressed","true");
+        tools?.pickInsert?.(boundary.dataset.block!, boundary.dataset.scope==="nested" ? tools?.placement?.(boundary.dataset.block!,"",boundary.dataset.studioBoundary==="after",false) : {boundary:boundary.dataset.studioBoundary});
         return;
       }
+      if(el.closest(".studio-empty-layout")){
+        const owner=el.closest<HTMLElement>("[data-studio-block]");if(owner){e.preventDefault();e.stopImmediatePropagation();select?.(owner.dataset.studioBlock!);tools?.pickInsert?.(owner.dataset.studioBlock!,{section:owner.dataset.studioBlock!,parent:"content"});return;}
+      }
       if(el.closest("[data-studio-toolbar-close],[data-studio-toolbar-grip]")) return;
+      const toolButton=el.closest("[data-studio-free],[data-studio-resize],[data-studio-select-tool]");
+      if(toolButton){e.preventDefault();e.stopImmediatePropagation();if(performance.now()<suppressToolsUntil)return;setTool(toolButton.hasAttribute("data-studio-free")?"move":toolButton.hasAttribute("data-studio-resize")?"resize":null);return;}
       const action = el
         .closest("[data-studio-action]")
         ?.getAttribute("data-studio-action");
@@ -201,7 +201,28 @@ export function prepareFrame(
     n.setAttribute("draggable", "true"),
   );
   let dragging: { block: string; element?: string } | null = null,
-    free: any = null;
+    free: any = null, activeTool: "move" | "resize" | null = null, suppressToolsUntil=0;
+  function setTool(tool: "move"|"resize"|null){
+    activeTool=tool;if(tool)d!.body.dataset.studioTool=tool;else delete d!.body.dataset.studioTool;
+    d!.querySelectorAll("[data-studio-free],[data-studio-resize],[data-studio-select-tool]").forEach(n=>n.setAttribute("aria-pressed",String(n.hasAttribute("data-studio-free")?tool==="move":n.hasAttribute("data-studio-resize")?tool==="resize":tool===null)));
+  }
+  function clearGuides(){d?.querySelectorAll('[data-studio-guides]').forEach(n=>n.remove());}
+  function showGuides(activeX?:number,activeY?:number){
+    if(!d)return;
+    let guide=d.querySelector<HTMLElement>('[data-studio-guides]');
+    if(!guide){guide=d.createElement('div');guide.setAttribute('data-studio-guides','');guide.style.cssText='position:fixed;inset:0;pointer-events:none;z-index:2147483640';d.body.append(guide);}
+    guide.replaceChildren();
+    const line=(axis:string,value:number,active=false)=>{const n=d.createElement('div');n.style.cssText='position:absolute;pointer-events:none;background:'+(active?'#ef8cff':'#856a9c88')+';'+(axis==='x'?'top:0;bottom:0;width:1px;left:':'left:0;right:0;height:1px;top:')+value+'px';guide!.append(n);};
+    [1,win.innerWidth/2,win.innerWidth-1].forEach(x=>line('x',x));
+    const r=free.parentRect,box=d.createElement('div');box.style.cssText='position:absolute;border:1px dashed #9674b4;left:'+r.left+'px;top:'+r.top+'px;width:'+r.width+'px;height:'+r.height+'px';guide.append(box);
+    if(activeX!=null)line('x',activeX,true);if(activeY!=null)line('y',activeY,true);
+    const label=d.createElement('span');label.textContent='Page centre · Container bounds · Alt: move without snapping';label.style.cssText='position:absolute;bottom:12px;left:12px;padding:7px 10px;border-radius:6px;background:#29232f;color:#fff;font:12px system-ui';guide.append(label);
+  }
+  function snapAxis(start:number,size:number,delta:number,targets:number[]){
+    let adjustment=Infinity,hit:number|undefined;
+    for(const point of [start+delta,start+size/2+delta,start+size+delta])for(const target of targets){const diff=target-point;if(Math.abs(diff)<=6 && Math.abs(diff)<Math.abs(adjustment)){adjustment=diff;hit=target;}}
+    return {delta:delta+(hit==null?0:adjustment),hit};
+  }
   win.addEventListener(
     "pointerdown",
     (event) => {
@@ -209,19 +230,23 @@ export function prepareFrame(
         target = e.target as Element;
       const grip = target.closest("[data-studio-toolbar-grip]");
       if(grip){const bar=grip.closest<HTMLElement>("#studio-canvas-tools")!;const r=bar.getBoundingClientRect();free={toolbar:true,bar,startX:e.clientX,startY:e.clientY,x:r.left,y:r.top,originalStyle:bar.style.cssText};target.setPointerCapture?.(e.pointerId);e.preventDefault();e.stopImmediatePropagation();return;}
-      if (!target.closest("[data-studio-free],[data-studio-resize]")) return;
-      const bar = d.getElementById("studio-canvas-tools")!,
-        element = bar.dataset.element || "";
-      const picked = element.startsWith("part:") ? d.querySelector<HTMLElement>('[data-studio-block="'+bar.dataset.block+'"] [data-studio-part="'+element.slice(5)+'"]') : element ? d.querySelector<HTMLElement>(
-        '[data-studio-block="' + bar.dataset.block + '"][data-studio-element="' + element + '"], [data-studio-block="' + bar.dataset.block + '"] [data-studio-element="' + element + '"]',
-      ) : d.querySelector<HTMLElement>('[data-studio-block="'+bar.dataset.block+'"]');
+      const trigger=target.closest("[data-studio-free],[data-studio-resize]");
+      const direct=!!activeTool && !target.closest("#studio-canvas-tools,[data-studio-boundary]") && !!target.closest("[data-studio-block]");
+      if(!trigger && !direct)return;
+      const bar=d.getElementById("studio-canvas-tools"),hit=direct?selectedFrom(target):{block:bar?.dataset.block || "",element:bar?.dataset.element || ""};
+      if(!hit.block)return;
+      const blockID=hit.block,element=hit.element || "";
+      if(direct)select?.(blockID,element);
+      const picked = element.startsWith("part:") ? d.querySelector<HTMLElement>('[data-studio-block="'+blockID+'"] [data-studio-part="'+element.slice(5)+'"]') : element ? d.querySelector<HTMLElement>(
+        '[data-studio-block="' + blockID + '"][data-studio-element="' + element + '"], [data-studio-block="' + blockID + '"] [data-studio-element="' + element + '"]',
+      ) : d.querySelector<HTMLElement>('[data-studio-block="'+blockID+'"]');
       if (!picked) return;
       const el=element.startsWith("part:") ? picked.closest<HTMLElement>("[data-studio-block]")! : movementUnit(picked), movementID=el.getAttribute("data-studio-element") || element;
       e.preventDefault();
       e.stopImmediatePropagation();
-      const current = tools?.coordinates?.(bar.dataset.block!,movementID) || (win.getComputedStyle(el).translate || "0px 0px").split(" ").map(parseFloat);
+      const current = tools?.coordinates?.(blockID!,movementID) || (win.getComputedStyle(el).translate || "0px 0px").split(" ").map(parseFloat);
       free = {
-        block: bar.dataset.block,
+        block: blockID,
         element:movementID,
         el,
         startX: e.clientX,
@@ -229,12 +254,16 @@ export function prepareFrame(
         x: current[0] || 0,
         y: current[1] || 0,
         originalStyle: el.style.cssText,
-        resize: !!target.closest("[data-studio-resize]"),
+        resize: trigger ? trigger.hasAttribute("data-studio-resize") : activeTool==="resize",
+        fromTool:!!trigger,
         width: el.getBoundingClientRect().width,
         height: el.getBoundingClientRect().height,
         parentWidth: el.parentElement?.getBoundingClientRect().width || win.innerWidth,
+        rect:el.getBoundingClientRect(),parentRect:el.parentElement?.getBoundingClientRect() || d.body.getBoundingClientRect(),
+        peers:Array.from(el.parentElement?.children || []).filter(n=>n!==el && !n.hasAttribute("data-studio-boundary") && win.getComputedStyle(n).display!=="none").map(n=>n.getBoundingClientRect()),
       };
       target.setPointerCapture?.(e.pointerId);
+      showGuides();
     },
     true,
   );
@@ -246,6 +275,12 @@ export function prepareFrame(
       if(free.toolbar){free.bar.style.left=Math.max(4,Math.min(win.innerWidth-free.bar.offsetWidth-4,free.x+e.clientX-free.startX))+"px";free.bar.style.top=Math.max(4,Math.min(win.innerHeight-free.bar.offsetHeight-4,free.y+e.clientY-free.startY))+"px";free.bar.dataset.pinned="true";event.preventDefault();return;}
       free.dx = Math.round(e.clientX - free.startX);
       free.dy = Math.round(e.clientY - free.startY);
+      if(!free.resize){
+        const p=free.parentRect,rects=[p,...free.peers];
+        const xs=[0,win.innerWidth/2,win.innerWidth,...rects.flatMap(r=>[r.left,r.left+r.width/2,r.right])],ys=rects.flatMap(r=>[r.top,r.top+r.height/2,r.bottom]);
+        const x=e.altKey?{delta:free.dx,hit:undefined}:snapAxis(free.rect.left,free.rect.width,free.dx,xs),y=e.altKey?{delta:free.dy,hit:undefined}:snapAxis(free.rect.top,free.rect.height,free.dy,ys);
+        free.dx=x.delta;free.dy=y.delta;showGuides(x.hit,y.hit);
+      }
       if (free.resize) {
         free.el.style.setProperty("width", Math.max(1,Math.min(100,Math.round((free.width + free.dx)/free.parentWidth*100))) + "%", "important");
         free.el.style.setProperty("height", Math.max(0,Math.min(2000,free.height+free.dy)) + "px", "important");
@@ -257,13 +292,17 @@ export function prepareFrame(
     },
     true,
   );
-  win.addEventListener("pointercancel", () => { if(free){(free.toolbar?free.bar:free.el).style.cssText=free.originalStyle;free=null;} },true);
+  win.addEventListener("keydown",event=>{if(event.key!=="Escape")return;if(free){if(!free.toolbar)free.el.style.cssText=free.originalStyle;free=null;}clearGuides();setTool(null);},true);
+  win.addEventListener("pointercancel", () => { clearGuides();if(free){(free.toolbar?free.bar:free.el).style.cssText=free.originalStyle;free=null;} },true);
   win.addEventListener(
     "pointerup",
     () => {
       if (!free) return;
+      clearGuides();
       if(free.toolbar){free=null;return;}
       free.el.style.cssText=free.originalStyle;
+      if(Math.abs(free.dx||0)<2 && Math.abs(free.dy||0)<2){free=null;return;}
+      if(free.fromTool)suppressToolsUntil=performance.now()+150;
       if (free.resize) {
         tools?.resize?.(free.block,free.element,Math.max(1,Math.min(100,Math.round((free.width+(free.dx||0))/free.parentWidth*100))),Math.round(Math.max(0,Math.min(2000,free.height+(free.dy||0)))));
         free = null; return;
@@ -284,6 +323,7 @@ export function prepareFrame(
       const e = event as DragEvent,
         target = e.target as Element,
         bar = target.closest("#studio-canvas-tools") as HTMLElement | null;
+      if(activeTool && !bar){e.preventDefault();return;}
       const hit = bar
         ? {
             block: bar.dataset.block!,
@@ -356,11 +396,11 @@ export function prepareFrame(
             dragging = data;
         } catch {}
       }
-      const card=movingCard(), target=card ? movementUnit(e.target as Element) : elementAt(e.target as Element), hit=selectedFrom(target), r=target.getBoundingClientRect();
+      const card=movingCard(), target=card ? movementUnit(e.target as Element) : ((e.target as Element).closest("[data-studio-element],[data-studio-block]") || elementAt(e.target as Element)), hit=selectedFrom(target), r=target.getBoundingClientRect();
       const after=card && horizontalCard(target as HTMLElement) ? e.clientX>r.left+r.width/2 : e.clientY>r.top+r.height/2;
       const inside=!card && e.clientY>r.top+r.height*.25 && e.clientY<r.bottom-r.height*.25;
       const kind = e.dataTransfer?.getData("application/sane-block");
-      const destination = boundary ? {boundary:boundary.dataset.studioBoundary} : tools?.placement?.(hit.block, hit.element, after);
+      const destination = boundary ? (boundary.dataset.scope==="nested" ? tools?.placement?.(boundary.dataset.block!,"",boundary.dataset.studioBoundary==="after",false) : {boundary:boundary.dataset.studioBoundary}) : tools?.placement?.(hit.block, hit.element, after, inside);
       const destinationBlock = boundary?.dataset.block || hit.block;
       const targetAfter = boundary ? boundary.dataset.studioBoundary === "after" : after;
       let sectionDrag: any = null;
@@ -390,14 +430,22 @@ export function prepareFrame(
     true,
   );
   const refreshLines = () => {
+    d.querySelectorAll("[data-studio-element],[data-studio-block],[data-studio-part]").forEach(n=>n.setAttribute("draggable","true"));
     d.querySelectorAll("[data-studio-boundary]").forEach(n=>n.remove());
     const blocks=Array.from(d.querySelectorAll<HTMLElement>("[data-studio-block]")).filter(n=>!n.parentElement?.closest("[data-studio-block]"));
-    const entries=blocks.map(target=>({target,after:false}));if(blocks.length)entries.push({target:blocks[blocks.length-1],after:true});
-    for(const {target,after} of entries){
-      const el=d.createElement("button"),r=target.getBoundingClientRect();el.type="button";el.dataset.studioBoundary=after?"after":"before";el.dataset.block=target.dataset.studioBlock;
+    const entries=blocks.map(target=>({target,after:false,nested:false}));if(blocks.length)entries.push({target:blocks[blocks.length-1],after:true,nested:false});
+    const selected=d.querySelector<HTMLElement>('[data-studio-element-selected]');
+    const selectedBlock=selected?.closest<HTMLElement>('[data-studio-block]');
+    const container=selectedBlock?.matches('.studio-layout-section,.studio-layout-row,.studio-layout-column') ? selectedBlock : selectedBlock?.parentElement?.closest<HTMLElement>('.studio-layout-section,.studio-layout-row,.studio-layout-column');
+    if(container){
+      const children=Array.from(container.querySelectorAll<HTMLElement>('[data-studio-block]')).filter(n=>n.parentElement?.closest('[data-studio-block]')===container);
+      children.forEach(target=>entries.push({target,after:false,nested:true}));if(children.length)entries.push({target:children[children.length-1],after:true,nested:true});
+    }
+    for(const {target,after,nested} of entries){
+      const el=d.createElement("button"),r=target.getBoundingClientRect();el.type="button";el.dataset.studioBoundary=after?"after":"before";el.dataset.block=target.dataset.studioBlock;if(nested)el.dataset.scope="nested";
       el.setAttribute("aria-label",(after?"Insert after ":"Insert before ")+target.dataset.studioBlock);
       el.innerHTML='<span style="display:inline-block;background:#493659;color:#fff;padding:3px 12px;border-radius:9px">+ Insert here</span>';
-      el.style.cssText="position:absolute;left:12px;right:12px;z-index:2147483600;height:22px;border:0;background:linear-gradient(#ab8bce,#ab8bce) center/100% 1px no-repeat;color:white;font:14px system-ui;cursor:copy;opacity:.6;top:"+Math.max(0,win.scrollY+(after?r.bottom:r.top)-12)+"px";d.body.append(el);
+      el.style.cssText="position:absolute;left:12px;right:12px;z-index:2147483600;height:22px;border:0;background:linear-gradient(#ab8bce,#ab8bce) center/100% 1px no-repeat;color:white;font:14px system-ui;cursor:copy;opacity:.6;top:"+Math.max(0,win.scrollY+(after?r.bottom:r.top)-12)+"px";if(nested){el.style.left=(r.left+win.scrollX+8)+"px";el.style.width=Math.max(60,r.width-16)+"px";el.style.right="auto";}d.body.append(el);
     }
   };
   refreshLines();d.addEventListener("studio:layout-updated",refreshLines);
@@ -429,7 +477,7 @@ export interface CanvasTools {
     after: boolean,
     inside?: boolean,
   ) => void;
-  placement?: (block: string, element: string, after: boolean) => any;
+  placement?: (block: string, element: string, after: boolean, inside?: boolean) => any;
 }
 export function SiteCanvas({
   page,
@@ -542,6 +590,7 @@ export function SiteCanvas({
       n.removeAttribute("data-studio-element-selected"),
     );
     const previousBar = d?.getElementById("studio-canvas-tools");
+    d?.querySelectorAll("#studio-canvas-tools").forEach(n=>{if(n!==previousBar)n.remove();});
     const sameBar = previousBar?.dataset.selection === selected+":"+(selectedElement || "");
     if(!sameBar)previousBar?.remove();
     if (d && active) {
@@ -558,8 +607,10 @@ export function SiteCanvas({
       if(!sameBar)bar.style.cssText =
         "position:fixed;z-index:2147483647;display:flex;flex-wrap:wrap;gap:4px;padding:5px;background:#29262e;color:#f5f2f7;border:1px solid #514a5b;border-radius:10px;box-shadow:0 8px 24px #0003;font:12px system-ui;max-width:95vw";
       const added=page.blocks.find(b=>b.id===selected && !b.source),imageSelected=chosen?.tagName==="IMG" || added?.type==="image";
+      const type=added?.type || chosen?.tagName?.toLowerCase() || "section";
+      const settingsLabel=imageSelected?"Image settings":["section","row","column"].includes(type)?"Layout settings":type==="a" || type==="button"?"Button settings":/^(h[1-6]|p|text|heading|span)$/.test(type)?"Text settings":type==="video"?"Video settings":"Edit settings";
       if(!sameBar)bar.innerHTML =
-        '<button data-studio-toolbar-grip aria-label="Move toolbar" title="Drag this grip to move the toolbar">⠿</button>'+(!chosen && !added ? '<button draggable="true" data-studio-section-drag>↕ Section</button>' : '') +
+        '<button data-studio-select-tool aria-label="Select tool">↖ Select</button><button data-studio-action="edit" title="Open settings for this selection">'+settingsLabel+'</button><button data-studio-action="insert">＋ Insert</button><button data-studio-action="up" aria-label="Move selected layer up">↑</button><button data-studio-action="down" aria-label="Move selected layer down">↓</button><button data-studio-toolbar-grip aria-label="Move toolbar" title="Drag this grip to move the toolbar">⠿</button>'+(!chosen && !added ? '<button draggable="true" data-studio-section-drag>↕ Section</button>' : '') +
         (chosen || added
           ? '<button draggable="true">↕ '+(chosen?.dataset.studioDragOwner?'Drag card':imageSelected?'Drag image':'Drag element')+'</button><button data-studio-free title="Drag to move on the current device layout">✥ Move freely</button><button data-studio-resize title="Drag to resize on the current device layout">⤡ Resize</button><button data-studio-action="remove">'+(imageSelected?'Remove image':'Remove')+'</button>'
           : "") + ((chosen?.tagName === "VIDEO" || (chosen || active)?.querySelector("video")) ? '<button data-studio-media-play aria-label="Play / pause video">▶ / Ⅱ Video</button>' : '') + '<button data-studio-toolbar-close aria-label="Close element toolbar" title="Hide controls; your selection stays active">×</button>';
@@ -577,26 +628,26 @@ export function SiteCanvas({
               6 / zoom +
               "px;cursor:grab;font:inherit;touch-action:none"),
         );
+      const tool=d.body.dataset.studioTool;
+      bar.querySelectorAll('[data-studio-free],[data-studio-resize],[data-studio-select-tool]').forEach(n=>n.setAttribute('aria-pressed',String(n.hasAttribute('data-studio-free')?tool==='move':n.hasAttribute('data-studio-resize')?tool==='resize':!tool)));
       if(!sameBar)d.body.append(bar);
+      d.dispatchEvent(new Event("studio:layout-updated"));
       const position = () => {
         if(bar.dataset.pinned)return;
         const r = (chosen || active!).getBoundingClientRect();
-        bar.style.top =
-          Math.max(
-            4,
-            Math.min(
-              frame.current!.contentWindow!.innerHeight - 45,
-              r.top - 38,
-            ),
-          ) + "px";
-        bar.style.left =
-          Math.max(
-            4,
-            Math.min(
-              frame.current!.contentWindow!.innerWidth - bar.offsetWidth - 4,
-              r.left,
-            ),
-          ) + "px";
+        const view=frame.current!.contentWindow!,height=bar.offsetHeight;
+        const left=Math.max(4,Math.min(view.innerWidth-bar.offsetWidth-4,r.left));
+        let top=r.top-height-8;
+        if(top<28)top=Math.max(28,r.bottom+8);
+        top=Math.max(28,Math.min(view.innerHeight-height-8,top));
+        // The toolbar must not intercept the insertion line beneath it. Its real
+        // height includes wrapping and canvas zoom, so a fixed 38px offset fails.
+        const lines=Array.from(d.querySelectorAll('[data-studio-boundary]')).map(n=>n.getBoundingClientRect()).sort((a,b)=>a.top-b.top);
+        for(const line of lines)if(left<line.right && left+bar.offsetWidth>line.left && top<line.bottom && top+height>line.top){
+          if(line.bottom+8+height<view.innerHeight)top=line.bottom+8;
+          else if(line.top-height-8>=28)top=line.top-height-8;
+        }
+        bar.style.top=top+"px";bar.style.left=left+"px";
       };
       position();
       const win = frame.current?.contentWindow;
