@@ -231,51 +231,96 @@
       }
     }
 
-    /* ---- Rent Section ---- */
+    /* ---- Rent the Space: split header, then three tall photo cards with a short story each ---- */
+    .rent-head {
+      display: grid;
+      grid-template-columns: 1.1fr 1fr;
+      gap: var(--space-lg) var(--space-2xl);
+      align-items: end;
+      margin-bottom: clamp(2.5rem, 5vw, 3.75rem);
+    }
+    .rent-head h2 { margin: 0; }
+    .rent-head p { margin: 0 0 var(--space-lg); font-size: 1.05rem; max-width: 30rem; }
+    .section-eyebrow {
+      display: block;
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--clr-accent);
+      margin-bottom: var(--space-md);
+    }
+
     .rent-grid {
       display: grid;
       grid-template-columns: repeat(3, 1fr);
-      gap: var(--space-xl);
-      max-width: var(--max-width);
-      margin: 0 auto;
+      gap: clamp(1.5rem, 3vw, 2.5rem);
     }
 
     .rent-card {
-      position: relative;
-      border-radius: 12px;
-      overflow: hidden;
-      aspect-ratio: 4/3;
-      cursor: pointer;
+      display: flex;
+      flex-direction: column;
+      color: inherit;
       text-decoration: none;
     }
+    .rent-card:hover { color: inherit; }
 
-    .rent-card img {
+    .rent-card-photo {
+      position: relative;
+      aspect-ratio: 4 / 5;
+      overflow: hidden;
+      border-radius: 16px;
+      box-shadow: var(--shadow-soft);
+      margin-bottom: var(--space-lg);
+    }
+    .rent-card-photo img {
       width: 100%;
       height: 100%;
       object-fit: cover;
-      transition: transform 0.4s ease;
+      border-radius: 0;
+      transition: transform 0.7s var(--ease-soft);
     }
+    .rent-card:hover .rent-card-photo img,
+    .rent-card:focus-visible .rent-card-photo img { transform: scale(1.05); }
 
-    .rent-card:hover img {
-      transform: scale(1.05);
-    }
-
-    .rent-card-label {
-      position: absolute;
-      bottom: 0;
-      left: 0;
-      right: 0;
-      padding: var(--space-lg) var(--space-lg) var(--space-md);
-      background: linear-gradient(transparent, rgba(0,0,0,0.7));
-      color: #fff;
-      font-size: 1.1rem;
+    .rent-card-meta {
+      font-size: 12px;
       font-weight: 700;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: var(--clr-accent);
+      margin-bottom: var(--space-sm);
+    }
+    .rent-card h3 {
+      font-size: clamp(1.7rem, 2.4vw, 2.1rem);
+      font-weight: 500;
+      margin-bottom: var(--space-sm);
+    }
+    .rent-card p { font-size: 1rem; line-height: 1.7; margin-bottom: var(--space-md); }
+    .rent-card-link {
+      margin-top: auto;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      align-self: flex-start;
+      font-size: 12.5px;
+      font-weight: 700;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--clr-plum);
+      padding-bottom: 6px;
+      border-bottom: 1px solid var(--clr-accent);
+      transition: gap 0.25s ease, color 0.25s ease;
+    }
+    .rent-card:hover .rent-card-link { gap: 12px; color: var(--clr-accent); }
+
+    @media (max-width: 900px) {
+      .rent-head { grid-template-columns: 1fr; align-items: start; }
+      .rent-grid { grid-template-columns: 1fr; gap: var(--space-2xl); }
+      .rent-card-photo { aspect-ratio: 4 / 3; }
     }
 
     @media (max-width: 768px) {
-      .rent-grid {
-        grid-template-columns: 1fr;
-      }
       .video-hero {
         min-height: 520px;
       }
@@ -387,28 +432,40 @@
   </section>
 
   <!-- 3. Rent the Space -->
-  <section class="section section-alt">
+  <section class="section section-alt" id="rent-the-space">
     <div class="container">
-      <div class="home-section-header" data-animate>
-        <h2>Rent the Space</h2>
-        <p>Host your next event at the Sane Living Center</p>
+      <div class="rent-head" data-animate>
+        <div>
+          <span class="section-eyebrow">Spaces for your event</span>
+          <h2>Rent the Space</h2>
+        </div>
+        <div>
+          <p>Host your next event at the Sane Living Center — a soundproof hall, a quiet conference room and room to celebrate, all in downtown Ojai.</p>
+          <a href="/rent/pricing/" class="btn btn-outline">Rates &amp; Availability</a>
+        </div>
       </div>
       <div class="rent-grid" data-animate>
         <a href="/rent/" class="rent-card">
-          <img src="/images/main-hall.jpg" alt="Main Hall at Sane Living, set up with rows of chairs facing the stage">
-          <div class="rent-card-label">Main Hall</div>
+          <div class="rent-card-photo"><img src="/images/main-hall.jpg" alt="The Main Hall at Sane Living, set up with rows of chairs facing the stage" loading="lazy"></div>
+          <span class="rent-card-meta">Up to 225 guests</span>
+          <h3>Main Hall</h3>
+          <p>A soundproof auditorium with a stage, projector, sound system and theatre lighting. Seats 110, or 225 standing.</p>
+          <span class="rent-card-link">Explore the Main Hall <span aria-hidden="true">&rarr;</span></span>
+        </a>
+        <a href="/rent/weddings/" class="rent-card">
+          <div class="rent-card-photo"><img src="/IMG_0197.jpg" alt="A candlelit wedding ceremony in the Main Hall, with a floral arch and draped walls" loading="lazy"></div>
+          <span class="rent-card-meta">Ceremonies &amp; receptions</span>
+          <h3>Weddings</h3>
+          <p>Say your vows in the Main Hall and celebrate outdoors, with your own caterer welcome.</p>
+          <span class="rent-card-link">Plan your wedding <span aria-hidden="true">&rarr;</span></span>
         </a>
         <a href="/rent/" class="rent-card">
-          <img src="/images/center-office.jpg" alt="Conference Room">
-          <div class="rent-card-label">Conference Room</div>
+          <div class="rent-card-photo"><img src="/images/center-office.jpg" alt="The Conference Room at Sane Living, with a long table, whiteboard and natural light" loading="lazy"></div>
+          <span class="rent-card-meta">Meetings &amp; getting ready</span>
+          <h3>Conference Room</h3>
+          <p>A calm, separate room for meetings and workshops, or a private space to get ready on the big day.</p>
+          <span class="rent-card-link">Rent the Conference Room <span aria-hidden="true">&rarr;</span></span>
         </a>
-        <a href="/sculpture/" class="rent-card">
-          <img src="/images/evo3-sculpture.jpg" alt="EVO3 Sculpture">
-          <div class="rent-card-label">Sculpture</div>
-        </a>
-      </div>
-      <div style="text-align: center; margin-top: var(--space-xl);">
-        <a href="/rent/" class="btn btn-outline">Rates &amp; Availability</a>
       </div>
     </div>
   </section>
