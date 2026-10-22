@@ -19,11 +19,22 @@
     var phone=cfg.safeUrl(s.phoneLink,'tel');
     var email=/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(s.email)?s.email:'';
     var social=['instagramUrl','facebookUrl'].map(function(key){var url=cfg.safeUrl(s[key],'url');return url?'<a href="'+esc(url)+'" target="_blank" rel="noopener noreferrer">'+(key==='instagramUrl'?'Instagram':'Facebook')+'</a>':'';}).join(' ');
-    return '<div class="container">'+signup+'<p class="footer-address">'+esc(s.businessName)+(s.address?' · '+esc(s.address):'')+'</p>'+
-      '<p class="footer-contact">'+(phone?'<a href="'+esc(phone)+'">'+esc(s.phoneDisplay)+'</a>':esc(s.phoneDisplay))+(email?' · <a href="mailto:'+esc(email)+'">'+esc(email)+'</a>':'')+'</p>'+
-      (s.hours?'<p class="footer-hours">'+esc(s.hours)+'</p>':'')+
-      '<nav class="footer-links" aria-label="Footer navigation"><a href="/rent/">Rent</a><a href="/events/">Events</a><a href="/contact/">Contact</a><a href="/dash/">Team Login</a></nav>'+
-      (social?'<div class="footer-social">'+social+'</div>':'')+(s.footerText?'<p class="footer-note">'+esc(s.footerText)+'</p>':'')+'<p class="footer-copy">© '+new Date().getFullYear()+' '+esc(s.businessName)+'</p></div>';
+    var logo=cfg.safeUrl(s.logoUrl,'image')||'/images/logo.png';
+    var directions=cfg.safeUrl(s.directionsUrl,'link');
+    // V3 footer: newsletter band, then brand / Visit / Contact / Explore columns, then a quiet bottom bar.
+    // Class names .mc-signup-footer, .footer-links, .footer-address, .footer-contact, .footer-hours,
+    // .footer-social, .footer-note and .footer-copy are kept as stable hooks.
+    return '<div class="container">'+(signup?'<div class="footer-top">'+signup+'</div>':'')+
+      '<div class="footer-grid">'+
+        '<div class="footer-brand"><a href="/" class="footer-logo" aria-label="'+esc(s.businessName)+' home"><img src="'+esc(logo)+'" alt="'+esc(s.logoAlt||s.businessName)+'" width="200" height="63" loading="lazy"></a>'+
+          (s.footerText?'<p class="footer-note">'+esc(s.footerText)+'</p>':'')+'</div>'+
+        '<div class="footer-col"><h2 class="footer-heading">Visit</h2><p class="footer-address">'+esc(s.businessName)+(s.address?'<br>'+esc(s.address):'')+'</p>'+
+          (s.hours?'<p class="footer-hours">'+esc(s.hours)+'</p>':'')+(directions?'<a class="footer-more" href="'+esc(directions)+'" target="_blank" rel="noopener">Get directions</a>':'')+'</div>'+
+        '<div class="footer-col"><h2 class="footer-heading">Contact</h2><p class="footer-contact">'+(phone?'<a href="'+esc(phone)+'">'+esc(s.phoneDisplay)+'</a>':esc(s.phoneDisplay))+(email?'<br><a href="mailto:'+esc(email)+'">'+esc(email)+'</a>':'')+'</p>'+
+          (social?'<div class="footer-social">'+social+'</div>':'')+'</div>'+
+        '<div class="footer-col"><h2 class="footer-heading">Explore</h2><nav class="footer-links" aria-label="Footer navigation"><a href="/rent/">Rent the Space</a><a href="/rent/pricing/">Rates &amp; Availability</a><a href="/rent/weddings/">Weddings</a><a href="/events/">Events</a><a href="/gallery/">Photo Gallery</a><a href="/contact/">Contact</a></nav></div>'+
+      '</div>'+
+      '<div class="footer-bottom"><p class="footer-copy">© '+new Date().getFullYear()+' '+esc(s.businessName)+'</p><a class="footer-team" href="/dash/">Team Login</a></div></div>';
   }
   function navigation(s) {
     var list=document.getElementById('nav-links');if(!list)return;

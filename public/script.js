@@ -112,30 +112,38 @@ function injectFooter() {
   const year = new Date().getFullYear();
 
   el.className = 'site-footer';
+  // Fallback until public/site-content.js re-renders the footer from the dashboard settings.
   el.innerHTML = `
     <div class="container">
-      <div class="mc-signup mc-signup-footer">
-        <h4>Subscribe for updates</h4>
-        <form action="https://saneliving.us19.list-manage.com/subscribe/post?u=b3bc47585c00a4e19f7c3841d&amp;id=590b76d0aa" method="post" target="_blank" novalidate>
-          <input type="email" name="EMAIL" placeholder="Email address" required>
-          <div style="position: absolute; left: -5000px;" aria-hidden="true">
-            <input type="text" name="b_b3bc47585c00a4e19f7c3841d_590b76d0aa" tabindex="-1" value="">
-          </div>
-          <button type="submit">Subscribe</button>
-        </form>
+      <div class="footer-top">
+        <div class="mc-signup mc-signup-footer">
+          <h4>Subscribe for updates</h4>
+          <form action="https://saneliving.us19.list-manage.com/subscribe/post?u=b3bc47585c00a4e19f7c3841d&amp;id=590b76d0aa" method="post" target="_blank" novalidate>
+            <label class="visually-hidden" for="footer-email">Email address</label>
+            <input id="footer-email" type="email" name="EMAIL" placeholder="Email address" required>
+            <div style="position: absolute; left: -5000px;" aria-hidden="true">
+              <input type="text" name="b_b3bc47585c00a4e19f7c3841d_590b76d0aa" tabindex="-1" value="">
+            </div>
+            <button type="submit">Subscribe</button>
+          </form>
+        </div>
       </div>
-      <p class="footer-address">SANE LIVING CENTER · 316 E Matilija St, Ojai, CA 93023</p>
-      <p class="footer-contact">
-        +1 (805) 646-6000 ·
-        <a href="mailto:info@saneliving.com">info@saneliving.com</a>
-      </p>
-      <nav class="footer-links" aria-label="Footer navigation">
-        <a href="/rent/">Rent</a>
-        <a href="/events/">Events</a>
-        <a href="/contact/">Contact</a>
-        <a href="/dash/">Team Login</a>
-      </nav>
-      <p class="footer-copy">© ${year} Sane Living</p>
+      <div class="footer-grid">
+        <div class="footer-brand"><a href="/" class="footer-logo" aria-label="Sane Living home"><img src="/images/logo.png" alt="Sane Living" width="200" height="63" loading="lazy"></a></div>
+        <div class="footer-col"><h2 class="footer-heading">Visit</h2><p class="footer-address">Sane Living Center<br>316 E Matilija St, Ojai, CA 93023</p></div>
+        <div class="footer-col"><h2 class="footer-heading">Contact</h2><p class="footer-contact"><a href="tel:+18056466000">+1 (805) 646-6000</a><br><a href="mailto:info@saneliving.com">info@saneliving.com</a></p></div>
+        <div class="footer-col"><h2 class="footer-heading">Explore</h2>
+          <nav class="footer-links" aria-label="Footer navigation">
+            <a href="/rent/">Rent the Space</a>
+            <a href="/rent/pricing/">Rates &amp; Availability</a>
+            <a href="/rent/weddings/">Weddings</a>
+            <a href="/events/">Events</a>
+            <a href="/gallery/">Photo Gallery</a>
+            <a href="/contact/">Contact</a>
+          </nav>
+        </div>
+      </div>
+      <div class="footer-bottom"><p class="footer-copy">© ${year} Sane Living</p><a class="footer-team" href="/dash/">Team Login</a></div>
     </div>
   `;
 }

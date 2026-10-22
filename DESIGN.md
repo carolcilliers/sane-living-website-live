@@ -76,7 +76,15 @@ All text pairs above meet WCAG 4.5:1 except "dim", which is for small meta only.
 - **Calendar embeds:** white card, radius 16, hairline border; legend below.
 - **Tables (pricing):** dark ink header row, zebra rows, hover wash.
 - **Gallery:** story chapters with mosaic tiles and an on-page photo viewer.
-- **Footer:** footer-plum background, serif heading, muted light text.
+- **Footer (every page):** footer-plum background. Top band: serif newsletter
+  heading with a pill email field and purple Subscribe button. Then four
+  columns: white logo (plus optional footer text), Visit (address, hours,
+  directions), Contact (phone, email, social) and Explore links; a quiet
+  bottom bar with © and a subtle Team Login link. Rendered from Settings by
+  `public/site-content.js` (fallback in `public/script.js`); keep the class
+  hooks `.mc-signup-footer`, `.footer-links`, `.footer-address`,
+  `.footer-contact`, `.footer-hours`, `.footer-social`, `.footer-note`,
+  `.footer-copy`. Text on plum stays ≥ 6.5:1.
 
 ## Motion & accessibility (pre-delivery checklist, from UI UX Pro Max)
 - Transitions 150–350ms with a soft ease; respect `prefers-reduced-motion`.
