@@ -42,13 +42,13 @@
       "visible": true
     },
     {
-      "route": "/events/",
-      "label": "Events",
+      "route": "/rent/weddings/",
+      "label": "Weddings",
       "visible": true
     },
     {
-      "route": "/rent/weddings/",
-      "label": "Weddings",
+      "route": "/events/",
+      "label": "Events",
       "visible": true
     },
     {
