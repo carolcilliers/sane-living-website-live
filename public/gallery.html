@@ -19,6 +19,7 @@
     }
     .gallery-jump a:hover, .gallery-jump a:focus-visible { background: var(--clr-accent); color: #fff; }
 
+    #gallery-chapters > section { scroll-margin-top: var(--nav-height, 72px); }
     .chapter-head { display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between; gap: var(--space-md) var(--space-xl); margin-bottom: var(--space-xl); }
     .chapter-head .chapter-text { max-width: 620px; }
     .chapter-eyebrow { display: block; font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.15em; color: var(--clr-accent); margin-bottom: var(--space-sm); }
@@ -217,6 +218,10 @@
       document.getElementById('gallery-chapters').innerHTML = html ||
         '<section class="section section-alt"><div class="container"><p style="text-align:center;">No photos here yet.</p></div></section>';
       document.getElementById('gallery-jump').innerHTML = jump.join('');
+      // Links such as /gallery/#gallery-wellness (from the Rent page) point at sections created just now,
+      // so scroll to them once they exist.
+      var target = location.hash && document.getElementById(decodeURIComponent(location.hash.slice(1)));
+      if (target) requestAnimationFrame(function() { target.scrollIntoView(); });
     }
 
     // Photo viewer (opens on click; arrow keys and swipe-free buttons to move through every photo on the page)
