@@ -28,6 +28,7 @@ const TYPES = [
   "details",
   "card",
   "badge",
+  "section",
   "row",
   "column",
 ];
@@ -54,6 +55,7 @@ const PROPS = {
   details: ["summary", "text"],
   card: ["heading", "text", "src", "alt", "buttonText", "url"],
   badge: ["text"],
+  section: [],
   row: [],
   column: [],
   heading: ["text", "level"],
@@ -663,7 +665,7 @@ function validate(project, registry, resources) {
     for (const b of page.blocks) {
       if (!b?.placement) continue;
       const at=b.placement, owner=page.blocks.find(x=>x.id===at.section), d=descriptors.find(x=>x.id===owner?.source), parent=d?.elements.find(e=>e.id===at.parent);
-      const layout = owner && ['row','column'].includes(owner.type);
+      const layout = owner && ['section','row','column'].includes(owner.type);
       const before = !at.before || (layout ? page.blocks.some(x=>x.id===at.before && x.placement?.section===owner.id) : d?.elements.some(e=>e.id===at.before && (owner.elements?.[e.id]?.parent ?? e.parent)===parent?.id));
       if(b.source || !at || typeof at!=='object' || Object.keys(at).some(k=>!['section','parent','before'].includes(k)) || !before || (layout ? at.parent!=='content' : owner?.type!=='legacy' || !parent || parent.managed || !/^(div|section|main|article|figure)$/.test(parent.tag)))errors.push('Invalid nested block placement.');
       const seen=new Set([b.id]);let node=owner,depth=0;
@@ -910,14 +912,14 @@ function originalHtml(d, b, annotate, nested = [], resources = {}, blocks = []) 
           .map((x) => renderBlock(x, resources, annotate, blocks))
           .join("") + gaps;
     }
-    return open + body + close;
+    return open + design.mediaMarkup(b.id+":"+e.id, Object.fromEntries(Object.entries(b.elements?.[e.id]||{}).filter(([k])=>design.keys.includes(k))), b.elements?.[e.id]?.responsive) + body + close;
   }
   let html = render(d.elements[0]);
   const attrs =
     ' data-studio-layout="' + design.token(b.id) + '"' +
     (annotate ? ' data-studio-block="' + esc(b.id) + '"' : "") +
     (b.hidden ? " hidden data-studio-hidden" : "");
-  return html.replace(/^<([\w-]+)/, "<$1" + attrs);
+  return html.replace(/^<([\w-]+)/, "<$1" + attrs).replace(/^(<[^>]+>)/, "$1" + design.mediaMarkup(b.id,b.design,b.responsive));
 }
 function carousel(first, others) {
   return (
@@ -939,8 +941,10 @@ function renderBlock(b, resources, annotate, blocks = [], depth = 0) {
   const p = b.props || {},
     s = settings.normalize(jsonResources(resources, "settings"));
   let inner = "";
-  if (["row", "column"].includes(b.type)) {
+  if (["section", "row", "column"].includes(b.type)) {
     const children = blocks.filter(x=>x.placement?.section===b.id);
+    // Placement.before is authoritative for sibling order, including a moved child.
+    for(const child of [...children]) { const before=child.placement?.before; const anchor=children.find(x=>x.id===before); if(anchor && anchor!==child){children.splice(children.indexOf(child),1);children.splice(children.indexOf(anchor),0,child);} }
     inner = children.map(child=>renderBlock(child,resources,annotate,blocks,depth+1)).join("");
     if(!inner && annotate)inner='<div class="studio-empty-layout">Drop elements into this '+b.type+'</div>';
   }
@@ -1119,7 +1123,7 @@ function renderBlock(b, resources, annotate, blocks = [], depth = 0) {
   return (
     '<section class="studio-block studio-' +
     esc(b.theme || "white") +
-    (["row", "column"].includes(b.type) ? " studio-layout-" + b.type : "") +
+    (["section", "row", "column"].includes(b.type) ? " studio-layout-" + b.type : "") +
     " studio-align-" +
     esc(b.align || "left") +
     '"' +
@@ -1130,7 +1134,7 @@ function renderBlock(b, resources, annotate, blocks = [], depth = 0) {
     (b.type === "spacer"
       ? 0
       : Math.max(0, Math.min(120, Number(b.spacing ?? 48) || 0))) +
-    'px"><div class="container"' + (annotate && ["row", "column"].includes(b.type) ? ' data-studio-element="content"' : "") + '>' +
+    'px">' + design.mediaMarkup(b.id,b.design,b.responsive) + '<div class="container"' + (annotate && ["section", "row", "column"].includes(b.type) ? ' data-studio-element="content"' : "") + '>' +
     inner +
     "</div></section>"
   );

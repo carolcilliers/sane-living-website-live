@@ -2,7 +2,7 @@
 
 October 22, 2026. The current implementation is specified in [14_WEBSITE_STUDIO_GUIDE.md](14_WEBSITE_STUDIO_GUIDE.md). It supersedes the About-only pilot and its transfer-to-form publishing workflow.
 
-Implemented: embedded header page selector with Insert/Layers/Inspector workspace with the dashboard sidebar retained; all 25 current public pages; editable original text/links/images and section order/visibility; 23 approved block types; new page creation; integrated About editing; private browser draft/recovery with revision protection; immutable full-page previews in new tabs; staged raster uploads; reviewed atomic multi-file publication directly to `main`; release markers and bounded live checks; clear grouped gallery cards.
+Implemented: embedded header page selector with Insert/Layers/Inspector workspace with the dashboard sidebar retained; all 25 current public pages; editable original text/links/images and section order/visibility; 24 approved block types; new page creation; integrated About editing; private browser draft/recovery with revision protection; immutable full-page previews in new tabs; staged raster uploads; reviewed atomic multi-file publication directly to `main`; release markers and bounded live checks; clear grouped gallery cards.
 
 Direct manipulation now includes nested source-element layers, click selection, native drag/drop, device-scoped pointer offsets/resizing and deeper validated style controls; insertion within existing containers; original-image carousels; an aligned searchable header page dropdown; default dark theme; and in-editor Settings. Homepage hero video/poster and CTA edits use the canonical settings source and publish atomically with layouts and referenced images.
 
@@ -21,3 +21,5 @@ Current interaction extension: [16_SMOOTH_CANVAS_AND_EDITOR_CONTROLS.md](16_SMOO
 Image interaction repair: [17_IMAGE_CARD_MOVEMENT_AND_REMOVAL.md](17_IMAGE_CARD_MOVEMENT_AND_REMOVAL.md). Framed rental images/captions move together; repair is explicit and preserves content. Image-only removal and toolbar reopening are directly accessible.
 
 Latest workspace refinement: [18_WORKSPACE_POLISH_AND_AUTOMATIC_CARD_RECOVERY.md](18_WORKSPACE_POLISH_AND_AUTOMATIC_CARD_RECOVERY.md). Applies Impecable design guidance to dashboard/editor chrome and visibly recovers detached image-card hierarchies in older compatible drafts, retaining Undo/recovery and publication safeguards.
+
+Layout extension: [19_LAYOUT_LIBRARY_AND_BACKGROUND_MEDIA.md](19_LAYOUT_LIBRARY_AND_BACKGROUND_MEDIA.md). Adds structured sections and eight nested layout presets, selection-aware insertion using adapted Instatic MIT code, parent/section controls, and device-scoped image/video backgrounds. Full Webstudio/Instatic application parity is not claimed; their backends are not installed.

@@ -179,7 +179,7 @@ const create = require("./qa-server.cjs"),
       .getByRole("button", { name: "Image", exact: true })
       .click();
     await e
-      .locator(".studio-inspector input[type=file]")
+      .locator(".studio-inspector .upload-image input[type=file]")
       .setInputFiles({
         name: "staged.png",
         mimeType: "image/png",

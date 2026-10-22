@@ -1,3 +1,4 @@
+import { LAYOUTS, makeLayout, LayoutWire, resolveBlockInsertion } from "./LayoutLibrary";
 import {
   StrictMode,
   useCallback,
@@ -35,6 +36,7 @@ import "./style.css";
 import "./site-style.css";
 import "./workspace-polish.css";
 const LABELS: Record<string, string> = {
+  section: "Section",
   row: "Row",
   column: "Column",
   video: "Video",
@@ -60,6 +62,7 @@ const LABELS: Record<string, string> = {
   slideshow: "Image slideshow",
 };
 const SYMBOLS: Record<string, string> = {
+  section: "▣",
   row: "▤",
   column: "▥",
   video: "▶", list: "≡", quote: "❝", details: "?", card: "▣", badge: "◉",
@@ -641,9 +644,9 @@ function App() {
   function placementFor(blockID: string, id: string, after: boolean) {
     const owner = page?.blocks.find((b) => b.id === blockID),
       d = descriptors.find((d: any) => d.id === owner?.source),
-      e = d?.elements.find((x: any) => x.id === id);
-    if(owner && ["row", "column"].includes(owner.type)) return {section:owner.id,parent:"content"};
-    if(owner?.placement) return {...owner.placement};
+      e = id ? d?.elements.find((x: any) => x.id === id) : d?.elements[0];
+    if(owner && ["section", "row", "column"].includes(owner.type)) return {section:owner.id,parent:"content"};
+    if(owner?.placement) return after ? resolveBlockInsertion(page!, owner.id) : {...owner.placement,before:owner.id};
     if (!e || owner?.type !== "legacy") return;
     const isContainer =
       /^(div|section|main|article|figure)$/.test(e.tag) && !e.managed;
@@ -808,20 +811,30 @@ function App() {
   }
   function add(type: string, after?: string, placement?: any) {
     if (!page) return;
-    const b = core.block(type, crypto.randomUUID()) as Block;
+    const inserted = type.startsWith("layout:") ? makeLayout(type.slice(7)) : [core.block(type, crypto.randomUUID()) as Block];
+    const b = inserted[0];
     const target = after ? {block: after, placement} : insertionTarget.current || {
-      block: selected, placement: elementId || ["row", "column"].includes(block?.type || "") ? placementFor(selected, elementId, true) : undefined
+      block: selected, placement: block?.source ? placementFor(selected, elementId, true) : resolveBlockInsertion(page, selected)
     };
     if (target.placement && !target.placement.boundary) b.placement = target.placement;
-    pageEdit((p) => {
-      const at = p.blocks.findIndex((x) => x.id === target.block);
-      p.blocks.splice(at < 0 ? 0 : at + (target.placement?.boundary === "before" ? 0 : 1), 0, b);
-    });
+    const candidate=structuredClone(work!.project), next=candidate.pages.find(p=>p.id===page.id)!;
+    const at=next.blocks.findIndex(x=>x.id===target.block);
+    let index=at<0?0:at+(target.placement?.boundary==="before"?0:1);
+    // Container selection appends children; leaf selection keeps sibling-after.
+    if(b.placement?.section===target.block && !b.placement.before){
+      const descendants=new Set([target.block]);
+      for(let depth=0;depth<10;depth++)next.blocks.forEach(child=>{if(child.placement && descendants.has(child.placement.section))descendants.add(child.id);});
+      next.blocks.forEach((child,i)=>{if(descendants.has(child.id))index=Math.max(index,i+1);});
+    }
+    next.blocks.splice(index,0,...inserted);
+    const issues=core.validate(candidate,data!.registry,resources);
+    if(issues.length){notice(issues.join(" "));return;}
+    pageEdit(p=>{p.blocks=next.blocks;});
     insertionTarget.current = null;
     select(b.id);
     setLeftTab("layers");
     setMobile("right");
-    notice((LABELS[type] || type) + " added to " + page.name + ".");
+    notice((LAYOUTS.find(x=>"layout:"+x.id===type)?.name || LABELS[type] || type) + " added to " + page.name + ".");
   }
   function placeBlock(from: string, target: string, after: boolean, placement?: any) {
     const moving = page?.blocks.find(b => b.id === from);
@@ -838,6 +851,11 @@ function App() {
       else delete b.placement;
       const at = p.blocks.findIndex(x=>x.id===target);
       p.blocks.splice(at<0?p.blocks.length:at+(after?1:0),0,b);
+      p.blocks.forEach(child=>{
+        if(child.placement?.before===from)delete child.placement.before;
+        const owner=p.blocks.find(x=>x.id===child.placement?.section);
+        if(owner && ["section","row","column"].includes(owner.type) && child.placement)delete child.placement.before;
+      });
     }
     const issues = core.validate(candidate,data!.registry,resources);
     if(issues.length){notice(issues.join(" "));return;}
@@ -845,21 +863,20 @@ function App() {
     select(from);
   }
   function move(from: string, to: string) {
-    if (!page) return;
-    const a = page.blocks.findIndex((b) => b.id === from),
-      b = page.blocks.findIndex((b) => b.id === to);
-    if (a < 0 || b < 0 || a === b) return;
-    pageEdit((p) => {
-      delete p.blocks[a].placement;
-      p.blocks.splice(b, 0, p.blocks.splice(a, 1)[0]);
-    });
-    select(from);
+    if (!page || from===to) return;
+    const moving=page.blocks.find(b=>b.id===from),target=page.blocks.find(b=>b.id===to);
+    if(!moving || !target)return;
+    const peers=page.blocks.filter(b=>b.placement?.section===moving.placement?.section && b.placement?.parent===moving.placement?.parent);
+    const after=peers.indexOf(moving)<peers.indexOf(target);
+    // Layer sorting changes sibling order; it never silently detaches a column.
+    if(moving.placement?.section!==target.placement?.section || moving.placement?.parent!==target.placement?.parent){notice("Drop on a canvas container to change parents. Layer sorting keeps elements in their current container.");return;}
+    placeBlock(from,to,after,target.placement ? {...target.placement} : undefined);
   }
   function arrow(delta: number) {
     if (!block || !page) return;
-    const i = page.blocks.indexOf(block),
-      next = page.blocks[i + delta];
-    if (next) move(block.id, next.id);
+    const peers=page.blocks.filter(b=>b.placement?.section===block.placement?.section && b.placement?.parent===block.placement?.parent);
+    const next=peers[peers.indexOf(block)+delta];
+    if(next)move(block.id,next.id);
   }
   function aboutEdit(fn: (m: About) => void, group: string) {
     edit((w) => {
@@ -885,6 +902,7 @@ function App() {
       const removeIDs = new Set([selected]);
       for(let i=0;i<10;i++)p.blocks.forEach(b=>{if(b.placement && removeIDs.has(b.placement.section))removeIDs.add(b.id);});
       p.blocks = p.blocks.filter((b) => !removeIDs.has(b.id));
+      p.blocks.forEach(b=>{if(b.placement?.before && removeIDs.has(b.placement.before))delete b.placement.before;});
     });
     select("");
   }
@@ -1490,9 +1508,12 @@ function App() {
               <>
                 <label className="field">Find an element<input aria-label="Find an insert" value={search} placeholder="Image, card, video, columns…" onChange={e=>setSearch(e.target.value)}/></label>
                 <p className="sidebar-help">
-                  Click a + section line to choose an insertion point, or drag a block onto a line or into a container. Click adds beside your selection.
+                  Select a section, row or column to insert inside it. Select an element to insert after it. Drag onto a section line for an exact position.
                 </p>
-                <h3 className="palette-heading">Content & layout</h3>
+                <div className="insertion-context" role="status">Inserting {block ? (["section","row","column"].includes(block.type) || block.source && !elementId ? "inside " : "after ") + block.label : "at the top of the page"}</div>
+                <h3 className="palette-heading">Layouts</h3>
+                <div className="layout-library">{LAYOUTS.filter(l=>(l.name+" "+l.description).toLowerCase().includes(search.toLowerCase())).map(layout=><button key={layout.id} draggable onDragStart={e=>e.dataTransfer.setData("application/sane-block","layout:"+layout.id)} onClick={()=>add("layout:"+layout.id)}><LayoutWire columns={layout.columns}/><strong>{layout.name}</strong><small>{layout.description}</small></button>)}</div>
+                <h3 className="palette-heading">Elements</h3>
                 <div className="block-palette">
                   {core.TYPES.filter(
                     (t: string) =>
@@ -1769,6 +1790,16 @@ function App() {
               </>
             ) : (
               <>
+                <nav className="selection-path" aria-label="Selected layer context">
+                  <button onClick={()=>select("")}>{page.name}</button>
+                  {block.placement ? <button onClick={()=>select(block.placement!.section)}>↑ Parent container</button> : null}
+                  {elementId ? <button onClick={()=>select(block.id)}>↑ {block.label}</button> : null}
+                  <strong>{elementId ? "Selected element" : block.label}</strong>
+                </nav>
+                <div className="selection-context-actions">
+                  <button onClick={()=>{insertionTarget.current={block:block.id,placement:placementFor(block.id,elementId,true)};setLeftTab("insert");setMobile("left");}}>＋ Insert here</button>
+                  <button onClick={()=>{select(block.id);setTimeout(()=>{const group=document.querySelector<HTMLElement>('.studio-inspector [data-design-group="3"]');group?.scrollIntoView({block:"start",behavior:"smooth"});},0);}}>Section background</button>
+                </div>
                 {!block.source && ["image","split","card"].includes(block.type) && block.props?.src ? <div className="selection-actions"><strong>{block.type === "image" ? "Image" : "Image in this section"}</strong><button onClick={()=>elementAction(block.id,"part:image","remove")}>Remove image</button><small>{block.type === "image" ? "Removes this image element. Its parent row or section stays." : "Removes only the image; keeps the text, buttons and section."} Undo restores it.</small></div> : null}
                 <label className="field">
                   Section name
@@ -2132,6 +2163,7 @@ function App() {
                 ) : null}
                 {!block.source ? <details className="design-options"><summary>Shared section defaults</summary><p className="design-help">These presets affect every screen size. Use the device controls below for size-specific changes.</p><label className="field">Colour preset<select aria-label="Shared colour preset" value={block.theme || "white"} onChange={e=>blockEdit(b=>{b.theme=e.target.value;})}>{["white","soft","accent","dark"].map(v=><option key={v}>{v}</option>)}</select></label><label className="field">Section padding (all sizes)<input type="number" min={0} max={120} value={block.spacing ?? 48} onChange={e=>blockEdit(b=>{b.spacing=Math.max(0,Math.min(120,Number(e.target.value)));})}/></label></details> : null}
                 {!elementId || block.type !== "legacy" ? <DesignInspector
+                  upload={upload}
                   device={device}
                   value={block.responsive?.[device] || {}}
                   inherited={block.design || {}}

@@ -195,6 +195,7 @@ export function ElementInspector({
         </p>
       ) : null}
       <DesignInspector
+        upload={upload}
         device={device}
         value={v.responsive?.[device] || {}}
         inherited={Object.fromEntries(Object.entries(v).filter(([k]) => core.design.keys.includes(k))) as Design}

@@ -135,7 +135,7 @@ assert(policyOwner.elements.find(e=>e.id==='policy-cateringPolicy').managed);
 wedding.blocks.find(b=>b.source===policyOwner.id).elements={'policy-cateringPolicy':{responsive:{desktop:{background:'#f0e8fa',shadow:'medium',borderWidth:2}}}};
 assert.deepEqual(core.validate(extended,registry,resources),[]);
 const weddingHTML=core.renderPage(wedding,extended,registry,resources);
-assert.match(weddingHTML,/studio-managed-parts/);assert.match(weddingHTML,/background:#f0e8fa/);
+assert.match(weddingHTML,/studio-managed-parts/);assert.match(weddingHTML,/background-color:#f0e8fa/);
 assert(!weddingHTML.includes('data-studio-element='));
 console.log('PASS six new typed inserts, automatic grid/flex, bounded custom shadows and publishable managed policy styles');
 

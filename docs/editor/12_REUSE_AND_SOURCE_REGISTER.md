@@ -53,3 +53,7 @@ The generated [baseline manifest](inventories/baseline-manifest.json) records fe
 
 Platform capabilities may change. Recheck the exact API/version and credential scope during implementation. The contract deliberately avoids pinning unverified provider pricing, plan entitlements or a specific new auth/storage vendor.
 
+
+## October 22: Instatic and Webstudio
+
+Instatic (MIT, Copyright 2026 David Babinec): actual adapted insertion resolver and module wireframe definitions in `editor/src/vendor/instatic/`; served notice `/licenses/instatic.txt`. Upstream tree `1a7ab33ff1614e80b2f618b284dd55b0e2b9d9ae`. Webstudio root AGPL-3.0, inspected tree `dabaeede024afca8fd3db63406958be3cae75ba9`: architecture reference only, no source copied. Integration scope and source paths are documented in guide 19. Neither full CMS/backend is embedded.

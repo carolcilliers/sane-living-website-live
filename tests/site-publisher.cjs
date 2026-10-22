@@ -73,7 +73,7 @@ const { execFileSync } = require("node:child_process");
       new RegExp("sane-release.*" + body.releaseId),
     );
     const publishedWedding=fs.readFileSync(path.join(s.root,"public/rent-weddings.html"),"utf8");
-    assert.match(publishedWedding,/background:#f0e8fa/);assert.match(publishedWedding,/studio-managed-parts/);
+    assert.match(publishedWedding,/background-color:#f0e8fa/);assert.match(publishedWedding,/studio-managed-parts/);
     assert(!publishedWedding.includes('data-studio-element='));
     assert.match(fs.readFileSync(path.join(s.root,"public/index.html"),"utf8"),/<video controls/);
     // Rebuilding the published snapshot twice must be stable for active and untouched pages.

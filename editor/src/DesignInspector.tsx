@@ -13,21 +13,25 @@ const labels: Record<string, string> = {
   objectFit: "Image fit", aspectRatio: "Aspect ratio", fontFamily:"Font",letterSpacing:"Letter spacing",borderStyle:"Border style",
   paddingTop:"Top padding",paddingRight:"Right padding",paddingBottom:"Bottom padding",paddingLeft:"Left padding",
   marginTop:"Top margin",marginRight:"Right margin",marginBottom:"Bottom margin",marginLeft:"Left margin",
+  backgroundImage:"Background image URL",backgroundVideo:"Background video URL",backgroundSize:"Image scaling",backgroundPosition:"Image position",backgroundRepeat:"Image repeat",backgroundAttachment:"Background scrolling",backgroundOverlay:"Dark overlay (%)",viewportHeight:"Section height",gridTemplate:"Column proportions",
   shadow:"Shadow",shadowX:"Shadow X",shadowY:"Shadow Y",shadowBlur:"Blur",shadowSpread:"Spread",shadowOpacity:"Shadow opacity (%)",shadowColor:"Shadow colour",
 };
 const optionsLabels: Record<string, string> = {
+  fixed:"Fixed / parallax effect",scroll:"Scroll with page",full:"Full screen",auto:"Automatic",
   "flex-start": "Start", "flex-end": "End", "space-between": "Space between",
   "space-around": "Space around", flex: "Row / column", grid: "Columns",
   block: "Normal flow", none: "Hidden", row: "Horizontal", column: "Vertical",
 };
 const groups = [
-  { title: "Size & position", nav:"Size", help:"Move freely keeps this element in its current container. Reorder changes its place in the layer tree.", keys: ["width", "height", "minHeight", "x", "y", "aspectRatio", "objectFit"] },
-  { title: "Layout & spacing", nav:"Layout", help:"Columns creates a grid. Direction creates a horizontal or vertical flow. Padding is inside; margin is outside.", keys: ["display", "direction", "columns", "justify", "items", "gap", "padding", "paddingTop", "paddingRight", "paddingBottom", "paddingLeft", "margin", "marginTop", "marginRight", "marginBottom", "marginLeft"] },
+  { title: "Size & position", nav:"Size", help:"Move freely keeps this element in its current container. Reorder changes its place in the layer tree.", keys: ["width", "height", "minHeight", "viewportHeight", "x", "y", "aspectRatio", "objectFit"] },
+  { title: "Layout & spacing", nav:"Layout", help:"Columns creates a grid. Direction creates a horizontal or vertical flow. Padding is inside; margin is outside.", keys: ["display", "direction", "columns", "gridTemplate", "justify", "items", "gap", "padding", "paddingTop", "paddingRight", "paddingBottom", "paddingLeft", "margin", "marginTop", "marginRight", "marginBottom", "marginLeft"] },
   { title: "Text & typography", nav:"Text", help:"Typography applies to this element at the selected screen size.", keys: ["fontFamily", "fontSize", "fontWeight", "lineHeight", "letterSpacing", "align", "color"] },
-  { title: "Background, borders & shadow", nav:"Style", help:"Use a six-digit colour such as #8a56a0, or transparent for the background. Choose Custom to adjust a shadow in detail.", keys: ["background", "opacity", "radius", "borderStyle", "borderWidth", "borderColor", "shadow", "shadowX", "shadowY", "shadowBlur", "shadowSpread", "shadowOpacity", "shadowColor"] },
+  { title: "Background media", nav:"Background", help:"Use a local image path or HTTPS URL. Background video is muted and loops; the image is its poster and reduced-motion fallback. Fixed backgrounds create a parallax effect where supported by the device.", keys:["background","backgroundImage","backgroundVideo","backgroundSize","backgroundPosition","backgroundRepeat","backgroundAttachment","backgroundOverlay"] },
+  { title: "Borders & shadow", nav:"Style", help:"Use a six-digit colour such as #8a56a0, or transparent for the background. Choose Custom to adjust a shadow in detail.", keys: ["opacity", "radius", "borderStyle", "borderWidth", "borderColor", "shadow", "shadowX", "shadowY", "shadowBlur", "shadowSpread", "shadowOpacity", "shadowColor"] },
 ];
 
-export function DesignInspector({ value, inherited = {}, device, change, reset, optimize }: {
+export function DesignInspector({ value, inherited = {}, device, change, reset, optimize, upload }: {
+  upload?: (file: File, done: (url: string) => void) => Promise<void>;
   value: Design;
   inherited?: Design;
   device: Device;
@@ -57,12 +61,20 @@ export function DesignInspector({ value, inherited = {}, device, change, reset, 
         <details className="design-options" data-design-group={i} open key={group.title}>
           <summary>{group.title}</summary>
           <p className="design-help">{group.help}</p>
+          {group.nav === "Background" ? <>
+            {value.backgroundImage && core.design.safeMedia(value.backgroundImage) ? <div className="background-preview" style={{backgroundImage:`url("${value.backgroundImage}")`}}/> : null}
+            <div className="background-tools">
+              {upload ? <label className="asset-picker background-upload">Upload background<input type="file" accept="image/png,image/jpeg,image/webp,image/gif" onChange={async e=>{const file=e.target.files?.[0];e.target.value="";if(file)await upload(file,url=>change(v=>{v.backgroundImage=url;}));}}/></label> : null}
+              <button onClick={()=>change(v=>{v.backgroundImage="";v.backgroundVideo="";v.backgroundOverlay=0;})}>Clear media</button>
+              <button onClick={()=>change(v=>{v.viewportHeight="full";v.backgroundSize="cover";v.backgroundPosition="center";})}>Fill screen</button>
+            </div>
+          </> : null}
           <div className="element-coordinates">
             {group.keys.filter(key=>!key.startsWith("shadow") || key === "shadow" || value.shadow === "custom").map(key => {
               const limits = core.design.numbers[key], options = core.design.enums[key];
               const scale = ["lineHeight","letterSpacing"].includes(key) ? 10 : 1;
               return (
-                <label className="field" key={key}>
+                <label className={"field"+(["backgroundImage","backgroundVideo"].includes(key)?" background-field":"")} key={key}>
                   {labels[key]}
                   {options ? (
                     <select aria-label={labels[key]} value={value[key] ?? ""}
@@ -72,7 +84,7 @@ export function DesignInspector({ value, inherited = {}, device, change, reset, 
                       })}>
                       <option value="">Inherit original</option>
                       {options.map((option: string) => (
-                        <option key={option} value={option}>{optionsLabels[option] || option}</option>
+                        <option key={option} value={option}>{option === "none" ? (key === "display" ? "Hidden" : key === "shadow" ? "No shadow" : key === "borderStyle" ? "No border" : "None") : optionsLabels[option] || option}</option>
                       ))}
                     </select>
                   ) : (

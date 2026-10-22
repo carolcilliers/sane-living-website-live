@@ -1,6 +1,7 @@
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { patchDocument, updateStyles, designStyles, structureKey, resolveAssets } from "./live-canvas";
 import core from "../../content-core/site.cjs";
+import { LAYOUTS } from "./LayoutLibrary";
 import type { Page, Project, Registry, Asset } from "./site-types";
 export function htmlFor(
   page: Page,
@@ -35,6 +36,8 @@ export function htmlFor(
       .join('src="' + assetMap[a.url] + '"');
   }
   if (assets.length) {
+    // Background rules live in a stylesheet, not an inline style attribute.
+    for(const [url,data] of Object.entries(assetMap))html=html.split('url("'+url+'")').join('url("'+data+'")');
     const map = JSON.stringify(assetMap).replace(/</g, "\\u003c");
     html = html.replace(
       "</head>",
@@ -362,7 +365,7 @@ export function prepareFrame(
       const targetAfter = boundary ? boundary.dataset.studioBoundary === "after" : after;
       let sectionDrag: any = null;
       try {sectionDrag = JSON.parse(e.dataTransfer?.getData("application/sane-section") || "null");}catch{}
-      if (kind && core.TYPES.includes(kind) && insert) {
+      if (kind && (core.TYPES.includes(kind) || LAYOUTS.some(l=>"layout:"+l.id===kind)) && insert) {
         insert(
           kind,
           destinationBlock,

@@ -128,7 +128,7 @@ const png = Buffer.from(
       .getByLabel("Hero poster image", { exact: true })
       .fill("/images/center-office.jpg");
     await editor
-      .locator(".element-inspector input[type=file]")
+      .locator(".element-inspector .asset-picker:not(.background-upload) input[type=file]")
       .setInputFiles({
         name: "hero-poster.png",
         mimeType: "image/png",
@@ -158,6 +158,7 @@ const png = Buffer.from(
         .locator(".block-palette")
         .getByRole("button", { name: "Image", exact: true }),
       target = canvas.locator(".video-hero-content");
+    await source.scrollIntoViewIfNeeded();
     const from = await source.boundingBox(),
       to = await target.boundingBox();
     assert(from && to);
@@ -174,7 +175,7 @@ const png = Buffer.from(
     await page.mouse.move(to.x + to.width / 2 + 2, to.y + to.height / 2 + 2);
     await page.mouse.up();
     await canvas.locator(".video-hero-content .studio-block img").waitFor();
-    await editor.locator(".studio-inspector input[type=file]").setInputFiles({
+    await editor.locator(".studio-inspector .upload-image input[type=file]").setInputFiles({
       name: "hero-insert.png",
       mimeType: "image/png",
       buffer: png,

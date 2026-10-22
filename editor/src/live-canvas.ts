@@ -101,10 +101,17 @@ export function designStyles(doc: Document, page: Page) {
   });
 }
 export function structureKey(page: Page) {
-  return JSON.stringify({...page,blocks:page.blocks.map(b=>({...b,design:undefined,responsive:undefined,elements:Object.fromEntries(Object.entries(b.elements||{}).map(([id,v])=>[id,{...v,responsive:undefined}]))}))});
+  const media=(value:Record<string,any>={})=>({backgroundVideo:value.backgroundVideo,backgroundImage:value.backgroundImage,backgroundOverlay:value.backgroundOverlay});
+  // CSS-only changes do not enter reconciliation. Video sources/posters are DOM content.
+  const responsiveMedia=(values:Record<string,Record<string,any>>={})=>Object.fromEntries(Object.entries(values).map(([device,value])=>[device,media(value)]));
+  return JSON.stringify({...page,blocks:page.blocks.map(b=>({...b,
+    design:media(b.design),responsive:responsiveMedia(b.responsive),
+    elements:Object.fromEntries(Object.entries(b.elements||{}).map(([id,v])=>[id,{...v,responsive:responsiveMedia(v.responsive)}]))
+  }))});
 }
 export function resolveAssets(doc: Document, assets: Asset[]) {
   const map=new Map(assets.filter(a=>/^\/images\/studio-[a-f0-9-]{36}\.(png|jpe?g|webp|gif)$/.test(a.url)&&/^[A-Za-z0-9+/]+={0,2}$/.test(a.base64)).map(a=>{const ext=a.url.split('.').pop();return [a.url,'data:image/'+(ext==='jpg'?'jpeg':ext)+';base64,'+a.base64];}));
+  doc.querySelectorAll('style').forEach(style=>{let css=style.textContent||'';for(const [url,data] of map)css=css.split(url).join(data);if(style.textContent!==css)style.textContent=css;});
   doc.querySelectorAll('img[src],video[poster]').forEach(el=>{const attr=el.tagName==='VIDEO'?'poster':'src',url=el.getAttribute(attr)||'';if(map.has(url))el.setAttribute(attr,map.get(url)!);});
   doc.querySelectorAll<HTMLElement>('[style]').forEach(el=>{for(const [url,data] of map)if(el.style.backgroundImage.includes(url))el.style.backgroundImage='url("'+data+'")';});
 }

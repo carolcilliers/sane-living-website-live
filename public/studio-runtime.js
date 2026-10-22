@@ -112,3 +112,22 @@ document.addEventListener("click", function (e) {
       behavior: "smooth",
     });
 });
+
+// Decorative video follows the active breakpoint and reduced-motion preference.
+(function(){
+  var scheduled=false, motion=window.matchMedia('(prefers-reduced-motion: reduce)');
+  function sync(){
+    scheduled=false;
+    document.querySelectorAll('video[data-studio-background-video]').forEach(function(video){
+      var visible=!motion.matches && getComputedStyle(video).display!=='none';
+      if(!visible){video.pause();return;}
+      video.muted=true;
+      if(video.paused){var play=video.play();if(play&&play.catch)play.catch(function(){});}
+    });
+  }
+  function schedule(){if(!scheduled){scheduled=true;requestAnimationFrame(sync);}}
+  window.addEventListener('resize',schedule,{passive:true});
+  motion.addEventListener('change',schedule);
+  document.addEventListener('sane:studio-updated',schedule);
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',schedule);else schedule();
+})();
