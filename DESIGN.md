@@ -19,7 +19,7 @@ neutrals, elegant serif headings, big real photography and generous space.
 |---|---|---|
 | Plum ink | `#2b2230` | Body text |
 | Deep plum | `#2a1a33` | Headings, page-hero gradient start, dark text on light |
-| Footer plum | `#241b29` | Footer background |
+| Footer sand | `#efe6da` | Footer background (a touch deeper than sand, with a hairline top border) |
 | Brand purple (accent) | `#8a56a0` | Primary buttons, links, labels — unchanged brand colour |
 | Accent hover | `#74468a` | Hover state of accent |
 | Light violet | `#a678c4` | Gradient end, focus ring |
@@ -76,7 +76,7 @@ All text pairs above meet WCAG 4.5:1 except "dim", which is for small meta only.
 - **Calendar embeds:** white card, radius 16, hairline border; legend below.
 - **Tables (pricing):** dark ink header row, zebra rows, hover wash.
 - **Gallery:** story chapters with mosaic tiles and an on-page photo viewer.
-- **Footer (every page):** footer-plum background. Top band: serif newsletter
+- **Footer (every page):** footer-sand background, plum text, deeper-purple (`#74468a`) small headings. Top band: serif newsletter
   heading with a pill email field and purple Subscribe button. Then four
   columns: white logo (plus optional footer text), Visit (address, hours,
   directions), Contact (phone, email, social) and Explore links; a quiet
@@ -84,7 +84,7 @@ All text pairs above meet WCAG 4.5:1 except "dim", which is for small meta only.
   `public/site-content.js` (fallback in `public/script.js`); keep the class
   hooks `.mc-signup-footer`, `.footer-links`, `.footer-address`,
   `.footer-contact`, `.footer-hours`, `.footer-social`, `.footer-note`,
-  `.footer-copy`. Text on plum stays ≥ 6.5:1.
+  `.footer-copy`. The colourful logo shows as-is. Text on footer sand stays ≥ 5.6:1.
 
 ## Motion & accessibility (pre-delivery checklist, from UI UX Pro Max)
 - Transitions 150–350ms with a soft ease; respect `prefers-reduced-motion`.

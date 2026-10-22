@@ -1299,18 +1299,19 @@ body:has(.video-hero) .site-nav:not(.scrolled):not(:has(.nav-toggle.active)) .na
   body:has(.video-hero) .site-nav:not(.scrolled) .nav-links > li > a:hover { color: #fff; opacity: 0.8; }
 }
 
-/* ---- Footer: newsletter band, four calm columns, quiet bottom bar ---- */
-.site-footer {
-  background: #241b29;
-  color: #d9d1dc;
-  border-top: none;
+/* ---- Footer: warm sand band in the V3 palette — newsletter, four calm columns, quiet bottom bar ---- */
+/* #site-footer in the selector outranks older page rules that forced a dark footer (lifestyle, self-heal, EVO3). */
+#site-footer.site-footer {
+  background: #efe6da;
+  color: var(--clr-text);
+  border-top: 1px solid var(--clr-border);
   text-align: left;
   padding: clamp(3.5rem, 7vw, 5rem) 0 var(--space-xl);
 }
-.site-footer a { color: #f3eef5; transition: color 0.25s ease; }
-.site-footer a:hover { color: #d9b8e8; }
+.site-footer a { color: var(--clr-plum); transition: color 0.25s ease; }
+.site-footer a:hover { color: var(--clr-accent-hover); }
 
-.footer-top { padding-bottom: clamp(2.5rem, 5vw, 3.5rem); margin-bottom: clamp(2.5rem, 5vw, 3.5rem); border-bottom: 1px solid rgba(255, 255, 255, 0.12); }
+.footer-top { padding-bottom: clamp(2.5rem, 5vw, 3.5rem); margin-bottom: clamp(2.5rem, 5vw, 3.5rem); border-bottom: 1px solid var(--clr-border); }
 .site-footer .mc-signup-footer {
   display: grid;
   grid-template-columns: minmax(0, 1fr) minmax(0, 1.1fr);
@@ -1328,23 +1329,23 @@ body:has(.video-hero) .site-nav:not(.scrolled):not(:has(.nav-toggle.active)) .na
   font-size: clamp(1.9rem, 3.4vw, 2.6rem);
   line-height: 1.1;
   letter-spacing: 0;
-  color: #fff;
+  color: var(--clr-plum);
   margin: 0;
 }
-.site-footer .footer-newsletter-description { grid-area: desc; margin: var(--space-sm) 0 0; color: #c9bfcd; font-size: 1rem; }
+.site-footer .footer-newsletter-description { grid-area: desc; margin: var(--space-sm) 0 0; color: var(--clr-text-muted); font-size: 1rem; }
 .site-footer .mc-signup-footer form { grid-area: form; display: flex; gap: 10px; }
 .site-footer .mc-signup-footer input[type="email"] {
   flex: 1;
   min-width: 0;
-  background: rgba(255, 255, 255, 0.06);
-  border: 1px solid rgba(255, 255, 255, 0.22);
+  background: var(--clr-bg-card);
+  border: 1px solid var(--clr-border);
   border-radius: 999px;
-  color: #fff;
+  color: var(--clr-text);
   padding: 14px 22px;
   font-size: 15px;
 }
-.site-footer .mc-signup-footer input[type="email"]::placeholder { color: #b5aab9; }
-.site-footer .mc-signup-footer input[type="email"]:focus { border-color: #d9b8e8; background: rgba(255, 255, 255, 0.1); }
+.site-footer .mc-signup-footer input[type="email"]::placeholder { color: #8a7f8d; }
+.site-footer .mc-signup-footer input[type="email"]:focus { border-color: var(--clr-accent); background: #fff; }
 .site-footer .mc-signup-footer button {
   background: var(--clr-accent);
   color: #fff;
@@ -1357,6 +1358,7 @@ body:has(.video-hero) .site-nav:not(.scrolled):not(:has(.nav-toggle.active)) .na
   letter-spacing: 0.14em;
   text-transform: uppercase;
   cursor: pointer;
+  box-shadow: var(--shadow-btn);
   transition: background-color 0.25s ease;
 }
 .site-footer .mc-signup-footer button:hover { background: var(--clr-accent-hover); }
@@ -1367,29 +1369,29 @@ body:has(.video-hero) .site-nav:not(.scrolled):not(:has(.nav-toggle.active)) .na
   gap: var(--space-xl) var(--space-2xl);
 }
 .footer-logo { display: inline-block; }
-.footer-logo img { height: 56px; width: auto; filter: brightness(0) invert(1); opacity: 0.95; border-radius: 0; }
-.site-footer .footer-note { margin: var(--space-md) 0 0; max-width: 18rem; font-size: 0.95rem; color: #c9bfcd; }
+.footer-logo img { height: 56px; width: auto; border-radius: 0; }
+.site-footer .footer-note { margin: var(--space-md) 0 0; max-width: 18rem; font-size: 0.95rem; color: var(--clr-text-muted); }
 .site-footer .footer-heading {
   font-family: var(--font-body);
   font-size: 12px;
   font-weight: 700;
   letter-spacing: 0.2em;
   text-transform: uppercase;
-  color: #c9a6db;
+  color: var(--clr-accent-hover);
   margin: 0 0 var(--space-md);
   line-height: 1.4;
 }
 .site-footer .footer-address, .site-footer .footer-contact, .site-footer .footer-hours {
   font-size: 0.98rem;
   line-height: 1.75;
-  color: #d9d1dc;
+  color: var(--clr-text);
   margin: 0 0 var(--space-sm);
 }
 .site-footer .footer-hours { margin-top: 0; }
-.footer-more { display: inline-block; margin-top: 4px; font-size: 12px; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; border-bottom: 1px solid rgba(217, 184, 232, 0.6); padding-bottom: 3px; }
+.footer-more { display: inline-block; margin-top: 4px; font-size: 12px; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; border-bottom: 1px solid var(--clr-accent); padding-bottom: 3px; }
 .site-footer .footer-links { display: flex; flex-direction: column; align-items: flex-start; gap: 8px; margin: 0; }
-.site-footer .footer-links a { font-size: 0.98rem; color: #d9d1dc; margin: 0; padding: 0; }
-.site-footer .footer-links a:hover { color: #fff; }
+.site-footer .footer-links a { font-size: 0.98rem; color: var(--clr-text); margin: 0; padding: 0; }
+.site-footer .footer-links a:hover { color: var(--clr-accent-hover); }
 .site-footer .footer-social { justify-content: flex-start; margin: var(--space-sm) 0 0; }
 
 .footer-bottom {
@@ -1400,11 +1402,11 @@ body:has(.video-hero) .site-nav:not(.scrolled):not(:has(.nav-toggle.active)) .na
   gap: var(--space-sm) var(--space-lg);
   margin-top: clamp(2.5rem, 5vw, 3.5rem);
   padding-top: var(--space-lg);
-  border-top: 1px solid rgba(255, 255, 255, 0.12);
+  border-top: 1px solid var(--clr-border);
 }
-.site-footer .footer-copy { margin: 0; font-size: 13px; color: #a99fae; }
-.site-footer .footer-team { font-size: 13px; color: #a99fae; }
-.site-footer .footer-team:hover { color: #fff; }
+.site-footer .footer-copy { margin: 0; font-size: 13px; color: var(--clr-text-muted); }
+.site-footer .footer-team { font-size: 13px; color: var(--clr-text-muted); }
+.site-footer .footer-team:hover { color: var(--clr-accent-hover); }
 
 @media (max-width: 900px) {
   .site-footer .mc-signup-footer { grid-template-columns: 1fr; grid-template-areas: "title" "desc" "form"; row-gap: var(--space-md); }
