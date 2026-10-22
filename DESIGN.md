@@ -69,3 +69,16 @@ Never purple text on purple; white text on purple bands.
 ## Don'ts
 - No new fonts without updating this file. No stock/AI imagery for the venue —
   only real Sane Living photos. No drop shadows heavier than `--shadow-lg`.
+
+## Staff dashboard and editor workspace (October 22, 2026)
+
+The public marketing rules above remain the venue website's baseline. Dashboard chrome uses the confirmed context in `.impeccable.md`: calm, welcoming, precise, with a readable desktop/phone workflow and a dark editor option.
+
+- Dashboard tokens: `public/dash/workspace.css`; editor tokens: `editor/src/workspace-polish.css`. Keep workspace styles outside the iframe so the canvas remains faithful to the website.
+- Keep existing Nunito branding; use regular body weight, 600–700 for controls, and strong page headings. Fixed rem-based UI sizes replace arbitrary tiny text; use tabular numerals for counts and rates.
+- Use the shared 4px spacing scale, quiet hairlines, warm neutral surfaces, and restrained plum actions. Group with whitespace and separators; reserve cards for independent editing surfaces and photo frames. No new decorative gradients, accent stripes, heavy shadows or generic icon tiles.
+- Fields need visible boundaries, readable values, keyboard focus and full-sized mobile targets. Action hierarchy distinguishes a draft save from publication; error/offline feedback stays persistent where necessary.
+- Desktop Home pairs the real venue calendar with task links. Mobile stacks them and keeps navigation scrollable. Settings categories, gallery collection boundaries, source content ownership and staff saves remain intact.
+- Floating canvas controls stay compact. Detailed sizing/style controls remain in the inspector; whole sections still move in Layers.
+
+Guidance applied from [ByChokeYT/Impecable](https://github.com/ByChokeYT/Impecable/tree/d0453bffd697f6fdd08e5d5244643d6afadcc7de/source/skills): impeccable context, polish, typeset and adapt. This is an adaptation to the existing product, not an installed skill bundle or copied editor runtime.

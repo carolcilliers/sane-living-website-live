@@ -78,3 +78,5 @@ This package contains Markdown guides, a schema, synthetic examples and source-d
 Latest controls and reconciliation guide: [16_SMOOTH_CANVAS_AND_EDITOR_CONTROLS.md](16_SMOOTH_CANVAS_AND_EDITOR_CONTROLS.md).
 
 Image interaction repair: [17_IMAGE_CARD_MOVEMENT_AND_REMOVAL.md](17_IMAGE_CARD_MOVEMENT_AND_REMOVAL.md). Framed rental images/captions move together; repair is explicit and preserves content. Image-only removal and toolbar reopening are directly accessible.
+
+Latest workspace refinement: [18_WORKSPACE_POLISH_AND_AUTOMATIC_CARD_RECOVERY.md](18_WORKSPACE_POLISH_AND_AUTOMATIC_CARD_RECOVERY.md). Applies Impecable design guidance to dashboard/editor chrome and visibly recovers detached image-card hierarchies in older compatible drafts, retaining Undo/recovery and publication safeguards.

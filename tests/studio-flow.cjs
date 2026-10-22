@@ -7,7 +7,7 @@ const createServer=require('./qa-server.cjs');
  browser=await launch();
  const context=await browser.newContext();await context.addCookies([{name:'sl_dash',value:server.cookie.split('=')[1],url:server.url}]);
  await context.route('**/*',route=>route.request().url().startsWith(server.url)?route.continue():route.abort());
- const page=await context.newPage(),errors=[];page.on('pageerror',e=>errors.push(e.message));
+ const page=await context.newPage(),errors=[];page.setDefaultTimeout(15000);page.on('pageerror',e=>errors.push(e.message));
  await page.goto(server.url+'/dash/');await page.locator('[data-nav="settings"]').waitFor();
  assert.equal(await page.evaluate(()=>{const ids=[...document.querySelectorAll('[id]')].map(n=>n.id);return ids.length-new Set(ids).size;}),0,'unique field IDs');
  assert.deepEqual(await page.locator('#mainNav [data-nav]').evaluateAll(nodes=>nodes.slice(-2).map(n=>n.dataset.nav)),['editor','settings']);

@@ -33,6 +33,7 @@ import type {
 import type { About } from "./types";
 import "./style.css";
 import "./site-style.css";
+import "./workspace-polish.css";
 const LABELS: Record<string, string> = {
   row: "Row",
   column: "Column",
@@ -223,6 +224,7 @@ function App() {
     loadVersion = useRef(0),
     input = useRef<HTMLInputElement>(null),
     fieldGroup = useRef("");
+  const [cardRecovery,setCardRecovery]=useState(0);
   function replace(w: Workspace) {
     setHistory({ now: w, past: [], future: [], group: "" });
     select("");
@@ -342,10 +344,22 @@ function App() {
       } catch {}
       setAboutRecovery(olderAbout);
       draftBase.current = sourceBase(conflict && stored ? stored.value : d);
+      let detachedCount=0;
+      const beforeRepair=structuredClone(w);
+      w=structuredClone(w);
+      for(const p of w.project.pages){
+        const descriptors=core.describe(core.registryFor(p,d.registry),{...d.resources,about:w.aboutText}).blocks;
+        for(const b of p.blocks){const descriptor=descriptors.find((part:any)=>part.id===b.source);if(!descriptor)continue;
+          const repair=core.cardLayout.repairDetached(descriptor,b.elements);
+          if(repair.count){b.elements=repair.values;p.active=true;detachedCount+=repair.count;}
+        }
+      }
+      setCardRecovery(detachedCount);
       setData(d);
-      replace(w);
+      if(detachedCount){setHistory({now:w,past:[beforeRepair],future:[],group:""});select("");}
+      else replace(w);
       setStale(conflict);
-      setSaved(recovered && revision.current > 0 ? JSON.stringify(w) : "");
+      setSaved(recovered && revision.current > 0 ? JSON.stringify(detachedCount ? beforeRepair : w) : "");
       setStatus(
         conflict
           ? "Older draft · publication blocked"
@@ -1372,6 +1386,7 @@ function App() {
           </button>
         </div>
       ) : null}
+      {cardRecovery>0 ? <div className="card-recovery-notice" role="status"><div><strong>Image cards recovered</strong><span>Reattached {cardRecovery} image or caption parts from the older draft. Your content is kept; Undo and recovery history retain the previous layout.</span></div><button onClick={()=>setCardRecovery(0)} aria-label="Dismiss image recovery notice">×</button></div> : null}
       {cloud !== "local" && cloud !== "loading" ? <div className="team-draft-status" role="status"><span>{cloud === "saving" ? "Backing up private team draft…" : cloud === "ready" ? cloudLastSaved.current === workFingerprint ? "Team draft backed up privately" : "Team backup pending" : cloudMessage}</span>
         <button onClick={async()=>{try{const remote=await api("/api/studio-draft");if(!remote.configured){setCloud("local");return;}if(remote.record){downloadSaved(remote.record.value,"sane-living-team-draft.json");}else notice("No team draft has been saved yet.");}catch(e){notice((e as Error).message);}}}>Download team draft</button>
         <button disabled={cloud === "saving"} onClick={async()=>{

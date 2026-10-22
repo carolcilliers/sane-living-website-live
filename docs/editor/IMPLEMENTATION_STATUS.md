@@ -19,3 +19,5 @@ The current extension is [15_ELEMENT_EDITING_AND_DRAFT_RECOVERY.md](15_ELEMENT_E
 Current interaction extension: [16_SMOOTH_CANVAS_AND_EDITOR_CONTROLS.md](16_SMOOTH_CANVAS_AND_EDITOR_CONTROLS.md). Same-page edits reconcile the live document rather than reloading it, retaining media playback. Floating controls are movable/closable; the inspector includes grouped spacing, typography, border and custom-shadow controls. Managed wedding policy paragraphs are individually styleable, with text owned by the Weddings content fields.
 
 Image interaction repair: [17_IMAGE_CARD_MOVEMENT_AND_REMOVAL.md](17_IMAGE_CARD_MOVEMENT_AND_REMOVAL.md). Framed rental images/captions move together; repair is explicit and preserves content. Image-only removal and toolbar reopening are directly accessible.
+
+Latest workspace refinement: [18_WORKSPACE_POLISH_AND_AUTOMATIC_CARD_RECOVERY.md](18_WORKSPACE_POLISH_AND_AUTOMATIC_CARD_RECOVERY.md). Applies Impecable design guidance to dashboard/editor chrome and visibly recovers detached image-card hierarchies in older compatible drafts, retaining Undo/recovery and publication safeguards.

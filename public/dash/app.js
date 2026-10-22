@@ -271,7 +271,7 @@
       if(action === 'publish') { version.published = snapshot; if(id==='settings')applyDashboardBranding(JSON.parse(snapshot)); watchPublication(id,snapshot); }
       if (newerEdits) cacheWork(id); else try { localStorage.removeItem(RECOVERY_PREFIX+id); } catch(e) {}
       if(result.warning) { state.conflicts[id] = result.warning; toast(result.warning,true); }
-      else toast(action === 'draft' ? 'Shared draft saved. The public website is unchanged.' : 'Published. The website updates after deployment, usually within a minute.');
+      else toast(action === 'draft' ? 'Draft saved. Ready to review.' : 'Published. The website updates after deployment, usually within a minute.');
       return true;
     } catch(e) {
       cacheWork(id); state.errors[id] = e.message;
@@ -407,10 +407,10 @@
         pricing: 'The rental rate table and booking notes on the Pricing page.',
         partners: 'Local partners shown on the Partners page.',
         settings: 'Phone, email, address, hours and social links used across the site.',
-        editor: 'Arrange and preview an About page draft in the visual editor.',
+        editor: 'Design any page, preview your changes and publish when ready.',
         about: 'Edit the About page’s sections, story and links.',
       }[x.id];
-      return '<button type="button" class="shortcut" data-goto="' + x.id + '"><h3>' + x.label + '</h3><p>' + blurb + '</p></button>';
+      return '<button type="button" class="shortcut" data-goto="' + x.id + '"><span class="shortcut-copy"><h3>' + x.label + '</h3><p>' + blurb + '</p></span><span class="shortcut-arrow" aria-hidden="true">↗</span></button>';
     }).join('');
     var calInner;
     if (state.events === null) {
@@ -420,12 +420,12 @@
         (state.readOnly ? '<p style="color:var(--muted);font-size:.88rem;margin-top:12px">Read-only view from the live website — event editing unlocks when the Airtable keys are added.</p>' : '');
     }
     return panelShell('home', 'Welcome', 'Everything here updates the Sane Living website. Pick a section on the left — save a draft to review, or publish changes when they are ready.',
-      '<div class="grid grid-3" style="margin-bottom:18px">' +
+      '<div class="grid grid-3 home-metrics" style="margin-bottom:24px">' +
       '<div class="card stat-card"><div class="num">' + evCount + '</div><div class="lbl">upcoming events</div></div>' +
       '<div class="card stat-card"><div class="num">' + photos + '</div><div class="lbl">photos in the gallery</div></div>' +
       '<div class="card stat-card"><div class="num">' + partners + '</div><div class="lbl">partners listed</div></div></div>' +
-      '<div class="card" style="margin-bottom:18px"><h3 class="block-title" style="margin-bottom:14px">What\'s on at the venue</h3>' + calInner + '</div>' +
-      '<div class="grid grid-2">' + cards + '</div>');
+      '<div class="home-workbench"><div class="card home-calendar" style="margin-bottom:18px"><h3 class="block-title" style="margin-bottom:14px">What\'s on at the venue</h3>' + calInner + '</div>' +
+      '<div class="home-tools"><div class="workspace-section-heading"><h3>Manage your website</h3><p>Choose what you want to work on.</p></div><div class="grid grid-2 home-shortcuts">' + cards + '</div></div></div>');
   }
   function bindHome() {
     var root = $('#panel-home');

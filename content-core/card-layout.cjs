@@ -20,4 +20,10 @@ function restore(descriptor, values={}) {
   }
   return next;
 }
-module.exports={owner,restore};
+function repairDetached(descriptor,values={}) {
+  const detached=descriptor.elements.filter(e=>e.dragOwner && values[e.id]?.parent != null && values[e.id].parent!==e.parent);
+  if(!detached.length)return {values,count:0};
+  // Restore the affected card family only; content/appearance and other elements remain intact.
+  return {values:restore(descriptor,values),count:detached.length};
+}
+module.exports={owner,restore,repairDetached};

@@ -553,13 +553,13 @@ export function SiteCanvas({
       bar.dataset.block = selected;
       bar.dataset.element = selectedElement || "";
       if(!sameBar)bar.style.cssText =
-        "position:fixed;z-index:2147483647;display:flex;flex-wrap:wrap;gap:4px;padding:5px;background:#282331;color:#fff;border:1px solid #a88ad1;border-radius:7px;box-shadow:0 4px 20px #0005;font:12px system-ui;max-width:95vw";
+        "position:fixed;z-index:2147483647;display:flex;flex-wrap:wrap;gap:4px;padding:5px;background:#29262e;color:#f5f2f7;border:1px solid #514a5b;border-radius:10px;box-shadow:0 8px 24px #0003;font:12px system-ui;max-width:95vw";
       const added=page.blocks.find(b=>b.id===selected && !b.source),imageSelected=chosen?.tagName==="IMG" || added?.type==="image";
       if(!sameBar)bar.innerHTML =
-        '<button data-studio-toolbar-grip aria-label="Move toolbar" title="Drag this grip to move the toolbar">⠿</button><button draggable="true" data-studio-section-drag>↕ Section</button>' +
+        '<button data-studio-toolbar-grip aria-label="Move toolbar" title="Drag this grip to move the toolbar">⠿</button>'+(!chosen && !added ? '<button draggable="true" data-studio-section-drag>↕ Section</button>' : '') +
         (chosen || added
-          ? '<button draggable="true">↕ '+(chosen?.dataset.studioDragOwner?'Drag card':imageSelected?'Drag image':'Drag element')+'</button><button data-studio-free title="Drag to move on the current device layout">✥ Move freely</button><button data-studio-resize title="Drag to resize on the current device layout">⤡ Resize</button><button data-studio-action="up" aria-label="Move element up">↑</button><button data-studio-action="down" aria-label="Move element down">↓</button><button data-studio-action="remove">'+(imageSelected?'Remove image':'Remove')+'</button>'
-          : "") + ((chosen?.tagName === "VIDEO" || (chosen || active)?.querySelector("video")) ? '<button data-studio-media-play aria-label="Play / pause video">▶ / Ⅱ Video</button>' : '') + (active.querySelector('[data-studio-drag-owner]') ? '<button data-studio-action="restore-cards">Restore cards</button>' : '') + '<button data-studio-toolbar-close aria-label="Close element toolbar" title="Hide controls; your selection stays active">×</button>';
+          ? '<button draggable="true">↕ '+(chosen?.dataset.studioDragOwner?'Drag card':imageSelected?'Drag image':'Drag element')+'</button><button data-studio-free title="Drag to move on the current device layout">✥ Move freely</button><button data-studio-resize title="Drag to resize on the current device layout">⤡ Resize</button><button data-studio-action="remove">'+(imageSelected?'Remove image':'Remove')+'</button>'
+          : "") + ((chosen?.tagName === "VIDEO" || (chosen || active)?.querySelector("video")) ? '<button data-studio-media-play aria-label="Play / pause video">▶ / Ⅱ Video</button>' : '') + '<button data-studio-toolbar-close aria-label="Close element toolbar" title="Hide controls; your selection stays active">×</button>';
       bar.querySelector<HTMLButtonElement>("[data-studio-toolbar-close]")!.onclick=()=>{bar.hidden=true;bar.style.display="none";};
       const zoom =
         frame.current!.getBoundingClientRect().width /
@@ -570,7 +570,7 @@ export function SiteCanvas({
         .forEach(
           (b) =>
             (b.style.cssText =
-              "background:#3c3348;color:#fff;border:0;border-radius:4px;padding:" +
+              "background:#37323e;color:#f5f2f7;border:0;border-radius:6px;padding:" +
               6 / zoom +
               "px;cursor:grab;font:inherit;touch-action:none"),
         );
