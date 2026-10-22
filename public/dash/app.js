@@ -656,14 +656,30 @@
 
   /* ---------------- GALLERY (grouped by website section) ---------------- */
   var SECTION_DEFS = [
-    { id: 'venue', title: 'The Venue', where: 'Gallery page → “The Venue” filter · also the Rent page photo viewer', blurb: 'Main Hall, auditorium, conference room and other inside spaces.' },
-    { id: 'weddings', title: 'Weddings', where: 'Gallery page → “Weddings” filter', blurb: 'Ceremonies, receptions and wedding setups.' },
-    { id: 'outdoor', title: 'Outdoor Spaces', where: 'Gallery page → “Outdoor” filter', blurb: 'Sculpture area, patio and outdoor gatherings.' },
+    { id: 'venue', title: 'The Venue', where: 'Gallery page → Main Hall stories (pick each photo’s group) · also the Rent page photo viewer', blurb: 'Main Hall, auditorium, conference room and other inside spaces.' },
+    { id: 'weddings', title: 'Weddings', where: 'Gallery page → “Weddings” section', blurb: 'Ceremonies, receptions and wedding setups.' },
+    { id: 'outdoor', title: 'Outdoor Spaces', where: 'Gallery page → “Outdoor spaces” section', blurb: 'Sculpture area, patio and outdoor gatherings.' },
+  ];
+  // Venue photos can also be placed in one of the Main Hall stories on the Gallery page.
+  // These ids must match CHAPTERS in public/gallery.html.
+  var GROUP_DEFS = [
+    { id: '', title: 'Around the venue (general)' },
+    { id: 'talks', title: 'Talks & workshops' },
+    { id: 'wellness', title: 'Wellness & circles' },
+    { id: 'receptions', title: 'Receptions & gatherings' },
+    { id: 'performances', title: 'Concerts & performances' },
+    { id: 'meetings', title: 'Meetings & classes' },
   ];
   function photoCard(p, idx, total) {
     var sections = SECTION_DEFS.map(function (sd) {
       return '<option value="' + sd.id + '"' + (p.section === sd.id ? ' selected' : '') + '>' + sd.title + '</option>';
     }).join('');
+    var groups = GROUP_DEFS.map(function (gd) {
+      return '<option value="' + gd.id + '"' + ((p.group || '') === gd.id ? ' selected' : '') + '>' + gd.title + '</option>';
+    }).join('');
+    var groupPicker = (p.section || 'venue') === 'venue'
+      ? '<label class="pc-section-label">Gallery page group<select data-ph="group" data-idx="' + idx + '">' + groups + '</select></label>'
+      : '';
     return '<div class="photo-card">' +
       '<img src="' + esc(p.image) + '" alt="' + esc(p.alt || '') + '" loading="lazy" onerror="this.style.opacity=0.25">' +
       '<div class="pc-body">' +
@@ -671,6 +687,7 @@
       '<input data-ph="caption" data-idx="' + idx + '" value="' + esc(p.caption || '') + '" placeholder="Caption (shown under the photo)">' +
       '<input data-ph="alt" data-idx="' + idx + '" value="' + esc(p.alt || '') + '" placeholder="Describe the photo (for accessibility)">' +
       '<label class="pc-section-label">Website section<select data-ph="section" data-idx="' + idx + '">' + sections + '</select></label>' +
+      groupPicker +
       '<div class="pc-actions">' +
       '<button type="button" class="icon-btn" data-ph-move="-1" data-idx="' + idx + '" title="Move earlier" ' + (idx === 0 ? 'disabled' : '') + '>↑</button>' +
       '<button type="button" class="icon-btn" data-ph-move="1" data-idx="' + idx + '" title="Move later" ' + (idx === total - 1 ? 'disabled' : '') + '>↓</button>' +
