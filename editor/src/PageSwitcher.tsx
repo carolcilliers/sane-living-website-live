@@ -4,10 +4,12 @@ export function PageSwitcher({
   pages,
   current,
   choose,
+  create,
 }: {
   pages: Page[];
   current?: Page;
   choose: (id: string) => void;
+  create: () => void;
 }) {
   const [open, setOpen] = useState(false),
     [query, setQuery] = useState(""),
@@ -155,6 +157,7 @@ export function PageSwitcher({
           <footer>
             {pages.length} pages <span>↑ ↓ to browse · Enter to open</span>
           </footer>
+          <button className="header-create-page" onClick={()=>{setOpen(false);create();}}>+ Create a page</button>
         </div>
       ) : null}
     </div>

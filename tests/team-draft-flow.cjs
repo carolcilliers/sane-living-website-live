@@ -14,13 +14,13 @@ const assert=require('node:assert/strict'),create=require('./qa-server.cjs'),{la
    const reverse=v=>v&&typeof v==='object'&&!Array.isArray(v)?Object.fromEntries(Object.entries(v).reverse().map(([k,x])=>[k,reverse(x)])):Array.isArray(v)?v.map(reverse):v;
    record={revision:(record?.revision||0)+1,value:reverse(body.value),updatedAt:Date.now()};return reply(200,{configured:true,record});
   });
-  const page=await context.newPage();await page.goto(server.url+'/dash/#editor');const editor=page.frameLocator('#pageEditorFrame');await editor.locator('.page-row').first().waitFor();return {context,page,editor};
+  const page=await context.newPage();await page.goto(server.url+'/dash/#editor');const editor=page.frameLocator('#pageEditorFrame');await editor.locator('.studio-workspace').first().waitFor();return {context,page,editor};
  }
  const a=await open();await a.editor.locator('.team-draft-status').filter({hasText:'backed up privately'}).waitFor();
  await a.editor.getByRole('button',{name:'Insert',exact:true}).click();await a.editor.locator('.block-palette').getByRole('button',{name:'Heading',exact:true}).click();await a.editor.getByLabel('Text',{exact:true}).fill('Shared private team design');
  await a.editor.locator('.team-draft-status').filter({hasText:'backed up privately'}).waitFor();
  const b=await open();await b.editor.getByRole('button',{name:'Layers',exact:true}).click();await b.editor.locator('.layer-name').first().click();assert.equal(await b.editor.getByLabel('Text',{exact:true}).inputValue(),'Shared private team design','second browser loads private team draft');
- await b.page.reload();await b.editor.locator('.page-row').first().waitFor();await b.editor.locator('.team-draft-status').filter({hasText:'backed up privately'}).waitFor();assert.equal(await b.editor.getByRole('button',{name:'Load team draft',exact:true}).count(),0,'object-key order does not cause conflict');
+ await b.page.reload();await b.editor.locator('.studio-workspace').first().waitFor();await b.editor.locator('.team-draft-status').filter({hasText:'backed up privately'}).waitFor();assert.equal(await b.editor.getByRole('button',{name:'Load team draft',exact:true}).count(),0,'object-key order does not cause conflict');
  await b.editor.getByRole('button',{name:'Layers',exact:true}).click();await b.editor.locator('.layer-name').first().click();
  await a.editor.getByLabel('Text',{exact:true}).fill('First editor saved newer work');await a.editor.locator('.team-draft-status').filter({hasText:'backed up privately'}).waitFor();
  await b.editor.getByLabel('Text',{exact:true}).fill('Second editor must keep these changes');await b.editor.locator('.team-draft-status').filter({hasText:'Another team member'}).waitFor();assert.equal(await b.editor.getByLabel('Text',{exact:true}).inputValue(),'Second editor must keep these changes');assert.equal(record.value.work.project.pages[0].blocks[0].props.text,'First editor saved newer work');

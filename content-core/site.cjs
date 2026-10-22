@@ -21,6 +21,12 @@ const TYPES = [
   "booking",
   "newsletter",
   "slideshow",
+  "video",
+  "list",
+  "quote",
+  "details",
+  "card",
+  "badge",
   "row",
   "column",
 ];
@@ -41,6 +47,12 @@ const BASE = [
   "responsive",
 ];
 const PROPS = {
+  video: ["src", "poster", "caption"],
+  list: ["items", "style"],
+  quote: ["text", "citation"],
+  details: ["summary", "text"],
+  card: ["heading", "text", "src", "alt", "buttonText", "url"],
+  badge: ["text"],
   row: [],
   column: [],
   heading: ["text", "level"],
@@ -296,6 +308,10 @@ function describeSource(entry, resources) {
       };
       elements.push(el);
     });
+    if(entry.route === "/rent/weddings/") {
+      const owner=elements.find(e=>raw.slice(e.start,e.open).includes('id="wedding-details"'));
+      if(owner)for(const [key,label] of [["includesText","What's included"],["cateringPolicy","Catering policy"],["alcoholPolicy","Alcohol policy"],["parkingNote","Parking note"]])elements.push({id:"policy-"+key,tag:"p",label,parent:owner.id,start:0,end:0,open:0,close:null,bindings:[],managed:true,virtual:true,contentKey:key});
+    }
     for (const f of fields)
       f.element = elements
         .filter((e) => f.start >= e.start && f.end <= e.end)
@@ -358,6 +374,12 @@ function createProject(registry) {
 }
 function block(type, id) {
   const props = {
+    video: {src:"/hero-video.mp4",poster:"/images/homepage-hero.jpg",caption:""},
+    list: {items:"First item\nSecond item\nThird item",style:"bullets"},
+    quote: {text:"A place to connect, create and celebrate.",citation:"Sane Living"},
+    details: {summary:"Frequently asked question",text:"Add a helpful answer here."},
+    card: {heading:"A welcoming space",text:"Describe what makes this special.",src:"/images/about-center-exterior.jpg",alt:"Sane Living",buttonText:"Learn more",url:"/contact/"},
+    badge: {text:"A special place"},
     heading: { text: "A new heading", level: "h2" },
     text: { text: "Share your story. Make this space your own." },
     image: {
@@ -612,9 +634,11 @@ function validate(project, registry, resources) {
         for (const [key, kind] of [
           ["src", "image"],
           ["url", "link"],
+          ["poster", "image"],
         ])
           if (b.props[key] && !settings.safeUrl(b.props[key], kind))
             errors.push("Use a safe image or page URL.");
+        if (b.type === "list" && !["bullets","numbered"].includes(b.props.style))errors.push("Choose a list style.");
         if (b.props.level && !["h1", "h2", "h3"].includes(b.props.level))
           errors.push("Choose a supported heading level.");
         if (b.props.side && !["left", "right"].includes(b.props.side))
@@ -740,6 +764,7 @@ function validateElements(d, values) {
   return errors;
 }
 function originalHtml(d, b, annotate, nested = [], resources = {}, blocks = []) {
+  d={...d,elements:d.elements.filter(e=>!e.virtual)};
   const overrides = b.elements || {},
     nodes = new Map(d.elements.map((e) => [e.id, e]));
   function range(start, end) {
@@ -920,6 +945,12 @@ function renderBlock(b, resources, annotate, blocks = [], depth = 0) {
     '" alt="' +
     esc(p.alt || "") +
     '" loading="lazy">';
+  if (b.type === "video") inner='<figure><video controls playsinline preload="metadata" poster="'+esc(settings.safeUrl(p.poster,"image"))+'" src="'+esc(settings.safeUrl(p.src,"url"))+'"></video>'+(p.caption?'<figcaption>'+esc(p.caption)+'</figcaption>':'')+'</figure>';
+  if (b.type === "list") {const tag=p.style==='numbered'?'ol':'ul';inner='<'+tag+' class="studio-list">'+String(p.items||'').split('\n').filter(Boolean).map(x=>'<li>'+esc(x)+'</li>').join('')+'</'+tag+'>';}
+  if (b.type === "quote") inner='<blockquote class="studio-quote"><p>'+esc(p.text||'')+'</p>'+(p.citation?'<cite>'+esc(p.citation)+'</cite>':'')+'</blockquote>';
+  if (b.type === "details") inner='<details class="studio-details"><summary>'+esc(p.summary||'Details')+'</summary>'+content.markdown(p.text||'')+'</details>';
+  if (b.type === "badge") inner='<span class="studio-badge">'+esc(p.text||'')+'</span>';
+  if (b.type === "card") inner='<article class="studio-content-card">'+(p.src?img():'')+'<h2>'+esc(p.heading||'')+'</h2>'+content.markdown(p.text||'')+(p.buttonText?'<a class="btn btn-primary" href="'+esc(settings.safeUrl(p.url,"link")||'#')+'">'+esc(p.buttonText)+'</a>':'')+'</article>';
   if (b.type === "heading")
     inner =
       "<" +
@@ -1153,7 +1184,7 @@ function renderPage(page, project, registry, resources, options = {}) {
     ])
       map["/content/" + key + ".json"] = jsonResources(resources, key);
     assets +=
-      "<script>window.__SANE_PREVIEW__=true;{const m=" +
+      "<script>window.__SANE_PREVIEW__=true;{const m=window.__SANE_PREVIEW_RESOURCES__=" +
       jsJson(map) +
       ',f=window.fetch.bind(window);window.fetch=(u,o)=>{const p=new URL(typeof u==="string"?u:u.url,document.baseURI).pathname;return (!o||!o.method||o.method==="GET")&&Object.prototype.hasOwnProperty.call(m,p)?Promise.resolve(new Response(JSON.stringify(m[p]),{headers:{"Content-Type":"application/json"}})):f(u,o);};}</script>';
   }
@@ -1161,9 +1192,12 @@ function renderPage(page, project, registry, resources, options = {}) {
   for (const b of page.blocks) {
     styles += design.rules(b.id, b.design, b.responsive, "data-studio-layout");
     for (const [id, v] of Object.entries(b.elements || {}))
-      styles += design.rules(b.id + ":" + id, Object.fromEntries(Object.entries(v).filter(([k]) => design.keys.includes(k))), v.responsive);
+      styles += design.rules(b.id + ":" + id, {...Object.fromEntries(Object.entries(v).filter(([k]) => design.keys.includes(k))),...(v.hidden?{display:"none"}:{})}, v.responsive);
   }
-  if (styles) assets += "<style>" + styles + "</style>";
+  const partsMap=[];
+  for(const b of page.blocks){const descriptor=parts.blocks.find(d=>d.id===b.source);for(const e of descriptor?.elements||[])if(e.virtual)partsMap.push({key:e.contentKey,style:design.token(b.id+":"+e.id),block:b.id,element:e.id,annotate:!!options.annotate});}
+  if(partsMap.length)assets+='<script id="studio-managed-parts" type="application/json">'+jsJson(partsMap)+'</script>';
+  if (styles) assets += '<style data-studio-design-rules>' + styles + "</style>";
   html = html.replace("</head>", assets + "\n</head>");
   if (options.release)
     html = html.replace(

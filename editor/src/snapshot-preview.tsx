@@ -129,6 +129,7 @@ function Preview() {
         title="Full-page draft preview"
         ref={frame}
         sandbox="allow-same-origin allow-scripts"
+        allow="autoplay; fullscreen; picture-in-picture"
         srcDoc={html}
         style={{ visibility: ready ? "visible" : "hidden" }}
         onLoad={() => {

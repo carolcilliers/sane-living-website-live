@@ -131,7 +131,7 @@
     state.section = id;
     document.body.classList.toggle('page-editor-open',id==='editor');
     history.replaceState(null,'','#'+id);
-    if(id==='editor'&&!editorFrame){var host=document.getElementById('pageEditorHost');if(host){var frame=document.createElement('iframe');frame.id='pageEditorFrame';frame.title='Sane Living page editor';frame.src='/dash/editor/index.html'+(aboutAlias?'?page=about':'');frame.allow='fullscreen';frame.style.cssText='width:100%;height:100dvh;min-height:690px;border:0;border-radius:0;background:#f7f8fa;display:block';host.appendChild(frame);}}
+    if(id==='editor'&&!editorFrame){var host=document.getElementById('pageEditorHost');if(host){var frame=document.createElement('iframe');frame.id='pageEditorFrame';frame.title='Sane Living page editor';frame.src='/dash/editor/index.html'+(aboutAlias?'?page=about':'');frame.allow='autoplay; fullscreen; picture-in-picture';frame.style.cssText='width:100%;height:100dvh;min-height:690px;border:0;border-radius:0;background:#f7f8fa;display:block';host.appendChild(frame);}}
     $$('#mainNav [data-nav]').forEach(function (b) { b.classList.toggle('active', b.getAttribute('data-nav') === id); });
     $$('#panels .panel').forEach(function (p) { p.classList.toggle('active', p.id === 'panel-' + id); });
     if(aboutAlias){var current=document.getElementById('pageEditorFrame');if(current){current.contentWindow.postMessage({type:'studio:select-about'},location.origin);current.addEventListener('load',function(){current.contentWindow.postMessage({type:'studio:select-about'},location.origin);},{once:true});}}

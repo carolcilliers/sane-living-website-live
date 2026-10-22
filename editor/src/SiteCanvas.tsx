@@ -1,4 +1,5 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useLayoutEffect, useRef, useState } from "react";
+import { patchDocument, updateStyles, designStyles, structureKey, resolveAssets } from "./live-canvas";
 import core from "../../content-core/site.cjs";
 import type { Page, Project, Registry, Asset } from "./site-types";
 export function htmlFor(
@@ -45,7 +46,7 @@ export function htmlFor(
   const style =
     "<style>[data-animate],[data-animate-stagger]>*{opacity:1!important;transform:none!important;transition:none!important}" +
     (annotate
-      ? "[data-studio-element]{cursor:pointer;outline-offset:-2px}[data-studio-element]:hover{outline:1px dashed #aa8bdb}[data-studio-drop]{outline:3px solid #c49bff!important;box-shadow:0 -4px #a47af2!important}[data-studio-element-selected]{outline:2px solid #b789ff!important}.video-hero-overlay{pointer-events:none!important}video{pointer-events:auto!important}[data-studio-block]{cursor:pointer;outline-offset:-2px}[data-studio-block]:hover{outline:1px solid #a181c4}[data-studio-selected]{outline:2px solid #8559ad!important}"
+      ? "[data-studio-element]{cursor:pointer;outline-offset:-2px;transition:none!important;animation:none!important}[data-studio-block]{transition:none!important;animation:none!important}[data-studio-element]:hover{outline:1px dashed #aa8bdb}[data-studio-drop=inside]{outline:2px solid #c49bff!important}[data-studio-drop=before]{box-shadow:0 -3px #a47af2!important}[data-studio-drop=after]{box-shadow:0 3px #a47af2!important}[data-studio-element-selected]{outline:2px solid #b789ff!important}.video-hero-overlay{pointer-events:none!important}video{pointer-events:auto!important}[data-studio-block]{cursor:pointer;outline-offset:-2px}[data-studio-block]:hover{outline:1px solid #a181c4}[data-studio-selected]{outline:2px solid #8559ad!important}"
       : "") +
     "</style>";
   return html.replace(
@@ -76,6 +77,7 @@ export function prepareFrame(
   });
   d.querySelectorAll("iframe,object,embed").forEach((n) => {
     const el = d.createElement("div");
+    Array.from(n.attributes).filter(a=>a.name.startsWith("data-studio-") || a.name==="style").forEach(a=>el.setAttribute(a.name,a.value));
     el.className = "studio-preview-integration";
     el.textContent =
       (n.getAttribute("title") || "Embedded form or media") + " · preview only";
@@ -126,9 +128,12 @@ export function prepareFrame(
         tools?.pickInsert?.(boundary.dataset.block!, {boundary:boundary.dataset.studioBoundary});
         return;
       }
+      if(el.closest("[data-studio-toolbar-close],[data-studio-toolbar-grip]")) return;
       const action = el
         .closest("[data-studio-action]")
         ?.getAttribute("data-studio-action");
+      const mediaAction = el.closest("[data-studio-media-play]");
+      if(mediaAction){e.preventDefault();e.stopImmediatePropagation();const bar=d.getElementById("studio-canvas-tools")!;const owner=d.querySelector('[data-studio-block="'+bar.dataset.block+'"]');const video=owner?.querySelector<HTMLVideoElement>('video');if(video){if(!video.paused)video.pause();else {video.muted=true;void video.play().catch(()=>notice("This video could not play. Check its direct MP4/WebM address and file format."));}}return;}
       if (action) {
         e.preventDefault();
         e.stopImmediatePropagation();
@@ -183,6 +188,8 @@ export function prepareFrame(
     (event) => {
       const e = event as PointerEvent,
         target = e.target as Element;
+      const grip = target.closest("[data-studio-toolbar-grip]");
+      if(grip){const bar=grip.closest<HTMLElement>("#studio-canvas-tools")!;const r=bar.getBoundingClientRect();free={toolbar:true,bar,startX:e.clientX,startY:e.clientY,x:r.left,y:r.top,originalStyle:bar.style.cssText};target.setPointerCapture?.(e.pointerId);e.preventDefault();e.stopImmediatePropagation();return;}
       if (!target.closest("[data-studio-free],[data-studio-resize]")) return;
       const bar = d.getElementById("studio-canvas-tools")!,
         element = bar.dataset.element || "";
@@ -192,9 +199,7 @@ export function prepareFrame(
       if (!el) return;
       e.preventDefault();
       e.stopImmediatePropagation();
-      const current = (win.getComputedStyle(el).translate || "0px 0px")
-        .split(" ")
-        .map(parseFloat);
+      const current = tools?.coordinates?.(bar.dataset.block!,element) || (win.getComputedStyle(el).translate || "0px 0px").split(" ").map(parseFloat);
       free = {
         block: bar.dataset.block,
         element,
@@ -218,6 +223,7 @@ export function prepareFrame(
     (event) => {
       if (!free) return;
       const e = event as PointerEvent;
+      if(free.toolbar){free.bar.style.left=Math.max(4,Math.min(win.innerWidth-free.bar.offsetWidth-4,free.x+e.clientX-free.startX))+"px";free.bar.style.top=Math.max(4,Math.min(win.innerHeight-free.bar.offsetHeight-4,free.y+e.clientY-free.startY))+"px";free.bar.dataset.pinned="true";event.preventDefault();return;}
       free.dx = Math.round(e.clientX - free.startX);
       free.dy = Math.round(e.clientY - free.startY);
       if (free.resize) {
@@ -231,11 +237,12 @@ export function prepareFrame(
     },
     true,
   );
-  win.addEventListener("pointercancel", () => { if(free){free.el.style.cssText=free.originalStyle;free=null;} },true);
+  win.addEventListener("pointercancel", () => { if(free){(free.toolbar?free.bar:free.el).style.cssText=free.originalStyle;free=null;} },true);
   win.addEventListener(
     "pointerup",
     () => {
       if (!free) return;
+      if(free.toolbar){free=null;return;}
       if (free.resize) {
         tools?.resize?.(free.block,free.element,Math.max(1,Math.min(100,Math.round((free.width+(free.dx||0))/free.parentWidth*100))),Math.round(Math.max(0,Math.min(2000,free.height+(free.dy||0)))));
         free = null; return;
@@ -291,7 +298,9 @@ export function prepareFrame(
         n.removeAttribute("data-studio-drop"),
       );
       if (boundary || target) {
-        (boundary || target)!.setAttribute("data-studio-drop", "");
+        const r=(boundary || target)!.getBoundingClientRect();
+        const edge=e.clientY<r.top+r.height*.25?'before':e.clientY>r.bottom-r.height*.25?'after':'inside';
+        (boundary || target)!.setAttribute("data-studio-drop", boundary?boundary.getAttribute('data-studio-boundary') || edge:edge);
         indicator = (boundary || target) as HTMLElement;
       }
       if (e.clientY < 70) win.scrollBy(0, -18);
@@ -311,6 +320,7 @@ export function prepareFrame(
         hit = selectedFrom(target),
         r = target.getBoundingClientRect(),
         after = e.clientY > r.top + r.height / 2;
+      const inside = e.clientY > r.top+r.height*.25 && e.clientY < r.bottom-r.height*.25;
       if (!dragging) {
         try {
           const data = JSON.parse(
@@ -345,6 +355,7 @@ export function prepareFrame(
           hit.block,
           hit.element,
           after,
+          inside,
         );
       else if (dragging?.block && hit.block && move)
         move(dragging.block, hit.block);
@@ -352,21 +363,21 @@ export function prepareFrame(
     },
     true,
   );
-  // Explicit insertion lines at every top-level section boundary, plus the final edge.
-  const topBlocks = Array.from(d.querySelectorAll<HTMLElement>("[data-studio-block]")).filter(n=>!n.parentElement?.closest("[data-studio-block]"));
-  const lines: {el:HTMLButtonElement; target:HTMLElement; after:boolean}[] = [];
-  const makeLine = (target:HTMLElement,after:boolean) => {
-    const el=d.createElement("button"); el.type="button"; el.dataset.studioBoundary=after?"after":"before"; el.dataset.block=target.dataset.studioBlock;
-    el.innerHTML='<span style="display:inline-block;background:#493659;color:#fff;padding:3px 12px;border-radius:9px;box-shadow:0 2px 8px #0003">+ Insert here</span>';el.setAttribute("aria-label",(after?"Insert after ":"Insert before ")+target.dataset.studioBlock);
-    el.style.cssText="position:absolute;left:12px;right:12px;z-index:2147483600;height:22px;border:0;border-radius:0;background:linear-gradient(#ab8bce,#ab8bce) center/100% 1px no-repeat;color:white;font:14px system-ui;cursor:copy;opacity:.6";
-    el.onmouseenter=()=>el.style.opacity="1";el.onmouseleave=()=>el.style.opacity=".55";
-    d.body.append(el);lines.push({el,target,after});
+  const refreshLines = () => {
+    d.querySelectorAll("[data-studio-boundary]").forEach(n=>n.remove());
+    const blocks=Array.from(d.querySelectorAll<HTMLElement>("[data-studio-block]")).filter(n=>!n.parentElement?.closest("[data-studio-block]"));
+    const entries=blocks.map(target=>({target,after:false}));if(blocks.length)entries.push({target:blocks[blocks.length-1],after:true});
+    for(const {target,after} of entries){
+      const el=d.createElement("button"),r=target.getBoundingClientRect();el.type="button";el.dataset.studioBoundary=after?"after":"before";el.dataset.block=target.dataset.studioBlock;
+      el.setAttribute("aria-label",(after?"Insert after ":"Insert before ")+target.dataset.studioBlock);
+      el.innerHTML='<span style="display:inline-block;background:#493659;color:#fff;padding:3px 12px;border-radius:9px">+ Insert here</span>';
+      el.style.cssText="position:absolute;left:12px;right:12px;z-index:2147483600;height:22px;border:0;background:linear-gradient(#ab8bce,#ab8bce) center/100% 1px no-repeat;color:white;font:14px system-ui;cursor:copy;opacity:.6;top:"+Math.max(0,win.scrollY+(after?r.bottom:r.top)-12)+"px";d.body.append(el);
+    }
   };
-  topBlocks.forEach(n=>makeLine(n,false));if(topBlocks.length)makeLine(topBlocks[topBlocks.length-1],true);
-  const positionLines=()=>lines.forEach(({el,target,after})=>{const r=target.getBoundingClientRect();el.style.top=Math.max(0,win.scrollY+(after?r.bottom:r.top)-12)+"px";});
-  positionLines();win.addEventListener("resize",positionLines);win.addEventListener("load",positionLines);
-  const observer=new ResizeObserver(positionLines); observer.observe(d.body);
-  win.addEventListener("pagehide",()=>observer.disconnect(),{once:true});
+  refreshLines();d.addEventListener("studio:layout-updated",refreshLines);
+  win.addEventListener("resize",refreshLines);win.addEventListener("load",refreshLines);
+  let resizeFrame=0;const observer=new ResizeObserver(()=>{cancelAnimationFrame(resizeFrame);resizeFrame=requestAnimationFrame(refreshLines);});observer.observe(d.body);
+  win.addEventListener("pagehide",()=>{observer.disconnect();cancelAnimationFrame(resizeFrame);},{once:true});
   win.addEventListener(
     "dragend",
     () => {
@@ -377,6 +388,7 @@ export function prepareFrame(
   );
 }
 export interface CanvasTools {
+  coordinates?: (block:string,element:string) => number[];
   pickInsert?: (block:string, placement:any) => void;
   placeBlock?: (from:string,target:string,after:boolean,placement?:any) => void;
   resize?: (block:string,element:string,width:number,height:number) => void;
@@ -388,6 +400,7 @@ export interface CanvasTools {
     targetBlock: string,
     target: string,
     after: boolean,
+    inside?: boolean,
   ) => void;
   placement?: (block: string, element: string, after: boolean) => any;
 }
@@ -427,6 +440,8 @@ export function SiteCanvas({
     scroll = useRef(0),
     renderedPage = useRef(page.id),
     lastSelection = useRef("");
+  const [paint, setPaint] = useState(0);
+  const liveState = useRef<{structure:string;resources:string;assets:string;nav:string} | null>(null);
   const [size, setSize] = useState({ width: 700, height: 650 }),
     [ready, setReady] = useState(false),
     [failed, setFailed] = useState(false);
@@ -444,27 +459,41 @@ export function SiteCanvas({
     o.observe(n);
     return () => o.disconnect();
   }, []);
-  // Render after typing settles; large staged image strings stay out of urgent input work.
-  const [html, setHtml] = useState(() =>
-    htmlFor(page, project, registry, resources, assets, true),
-  );
+  const [html, setHtml] = useState(() => htmlFor(page, project, registry, resources, assets, true));
   const htmlRef = useRef(html);
-  useEffect(() => {
-    const t = setTimeout(() => {
-      const next = htmlFor(page, project, registry, resources, assets, true);
-      if (next === htmlRef.current) return;
-      scroll.current =
-        renderedPage.current === page.id
-          ? frame.current?.contentWindow?.scrollY || 0
-          : 0;
-      renderedPage.current = page.id;
-      htmlRef.current = next;
-      setReady(false);
-      setFailed(false);
-      setHtml(next);
-    }, 280);
-    return () => clearTimeout(t);
-  }, [page, project, registry, resources, assets]);
+  const latest = useRef({page,project,registry,resources,assets});
+  latest.current={page,project,registry,resources,assets};
+  const stateFor = () => ({structure:structureKey(page),resources:JSON.stringify(resources),assets:JSON.stringify(assets),nav:JSON.stringify(project.pages.filter(p=>p.id.startsWith("custom--")).map(p=>({route:p.route,name:p.name,menu:p.menu}))) });
+  useLayoutEffect(() => {
+    if(renderedPage.current !== page.id) {
+      renderedPage.current=page.id;scroll.current=0;liveState.current=null;
+      const next=htmlFor(page,project,registry,resources,assets,true);htmlRef.current=next;setReady(false);setFailed(false);setHtml(next);return;
+    }
+    const doc=frame.current?.contentDocument;
+    if(!ready || !doc?.body)return;
+    const nextState=stateFor(), previous=liveState.current;
+    if(previous && previous.structure===nextState.structure && previous.resources===nextState.resources && previous.assets===nextState.assets && previous.nav===nextState.nav) {
+      designStyles(doc,page);doc.dispatchEvent(new Event("studio:layout-updated"));return;
+    }
+    const timer=setTimeout(()=>{
+      const f=frame.current;if(!f?.contentDocument || !f.contentWindow)return;
+      const next=htmlFor(page,project,registry,resources,assets,true);
+      if(next!==htmlRef.current){
+        const oldDocument=new DOMParser().parseFromString(htmlRef.current,"text/html"),nextDocument=new DOMParser().parseFromString(next,"text/html"),y=f.contentWindow.scrollY;
+        patchDocument(f.contentDocument,oldDocument,nextDocument);
+        f.contentDocument.querySelectorAll("iframe,object,embed").forEach(n=>{const p=f.contentDocument!.createElement("div");Array.from(n.attributes).filter(a=>a.name.startsWith("data-studio-")||a.name==="style").forEach(a=>p.setAttribute(a.name,a.value));p.className="studio-preview-integration";p.textContent=(n.getAttribute("title")||"Embedded form or media")+" · preview only";n.replaceWith(p);});
+        const win=f.contentWindow as any;
+        const map=win.__SANE_PREVIEW_RESOURCES__;
+        if(map)for(const k of ["settings","gallery","weddings","pricing","partners"])try{map['/content/'+k+'.json']=JSON.parse(resources[k]||'{}');}catch{}
+        if(previous?.resources!==nextState.resources || previous?.structure!==nextState.structure)win.SaneSite?.apply(core.settings.normalize(JSON.parse(resources.settings||"{}")));
+        resolveAssets(f.contentDocument,assets);designStyles(f.contentDocument,page);
+        f.contentDocument.dispatchEvent(new Event("sane:studio-updated"));f.contentDocument.dispatchEvent(new Event("studio:layout-updated"));
+        f.contentWindow.scrollTo(0,y);htmlRef.current=next;
+      }
+      liveState.current=nextState;setPaint(n=>n+1);
+    },60);
+    return ()=>clearTimeout(timer);
+  },[page,project,registry,resources,assets,ready]);
   useEffect(() => {
     if (ready) return;
     const t = setTimeout(() => setFailed(true), 20000);
@@ -485,24 +514,28 @@ export function SiteCanvas({
     d?.querySelectorAll("[data-studio-element-selected]").forEach((n) =>
       n.removeAttribute("data-studio-element-selected"),
     );
-    d?.getElementById("studio-canvas-tools")?.remove();
+    const previousBar = d?.getElementById("studio-canvas-tools");
+    const sameBar = previousBar?.dataset.selection === selected+":"+(selectedElement || "");
+    if(!sameBar)previousBar?.remove();
     if (d && active) {
       const selector = '[data-studio-element="' + selectedElement + '"]';
       const chosen = selectedElement
         ? active.matches(selector) ? active as HTMLElement : active.querySelector<HTMLElement>(selector)
         : null;
       (chosen || active).setAttribute("data-studio-element-selected", "");
-      const bar = d.createElement("div");
+      const bar = sameBar ? previousBar! : d.createElement("div");
       bar.id = "studio-canvas-tools";
+      bar.dataset.selection=selected+":"+(selectedElement || "");
       bar.dataset.block = selected;
       bar.dataset.element = selectedElement || "";
-      bar.style.cssText =
+      if(!sameBar)bar.style.cssText =
         "position:fixed;z-index:2147483647;display:flex;flex-wrap:wrap;gap:4px;padding:5px;background:#282331;color:#fff;border:1px solid #a88ad1;border-radius:7px;box-shadow:0 4px 20px #0005;font:12px system-ui;max-width:95vw";
-      bar.innerHTML =
-        '<button draggable="true" data-studio-section-drag>↕ Section</button>' +
+      if(!sameBar)bar.innerHTML =
+        '<button data-studio-toolbar-grip aria-label="Move toolbar" title="Drag this grip to move the toolbar">⠿</button><button draggable="true" data-studio-section-drag>↕ Section</button>' +
         (chosen
           ? '<button draggable="true">↕ Drag element</button><button data-studio-free title="Drag to move on the current device layout">✥ Move freely</button><button data-studio-resize title="Drag to resize on the current device layout">⤡ Resize</button><button data-studio-action="up" aria-label="Move element up">↑</button><button data-studio-action="down" aria-label="Move element down">↓</button><button data-studio-action="remove">Remove</button>'
-          : "");
+          : "") + ((chosen?.tagName === "VIDEO" || (chosen || active)?.querySelector("video")) ? '<button data-studio-media-play aria-label="Play / pause video">▶ / Ⅱ Video</button>' : '') + '<button data-studio-toolbar-close aria-label="Close element toolbar" title="Hide controls; your selection stays active">×</button>';
+      bar.querySelector<HTMLButtonElement>("[data-studio-toolbar-close]")!.onclick=()=>{bar.hidden=true;bar.style.display="none";};
       const zoom =
         frame.current!.getBoundingClientRect().width /
           frame.current!.offsetWidth || 1;
@@ -514,10 +547,11 @@ export function SiteCanvas({
             (b.style.cssText =
               "background:#3c3348;color:#fff;border:0;border-radius:4px;padding:" +
               6 / zoom +
-              "px;cursor:grab;font:inherit"),
+              "px;cursor:grab;font:inherit;touch-action:none"),
         );
-      d.body.append(bar);
+      if(!sameBar)d.body.append(bar);
       const position = () => {
+        if(bar.dataset.pinned)return;
         const r = (chosen || active!).getBoundingClientRect();
         bar.style.top =
           Math.max(
@@ -539,7 +573,8 @@ export function SiteCanvas({
       position();
       const win = frame.current?.contentWindow;
       win?.addEventListener("scroll", position, { passive: true });
-      cleanup = () => win?.removeEventListener("scroll", position);
+      d.addEventListener("studio:layout-updated",position);
+      cleanup = () => {win?.removeEventListener("scroll", position);d.removeEventListener("studio:layout-updated",position);};
     }
     if (active && lastSelection.current !== selected) {
       active.scrollIntoView({ block: "center" });
@@ -547,7 +582,7 @@ export function SiteCanvas({
     }
     return cleanup;
   }
-  useEffect(selection, [selected, selectedElement, ready, width, size.width]);
+  useEffect(selection, [selected, selectedElement, ready, width, size.width, paint]);
 
   function loaded() {
     const f = frame.current;
@@ -561,6 +596,7 @@ export function SiteCanvas({
       (a, b) => refs.current.move(a, b),
       (type, after, placement) => refs.current.insert(type, after, placement),
       {
+        coordinates: (...args) => refs.current.tools?.coordinates?.(...args) || [0,0],
         action: (...args) => refs.current.tools?.action?.(...args),
         resize: (...args) => refs.current.tools?.resize?.(...args),
         placeBlock: (...args) => refs.current.tools?.placeBlock?.(...args),
@@ -570,6 +606,9 @@ export function SiteCanvas({
         placement: (...args) => refs.current.tools?.placement?.(...args),
       },
     );
+    updateStyles(f.contentDocument!,new DOMParser().parseFromString(htmlRef.current,"text/html"));
+    designStyles(f.contentDocument!,latest.current.page);
+    liveState.current=stateFor();
     f.contentWindow?.scrollTo(0, scroll.current);
     setReady(true);
     setFailed(false);
@@ -583,6 +622,7 @@ export function SiteCanvas({
             : "Rendering your page…"}
         </div>
       ) : null}
+      {selected ? <button className="canvas-show-tools" onClick={()=>{const bar=frame.current?.contentDocument?.getElementById("studio-canvas-tools");if(bar){bar.hidden=false;bar.style.display="flex";}}}>Element controls</button> : null}
       <div
         className="site-viewport"
         style={{ width: width * scale, height: size.height }}
@@ -591,6 +631,7 @@ export function SiteCanvas({
           ref={frame}
           title="Website design canvas"
           sandbox="allow-same-origin allow-scripts"
+          allow="autoplay; fullscreen; picture-in-picture"
           srcDoc={html}
           onLoad={loaded}
           style={{

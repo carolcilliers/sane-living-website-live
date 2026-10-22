@@ -29,10 +29,7 @@ const create = require("./qa-server.cjs"),
     );
     await page.locator("[data-nav=editor]").click();
     const e = page.frameLocator("#pageEditorFrame");
-    await e
-      .getByRole("button", { name: "Home /", exact: false })
-      .first()
-      .waitFor();
+    await e.locator(".studio-workspace").waitFor();
     const frame = () =>
       page.frames().find((f) => f.url().includes("/dash/editor/index.html"));
     await e.getByRole("button", { name: "Insert", exact: true }).click();
@@ -97,10 +94,7 @@ const create = require("./qa-server.cjs"),
       .filter({ hasText: "Saved privately" })
       .waitFor();
     await page.reload();
-    await e
-      .getByRole("button", { name: "Home /", exact: false })
-      .first()
-      .waitFor();
+    await e.locator(".studio-workspace").waitFor();
     await e.getByRole("button", { name: "Layers", exact: true }).click();
     await e
       .locator(".layer-name")
@@ -121,23 +115,20 @@ const create = require("./qa-server.cjs"),
       before,
     );
     // Every existing page can be opened in the actual renderer, preserving its integration scripts.
-    await e.getByRole("button", { name: "Pages", exact: true }).click();
-    const buttons = e.locator(".page-row>button");
-    assert.equal(await buttons.count(), 25);
-    for (let i = 0; i < 25; i++) {
-      const route = await buttons.nth(i).locator("small").textContent();
-      await buttons.nth(i).click();
-      await canvas
-        .locator('meta[name="sane-preview-route"][content="' + route + '"]')
-        .waitFor({ state: "attached" });
+    await e.getByRole("button", { name: "Switch page", exact: true }).click();
+    assert.equal(await e.locator(".header-page-menu").getByRole("option").count(),25);
+    await e.getByRole("combobox", {name:"Find a page"}).press("Escape");
+    for (let i=0;i<25;i++) {
+      await e.getByRole("button",{name:"Switch page",exact:true}).click();
+      const option=e.locator(".header-page-menu").getByRole("option").nth(i), route=await option.locator("small").textContent();
+      await option.click();
+      await canvas.locator('meta[name="sane-preview-route"][content="'+route+'"]').waitFor({state:"attached"});
       await canvas.locator("#site-nav .nav-logo").waitFor();
     }
     // Existing editorial text is editable without replacing its page scaffold.
-    await e
-      .locator(".page-row>button")
-      .filter({ hasText: "Evo3" })
-      .first()
-      .click();
+    await e.getByRole("button",{name:"Switch page",exact:true}).click();
+    await e.getByRole("combobox",{name:"Find a page"}).fill("Evo3");
+    await e.locator(".header-page-menu").getByRole("option").first().click();
     await e.getByRole("button", { name: "Layers", exact: true }).click();
     await e.locator(".layer-name").first().click();
     await e
@@ -146,13 +137,10 @@ const create = require("./qa-server.cjs"),
     await canvas
       .getByRole("heading", { name: "EVO 3 — a new chapter", exact: true })
       .waitFor();
-    await e.getByRole("button", { name: "Pages", exact: true }).click();
     // About edits live in the same studio and the same canonical source.
-    await e
-      .locator(".page-row>button")
-      .filter({ hasText: "About" })
-      .first()
-      .click();
+    await e.getByRole("button",{name:"Switch page",exact:true}).click();
+    await e.getByRole("combobox",{name:"Find a page"}).fill("About");
+    await e.locator(".header-page-menu").getByRole("option").first().click();
     await e.getByRole("button", { name: "Layers", exact: true }).click();
     await e
       .locator(".layer-name")
@@ -164,8 +152,8 @@ const create = require("./qa-server.cjs"),
       .getByLabel("Section heading", { exact: true })
       .fill("One unified About editor");
     // Add a real route and a connected gallery block.
-    await e.getByRole("button", { name: "Pages", exact: true }).click();
-    await e.getByRole("button", { name: "Create page", exact: true }).click();
+    await e.getByRole("button", { name: "Switch page", exact: true }).click();
+    await e.getByRole("button", { name: "+ Create a page", exact: true }).click();
     await e
       .getByLabel("Page name", { exact: true })
       .last()

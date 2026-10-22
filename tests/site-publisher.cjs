@@ -27,6 +27,11 @@ const { execFileSync } = require("node:child_process");
     home.blocks.push(core.block("heading", crypto.randomUUID()));
     home.blocks.at(-1).props.text = "A test-only publication";
     home.active = true;
+    const video=core.block("video","publication-video");home.blocks.push(video);
+    const wedding=project.pages.find(p=>p.route==="/rent/weddings/");wedding.active=true;
+    const details=core.describe(core.registryFor(wedding,data.registry),data.resources).blocks.find(b=>b.elements.some(e=>e.id==="policy-cateringPolicy"));
+    wedding.blocks.find(b=>b.source===details.id).elements={"policy-cateringPolicy":{responsive:{desktop:{background:"#f0e8fa",borderWidth:2,shadow:"medium"}}}};
+
     const body = {
       version: 2,
       expectedHead: data.head,
@@ -67,6 +72,10 @@ const { execFileSync } = require("node:child_process");
       fs.readFileSync(path.join(s.root, "public/index.html"), "utf8"),
       new RegExp("sane-release.*" + body.releaseId),
     );
+    const publishedWedding=fs.readFileSync(path.join(s.root,"public/rent-weddings.html"),"utf8");
+    assert.match(publishedWedding,/background:#f0e8fa/);assert.match(publishedWedding,/studio-managed-parts/);
+    assert(!publishedWedding.includes('data-studio-element='));
+    assert.match(fs.readFileSync(path.join(s.root,"public/index.html"),"utf8"),/<video controls/);
     // Rebuilding the published snapshot twice must be stable for active and untouched pages.
     const outputs = require("../content/page-templates.json").map(
       (p) => p.output,

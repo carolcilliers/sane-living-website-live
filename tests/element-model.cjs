@@ -115,3 +115,26 @@ const row=core.block('row','layout-row'),child=core.block('text','row-child');ch
 assert.deepEqual(core.validate(responsive,registry,resources),[]);assert.match(core.renderPage(rp,responsive,registry,resources),/studio-layout-row/);
 row.placement={section:row.id,parent:'content'};assert(core.validate(responsive,registry,resources).length);
 console.log('PASS scoped responsive style rules, CSS/HTML injection rejection, nested rows and container-cycle rejection');
+
+const design=core.design;
+assert.match(design.css({columns:2}),/display:grid/);
+assert.match(design.css({direction:'row'}),/display:flex/);
+assert.match(design.css({shadow:'custom',shadowColor:'#123456',shadowX:4,shadowY:6,shadowBlur:20,shadowSpread:2,shadowOpacity:30}),/4px 6px 20px 2px rgba\(18,52,86,0.3\)/);
+assert.deepEqual(design.validate({background:'transparent',borderStyle:'dashed',paddingLeft:16,letterSpacing:5}),[]);
+assert(design.validate({shadowBlur:151}).length);
+assert(design.validate({borderStyle:'url(javascript:1)'}).length);
+const extended=core.createProject(registry), extendedHome=extended.pages.find(p=>p.id==='home');extendedHome.active=true;
+for(const type of ['video','list','quote','details','card','badge'])extendedHome.blocks.push(core.block(type,'insert-'+type));
+assert.deepEqual(core.validate(extended,registry,resources),[]);
+const extendedHTML=core.renderPage(extendedHome,extended,registry,resources);
+for(const marker of ['<video controls','studio-list','studio-quote','studio-details','studio-content-card','studio-badge'])assert(extendedHTML.includes(marker),'render '+marker);
+const wedding=extended.pages.find(p=>p.route==='/rent/weddings/');wedding.active=true;
+const weddingDescription=core.describe(core.registryFor(wedding,registry),resources);
+const policyOwner=weddingDescription.blocks.find(b=>b.elements.some(e=>e.id==='policy-cateringPolicy'));
+assert(policyOwner.elements.find(e=>e.id==='policy-cateringPolicy').managed);
+wedding.blocks.find(b=>b.source===policyOwner.id).elements={'policy-cateringPolicy':{responsive:{desktop:{background:'#f0e8fa',shadow:'medium',borderWidth:2}}}};
+assert.deepEqual(core.validate(extended,registry,resources),[]);
+const weddingHTML=core.renderPage(wedding,extended,registry,resources);
+assert.match(weddingHTML,/studio-managed-parts/);assert.match(weddingHTML,/background:#f0e8fa/);
+assert(!weddingHTML.includes('data-studio-element='));
+console.log('PASS six new typed inserts, automatic grid/flex, bounded custom shadows and publishable managed policy styles');

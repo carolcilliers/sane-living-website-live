@@ -47,6 +47,7 @@
     document
       .querySelectorAll("[data-studio-events]")
       .forEach(async function (el) {
+        if(el.dataset.studioFeedLoaded)return;el.dataset.studioFeedLoaded="true";
         try {
           var r = await fetch("/api/calendar-events");
           if (!r.ok) throw Error();
@@ -80,14 +81,22 @@
         }
       });
   }
+  function managedParts() {
+    var data=document.getElementById('studio-managed-parts'),owner=document.getElementById('wedding-details');if(!data||!owner)return;
+    var entries;try{entries=JSON.parse(data.textContent);}catch(e){return;}
+    function update(){Array.from(owner.children).forEach(function(p){var label=(p.querySelector('strong')?.textContent||'').toLowerCase();var key=label.includes('catering')?'cateringPolicy':label.includes('alcohol')?'alcoholPolicy':label.includes('parking')?'parkingNote':label.includes('included')?'includesText':'';var item=entries.find(function(x){return x.key===key;});if(!item)return;p.setAttribute('data-studio-style',item.style);if(item.annotate)p.setAttribute('data-studio-element',item.element);});}
+    update();if(!owner.__studioObserver){owner.__studioObserver=new MutationObserver(update);owner.__studioObserver.observe(owner,{childList:true});}
+  }
   function run() {
     navigation();
     events();
+    managedParts();
   }
   if (document.readyState === "loading")
     document.addEventListener("DOMContentLoaded", run);
   else run();
   document.addEventListener("sane:settings-ready", navigation);
+  document.addEventListener("sane:studio-updated",run);
 })();
 // Carousel buttons work on published pages and in full-page preview.
 document.addEventListener("click", function (e) {

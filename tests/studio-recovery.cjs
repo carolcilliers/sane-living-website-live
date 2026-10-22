@@ -21,7 +21,7 @@ const create = require("./qa-server.cjs"),
     const editor = page.frameLocator("#pageEditorFrame");
     const frame = () =>
       page.frames().find((f) => f.url().includes("/dash/editor/index.html"));
-    await editor.locator(".page-row").first().waitFor();
+    await editor.locator(".studio-workspace").first().waitFor();
     await editor.getByRole("button", { name: "Insert", exact: true }).click();
     await editor
       .locator(".block-palette")
@@ -67,7 +67,7 @@ const create = require("./qa-server.cjs"),
     assert.match(body, /Still here when storage fails/);
     page.once("dialog", (d) => d.accept());
     await page.reload();
-    await editor.locator(".page-row").first().waitFor();
+    await editor.locator(".studio-workspace").first().waitFor();
     await editor.getByRole("button", { name: "Layers", exact: true }).click();
     await editor.locator(".layer-name").filter({hasText:"Heading"}).first().click();
     assert.equal(

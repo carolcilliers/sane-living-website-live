@@ -74,3 +74,5 @@ When that proof is complete, report measured extraction effort, test evidence, u
 
 This package contains Markdown guides, a schema, synthetic examples and source-derived inventories. It contains no production credentials, copied upstream applications or executable website implementation. The JSON Schema is a proposed structural specification; semantic validation and API authentication are separately specified. Current-source observations are distinguished from proposed behavior throughout.
 
+
+Latest controls and reconciliation guide: [16_SMOOTH_CANVAS_AND_EDITOR_CONTROLS.md](16_SMOOTH_CANVAS_AND_EDITOR_CONTROLS.md).

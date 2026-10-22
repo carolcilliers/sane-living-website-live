@@ -113,6 +113,7 @@ export function ElementInspector({
   action,
   assets,
   device,
+  openContent,
 }: {
   descriptor: any;
   block: Block;
@@ -125,6 +126,7 @@ export function ElementInspector({
   action: (s: string) => void;
   assets: Asset[];
   device: Device;
+  openContent?: () => void;
 }) {
   const e = descriptor.elements.find((e: any) => e.id === id);
   if (!e) return null;
@@ -136,6 +138,7 @@ export function ElementInspector({
         <code>{e.tag}</code>
         <h3>{e.label}</h3>
       </div>
+      {e.virtual ? <div className="binding-note"><p>This paragraph is connected to the Weddings content. Its appearance can be styled here.</p><button onClick={openContent}>Edit wedding policy text</button></div> : null}
       {e.bindings.map((b: any) => (
         <label className="field" key={b.key}>
           {(

@@ -6,7 +6,7 @@ const assert=require('node:assert/strict'),create=require('./qa-server.cjs'),{la
  await c.route('**/*',r=>r.request().url().startsWith(server.url)?r.continue():r.abort());
  const page=await c.newPage();const errors=[];page.on('pageerror',e=>errors.push(e.message));
  await page.goto(server.url+'/dash/#editor');const editor=page.frameLocator('#pageEditorFrame'),canvas=editor.frameLocator('iframe[title="Website design canvas"]');
- await editor.locator('.page-row').first().waitFor();
+ await editor.locator('.studio-workspace').first().waitFor();
  await canvas.locator('a[data-site-text="homePrimaryLabel"]').click();
  await editor.getByLabel('Width (%)',{exact:true}).fill('65');
  await editor.getByLabel('Font size',{exact:true}).fill('25');
@@ -60,7 +60,7 @@ const assert=require('node:assert/strict'),create=require('./qa-server.cjs'),{la
  await editor.getByRole('button',{name:'Recovery history',exact:true}).click();
  const recovery=editor.getByRole('dialog',{name:'Draft recovery history',exact:true});await recovery.locator('.recovery-version').first().waitFor();
  await recovery.getByRole('button',{name:'Close recovery',exact:true}).click();
- await page.reload();await editor.locator('.page-row').first().waitFor();await editor.getByRole('button',{name:'Layers',exact:true}).click();await editor.locator('.layer-name').first().click();assert.equal(await editor.getByLabel('Text',{exact:true}).inputValue(),'Newer automatic save');
+ await page.reload();await editor.locator('.studio-workspace').first().waitFor();await editor.getByRole('button',{name:'Layers',exact:true}).click();await editor.locator('.layer-name').first().click();assert.equal(await editor.getByLabel('Text',{exact:true}).inputValue(),'Newer automatic save');
  assert.deepEqual(errors,[]);
  await editor.getByRole('button',{name:'Publish',exact:true}).click();await editor.getByRole('dialog').getByRole('button',{name:'Publish reviewed changes',exact:true}).click();await editor.locator('.release-status').filter({hasText:'Commit accepted'}).waitFor();assert.equal(server.commits,1);
  const published=JSON.parse(server.records.get('content/site-layouts.json').content).pages.find(p=>p.id==='home');assert(published.blocks.some(b=>b.type==='row'));assert(published.blocks.some(b=>b.responsive?.desktop?.width===80));

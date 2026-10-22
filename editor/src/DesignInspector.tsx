@@ -1,3 +1,4 @@
+import { useRef } from "react";
 import core from "../../content-core/site.cjs";
 import type { Design, Device } from "./site-types";
 
@@ -9,7 +10,10 @@ const labels: Record<string, string> = {
   borderWidth: "Border width", color: "Text colour", background: "Background colour",
   borderColor: "Border colour", align: "Alignment", display: "Layout",
   direction: "Direction", justify: "Horizontal distribution", items: "Cross-axis alignment",
-  objectFit: "Image fit", aspectRatio: "Aspect ratio",
+  objectFit: "Image fit", aspectRatio: "Aspect ratio", fontFamily:"Font",letterSpacing:"Letter spacing",borderStyle:"Border style",
+  paddingTop:"Top padding",paddingRight:"Right padding",paddingBottom:"Bottom padding",paddingLeft:"Left padding",
+  marginTop:"Top margin",marginRight:"Right margin",marginBottom:"Bottom margin",marginLeft:"Left margin",
+  shadow:"Shadow",shadowX:"Shadow X",shadowY:"Shadow Y",shadowBlur:"Blur",shadowSpread:"Spread",shadowOpacity:"Shadow opacity (%)",shadowColor:"Shadow colour",
 };
 const optionsLabels: Record<string, string> = {
   "flex-start": "Start", "flex-end": "End", "space-between": "Space between",
@@ -17,9 +21,10 @@ const optionsLabels: Record<string, string> = {
   block: "Normal flow", none: "Hidden", row: "Horizontal", column: "Vertical",
 };
 const groups = [
-  { title: "Size & position", keys: ["width", "height", "minHeight", "x", "y", "aspectRatio", "objectFit"] },
-  { title: "Rows, columns & spacing", keys: ["display", "direction", "columns", "justify", "items", "gap", "padding", "margin"] },
-  { title: "Typography & appearance", keys: ["fontSize", "fontWeight", "lineHeight", "align", "color", "background", "opacity", "radius", "borderWidth", "borderColor"] },
+  { title: "Size & position", nav:"Size", help:"Move freely keeps this element in its current container. Reorder changes its place in the layer tree.", keys: ["width", "height", "minHeight", "x", "y", "aspectRatio", "objectFit"] },
+  { title: "Layout & spacing", nav:"Layout", help:"Columns creates a grid. Direction creates a horizontal or vertical flow. Padding is inside; margin is outside.", keys: ["display", "direction", "columns", "justify", "items", "gap", "padding", "paddingTop", "paddingRight", "paddingBottom", "paddingLeft", "margin", "marginTop", "marginRight", "marginBottom", "marginLeft"] },
+  { title: "Text & typography", nav:"Text", help:"Typography applies to this element at the selected screen size.", keys: ["fontFamily", "fontSize", "fontWeight", "lineHeight", "letterSpacing", "align", "color"] },
+  { title: "Background, borders & shadow", nav:"Style", help:"Use a six-digit colour such as #8a56a0, or transparent for the background. Choose Custom to adjust a shadow in detail.", keys: ["background", "opacity", "radius", "borderStyle", "borderWidth", "borderColor", "shadow", "shadowX", "shadowY", "shadowBlur", "shadowSpread", "shadowOpacity", "shadowColor"] },
 ];
 
 export function DesignInspector({ value, inherited = {}, device, change, reset, optimize }: {
@@ -30,8 +35,9 @@ export function DesignInspector({ value, inherited = {}, device, change, reset, 
   reset: () => void;
   optimize: () => void;
 }) {
+  const root = useRef<HTMLElement>(null);
   return (
-    <section className="responsive-design">
+    <section className="responsive-design" ref={root}>
       <div className="design-scope">
         <strong>Editing {device} layout</strong>
         <small>Only this size changes. Content, additions, removals and layer order stay shared.</small>
@@ -46,13 +52,15 @@ export function DesignInspector({ value, inherited = {}, device, change, reset, 
         </button>
         <button onClick={reset}>Reset {device} overrides</button>
       </div>
-      {groups.map(group => (
-        <details className="design-options" open key={group.title}>
+      <nav className="design-navigation" aria-label="Inspector sections">{groups.map((g,i)=><button key={g.nav} onClick={()=>{const target=root.current?.querySelector<HTMLDetailsElement>('[data-design-group="'+i+'"]');if(!target)return;target.open=true;const panel=root.current?.closest<HTMLElement>('.studio-inspector');if(panel)panel.scrollTo({top:panel.scrollTop+target.getBoundingClientRect().top-panel.getBoundingClientRect().top-58,behavior:'smooth'});}}>{g.nav}</button>)}</nav>
+      {groups.map((group,i) => (
+        <details className="design-options" data-design-group={i} open key={group.title}>
           <summary>{group.title}</summary>
+          <p className="design-help">{group.help}</p>
           <div className="element-coordinates">
-            {group.keys.map(key => {
+            {group.keys.filter(key=>!key.startsWith("shadow") || key === "shadow" || value.shadow === "custom").map(key => {
               const limits = core.design.numbers[key], options = core.design.enums[key];
-              const scale = key === "lineHeight" ? 10 : 1;
+              const scale = ["lineHeight","letterSpacing"].includes(key) ? 10 : 1;
               return (
                 <label className="field" key={key}>
                   {labels[key]}

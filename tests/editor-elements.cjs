@@ -28,7 +28,7 @@ const png = Buffer.from(
     await page.locator("[data-nav=editor]").click();
     const editor = page.frameLocator("#pageEditorFrame"),
       canvas = editor.frameLocator('iframe[title="Website design canvas"]');
-    await editor.locator(".page-row").first().waitFor();
+    await editor.locator(".studio-workspace").first().waitFor();
     assert.equal(
       await page.locator("#mainNav").isVisible(),
       true,

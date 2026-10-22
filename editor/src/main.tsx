@@ -36,6 +36,12 @@ import "./site-style.css";
 const LABELS: Record<string, string> = {
   row: "Row",
   column: "Column",
+  video: "Video",
+  list: "List",
+  quote: "Quote",
+  details: "FAQ / Details",
+  card: "Card",
+  badge: "Badge",
   heading: "Heading",
   text: "Text",
   image: "Image",
@@ -55,6 +61,7 @@ const LABELS: Record<string, string> = {
 const SYMBOLS: Record<string, string> = {
   row: "▤",
   column: "▥",
+  video: "▶", list: "≡", quote: "❝", details: "?", card: "▣", badge: "◉",
   heading: "H",
   text: "T",
   image: "▧",
@@ -74,6 +81,7 @@ const SYMBOLS: Record<string, string> = {
 const FIELD_LABELS: Record<string, string> = {
   text: "Text",
   heading: "Heading",
+  items: "List items (one per line)", style:"List style", citation:"Attribution", summary:"Question / summary", poster:"Video poster", buttonText:"Button text",
   level: "Heading level",
   src: "Image URL",
   alt: "Image description",
@@ -158,8 +166,8 @@ function App() {
     [selected, setSelected] = useState(""),
     [storyId, setStoryId] = useState(""),
     [leftTab, setLeftTab] = useState<
-      "pages" | "insert" | "layers" | "settings"
-    >("pages");
+      "insert" | "layers" | "settings"
+    >("layers");
   const [elementId, setElementId] = useState("");
   const [previewURL, setPreviewURL] = useState("");
   const [recoveryVersions, setRecoveryVersions] = useState<any[] | null>(null);
@@ -551,14 +559,7 @@ function App() {
       work?.project.pages.find((p) => p.id === pageId) ||
       work?.project.pages[0],
     block = page?.blocks.find((b) => b.id === selected);
-  const resources =
-    data && work
-      ? {
-          ...data.resources,
-          about: work.aboutText,
-          settings: work.settingsText || data.resources.settings,
-        }
-      : {};
+  const resources = useMemo(() => data && work ? {...data.resources, about:work.aboutText, settings:work.settingsText || data.resources.settings} : {}, [data,work?.aboutText,work?.settingsText]);
   const errors =
     data && work
       ? ([
@@ -685,6 +686,7 @@ function App() {
       !t.managed;
     const parent = into ? t.id : owner?.elements?.[target]?.parent || t.parent;
     if (!parent) return;
+    if(e.virtual || (e.managed && parent !== (owner?.elements?.[id]?.parent ?? e.parent))){notice("This connected collection stays in its source container. Reorder its container, use Move freely or open its content editor.");return;}
     const siblings = d.elements
       .filter(
         (x: any) =>
@@ -712,13 +714,14 @@ function App() {
     siblings.forEach((x: any, i: number) => {
       edited.elements![x.id] = {
         ...(edited.elements![x.id] || {}),
-        parent,
+        ...(x.parent !== parent ? {parent} : {}),
         order: i,
       };
+      if(x.parent === parent)delete edited.elements![x.id].parent;
     });
     const issues = core.validate(candidate, data!.registry, resources);
     if (issues.length) {
-      notice(issues.join(" "));
+      notice(issues.some((x:string)=>x.includes("container")||x.includes("itself")) ? "Drop beside a supported container, away from connected content or the element’s own children." : issues.join(" "));
       return;
     }
     pageEdit((p) => {
@@ -1222,6 +1225,7 @@ function App() {
           pages={work?.project.pages || []}
           current={page}
           choose={choose}
+          create={() => {setNewName("");setSlug("");setNewPage(true);}}
         />
         <div className="device-switch" role="group" aria-label="Canvas device">
           {[
@@ -1391,7 +1395,7 @@ function App() {
             onClick={() => setMobile(t)}
           >
             {t === "left"
-              ? "Pages & blocks"
+              ? "Blocks & layers"
               : t === "right"
                 ? "Inspector"
                 : "Canvas"}
@@ -1410,7 +1414,6 @@ function App() {
           <nav className="studio-rail" aria-label="Studio navigation">
             {(
               [
-                ["pages", "▤", "Pages"],
                 ["insert", "+", "Insert"],
                 ["layers", "▱", "Layers"],
               ] as const
@@ -1442,26 +1445,8 @@ function App() {
           <aside className="studio-sidebar">
             <div className="sidebar-heading">
               <h2>
-                {leftTab === "pages"
-                  ? "Website pages"
-                  : leftTab === "insert"
-                    ? "Insert a block"
-                    : leftTab === "settings"
-                      ? "Site settings"
-                      : "Layers"}
+                {leftTab === "insert" ? "Insert a block" : leftTab === "settings" ? "Site settings" : "Layers"}
               </h2>
-              {leftTab === "pages" ? (
-                <button
-                  aria-label="Create page"
-                  onClick={() => {
-                    setNewName("");
-                    setSlug("");
-                    setNewPage(true);
-                  }}
-                >
-                  +
-                </button>
-              ) : null}
             </div>
             {leftTab === "settings" ? (
               <EditorSettings
@@ -1470,94 +1455,9 @@ function App() {
                 upload={upload}
               />
             ) : null}
-            {leftTab === "pages" ? (
-              <>
-                <input
-                  className="studio-search"
-                  aria-label="Search pages"
-                  placeholder="Find a page…"
-                  value={search}
-                  onChange={(e) => setSearch(e.target.value)}
-                />
-                <div className="page-list">
-                  {work.project.pages
-                    .filter((p) =>
-                      (p.name + " " + p.route)
-                        .toLowerCase()
-                        .includes(search.toLowerCase()),
-                    )
-                    .map((p) => (
-                      <div
-                        className={
-                          "page-row " + (page.id === p.id ? "selected" : "")
-                        }
-                        key={p.id}
-                      >
-                        <button onClick={() => choose(p.id)}>
-                          <span aria-hidden="true" className="page-icon">
-                            ▤
-                          </span>
-                          <span>
-                            {p.name}
-                            <small>{p.route}</small>
-                          </span>
-                          {p.active ? <i title="Uses the page editor" /> : null}
-                        </button>
-                        <div>
-                          <button
-                            aria-label={"Move " + p.name + " page up"}
-                            disabled={work.project.pages.indexOf(p) === 0}
-                            onClick={() =>
-                              edit((w) => {
-                                const i = w.project.pages.findIndex(
-                                  (x) => x.id === p.id,
-                                );
-                                w.project.pages.splice(
-                                  i - 1,
-                                  0,
-                                  w.project.pages.splice(i, 1)[0],
-                                );
-                              })
-                            }
-                          >
-                            ↑
-                          </button>
-                          <button
-                            aria-label={"Move " + p.name + " page down"}
-                            disabled={
-                              work.project.pages.indexOf(p) ===
-                              work.project.pages.length - 1
-                            }
-                            onClick={() =>
-                              edit((w) => {
-                                const i = w.project.pages.findIndex(
-                                  (x) => x.id === p.id,
-                                );
-                                w.project.pages.splice(
-                                  i + 1,
-                                  0,
-                                  w.project.pages.splice(i, 1)[0],
-                                );
-                              })
-                            }
-                          >
-                            ↓
-                          </button>
-                        </div>
-                      </div>
-                    ))}
-                </div>
-                <button className="wide-add" onClick={() => setNewPage(true)}>
-                  + Create a page
-                </button>
-                <p className="sidebar-help">
-                  All current pages are here. Select one to edit its sections.
-                  Existing integrations keep their original sources.
-                </p>
-              </>
-            ) : null}
             {leftTab === "insert" ? (
               <>
+                <label className="field">Find an element<input aria-label="Find an insert" value={search} placeholder="Image, card, video, columns…" onChange={e=>setSearch(e.target.value)}/></label>
                 <p className="sidebar-help">
                   Click a + section line to choose an insertion point, or drag a block onto a line or into a container. Click adds beside your selection.
                 </p>
@@ -1565,7 +1465,7 @@ function App() {
                 <div className="block-palette">
                   {core.TYPES.filter(
                     (t: string) =>
-                      ![
+                      (LABELS[t] || t).toLowerCase().includes(search.toLowerCase()) && ![
                         "gallery",
                         "events",
                         "pricing",
@@ -1596,7 +1496,7 @@ function App() {
                     "partners",
                     "booking",
                     "newsletter",
-                  ].map((type) => (
+                  ].filter(type=>(LABELS[type]||type).toLowerCase().includes(search.toLowerCase())).map((type) => (
                     <button
                       key={type}
                       draggable
@@ -1736,6 +1636,7 @@ function App() {
               selected={selected}
               selectedElement={elementId}
               tools={{
+                coordinates: (b,id) => {const owner=page.blocks.find(x=>x.id===b),base=owner?.source ? owner.elements?.[id] || {} : owner?.design || {},scoped=owner?.source ? owner.elements?.[id]?.responsive?.[device] || {} : owner?.responsive?.[device] || {};return [Number(scoped.x ?? (device === "phone" ? 0 : base.x)) || 0,Number(scoped.y ?? (device === "phone" ? 0 : base.y)) || 0];},
                 placement: placementFor,
                 placeBlock,
                 resize: (b,id,width,height) => targetDesignEdit(b,id,{width,height}),
@@ -1984,6 +1885,7 @@ function App() {
                     assets={work.assets}
                     id={elementId}
                     device={device}
+                    openContent={() => openSource("weddings")}
                     change={elementEdit}
                     field={(id, value) =>
                       blockEdit((b) => {
@@ -2098,7 +2000,7 @@ function App() {
                   ? Object.entries(block.props || {}).map(([key, value]) => (
                       <label className="field" key={key}>
                         {FIELD_LABELS[key] || key}
-                        {["text", "images"].includes(key) ? (
+                        {["text", "images", "items"].includes(key) ? (
                           <textarea
                             aria-label={FIELD_LABELS[key] || key}
                             rows={6}
@@ -2110,7 +2012,7 @@ function App() {
                               }, fieldGroup.current)
                             }
                           />
-                        ) : ["level", "side", "section", "kind"].includes(
+                        ) : ["level", "side", "section", "kind", "style"].includes(
                             key,
                           ) ? (
                           <select
@@ -2122,7 +2024,7 @@ function App() {
                               })
                             }
                           >
-                            {(key === "level"
+                            {(key === "style" ? ["bullets","numbered"] : key === "level"
                               ? ["h1", "h2", "h3"]
                               : key === "side"
                                 ? ["left", "right"]
@@ -2151,7 +2053,7 @@ function App() {
                             }
                           />
                         )}{" "}
-                        {key === "src" ? (
+                        {(key === "src" && block.type !== "video") || key === "poster" ? (
                           <label className="upload-image">
                             Upload replacement
                             <input
@@ -2163,7 +2065,7 @@ function App() {
                                 if (e.target.files?.[0])
                                   void upload(e.target.files[0], (url) =>
                                     blockEdit((b) => {
-                                      b.props!.src = url;
+                                      b.props![key] = url;
                                     }),
                                   );
                               }}
@@ -2195,49 +2097,7 @@ function App() {
                     />
                   </label>
                 ) : null}
-                {!block.source ? (
-                  <details open className="design-options">
-                    <summary>Design</summary>
-                    <label className="field">
-                      Surface
-                      <select
-                        value={block.theme || "white"}
-                        onChange={(e) =>
-                          blockEdit((b) => (b.theme = e.target.value))
-                        }
-                      >
-                        {["white", "soft", "accent", "dark"].map((v) => (
-                          <option key={v}>{v}</option>
-                        ))}
-                      </select>
-                    </label>
-                    <label className="field">
-                      Alignment
-                      <select
-                        value={block.align || "left"}
-                        onChange={(e) =>
-                          blockEdit((b) => (b.align = e.target.value))
-                        }
-                      >
-                        {["left", "center", "right"].map((v) => (
-                          <option key={v}>{v}</option>
-                        ))}
-                      </select>
-                    </label>
-                    <label className="field">
-                      Vertical spacing
-                      <input
-                        type="number"
-                        min={0}
-                        max={120}
-                        value={block.spacing ?? 48}
-                        onChange={(e) =>
-                          blockEdit((b) => (b.spacing = Number(e.target.value)))
-                        }
-                      />
-                    </label>
-                  </details>
-                ) : null}
+                {!block.source ? <details className="design-options"><summary>Shared section defaults</summary><p className="design-help">These presets affect every screen size. Use the device controls below for size-specific changes.</p><label className="field">Colour preset<select aria-label="Shared colour preset" value={block.theme || "white"} onChange={e=>blockEdit(b=>{b.theme=e.target.value;})}>{["white","soft","accent","dark"].map(v=><option key={v}>{v}</option>)}</select></label><label className="field">Section padding (all sizes)<input type="number" min={0} max={120} value={block.spacing ?? 48} onChange={e=>blockEdit(b=>{b.spacing=Math.max(0,Math.min(120,Number(e.target.value)));})}/></label></details> : null}
                 {!elementId || block.type !== "legacy" ? <DesignInspector
                   device={device}
                   value={block.responsive?.[device] || {}}

@@ -1109,9 +1109,16 @@ a:focus-visible, button:focus-visible, .btn:focus-visible {
   font-size: 13px; font-weight: 700; line-height: 24px; text-align: center;
 }
 #wedding-details {
-  border: none !important; border-radius: var(--radius-lg) !important;
-  box-shadow: var(--shadow-soft); background: #fff !important;
+  min-width: 0; width: 100%; box-sizing: border-box;
+  padding: 24px; border: 1px solid #e8dfee; border-radius: var(--radius-lg);
+  box-shadow: 0 4px 20px rgba(45,25,60,.06); background: #faf8fc;
+  color: var(--clr-text-muted); overflow-wrap: anywhere;
 }
+#wedding-details:empty { display: none; }
+#wedding-details p { margin: 0 0 18px; line-height: 1.75; }
+#wedding-details p:last-child { margin-bottom: 0; }
+#wedding-details strong { display: block; color: var(--clr-text); margin-bottom: 5px; }
+
 #wedding-details h3 { color: var(--clr-plum); margin-bottom: var(--space-sm); }
 
 /* ---- Images & polish ---- */

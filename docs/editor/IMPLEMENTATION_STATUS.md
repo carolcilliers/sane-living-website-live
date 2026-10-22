@@ -1,8 +1,8 @@
 # Website Studio — implementation status
 
-October 21, 2026. The current implementation is specified in [14_WEBSITE_STUDIO_GUIDE.md](14_WEBSITE_STUDIO_GUIDE.md). It supersedes the About-only pilot and its transfer-to-form publishing workflow.
+October 22, 2026. The current implementation is specified in [14_WEBSITE_STUDIO_GUIDE.md](14_WEBSITE_STUDIO_GUIDE.md). It supersedes the About-only pilot and its transfer-to-form publishing workflow.
 
-Implemented: embedded Pages/Insert/Layers/Inspector workspace with the dashboard sidebar retained; all 25 current public pages; editable original text/links/images and section order/visibility; 17 approved block types; new page creation; integrated About editing; private browser draft/recovery with revision protection; immutable full-page previews in new tabs; staged raster uploads; reviewed atomic multi-file publication directly to `main`; release markers and bounded live checks; clear grouped gallery cards.
+Implemented: embedded header page selector with Insert/Layers/Inspector workspace with the dashboard sidebar retained; all 25 current public pages; editable original text/links/images and section order/visibility; 23 approved block types; new page creation; integrated About editing; private browser draft/recovery with revision protection; immutable full-page previews in new tabs; staged raster uploads; reviewed atomic multi-file publication directly to `main`; release markers and bounded live checks; clear grouped gallery cards.
 
 Direct manipulation now includes nested source-element layers, click selection, native drag/drop, device-scoped pointer offsets/resizing and deeper validated style controls; insertion within existing containers; original-image carousels; an aligned searchable header page dropdown; default dark theme; and in-editor Settings. Homepage hero video/poster and CTA edits use the canonical settings source and publish atomically with layouts and referenced images.
 
@@ -15,3 +15,5 @@ Verification uses `npm run typecheck`, `npm test` and `npm run build`, including
 The OpenPage-derived sortable layer rows retain their MIT notice in `LICENSES/OpenPage.txt`. Framely informed the workspace arrangement; no Framely source was copied.
 
 The current extension is [15_ELEMENT_EDITING_AND_DRAFT_RECOVERY.md](15_ELEMENT_EDITING_AND_DRAFT_RECOVERY.md): exclusive desktop/tablet/phone styling, exact section lines, row/column nesting, popup-blocked preview fallback, ten local recovery versions and optional private team backup. G2 remains incomplete pending real private-storage configuration/verification; G3 remains incomplete pending durable deployment work.
+
+Current interaction extension: [16_SMOOTH_CANVAS_AND_EDITOR_CONTROLS.md](16_SMOOTH_CANVAS_AND_EDITOR_CONTROLS.md). Same-page edits reconcile the live document rather than reloading it, retaining media playback. Floating controls are movable/closable; the inspector includes grouped spacing, typography, border and custom-shadow controls. Managed wedding policy paragraphs are individually styleable, with text owned by the Weddings content fields.
