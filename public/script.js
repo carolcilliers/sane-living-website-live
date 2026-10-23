@@ -35,7 +35,7 @@ function injectNav() {
         <li class="nav-dropdown">
           <a href="/events/"${isActive(currentPath, '/events/')}>Events</a>
           <div class="nav-dropdown-menu">
-            <a href="/events/">Upcoming Events</a>
+            <a href="/events/">Upcoming Public Events</a>
             <a href="/events/past">Past Events</a>
           </div>
         </li>

@@ -21,7 +21,7 @@
   <meta name="twitter:image" content="https://saneliving.com/images/homepage-hero.jpg">
   <meta name="twitter:image:alt" content="Sane Living Center Ojai Exterior">
   <style>
-    /* ---- "A look inside the Main Hall": one photo per way the room is used, linking into the Gallery page ---- */
+    /* ---- "A look inside the Auditorium": one photo per way the room is used, linking into the Gallery page ---- */
     .rent-photos { margin-top: var(--space-2xl); }
     .rent-photos-head { text-align: center; max-width: 640px; margin: 0 auto var(--space-xl); }
     .rent-photos-eyebrow { display: block; font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.15em; color: var(--clr-accent); margin-bottom: var(--space-sm); }
@@ -66,7 +66,7 @@
     <div class="content-block">
       <div data-animate class="split-grid-large-img">
         <div>
-          <img src="/images/main-hall.jpg" alt="The Main Hall at Sane Living, set up with rows of chairs facing the stage" style="width:100%; border-radius: 8px;">
+          <img src="/images/main-hall.jpg" alt="The Auditorium at Sane Living, set up with rows of chairs facing the stage" style="width:100%; border-radius: 8px;">
           <button id="open-gallery-btn" class="btn btn-outline" style="margin-top: var(--space-md); width: 100%;">See More Images</button>
         </div>
         <div>
@@ -80,7 +80,7 @@
       <div class="rent-photos" id="rent-photos" hidden>
         <div class="rent-photos-head">
           <span class="rent-photos-eyebrow">Photo Gallery</span>
-          <h2>A look inside the Main Hall</h2>
+          <h2>A look inside the Auditorium</h2>
           <p>One room, set up for many kinds of events. Tap a photo to see more of each.</p>
         </div>
         <div class="rent-photo-grid" id="rent-photo-grid"></div>
@@ -148,7 +148,7 @@
   </script>
   <script>
   (function() {
-    // Photos come from the team dashboard's gallery (/content/gallery.json). One tile per Main Hall
+    // Photos come from the team dashboard's gallery (/content/gallery.json). One tile per Auditorium
     // group, in the same order and with the same names as the Gallery page; each links to that group there.
     var GROUPS = [
       { id: 'talks', title: 'Talks & workshops' },

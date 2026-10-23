@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Events — Sane Living</title>
-  <meta name="description" content="Upcoming events at the Sane Living Center in Ojai, California. Film screenings, workshops, performances, and community gatherings.">
+  <meta name="description" content="Upcoming public events at the Sane Living Center in Ojai, California. Film screenings, workshops, performances, and community gatherings.">
   <link rel="stylesheet" href="/style.css">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
   <style>
@@ -523,7 +523,7 @@
   </style>
 
   <meta property="og:title" content="Events — Sane Living">
-  <meta property="og:description" content="Upcoming events at the Sane Living Center in Ojai, California. Film screenings, workshops, performances, and community gatherings.">
+  <meta property="og:description" content="Upcoming public events at the Sane Living Center in Ojai, California. Film screenings, workshops, performances, and community gatherings.">
   <meta property="og:image" content="https://saneliving.com/images/homepage-hero.jpg">
   <meta property="og:image:width" content="1959">
   <meta property="og:image:height" content="1309">
@@ -532,7 +532,7 @@
   <meta property="og:url" content="https://saneliving.com/events/">
   <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:title" content="Events — Sane Living">
-  <meta name="twitter:description" content="Upcoming events at the Sane Living Center in Ojai, California. Film screenings, workshops, performances, and community gatherings.">
+  <meta name="twitter:description" content="Upcoming public events at the Sane Living Center in Ojai, California. Film screenings, workshops, performances, and community gatherings.">
   <meta name="twitter:image" content="https://saneliving.com/images/homepage-hero.jpg">
   <meta name="twitter:image:alt" content="Sane Living Center Ojai Exterior">
 <link rel="icon" href="/favicon.svg">
@@ -544,7 +544,7 @@
 
   <section class="page-hero">
     <div class="container">
-      <h1>Upcoming Events</h1>
+      <h1>Upcoming Public Events</h1>
       <p>Events at the Sane Living Center in Ojai, California</p>
     </div>
   </section>
@@ -703,11 +703,11 @@
       });
 
       if (allEvents.length === 0) {
-        document.getElementById('calList').innerHTML = '<div class="cal-empty">No upcoming events.</div>';
+        document.getElementById('calList').innerHTML = '<div class="cal-empty">No upcoming public events.</div>';
         return;
       }
 
-      var html = '<div class="cal-list-month">Upcoming Events</div>';
+      var html = '<div class="cal-list-month">Upcoming Public Events</div>';
       allEvents.forEach(function(e) {
         var dt = new Date(e.date + 'T12:00:00');
         var dayName = DAYS[dt.getDay()];
@@ -737,7 +737,7 @@
       });
 
       if (allEvents.length === 0) {
-        document.getElementById('calFliers').innerHTML = '<div class="cal-empty">No upcoming events.</div>';
+        document.getElementById('calFliers').innerHTML = '<div class="cal-empty">No upcoming public events.</div>';
         return;
       }
 

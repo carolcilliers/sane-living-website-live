@@ -133,7 +133,7 @@
       .video-hero-content h1 { max-width: none; }
     }
 
-    /* ---- Upcoming Events Section ---- */
+    /* ---- Upcoming Public Events Section ---- */
     .events-section {
       display: none; /* hidden by default, shown by JS when events exist */
     }
@@ -527,11 +527,11 @@
     <div class="hero-scroll" aria-hidden="true">Scroll</div>
   </section>
 
-  <!-- 2. Upcoming Events (auto-hidden when empty) -->
+  <!-- 2. Upcoming Public Events (auto-hidden when empty) -->
   <section class="section events-section" id="eventsSection">
     <div class="container">
       <div class="home-section-header" data-animate>
-        <h2>Upcoming Events</h2>
+        <h2>Upcoming Public Events</h2>
         <p>What's happening at Sane Living Center</p>
       </div>
       <div class="events-grid" id="eventsGrid" data-animate>
@@ -558,17 +558,17 @@
       </div>
       <div class="rent-grid" data-animate>
         <a href="/rent/" class="rent-card">
-          <div class="rent-card-photo"><img src="/images/main-hall.jpg" alt="The Main Hall at Sane Living, set up with rows of chairs facing the stage" loading="lazy"></div>
+          <div class="rent-card-photo"><img src="/images/main-hall.jpg" alt="The Auditorium at Sane Living, set up with rows of chairs facing the stage" loading="lazy"></div>
           <span class="rent-card-meta">Up to 225 guests</span>
-          <h3>Main Hall</h3>
-          <p>A soundproof auditorium with a stage, projector, sound system and theatre lighting. Seats 110, or 225 standing.</p>
-          <span class="rent-card-link">Explore the Main Hall <span aria-hidden="true">&rarr;</span></span>
+          <h3>Auditorium</h3>
+          <p>A soundproof space with a stage, projector, sound system and theatre lighting. Seats 110, or 225 standing.</p>
+          <span class="rent-card-link">Explore the Auditorium <span aria-hidden="true">&rarr;</span></span>
         </a>
         <a href="/rent/weddings/" class="rent-card">
-          <div class="rent-card-photo"><img src="/IMG_0197.jpg" alt="A candlelit wedding ceremony in the Main Hall, with a floral arch and draped walls" loading="lazy"></div>
+          <div class="rent-card-photo"><img src="/IMG_0197.jpg" alt="A candlelit wedding ceremony in the Auditorium, with a floral arch and draped walls" loading="lazy"></div>
           <span class="rent-card-meta">Ceremonies &amp; receptions</span>
           <h3>Weddings</h3>
-          <p>Say your vows in the Main Hall and celebrate outdoors, with your own caterer welcome.</p>
+          <p>Say your vows in the Auditorium and celebrate outdoors, with your own caterer welcome.</p>
           <span class="rent-card-link">Plan your wedding <span aria-hidden="true">&rarr;</span></span>
         </a>
         <a href="/rent/" class="rent-card">
@@ -665,7 +665,7 @@
   </script>
   <script>
   (function() {
-    // --- Upcoming Events: Airtable via /api/calendar-events (the site's
+    // --- Upcoming Public Events: Airtable via /api/calendar-events (the site's
     // calendar sync — Airtable is the single source for events). ---
     function todayStr() {
       var n = new Date();

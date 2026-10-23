@@ -7,7 +7,7 @@
   <meta name="description" content="Photos of the Sane Living Center in downtown Ojai, California — the soundproof auditorium, weddings, conference room, and outdoor space.">
   <link rel="stylesheet" href="/style.css">
   <style>
-    /* ---- Gallery as a guided story: intro → ways to use the Main Hall → other spaces → invitation ---- */
+    /* ---- Gallery as a guided story: intro → ways to use the Auditorium → other spaces → invitation ---- */
     .gallery-intro { max-width: 760px; margin: 0 auto; text-align: center; }
     .gallery-intro h2 { margin-bottom: var(--space-md); }
     .gallery-intro p { font-size: 1.05rem; line-height: 1.75; }
@@ -102,9 +102,9 @@
   <section class="section" id="gallery-intro">
     <div class="container">
       <div class="gallery-intro" data-animate>
-        <span class="chapter-eyebrow">The Main Hall</span>
+        <span class="chapter-eyebrow">The Auditorium</span>
         <h2>One room, many ways to gather</h2>
-        <p>The Main Hall has hosted conferences, film screenings, concerts, lectures and workshops, meditation circles, community events and private celebrations. Scroll through how others have made it their own.</p>
+        <p>The Auditorium has hosted conferences, film screenings, concerts, lectures and workshops, meditation circles, community events and private celebrations. Scroll through how others have made it their own.</p>
         <nav class="gallery-jump" id="gallery-jump" aria-label="Jump to a part of the gallery"></nav>
       </div>
     </div>
@@ -141,22 +141,22 @@
   (function() {
     // Photos are managed in the team dashboard (/dash/ → Photo Gallery) and saved to /content/gallery.json.
     // Each photo has a "section" (venue / weddings / outdoor). Venue photos can also have a "group",
-    // which decides which Main Hall story below they appear in. Photos without a group still appear,
+    // which decides which Auditorium story below they appear in. Photos without a group still appear,
     // under "Around the venue", so nothing uploaded is ever hidden.
     var CHAPTERS = [
-      { id: 'talks', section: 'venue', group: 'talks', eyebrow: 'Main Hall', title: 'Talks & workshops',
+      { id: 'talks', section: 'venue', group: 'talks', eyebrow: 'Auditorium', title: 'Talks & workshops',
         text: 'Rows of seating face the stage, with the projector, sound system and stage lighting ready for speakers, screenings and teachers.',
         cta: 'Plan a talk or workshop', href: '/rent/pricing/' },
-      { id: 'wellness', section: 'venue', group: 'wellness', eyebrow: 'Main Hall', title: 'Wellness & circles',
+      { id: 'wellness', section: 'venue', group: 'wellness', eyebrow: 'Auditorium', title: 'Wellness & circles',
         text: 'Clear the chairs and the open floor becomes a calm space for meditation, breathwork, sound baths and sharing circles, lit by the stained-glass window.',
         cta: 'Host a retreat or circle', href: '/rent/pricing/' },
-      { id: 'receptions', section: 'venue', group: 'receptions', eyebrow: 'Main Hall', title: 'Receptions & gatherings',
+      { id: 'receptions', section: 'venue', group: 'receptions', eyebrow: 'Auditorium', title: 'Receptions & gatherings',
         text: 'Round tables, cocktail tables and a long buffet fit comfortably, with the big screen for slideshows and speeches.',
         cta: 'Plan a reception', href: '/rent/pricing/' },
-      { id: 'performances', section: 'venue', group: 'performances', eyebrow: 'Main Hall', title: 'Concerts & performances',
+      { id: 'performances', section: 'venue', group: 'performances', eyebrow: 'Auditorium', title: 'Concerts & performances',
         text: 'Modular stage risers, house speakers and theatre lighting make room for anything from a full band to an intimate acoustic set.',
         cta: 'Book a performance', href: '/rent/pricing/' },
-      { id: 'meetings', section: 'venue', group: 'meetings', eyebrow: 'Main Hall', title: 'Meetings & classes',
+      { id: 'meetings', section: 'venue', group: 'meetings', eyebrow: 'Auditorium', title: 'Meetings & classes',
         text: 'Tables can be set in a U-shape, classroom rows or small groups, with screens for presentations.',
         cta: 'Book a meeting space', href: '/rent/pricing/' },
       { id: 'venue', section: 'venue', group: null, eyebrow: 'The Venue', title: 'Around the venue',

@@ -656,11 +656,11 @@
 
   /* ---------------- GALLERY (grouped by website section) ---------------- */
   var SECTION_DEFS = [
-    { id: 'venue', title: 'The Venue', where: 'Gallery page → Main Hall stories (pick each photo’s group) · also the Rent page photo viewer', blurb: 'Main Hall, auditorium, conference room and other inside spaces.' },
+    { id: 'venue', title: 'The Venue', where: 'Gallery page → Auditorium stories (pick each photo’s group) · also the Rent page photo viewer', blurb: 'Main Hall, auditorium, conference room and other inside spaces.' },
     { id: 'weddings', title: 'Weddings', where: 'Gallery page → “Weddings” section', blurb: 'Ceremonies, receptions and wedding setups.' },
     { id: 'outdoor', title: 'Outdoor Spaces', where: 'Gallery page → “Outdoor spaces” section', blurb: 'Sculpture area, patio and outdoor gatherings.' },
   ];
-  // Venue photos can also be placed in one of the Main Hall stories on the Gallery page.
+  // Venue photos can also be placed in one of the Auditorium stories on the Gallery page.
   // These ids must match CHAPTERS in public/gallery.html.
   var GROUP_DEFS = [
     { id: '', title: 'Around the venue (general)' },
