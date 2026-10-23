@@ -111,6 +111,13 @@
       "group": "meetings"
     },
     {
+      "image": "/images/center-office.jpg",
+      "caption": "Conference Room",
+      "alt": "The Conference Room at Sane Living, with a long wooden table, whiteboard and natural light",
+      "section": "venue",
+      "group": "meetings"
+    },
+    {
       "image": "/images/evo3-sculpture.jpg",
       "caption": "EVO3 Sculpture and outdoor gathering area",
       "alt": "EVO3 Sculpture at Sane Living Center",
