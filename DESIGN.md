@@ -47,6 +47,8 @@ All text pairs above meet WCAG 4.5:1 except "dim", which is for small meta only.
 - Eyebrow labels: Nunito 12px, 700, uppercase, letter-spacing 0.2em, accent
   colour (white on photos, with a short rule before it on the home hero).
 - Numbers/prices: Nunito 700, ink colour.
+- No lone last words: headings and short centered intros use `text-wrap: balance`;
+  paragraphs use `text-wrap: pretty` (set once at the end of `style.css`).
 - Open Sans is still loaded only for a few older pages that use it directly.
 
 ## Layout principles

@@ -1423,3 +1423,16 @@ body:has(.video-hero) .site-nav:not(.scrolled):not(:has(.nav-toggle.active)) .na
 @media (max-width: 768px) {
   .split-grid-large-img { grid-template-columns: 1fr; gap: var(--space-lg); text-align: left; }
 }
+
+/* ---- Refined line breaks (no lone last words) ----
+   Headings and short centered intros are balanced so their lines are similar lengths;
+   longer paragraphs avoid leaving one word alone on the last line. Older browsers simply
+   ignore these and wrap as before. */
+h1, h2, h3, h4,
+.page-hero p, .home-section-header p, .events-head p, .rent-photos-head p, .wedding-photos-head p,
+.gallery-intro p, .chapter-head p, .rent-head p, .avail-intro > p, .find-intro > p,
+.video-hero-content .hero-subtitle, .section-header p, .pricing-cta p, .wedding-cta p,
+.tile-caption, .rent-card-label, .lightbox-caption {
+  text-wrap: balance;
+}
+p, li, dd, figcaption { text-wrap: pretty; }
