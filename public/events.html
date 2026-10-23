@@ -525,6 +525,9 @@
     .events-head { text-align: center; max-width: 680px; margin: 0 auto var(--space-xl); }
     .events-head h2 { margin-bottom: var(--space-sm); }
     .events-head p { margin: 0 auto; font-size: 1.05rem; }
+    /* The page title already says "Events", so Recent Events is a small label rather than a second big heading */
+    .events-head h2.recent-label { font-family: var(--font-body); font-size: 12.5px; line-height: 1.4; margin-bottom: 0; }
+    .events-head .recent-label + .events-jump { margin-top: var(--space-sm); }
     .events-jump { display: inline-flex; gap: 8px; margin-top: var(--space-md); font-size: 12.5px; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; color: var(--clr-plum); border-bottom: 1px solid var(--clr-accent); padding-bottom: 5px; }
     .events-jump:hover { color: var(--clr-accent); }
     .recent-grid { columns: 4 220px; column-gap: 18px; }
@@ -576,9 +579,7 @@
   <section class="section" id="recent">
     <div class="container">
       <div class="events-head">
-        <span class="section-eyebrow">A look back</span>
-        <h2>Recent Events</h2>
-        <p>Concerts, film premieres, workshops, retreats and celebrations hosted at the Sane Living Center.</p>
+        <h2 class="section-eyebrow recent-label">Recent Events</h2>
         <a href="#upcoming" class="events-jump">See upcoming events <span aria-hidden="true">&darr;</span></a>
       </div>
       <div class="recent-grid" id="recentGrid">
