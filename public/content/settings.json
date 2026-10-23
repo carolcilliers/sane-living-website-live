@@ -37,6 +37,11 @@
   "siteDescription": "",
   "navigation": [
     {
+      "route": "/",
+      "label": "Home",
+      "visible": true
+    },
+    {
       "route": "/rent/",
       "label": "Rent",
       "visible": true

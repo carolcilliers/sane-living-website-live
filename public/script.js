@@ -32,6 +32,7 @@ function injectNav() {
     <div class="nav-inner">
       <a href="/" class="nav-logo"><img src="/images/logo.png" alt="Sane Living" height="72"></a>
       <ul class="nav-links" id="nav-links">
+        <li><a href="/"${isActive(currentPath, '/')}>Home</a></li>
         <li class="nav-dropdown">
           <a href="/events/"${isActive(currentPath, '/events/')}>Events</a>
           <div class="nav-dropdown-menu">
@@ -96,6 +97,8 @@ function keepMostSpecificActive(el) {
  * path starts with the given path prefix.
  */
 function isActive(current, path) {
+  // Home only counts on the home page itself; every other path starts with "/".
+  if (path === '/') return (current === '/' || current === '/index.html') ? ' class="active"' : '';
   if (current === path || current.startsWith(path)) {
     return ' class="active"';
   }

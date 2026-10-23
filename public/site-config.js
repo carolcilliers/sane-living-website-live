@@ -5,6 +5,7 @@
 })(typeof globalThis !== 'undefined' ? globalThis : this, function () {
   'use strict';
   var navigation = [
+    { route: '/', label: 'Home', visible: true },
     { route: '/events/', label: 'Events', visible: true },
     { route: '/rent/', label: 'Rent', visible: true },
     { route: '/rent/weddings/', label: 'Weddings', visible: true },
@@ -72,7 +73,7 @@
     if (settings.announcementEnabled && !String(settings.announcementText || '').trim()) errors.push('Add announcement text before enabling the banner.');
     if (settings.newsletterEnabled && !safeUrl(settings.newsletterUrl, 'newsletter')) errors.push('Add a valid Mailchimp action before enabling signup.');
     if (settings.navigation != null) {
-      if (!Array.isArray(settings.navigation) || settings.navigation.length !== navigation.length) errors.push('Keep all six navigation entries; hide items with their visibility switch.');
+      if (!Array.isArray(settings.navigation) || settings.navigation.length !== navigation.length) errors.push('Keep every navigation entry; hide items with their visibility switch.');
       else {
         var seen = {};
         settings.navigation.forEach(function (item) {
