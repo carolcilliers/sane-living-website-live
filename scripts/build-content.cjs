@@ -15,7 +15,10 @@ let defaults=fs.existsSync(defaultsPath)?JSON.parse(fs.readFileSync(defaultsPath
 function unesc(value){return value.replace(/&amp;/g,'&').replace(/&quot;/g,'"').replace(/&#39;/g,"'").replace(/&lt;/g,'<').replace(/&gt;/g,'>');}
 function metaValue(html,key){const re=new RegExp('<meta\\s+(?:name|property)="'+key+'"\\s+content="([^"]*)"[^>]*>','i');return unesc((re.exec(html)||[])[1]||'');}
 function setMeta(html,key,value,property){const tag='<meta '+(property?'property':'name')+'="'+key+'" content="'+content.esc(value)+'">';const re=new RegExp('<meta\\s+(?:name|property)="'+key+'"\\s+content="[^"]*"[^>]*>','i');return re.test(html)?html.replace(re,()=>tag):html.replace('</head>',tag+'\n</head>');}
-const rootUrl='https://saneliving.com';
+// Share images must be absolute URLs on the domain that actually serves this deployment, otherwise link
+// previews fetch them from wherever saneliving.com currently points. SITE_URL can pin it explicitly;
+// otherwise Vercel's production domain is used, falling back to saneliving.com for local builds.
+const rootUrl=(process.env.SITE_URL||(process.env.VERCEL_PROJECT_PRODUCTION_URL?'https://'+process.env.VERCEL_PROJECT_PRODUCTION_URL:'https://saneliving.com')).replace(/\/+$/,'');
 for(const file of files){
  let html=fs.readFileSync(file,'utf8');const relative='/'+path.relative(publicDir,file).replaceAll(path.sep,'/');
  const route=relative==='/index.html'?'/':(routes.find(r=>r.destination===relative&&r.source.endsWith('/'))||{}).source || relative.replace(/\.html$/,'/');
