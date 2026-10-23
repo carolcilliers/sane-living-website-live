@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Events — Sane Living</title>
-  <meta name="description" content="Upcoming public events at the Sane Living Center in Ojai, California. Film screenings, workshops, performances, and community gatherings.">
+  <meta name="description" content="Upcoming public events and recent events at the Sane Living Center in Ojai, California. Film screenings, workshops, performances, and community gatherings.">
   <link rel="stylesheet" href="/style.css">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
   <style>
@@ -520,10 +520,33 @@
     .cal-modal-close { background: rgba(255,255,255,.18); color: #fff; border-radius: 50%; }
     .cal-modal-close:hover { background: rgba(255,255,255,.32); color: #fff; }
     @media (prefers-reduced-motion: reduce) { .cal-cell, .cal-event-dot, .cal-list-item { transition: none; } }
+    /* ---- Combined Events page: section headings, Recent Events flyer wall, flyer viewer ---- */
+    .section-eyebrow { display: block; font-size: 12px; font-weight: 700; letter-spacing: 0.2em; text-transform: uppercase; color: var(--clr-accent); margin-bottom: var(--space-md); }
+    .events-head { text-align: center; max-width: 680px; margin: 0 auto var(--space-xl); }
+    .events-head h2 { margin-bottom: var(--space-sm); }
+    .events-head p { margin: 0 auto; font-size: 1.05rem; }
+    .events-jump { display: inline-flex; gap: 8px; margin-top: var(--space-md); font-size: 12.5px; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; color: var(--clr-plum); border-bottom: 1px solid var(--clr-accent); padding-bottom: 5px; }
+    .events-jump:hover { color: var(--clr-accent); }
+    .recent-grid { columns: 4 220px; column-gap: 18px; }
+    .recent-card { display: block; break-inside: avoid; margin-bottom: 18px; border-radius: 14px; overflow: hidden; background: var(--clr-bg-card); box-shadow: var(--shadow-soft); cursor: zoom-in; transition: transform 0.3s ease, box-shadow 0.3s ease; }
+    .recent-card img { width: 100%; height: auto; display: block; border-radius: 0; }
+    .recent-card:hover, .recent-card:focus-visible { transform: translateY(-4px); box-shadow: var(--shadow-lift); }
+    .recent-card:focus-visible { outline: 3px solid var(--clr-accent); outline-offset: 3px; }
+    .recent-grid.collapsed .recent-card:nth-child(n+13) { display: none; }
+    .recent-more { text-align: center; margin-top: var(--space-lg); }
+    .recent-more[hidden] { display: none; }
+    .intensive-feature { max-width: 900px; margin: clamp(3rem, 7vw, 5rem) auto 0; text-align: center; padding-top: clamp(2.5rem, 5vw, 3.5rem); border-top: 1px solid var(--clr-border); }
+    .intensive-feature img { width: 100%; height: auto; border-radius: 16px; box-shadow: var(--shadow-soft); margin-bottom: var(--space-lg); }
+    .flyer-viewer { border: 0; padding: 0; background: transparent; max-width: min(92vw, 900px); max-height: 92vh; overflow: visible; }
+    .flyer-viewer::backdrop { background: rgba(20, 16, 22, 0.88); }
+    .flyer-viewer img { display: block; max-width: 100%; max-height: 88vh; width: auto; height: auto; margin: 0 auto; border-radius: 10px; }
+    .flyer-close { position: fixed; top: 16px; right: 16px; width: 46px; height: 46px; border: 0; border-radius: 999px; background: rgba(255,255,255,0.15); color: #fff; font-size: 1.7rem; line-height: 1; cursor: pointer; }
+    .flyer-close:hover, .flyer-close:focus-visible { background: rgba(255,255,255,0.3); outline: none; }
+    @media (prefers-reduced-motion: reduce) { .recent-card { transition: none; } }
   </style>
 
   <meta property="og:title" content="Events — Sane Living">
-  <meta property="og:description" content="Upcoming public events at the Sane Living Center in Ojai, California. Film screenings, workshops, performances, and community gatherings.">
+  <meta property="og:description" content="Upcoming public events and recent events at the Sane Living Center in Ojai, California. Film screenings, workshops, performances, and community gatherings.">
   <meta property="og:image" content="https://saneliving.com/images/homepage-hero.jpg">
   <meta property="og:image:width" content="1959">
   <meta property="og:image:height" content="1309">
@@ -532,7 +555,7 @@
   <meta property="og:url" content="https://saneliving.com/events/">
   <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:title" content="Events — Sane Living">
-  <meta name="twitter:description" content="Upcoming public events at the Sane Living Center in Ojai, California. Film screenings, workshops, performances, and community gatherings.">
+  <meta name="twitter:description" content="Upcoming public events and recent events at the Sane Living Center in Ojai, California. Film screenings, workshops, performances, and community gatherings.">
   <meta name="twitter:image" content="https://saneliving.com/images/homepage-hero.jpg">
   <meta name="twitter:image:alt" content="Sane Living Center Ojai Exterior">
 <link rel="icon" href="/favicon.svg">
@@ -544,12 +567,18 @@
 
   <section class="page-hero">
     <div class="container">
-      <h1>Upcoming Public Events</h1>
-      <p>Events at the Sane Living Center in Ojai, California</p>
+      <h1>Events</h1>
+      <p>What&rsquo;s coming up at the Sane Living Center, and a look back at recent gatherings.</p>
     </div>
   </section>
 
-  <section class="section">
+  <section class="section" id="upcoming">
+    <div class="container events-head">
+      <span class="section-eyebrow">Coming up</span>
+      <h2>Upcoming Public Events</h2>
+      <p>Film screenings, workshops, performances and community gatherings open to everyone.</p>
+      <a href="#recent" class="events-jump">See recent events <span aria-hidden="true">&darr;</span></a>
+    </div>
     <div class="container" style="margin-bottom: var(--space-xl);">
       <div class="mc-signup">
         <h4>Subscribe for Event Updates</h4>
@@ -570,9 +599,6 @@
           <button id="fliersViewBtn" class="active">Fliers</button>
           <button id="listViewBtn">List</button>
           <button id="gridViewBtn">Month</button>
-        </div>
-        <div style="margin-top: 4px;">
-          <a href="/events/past" style="font-size: 0.85rem; font-weight: 500; color: #8a56a0; text-decoration: none; border-bottom: 1px dotted #8a56a0;">View Past Events Gallery →</a>
         </div>
         <div class="cal-nav">
           <button id="prevBtn" aria-label="Previous month" style="display:none">Prev</button>
@@ -600,6 +626,80 @@
 
     </div>
   </section>
+
+  <!-- Recent Events: flyers from past events (moved here from /events/past) -->
+  <section class="section section-alt" id="recent">
+    <div class="container">
+      <div class="events-head">
+        <span class="section-eyebrow">A look back</span>
+        <h2>Recent Events</h2>
+        <p>Concerts, film premieres, workshops, retreats and celebrations hosted at the Sane Living Center.</p>
+      </div>
+      <div class="recent-grid" id="recentGrid">
+        <a class="recent-card" href="/images/events-past/Amma-2026-Ojai-Flyer-web-2.jpg" data-flyer><img src="/images/events-past/Amma-2026-Ojai-Flyer-web-2.jpg" alt="Flyer: Amma Ojai" loading="lazy"></a>
+        <a class="recent-card" href="/images/events-past/Leland-1-31-26.jpg" data-flyer><img src="/images/events-past/Leland-1-31-26.jpg" alt="Flyer: Leland" loading="lazy"></a>
+        <a class="recent-card" href="/images/events-past/Kalbeliya-1-30-26.jpg" data-flyer><img src="/images/events-past/Kalbeliya-1-30-26.jpg" alt="Flyer: Kalbeliya" loading="lazy"></a>
+        <a class="recent-card" href="/images/events-past/Chamber-1-28-26.jpg" data-flyer><img src="/images/events-past/Chamber-1-28-26.jpg" alt="Flyer: Chamber" loading="lazy"></a>
+        <a class="recent-card" href="/images/events-past/WORLD-WITHOUT-COWS.jpg" data-flyer><img src="/images/events-past/WORLD-WITHOUT-COWS.jpg" alt="Flyer: WORLD WITHOUT COWS" loading="lazy"></a>
+        <a class="recent-card" href="/images/events-past/Tahi-1000082920.jpg" data-flyer><img src="/images/events-past/Tahi-1000082920.jpg" alt="Flyer: Tahi" loading="lazy"></a>
+        <a class="recent-card" href="/images/events-past/CLOWN-WORKSHOP-NEW-FLYER.jpg" data-flyer><img src="/images/events-past/CLOWN-WORKSHOP-NEW-FLYER.jpg" alt="Flyer: CLOWN WORKSHOP" loading="lazy"></a>
+        <a class="recent-card" href="/images/events-past/Paranadyn.jpg" data-flyer><img src="/images/events-past/Paranadyn.jpg" alt="Flyer: Paranadyn" loading="lazy"></a>
+        <a class="recent-card" href="/images/events-past/St-Nam-Rasayan_2025.jpg" data-flyer><img src="/images/events-past/St-Nam-Rasayan_2025.jpg" alt="Flyer: St Nam Rasayan" loading="lazy"></a>
+        <a class="recent-card" href="/images/events-past/Kirtin-PosterRev1-scaled.jpg" data-flyer><img src="/images/events-past/Kirtin-PosterRev1-scaled.jpg" alt="Flyer: Kirtin PosterRev1" loading="lazy"></a>
+        <a class="recent-card" href="/images/events-past/Ojai-Community-event.jpg" data-flyer><img src="/images/events-past/Ojai-Community-event.jpg" alt="Flyer: Ojai Community event" loading="lazy"></a>
+        <a class="recent-card" href="/images/events-past/Grof-Breathwork-flyer.jpg" data-flyer><img src="/images/events-past/Grof-Breathwork-flyer.jpg" alt="Flyer: Grof Breathwork" loading="lazy"></a>
+        <a class="recent-card" href="/images/events-past/Donna-August-2025.jpg" data-flyer><img src="/images/events-past/Donna-August-2025.jpg" alt="Flyer: Donna August" loading="lazy"></a>
+        <a class="recent-card" href="/images/events-past/Amma-Aug-20205.jpg" data-flyer><img src="/images/events-past/Amma-Aug-20205.jpg" alt="Flyer: Amma Aug" loading="lazy"></a>
+        <a class="recent-card" href="/images/events-past/Living-Promise.jpg" data-flyer><img src="/images/events-past/Living-Promise.jpg" alt="Flyer: Living Promise" loading="lazy"></a>
+        <a class="recent-card" href="/images/events-past/SOUL-MOTION.png" data-flyer><img src="/images/events-past/SOUL-MOTION.png" alt="Flyer: SOUL MOTION" loading="lazy"></a>
+        <a class="recent-card" href="/images/events-past/Donna-Sacred.jpg" data-flyer><img src="/images/events-past/Donna-Sacred.jpg" alt="Flyer: Donna Sacred" loading="lazy"></a>
+        <a class="recent-card" href="/images/events-past/IMG_5354.jpeg" data-flyer><img src="/images/events-past/IMG_5354.jpeg" alt="Flyer: IMG" loading="lazy"></a>
+        <a class="recent-card" href="/images/events-past/Valentine-donation.jpg" data-flyer><img src="/images/events-past/Valentine-donation.jpg" alt="Flyer: Valentine donation" loading="lazy"></a>
+        <a class="recent-card" href="/images/events-past/FLOW-FINAL.jpg" data-flyer><img src="/images/events-past/FLOW-FINAL.jpg" alt="Flyer: FLOW" loading="lazy"></a>
+        <a class="recent-card" href="/images/events-past/Coexist-9-11.jpg" data-flyer><img src="/images/events-past/Coexist-9-11.jpg" alt="Flyer: Coexist" loading="lazy"></a>
+        <a class="recent-card" href="/images/events-past/CABRINI.jpg" data-flyer><img src="/images/events-past/CABRINI.jpg" alt="Flyer: CABRINI" loading="lazy"></a>
+        <a class="recent-card" href="/images/events-past/REMATRIATION.jpeg" data-flyer><img src="/images/events-past/REMATRIATION.jpeg" alt="Flyer: REMATRIATION" loading="lazy"></a>
+        <a class="recent-card" href="/images/events-past/Joss-Jaffe.jpeg" data-flyer><img src="/images/events-past/Joss-Jaffe.jpeg" alt="Flyer: Joss Jaffe" loading="lazy"></a>
+        <a class="recent-card" href="/images/events-past/Constellation-June-15-2024.png" data-flyer><img src="/images/events-past/Constellation-June-15-2024.png" alt="Flyer: Constellation June" loading="lazy"></a>
+        <a class="recent-card" href="/images/events-past/Archtypes-of-Mary-Magdalene.jpg" data-flyer><img src="/images/events-past/Archtypes-of-Mary-Magdalene.jpg" alt="Flyer: Archtypes of Mary Magdalene" loading="lazy"></a>
+        <a class="recent-card" href="/images/events-past/Rug-Ad.jpg" data-flyer><img src="/images/events-past/Rug-Ad.jpg" alt="Flyer: Rug Ad" loading="lazy"></a>
+        <a class="recent-card" href="/images/events-past/PATH-TO-LOVE.jpg" data-flyer><img src="/images/events-past/PATH-TO-LOVE.jpg" alt="Flyer: PATH TO LOVE" loading="lazy"></a>
+        <a class="recent-card" href="/images/events-past/BIRTHDAY-SHOW-yes.jpg" data-flyer><img src="/images/events-past/BIRTHDAY-SHOW-yes.jpg" alt="Flyer: BIRTHDAY SHOW" loading="lazy"></a>
+        <a class="recent-card" href="/images/events-past/Constellation-March_23_2024.png" data-flyer><img src="/images/events-past/Constellation-March_23_2024.png" alt="Flyer: Constellation March" loading="lazy"></a>
+        <a class="recent-card" href="/images/events-past/Amma-2024-Ojai-Flyer-new-9.jpg" data-flyer><img src="/images/events-past/Amma-2024-Ojai-Flyer-new-9.jpg" alt="Flyer: Amma Ojai" loading="lazy"></a>
+        <a class="recent-card" href="/images/events-past/Love-Heals-Poster-plusInfo.jpg" data-flyer><img src="/images/events-past/Love-Heals-Poster-plusInfo.jpg" alt="Flyer: Love Heals plusInfo" loading="lazy"></a>
+        <a class="recent-card" href="/images/events-past/Deep-Listening-and-sound-healing-concert.jpg" data-flyer><img src="/images/events-past/Deep-Listening-and-sound-healing-concert.jpg" alt="Flyer: Deep Listening and sound healing concert" loading="lazy"></a>
+        <a class="recent-card" href="/images/events-past/Soul-Motion-Poster.jpg" data-flyer><img src="/images/events-past/Soul-Motion-Poster.jpg" alt="Flyer: Soul Motion" loading="lazy"></a>
+        <a class="recent-card" href="/images/events-past/Biggest-8.5x11_Final.jpg" data-flyer><img src="/images/events-past/Biggest-8.5x11_Final.jpg" alt="Flyer: Biggest" loading="lazy"></a>
+        <a class="recent-card" href="/images/events-past/3EventPage_print-compressed_1.jpg" data-flyer><img src="/images/events-past/3EventPage_print-compressed_1.jpg" alt="Flyer: 3EventPage" loading="lazy"></a>
+        <a class="recent-card" href="/images/events-past/DrGruennFamilyConstellationJanuary13-2024.png" data-flyer><img src="/images/events-past/DrGruennFamilyConstellationJanuary13-2024.png" alt="Flyer: DrGruennFamilyConstellationJanuary13" loading="lazy"></a>
+        <a class="recent-card" href="/images/events-past/Tahi-screening-Ojai-12-8-23.jpg" data-flyer><img src="/images/events-past/Tahi-screening-Ojai-12-8-23.jpg" alt="Flyer: Tahi screening Ojai" loading="lazy"></a>
+        <a class="recent-card" href="/images/events-past/MudLotus.jpg" data-flyer><img src="/images/events-past/MudLotus.jpg" alt="Flyer: MudLotus" loading="lazy"></a>
+        <a class="recent-card" href="/images/events-past/LAURA-postcard-5inx7in-v-FRONT.jpg" data-flyer><img src="/images/events-past/LAURA-postcard-5inx7in-v-FRONT.jpg" alt="Flyer: LAURA postcard 5inx7in" loading="lazy"></a>
+        <a class="recent-card" href="/images/events-past/Sat-Nam-Rasayan.jpg" data-flyer><img src="/images/events-past/Sat-Nam-Rasayan.jpg" alt="Flyer: Sat Nam Rasayan" loading="lazy"></a>
+        <a class="recent-card" href="/images/events-past/Oh-My-Word-poster.jpeg" data-flyer><img src="/images/events-past/Oh-My-Word-poster.jpeg" alt="Flyer: Oh My Word" loading="lazy"></a>
+        <a class="recent-card" href="/images/events-past/Crawdads-8.5x11_1-GOOD-ONE.jpg" data-flyer><img src="/images/events-past/Crawdads-8.5x11_1-GOOD-ONE.jpg" alt="Flyer: Crawdads" loading="lazy"></a>
+        <a class="recent-card" href="/images/events-past/Ammonite-85X11-FINAL-USE-THIS-ONE.jpg" data-flyer><img src="/images/events-past/Ammonite-85X11-FINAL-USE-THIS-ONE.jpg" alt="Flyer: Ammonite" loading="lazy"></a>
+        <a class="recent-card" href="/images/events-past/kiora-fox_C-No-Ph-1-Feb-Mar-2022-dates-150px.jpg" data-flyer><img src="/images/events-past/kiora-fox_C-No-Ph-1-Feb-Mar-2022-dates-150px.jpg" alt="Flyer: kiora fox C No Ph Feb Mar dates 150px" loading="lazy"></a>
+        <a class="recent-card" href="/images/events-past/Michael-8.5-x-11-FINAL_2_cropped-pdf.jpg" data-flyer><img src="/images/events-past/Michael-8.5-x-11-FINAL_2_cropped-pdf.jpg" alt="Flyer: Michael . x" loading="lazy"></a>
+        <a class="recent-card" href="/images/events-past/Final-Tahi-Film-Premier-Flyer.jpeg" data-flyer><img src="/images/events-past/Final-Tahi-Film-Premier-Flyer.jpeg" alt="Flyer: Tahi Film Premier" loading="lazy"></a>
+        <a class="recent-card" href="/images/events-past/FOX_Revise-8.5-x-11-_4-TAGLINE-Removed.jpg" data-flyer><img src="/images/events-past/FOX_Revise-8.5-x-11-_4-TAGLINE-Removed.jpg" alt="Flyer: FOX Revise . x TAGLINE Removed" loading="lazy"></a>
+        <a class="recent-card" href="/images/events-past/Viz-Med-Small_2_cropped-scaled.jpg" data-flyer><img src="/images/events-past/Viz-Med-Small_2_cropped-scaled.jpg" alt="Flyer: Viz Med" loading="lazy"></a>
+      </div>
+      <div class="recent-more" id="recentMoreWrap">
+        <button type="button" class="btn btn-outline" id="recentMore">Show all recent events</button>
+      </div>
+      <div class="intensive-feature">
+        <img src="/images/events-past/unnamed-5.jpg" alt="Ojai Health Intensive" loading="lazy">
+        <a href="/events/ojai-health-intensive" class="btn btn-primary">Videos from the Ojai Health Intensive</a>
+      </div>
+    </div>
+  </section>
+
+  <dialog class="flyer-viewer" id="flyerViewer" aria-label="Event flyer">
+    <button type="button" class="flyer-close" id="flyerClose" aria-label="Close">&times;</button>
+    <img id="flyerImg" alt="">
+  </dialog>
 
   <footer id="site-footer"></footer>
   <script src="/script.js"></script>
@@ -904,6 +1004,32 @@
     }
 
     loadEvents();
+  })();
+  </script>
+  <script>
+  // Recent Events: show the first 12 flyers, open any flyer large on the page, and add flyers of past
+  // events from Airtable (with a flyer image) to the front of the wall.
+  (function() {
+    var grid = document.getElementById('recentGrid'), more = document.getElementById('recentMore'), wrap = document.getElementById('recentMoreWrap');
+    var dlg = document.getElementById('flyerViewer'), img = document.getElementById('flyerImg');
+    function esc(s) { return String(s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+    function sync() { wrap.hidden = !grid.classList.contains('collapsed') || grid.children.length <= 12; }
+    grid.classList.add('collapsed'); sync();
+    more.addEventListener('click', function() { grid.classList.remove('collapsed'); sync(); });
+    grid.addEventListener('click', function(e) {
+      var a = e.target.closest('[data-flyer]');
+      if (!a || typeof dlg.showModal !== 'function') return;
+      e.preventDefault(); img.src = a.getAttribute('href'); img.alt = (a.querySelector('img') || {}).alt || ''; dlg.showModal();
+    });
+    document.getElementById('flyerClose').addEventListener('click', function() { dlg.close(); });
+    dlg.addEventListener('click', function(e) { if (e.target === dlg) dlg.close(); });
+    fetch('/api/calendar-events-past').then(function(r) { return r.ok ? r.json() : null; }).then(function(data) {
+      var html = ((data && data.events) || []).filter(function(e) { return e.image && (e.image.url || e.image.thumbnail); }).map(function(e) {
+        var full = e.image.url || e.image.thumbnail, thumb = e.image.thumbnail || full;
+        return '<a class="recent-card" href="' + esc(full) + '" data-flyer><img src="' + esc(thumb) + '" alt="' + esc('Flyer: ' + (e.title || 'event')) + '" loading="lazy"></a>';
+      }).join('');
+      if (html) { grid.insertAdjacentHTML('afterbegin', html); sync(); }
+    }).catch(function() {});
   })();
   </script>
 </body>

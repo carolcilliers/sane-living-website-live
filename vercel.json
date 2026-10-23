@@ -25,14 +25,6 @@
       "destination": "/events.html"
     },
     {
-      "source": "/events/past/",
-      "destination": "/events/past.html"
-    },
-    {
-      "source": "/events/past",
-      "destination": "/events/past.html"
-    },
-    {
       "source": "/events/ojai-health-intensive/",
       "destination": "/events/ojai-health-intensive.html"
     },
@@ -194,6 +186,8 @@
     }
   ],
   "redirects": [
+    { "source": "/events/past/", "destination": "/events/#recent", "statusCode": 302 },
+    { "source": "/events/past", "destination": "/events/#recent", "statusCode": 302 },
     {
       "source": "/book/rent/",
       "destination": "/rent/",
