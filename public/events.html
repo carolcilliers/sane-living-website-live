@@ -568,72 +568,18 @@
   <section class="page-hero">
     <div class="container">
       <h1>Events</h1>
-      <p>What&rsquo;s coming up at the Sane Living Center, and a look back at recent gatherings.</p>
-    </div>
-  </section>
-
-  <section class="section" id="upcoming">
-    <div class="container events-head">
-      <span class="section-eyebrow">Coming up</span>
-      <h2>Upcoming Public Events</h2>
-      <p>Film screenings, workshops, performances and community gatherings open to everyone.</p>
-      <a href="#recent" class="events-jump">See recent events <span aria-hidden="true">&darr;</span></a>
-    </div>
-    <div class="container" style="margin-bottom: var(--space-xl);">
-      <div class="mc-signup">
-        <h4>Subscribe for Event Updates</h4>
-        <form action="https://saneliving.us19.list-manage.com/subscribe/post?u=b3bc47585c00a4e19f7c3841d&amp;id=590b76d0aa" method="post" target="_blank" novalidate>
-          <input type="email" name="EMAIL" placeholder="Email address" required>
-          <div style="position: absolute; left: -5000px;" aria-hidden="true">
-            <input type="text" name="b_b3bc47585c00a4e19f7c3841d_590b76d0aa" tabindex="-1" value="">
-          </div>
-          <button type="submit">Subscribe</button>
-        </form>
-      </div>
-    </div>
-    
-    <div class="cal-wrap">
-
-      <div class="cal-header">
-        <div class="cal-view-toggle">
-          <button id="fliersViewBtn" class="active">Fliers</button>
-          <button id="listViewBtn">List</button>
-          <button id="gridViewBtn">Month</button>
-        </div>
-        <div class="cal-nav">
-          <button id="prevBtn" aria-label="Previous month" style="display:none">Prev</button>
-          <span class="cal-month-label" id="monthLabel" style="display:none"></span>
-          <button id="nextBtn" aria-label="Next month" style="display:none">Next</button>
-        </div>
-      </div>
-
-      <div class="cal-fliers active" id="calFliers"></div>
-      <div class="cal-list" id="calList"></div>
-      <div class="cal-grid-wrap" id="gridWrap">
-        <div class="cal-grid" id="calGrid"></div>
-      </div>
-
-      <!-- Event Detail Modal -->
-      <div class="cal-modal-overlay" id="modalOverlay">
-        <div class="cal-modal" id="modal">
-          <div class="cal-modal-header">
-            <div class="cal-modal-title" id="modalTitle"></div>
-            <button class="cal-modal-close" id="modalClose" aria-label="Close">X</button>
-          </div>
-          <div class="cal-modal-body" id="modalBody"></div>
-        </div>
-      </div>
-
+      <p>A look back at recent gatherings at the Sane Living Center, and what&rsquo;s coming up next.</p>
     </div>
   </section>
 
   <!-- Recent Events: flyers from past events (moved here from /events/past) -->
-  <section class="section section-alt" id="recent">
+  <section class="section" id="recent">
     <div class="container">
       <div class="events-head">
         <span class="section-eyebrow">A look back</span>
         <h2>Recent Events</h2>
         <p>Concerts, film premieres, workshops, retreats and celebrations hosted at the Sane Living Center.</p>
+        <a href="#upcoming" class="events-jump">See upcoming events <span aria-hidden="true">&darr;</span></a>
       </div>
       <div class="recent-grid" id="recentGrid">
         <a class="recent-card" href="/images/events-past/Amma-2026-Ojai-Flyer-web-2.jpg" data-flyer><img src="/images/events-past/Amma-2026-Ojai-Flyer-web-2.jpg" alt="Flyer: Amma Ojai" loading="lazy"></a>
@@ -693,6 +639,60 @@
         <img src="/images/events-past/unnamed-5.jpg" alt="Ojai Health Intensive" loading="lazy">
         <a href="/events/ojai-health-intensive" class="btn btn-primary">Videos from the Ojai Health Intensive</a>
       </div>
+    </div>
+  </section>
+
+  <section class="section section-alt" id="upcoming">
+    <div class="container events-head">
+      <span class="section-eyebrow">Coming up</span>
+      <h2>Upcoming Public Events</h2>
+      <p>Film screenings, workshops, performances and community gatherings open to everyone.</p>
+    </div>
+    <div class="container" style="margin-bottom: var(--space-xl);">
+      <div class="mc-signup">
+        <h4>Subscribe for Event Updates</h4>
+        <form action="https://saneliving.us19.list-manage.com/subscribe/post?u=b3bc47585c00a4e19f7c3841d&amp;id=590b76d0aa" method="post" target="_blank" novalidate>
+          <input type="email" name="EMAIL" placeholder="Email address" required>
+          <div style="position: absolute; left: -5000px;" aria-hidden="true">
+            <input type="text" name="b_b3bc47585c00a4e19f7c3841d_590b76d0aa" tabindex="-1" value="">
+          </div>
+          <button type="submit">Subscribe</button>
+        </form>
+      </div>
+    </div>
+    
+    <div class="cal-wrap">
+
+      <div class="cal-header">
+        <div class="cal-view-toggle">
+          <button id="fliersViewBtn" class="active">Fliers</button>
+          <button id="listViewBtn">List</button>
+          <button id="gridViewBtn">Month</button>
+        </div>
+        <div class="cal-nav">
+          <button id="prevBtn" aria-label="Previous month" style="display:none">Prev</button>
+          <span class="cal-month-label" id="monthLabel" style="display:none"></span>
+          <button id="nextBtn" aria-label="Next month" style="display:none">Next</button>
+        </div>
+      </div>
+
+      <div class="cal-fliers active" id="calFliers"></div>
+      <div class="cal-list" id="calList"></div>
+      <div class="cal-grid-wrap" id="gridWrap">
+        <div class="cal-grid" id="calGrid"></div>
+      </div>
+
+      <!-- Event Detail Modal -->
+      <div class="cal-modal-overlay" id="modalOverlay">
+        <div class="cal-modal" id="modal">
+          <div class="cal-modal-header">
+            <div class="cal-modal-title" id="modalTitle"></div>
+            <button class="cal-modal-close" id="modalClose" aria-label="Close">X</button>
+          </div>
+          <div class="cal-modal-body" id="modalBody"></div>
+        </div>
+      </div>
+
     </div>
   </section>
 
