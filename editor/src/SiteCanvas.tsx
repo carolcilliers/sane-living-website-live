@@ -59,6 +59,12 @@ export function htmlFor(
         ';function swap(){document.querySelectorAll("img[src],video[poster]").forEach(e=>{const a=e.tagName==="VIDEO"?"poster":"src",u=e.getAttribute(a);if(m[u])e.setAttribute(a,m[u]);});document.querySelectorAll("[style]").forEach(e=>{for(const u in m)if(e.style.backgroundImage.includes(u))e.style.backgroundImage="url("+m[u]+")";});}document.addEventListener("sane:settings-ready",swap);document.addEventListener("DOMContentLoaded",swap);}</script></head>',
     );
   }
+  const revision=new URLSearchParams(location.search).get('source');
+  if(revision && /^[a-f0-9]{40}$/.test(revision)){
+    // Version only local presentation assets, never links, form actions or draft data.
+    const script=`<script data-studio-runtime="asset-version">(()=>{const revision="${revision}";function stamp(){document.querySelectorAll('img[src],video[src],video[poster],source[src],link[rel="stylesheet"][href]').forEach(el=>{for(const key of [el.tagName==='LINK'?'href':'src',...(el.hasAttribute('poster')?['poster']:[])]){const raw=el.getAttribute(key);if(!raw)continue;try{const url=new URL(raw,document.baseURI);if(url.origin!==location.origin || url.protocol!=='https:' && url.protocol!=='http:' || url.pathname.startsWith('/api/'))continue;if(url.searchParams.get('site-rev')===revision)continue;url.searchParams.set('site-rev',revision);el.setAttribute(key,url.pathname+url.search);}catch{}}});}document.addEventListener('DOMContentLoaded',()=>{stamp();new MutationObserver(stamp).observe(document.body,{subtree:true,childList:true,attributes:true,attributeFilter:['src','poster']});});})();</script>`;
+    html=html.replace('</head>',script+'</head>');
+  }
   const style =
     "<style>[data-animate],[data-animate-stagger]>*{opacity:1!important;transform:none!important;transition:none!important}" +
     (annotate

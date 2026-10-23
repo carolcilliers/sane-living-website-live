@@ -1,3 +1,4 @@
+import { MediaLibrary } from "./MediaLibrary";
 import controls from "../../content-core/editor-controls.cjs";
 import { ImageDisplayControls, applyImagePreset, LayoutControls, VideoControls } from "./ComponentControls";
 import type { Asset, Block, ElementChange } from "./site-types";
@@ -89,7 +90,7 @@ function ImageUpload({
   multiple?: boolean;
 }) {
   return (
-    <label className="asset-picker">
+    <><MediaLibrary select={set}/><label className="asset-picker">
       {multiple ? "Add images" : "Upload image"}
       <input
         type="file"
@@ -101,7 +102,7 @@ function ImageUpload({
           for (const file of files) await upload(file, set);
         }}
       />
-    </label>
+    </label></>
   );
 }
 export function ElementInspector({

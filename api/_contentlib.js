@@ -8,8 +8,8 @@ async function gh(path, options) {
   var opts = options || {};
   return fetch('https://api.github.com/repos/' + REPO + path, { method: opts.method || 'GET', headers: Object.assign({ Authorization: 'Bearer ' + process.env.CMS_GITHUB_TOKEN, Accept: 'application/vnd.github+json', 'X-GitHub-Api-Version': '2022-11-28', 'User-Agent': 'sane-living-dashboard' }, opts.headers || {}), body: opts.body });
 }
-async function read(path) {
-  var r = await gh('/contents/' + path + '?ref=' + encodeURIComponent(BRANCH));
+async function read(path, ref) {
+  var r = await gh('/contents/' + path + '?ref=' + encodeURIComponent(ref || BRANCH));
   if (r.status === 404) return null;
   if (!r.ok) { var e = new Error('GitHub could not read this content (' + r.status + ').'); e.status = 502; throw e; }
   var d = await r.json();

@@ -30,5 +30,6 @@ Exact-position regression repairs, complete-subtree movement, sibling-aware arro
 
 Component-specific editing: [22_COMPONENT_CONTROLS_AND_VERIFICATION.md](22_COMPONENT_CONTROLS_AND_VERIFICATION.md). Recommended per-type inspectors, independent card/split parts, shared image presets, original Farm-video source/playback controls, inline text preservation, link targets, descriptions and explicit connected-source actions. Includes a complete source capability inventory and browser selection checks across all current routes, with independent part styles verified through recovery, preview and the atomic publisher.
 
+### External GitHub changes and open sessions
 
-Canvas tools now use Moveable 0.53.0 through `CanvasTransform.ts`: mutually exclusive move/reorder/resize, inset eight-way resize handles, alignment, snapping and geometry reset. Grid-column resize preserves adjacent track widths and gutters; compatible fractional-offset drafts recover before validation. See `23_CANVAS_TOOLS_AND_GRID_RECOVERY.md` for the exact interaction and verification contract. This integration does not claim full Webstudio/Instatic application parity.
+Background source checks now refresh clean dashboard content and editor sessions after the matching deployment, protect unpublished work, version presentation image requests, and expose repository-uploaded images in the editor image chooser. See [External source synchronization](23_EXTERNAL_SOURCE_SYNCHRONIZATION.md) for contributor contracts, reconciliation behavior and verification.

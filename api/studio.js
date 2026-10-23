@@ -30,7 +30,7 @@ module.exports = async function (req, res) {
       .status(200)
       .json(
         req.method === "GET"
-          ? await service.bootstrap()
+          ? req.query?.revision === "1" ? await service.revision() : await service.bootstrap()
           : await service.publish(login.readJsonBody(req)),
       );
   } catch (e) {

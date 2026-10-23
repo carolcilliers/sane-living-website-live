@@ -65,6 +65,7 @@ export interface Workspace {
   assets: Asset[];
 }
 export interface Bootstrap {
+  media?: {url:string;sha:string}[];
   version: 2;
   head: string;
   project: Project;

@@ -179,6 +179,7 @@ async function bootstrap() {
     versions,
     layoutSha: files[0]?.sha || null,
     registry,
+    media: tree.tree.filter(e=>e.type==='blob' && /^public\/.+\.(png|jpe?g|webp|gif|avif|svg)$/i.test(e.path) && !/^public\/(dash|vendor)\//i.test(e.path)).map(e=>({url:e.path.slice(6).split("/").map(part=>encodeURIComponent(part).replace(/[!'()*]/g,c=>"%"+c.charCodeAt(0).toString(16))).join("/"),sha:e.sha})),
     legacyAboutDraft,
     storage: "browser-private",
   };
@@ -488,4 +489,5 @@ async function publish(body) {
     project,
   };
 }
-module.exports = { bootstrap, publish, LAYOUT, sha };
+async function revision(){return {head:await head(),deployment:process.env.VERCEL_GIT_COMMIT_SHA || null};}
+module.exports = { bootstrap, publish, revision, LAYOUT, sha };

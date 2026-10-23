@@ -21,7 +21,7 @@
     toastTimer = setTimeout(function () { t.className = ''; }, 4200);
   }
   async function api(path, options) {
-    var resp = await fetch(path, Object.assign({ headers: { 'Content-Type': 'application/json' } }, options || {}));
+    var resp = await fetch(path, Object.assign({ cache:'no-store', headers: { 'Content-Type': 'application/json' } }, options || {}));
     var data = {};
     try { data = await resp.json(); } catch (e) { /* non-JSON */ }
     if (resp.status === 401) { showLogin('Your session ended — please log in again.'); throw new Error('unauthorized'); }
@@ -202,8 +202,8 @@
     partners: { file: 'public/content/partners.json', load: '/content/partners.json' },
     settings: { file: 'public/content/settings.json', load: '/content/settings.json' }
   };
-  async function loadContentSection(id, publishedOnly) {
-    var response = await api('/api/dash-content?section=' + encodeURIComponent(id));
+  async function loadContentSection(id, publishedOnly, supplied) {
+    var response = supplied || await api('/api/dash-content?section=' + encodeURIComponent(id));
     if (!response.published) throw new Error('The published content is missing. Ask an administrator to restore this section.');
     var published = response.published.content;
     // Validate before replacing local state; bad remote content cannot erase a recovered draft.
@@ -1130,8 +1130,44 @@
     renderAll();
     goTo(location.hash==='#about'?'about':SECTIONS.some(function(s){return '#'+s.id===location.hash;})?location.hash.slice(1):'home');
     loadEvents(false);
+    void checkWebsiteSource(true);
   }
 
+  var sourceHead='',sourceBusy=false,sourceLast=0,sourcePending={};
+  function sourceStatus(message){var node=$('#dashboardSourceStatus');if(!node){node=document.createElement('div');node.id='dashboardSourceStatus';node.setAttribute('role','status');node.style.cssText='padding:10px 18px;background:#2c2634;color:#f4eef8;font:13px system-ui;border-bottom:1px solid #675375';$('#panels').before(node);}node.hidden=!message;node.textContent=message;}
+  function versionPanelImages(id,revision){var panel=$('#panel-'+id);if(!panel)return;$$('img[src]',panel).forEach(function(img){var url=new URL(img.getAttribute('src'),location.origin);if(url.origin===location.origin && /\.(png|jpe?g|webp|gif|avif|svg)$/i.test(url.pathname) && !/^\/(api|dash|vendor)\//i.test(url.pathname)){url.searchParams.set('site-rev',revision);img.src=url.pathname+url.search;}});}
+  async function checkWebsiteSource(force){
+    if(!entered || $('#appView').style.display==='none' || sourceBusy || document.hidden || (!force && Date.now()-sourceLast<5000))return;
+    sourceBusy=true;sourceLast=Date.now();
+    try{
+      var revision=await api('/api/studio?revision=1');
+      if(revision.deployment && revision.deployment!==revision.head){sourceStatus('GitHub updates detected · waiting for the website deployment. Your work is kept.');return;}
+      var changed=revision.head!==sourceHead;
+      if(!changed && !Object.keys(sourcePending).length)return;
+      var protectedSections=[];
+      for(var id of Object.keys(state.versions)){
+        if(!state.loaded[id] || (!changed && !sourcePending[id]))continue;
+        var focused=$('#panel-'+id),editing=focused && focused.contains(document.activeElement) && /^(INPUT|TEXTAREA|SELECT)$/.test(document.activeElement.tagName);
+        if(state.busy[id] || state.uploading || editing){sourcePending[id]=true;continue;}
+        if(!changed && (state.unsaved[id] || state.dirty[id])){protectedSections.push(id);continue;}
+        var before=contentText(id),old=state.versions[id],remote=await api('/api/dash-content?section='+encodeURIComponent(id)+'&ref='+encodeURIComponent(revision.head));
+        if(state.versions[id]!==old){sourcePending[id]=true;continue;}
+        var same=remote.published && old.sha===remote.published.sha && old.draftSha===(remote.draft?remote.draft.sha:null);
+        if(same){versionPanelImages(id,revision.head);delete sourcePending[id];continue;}
+        if(state.unsaved[id] || state.dirty[id] || state.busy[id] || contentText(id)!==before){sourcePending[id]=true;protectedSections.push(id);state.conflicts[id]='The website or shared draft changed externally. Your work is kept; load the latest version when you are ready.';updateSaveUI(id);continue;}
+        if(focused && focused.contains(document.activeElement) && /^(INPUT|TEXTAREA|SELECT)$/.test(document.activeElement.tagName)){sourcePending[id]=true;continue;}
+        await loadContentSection(id,false,remote);refreshPanel(id);versionPanelImages(id,revision.head);updateSaveUI(id);delete sourcePending[id];
+        if(id==='settings' && state.loaded.home)refreshPanel('home');
+      }
+      sourceHead=revision.head;
+      sourceStatus(protectedSections.length?'Website updates available · your unpublished '+protectedSections.join(', ')+' work is protected.':Object.keys(sourcePending).length?'Website updates waiting until you finish the active field.':'Website content is up to date · checked '+new Date().toLocaleTimeString([], {hour:'numeric',minute:'2-digit'}));
+    }catch(e){if(e.message!=='unauthorized')sourceStatus('Update check paused · '+e.message+' Your work is kept.');}
+    finally{sourceBusy=false;}
+  }
+  setInterval(function(){void checkWebsiteSource(false);},30000);
+  window.addEventListener('focus',function(){void checkWebsiteSource(false);});
+  document.addEventListener('visibilitychange',function(){if(!document.hidden)void checkWebsiteSource(false);});
+  window.addEventListener('studio:check-source',function(){void checkWebsiteSource(true);});
   window.addEventListener('beforeunload',function(e){ if(state.uploading || Object.keys(state.unsaved).some(function(k){return state.unsaved[k];})){e.preventDefault();e.returnValue='';} });
 
   window.addEventListener('hashchange',function(){if(entered)goTo(location.hash.slice(1));});

@@ -1,3 +1,5 @@
+import { MediaContext, MediaLibrary } from "./MediaLibrary";
+import { isPublishedWork, sourceConflict } from "./source-sync";
 import type { GridResize } from "./CanvasTransform";
 import geometryRecovery from "../../content-core/geometry.cjs";
 import controls from "../../content-core/editor-controls.cjs";
@@ -166,6 +168,8 @@ function App() {
       future: Workspace[];
       group: string;
     }>({ now: null, past: [], future: [], group: "" });
+  const [sourceMessage,setSourceMessage]=useState("");
+  const sourceCheck=useRef<()=>void>(()=>{});
   const work = history.now;
   const workJSON = useMemo(()=>work ? JSON.stringify(work) : "",[work]);
   const workFingerprint = useMemo(()=>fingerprint(work),[work]);
@@ -400,6 +404,55 @@ function App() {
       loadVersion.current++;
     };
   }, [load]);
+  useEffect(()=>{
+    if(data || !loadError)return;
+    const timer=setTimeout(()=>{if(!document.hidden)void load();},10000);
+    return()=>clearTimeout(timer);
+  },[data,loadError,load]);
+  const syncState=useRef({data,work,pageId});syncState.current={data,work,pageId};
+  useEffect(()=>{
+    if(!syncState.current.data)return;
+    let alive=true,busy=false,checked="",last=0,pending=false;
+    const check=async(force=false)=>{
+      if(!alive || busy || document.hidden || (!force && Date.now()-last<5000))return;
+      busy=true;last=Date.now();
+      try{
+        const remote=await api('/api/studio?revision=1');
+        if(!alive)return;
+        if(remote.deployment && remote.deployment!==remote.head){setSourceMessage('GitHub changes detected · waiting for deployment. Your draft is kept.');return;}
+        const state=syncState.current;if(!state.data || !state.work)return;
+        if(remote.head===state.data.head){if(!pending)setSourceMessage('');return;}
+        if(!force && checked===remote.head && !isPublishedWork(state.work,state.data))return;
+        const fresh:Bootstrap=await api('/api/studio');if(!alive)return;
+        if(fresh.head!==remote.head){setSourceMessage('More source changes arrived · checking the next deployed revision. Your work is kept.');return;}
+        const current=syncState.current;if(!current.data || !current.work)return;
+        checked=remote.head;
+        if(!isPublishedWork(current.work,current.data) || savingLock.current || recoveryBlocked.current){
+          pending=true;setData(d=>d?{...d,media:fresh.media}:d);
+          if(sourceConflict(current.data,fresh))setStale(true);
+          setSourceMessage('New website updates are available. Your unpublished draft is protected; use Draft tools to reconcile before loading the new design.');return;
+        }
+        const before=JSON.stringify(current.work);
+        const w:Workspace={project:fresh.project,about:window.SaneEditorModel.fromSource(fresh.resources.about,()=>crypto.randomUUID()),aboutText:fresh.resources.about,settingsText:fresh.resources.settings,assets:[]};
+        savingLock.current=true;setSaving(true);
+        try{
+          const nextRevision=await saveDraft({...sourceBase(fresh),work:w},revision.current);
+          if(!alive)return;
+          revision.current=nextRevision;
+          if(JSON.stringify(workRef.current)!==before){pending=true;if(sourceConflict(current.data,fresh))setStale(true);setSourceMessage('Website updates are available. Your new edits are kept.');return;}
+          draftBase.current=sourceBase(fresh);pending=false;
+          // Reload only the editor iframe: new code, CSS and media load together.
+          // Its clean baseline is already persisted with a compare-and-swap write.
+          const url=new URL(location.href);url.searchParams.set('page',current.pageId);url.searchParams.set('source',fresh.head);location.replace(url.href);
+        }finally{savingLock.current=false;setSaving(false);}
+      }catch(e){if(alive)setSourceMessage('Update check paused · '+(e as Error).message+' Your work is kept.');}
+      finally{busy=false;}
+    };
+    sourceCheck.current=()=>{void check(true);};
+    const focus=()=>{void check();},timer=setInterval(focus,30000);
+    window.addEventListener('focus',focus);document.addEventListener('visibilitychange',focus);window.addEventListener('studio:check-source',focus);
+    return()=>{alive=false;clearInterval(timer);window.removeEventListener('focus',focus);document.removeEventListener('visibilitychange',focus);window.removeEventListener('studio:check-source',focus);};
+  },[!!data]);
   const save = useCallback(async () => {
     const w = workRef.current;
     if (!w || !data || savingLock.current) return;
@@ -1299,7 +1352,7 @@ function App() {
     fieldGroup.current = crypto.randomUUID();
   };
   return (
-    <div
+    <MediaContext.Provider value={data?.media || []}><div
       className={"studio-app theme-" + theme}
       onKeyDown={(e) => {
         if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === "s") {
@@ -1393,6 +1446,7 @@ function App() {
           </button>
         </div>
       </header>
+      {sourceMessage?<div className="studio-source-sync" role="status"><span>{sourceMessage}</span><button onClick={()=>sourceCheck.current()}>Check updates</button></div>:null}
       <div className="studio-status">
         <span role="status">{saving ? "Saving private draft…" : work && saved !== workJSON && !recoveryBlocked.current && !autoSaveFailed.current ? "Unsaved changes · autosave pending" : status}</span>
         <span>
@@ -2212,6 +2266,7 @@ function App() {
                       </label>
                     ))
                   : null}
+                {["image","split","card"].includes(block.type) && (!selectedPart || selectedPart==='part:image')?<MediaLibrary select={url=>blockEdit(b=>{b.props ||= {};b.props.src=url;})}/>:null}
                 {block.type === "slideshow" ? (
                   <label className="asset-picker">
                     Add gallery images
@@ -2449,7 +2504,7 @@ function App() {
           </section>
         </div>
       ) : null}
-    </div>
+    </div></MediaContext.Provider>
   );
 }
 class Boundary extends Component<{ children: ReactNode }, { failed: boolean }> {
