@@ -163,19 +163,6 @@
       "caption": "Lawn lounge and bar",
       "alt": "Outdoor wedding lounge on the lawn, with sofas, umbrellas and a bar",
       "section": "weddings"
-    },
-    {
-      "image": "/images/download.jpg",
-      "caption": "",
-      "alt": "",
-      "section": "venue"
-    },
-    {
-      "image": "/images/download.jpg",
-      "caption": "",
-      "alt": "",
-      "section": "venue",
-      "draft": true
     }
   ]
 }
