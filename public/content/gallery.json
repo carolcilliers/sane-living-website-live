@@ -1,12 +1,6 @@
 {
   "photos": [
     {
-      "image": "/images/venue-entrance-patio.jpg",
-      "caption": "Entrance & patio",
-      "alt": "The Sane Living Center entrance at 316 E Matilija St, with stone walls, a flagstone path and a patio of picnic tables",
-      "section": "venue"
-    },
-    {
       "image": "/images/venue-lobby-art.jpg",
       "caption": "Lobby",
       "alt": "The lobby, with a wooden ceiling, large colorful paintings and glass doors into the Auditorium",
@@ -19,12 +13,6 @@
       "section": "venue"
     },
     {
-      "image": "/images/venue-patio-dusk.jpg",
-      "caption": "Patio at dusk",
-      "alt": "The patio at golden hour, with umbrellas, tables, a heater and the EVO3 sculpture",
-      "section": "venue"
-    },
-    {
       "image": "/images/venue-auditorium-open-doors.jpg",
       "caption": "Auditorium opening to the lobby",
       "alt": "The Auditorium with its folding glass doors fully open to the lobby and entrance",
@@ -34,12 +22,6 @@
       "image": "/images/venue-purple-doors.jpg",
       "caption": "Front doors",
       "alt": "The purple front doors under the Sane Living sign, with a film premiere poster",
-      "section": "venue"
-    },
-    {
-      "image": "/images/about-center.jpg",
-      "caption": "Auditorium — Movement practice",
-      "alt": "A woman in a deep lunge stretch on the Auditorium floor in soft natural light",
       "section": "venue"
     },
     {
@@ -119,6 +101,13 @@
       "group": "wellness"
     },
     {
+      "image": "/images/about-center.jpg",
+      "caption": "Auditorium — Movement practice",
+      "alt": "A woman in a deep lunge stretch on the Auditorium floor in soft natural light",
+      "section": "venue",
+      "group": "wellness"
+    },
+    {
       "image": "/images/main-hall-11.jpg",
       "caption": "Auditorium — Reception and buffet",
       "alt": "The Auditorium at Sane Living: a catered reception with round tables and a projection screen",
@@ -157,6 +146,18 @@
       "image": "/images/evo3-sculpture.jpg",
       "caption": "EVO3 Sculpture and outdoor gathering area",
       "alt": "EVO3 Sculpture at Sane Living Center",
+      "section": "outdoor"
+    },
+    {
+      "image": "/images/venue-entrance-patio.jpg",
+      "caption": "Entrance & patio",
+      "alt": "The Sane Living Center entrance at 316 E Matilija St, with stone walls, a flagstone path and a patio of picnic tables",
+      "section": "outdoor"
+    },
+    {
+      "image": "/images/venue-patio-dusk.jpg",
+      "caption": "Patio at dusk",
+      "alt": "The patio at golden hour, with umbrellas, tables, a heater and the EVO3 sculpture",
       "section": "outdoor"
     },
     {

@@ -166,7 +166,7 @@
         text: 'Ceremonies, receptions and celebrations at Sane Living.',
         cta: 'Explore weddings', href: '/rent/weddings/' },
       { id: 'outdoor', section: 'outdoor', eyebrow: 'Outdoors', title: 'Outdoor spaces',
-        text: 'The EVO3 sculpture and outdoor gathering area.',
+        text: 'The stone patio by the entrance, with picnic tables, umbrellas and the EVO3 sculpture.',
         cta: 'Ask about outdoor space', href: '/contact/' }
     ];
     var KNOWN_GROUPS = CHAPTERS.map(function(c) { return c.group; }).filter(Boolean);
@@ -190,9 +190,13 @@
         (p.caption ? '<span class="tile-caption" aria-hidden="true">' + esc(p.caption) + '</span>' : '') + '</a>';
     }
     function mosaic(list, flipStart) {
-      var html = '', flip = flipStart;
-      for (var i = 0; i < list.length; i += 5) {
-        var chunk = list.slice(i, i + 5), shape = SHAPES[chunk.length];
+      var html = '', flip = flipStart, sizes = [], left = list.length, at = 0;
+      // Blocks of up to five, but never leave a single photo alone in its own row: 6 -> 3+3, 11 -> 5+3+3.
+      while (left > 0) { sizes.push(Math.min(5, left)); left -= 5; }
+      if (sizes.length > 1 && sizes[sizes.length - 1] === 1) { sizes.splice(-2, 2, 3, 3); }
+      for (var b = 0; b < sizes.length; b++) {
+        var chunk = list.slice(at, at + sizes[b]), shape = SHAPES[chunk.length];
+        at += sizes[b];
         html += '<div class="mosaic' + (flip && chunk.length > 2 ? ' flip' : '') + '">' + chunk.map(function(p, k) { return tile(p, shape[k]); }).join('') + '</div>';
         flip = !flip;
       }
