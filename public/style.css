@@ -1417,3 +1417,9 @@ body:has(.video-hero) .site-nav:not(.scrolled):not(:has(.nav-toggle.active)) .na
   .site-footer .mc-signup-footer form { flex-direction: column; }
   .footer-grid { grid-template-columns: 1fr; }
 }
+
+/* Photo + text split (Rent, Weddings): stack on phones. The older phone rule sits above the base
+   rule earlier in this file, so it never applied and phones got a tiny photo beside a skinny column. */
+@media (max-width: 768px) {
+  .split-grid-large-img { grid-template-columns: 1fr; gap: var(--space-lg); text-align: left; }
+}
