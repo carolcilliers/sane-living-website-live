@@ -533,3 +533,107 @@ details[open]>.collection-summary>.disclosure-chevron,.settings-field-group[open
 
 @media(prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important;scroll-behavior:auto!important}
 }
+
+/* Editorial content workspaces — photography, session cards and a visible calendar.
+   Scoped to the dashboard. Public pages and the Page Editor canvas keep their own styles. */
+:is(#panel-weddings,#panel-pricing,#panel-home)>.dashboard-page-heading{background:#34213e;border-color:#34213e;box-shadow:none;padding:30px 32px}
+:is(#panel-weddings,#panel-pricing,#panel-home)>.dashboard-page-heading h2{color:#fff;letter-spacing:-.035em;font-size:clamp(1.75rem,3vw,2.25rem);line-height:1.25}
+:is(#panel-weddings,#panel-pricing,#panel-home)>.dashboard-page-heading .page-sub{color:#eee3f1;max-width:72ch;margin-top:12px}
+:is(#panel-weddings,#panel-pricing,#panel-home)>.dashboard-page-heading .btn-ghost{color:#fff;border-color:#aa91b5;background:#ffffff09}
+:is(#panel-weddings,#panel-pricing,#panel-home)>.dashboard-page-heading .btn-ghost:hover{background:#ffffff18}
+.editorial-jumps{display:flex;flex-wrap:wrap;gap:8px;margin:-6px 0 24px;padding:6px;background:#eee5f1;border:1px solid #d6c2df;border-radius:12px}
+.editorial-jumps a{display:block;flex:1 1 auto;text-align:center;text-decoration:none;font-size:.875rem;line-height:1.5;font-weight:750;color:#53335f;padding:12px 16px;border-radius:8px;min-height:46px}
+.editorial-jumps a:hover,.editorial-jumps a:focus-visible{background:#fff;color:#34213e}
+.wedding-workspace,.pricing-workspace{gap:28px}
+.wedding-workspace .form-section,.pricing-workspace .form-section{scroll-margin-top:24px;border-color:#d8c8dd;box-shadow:0 4px 20px #34213e06}
+.editorial-heading{display:flex;align-items:flex-start;gap:16px;background:#f0e5f4;padding-block:22px}
+.editorial-heading h3{font-size:1.25rem;line-height:1.45;letter-spacing:-.02em}
+.editorial-heading p{max-width:76ch;margin-top:4px}
+.editorial-step{display:flex;align-items:center;justify-content:center;flex:0 0 38px;height:38px;border-radius:10px;background:#74468a;color:#fff;font-weight:800;font-size:.875rem;font-variant-numeric:tabular-nums;margin-top:3px}
+.wedding-story-grid{display:grid;grid-template-columns:minmax(0,.95fr) minmax(0,1.1fr);gap:32px;align-items:start}
+.wedding-story-fields,.wedding-media-editor{min-width:0}
+.wedding-photo-stage{position:relative;aspect-ratio:4/3;background:#eee4ef;border:1px solid #cdb9d4;border-radius:12px;overflow:hidden;display:grid;place-items:center;text-align:center;color:#53335f}
+.wedding-photo-stage>img{width:100%;height:100%;object-fit:cover;position:absolute;inset:0}
+.wedding-photo-stage>span:not(.image-role-label){padding:24px;line-height:1.6}
+.wedding-photo-stage .image-role-label{position:absolute;left:14px;bottom:14px;background:#34213e;color:#fff;padding:6px 12px;border-radius:6px;font-size:.75rem;font-weight:750}
+.wedding-photo-actions{display:flex;flex-wrap:wrap;gap:10px;margin-top:16px}
+.wedding-photo-actions>.btn{position:relative;flex:1 1 150px;font-size:.875rem;min-height:48px}
+.wedding-photo-actions input[type=file]{position:absolute;inset:0;width:100%;height:100%;opacity:0;cursor:pointer}
+.wedding-photo-actions .btn:focus-within{outline:3px solid var(--focus);outline-offset:3px}
+.media-feedback{font-size:.875rem;line-height:1.65;margin-top:12px;color:var(--muted)}
+.image-path-options{margin-top:18px;border-top:1px solid var(--line);padding-top:8px}
+.image-path-options>summary{cursor:pointer;font-size:.875rem;font-weight:700;color:#74468a;min-height:44px;padding-block:10px}
+.image-path-options .field{margin-top:12px;margin-bottom:12px}
+.wedding-story-fields textarea{min-height:210px}
+.wedding-collection-link{padding:22px;background:#f4edf6;border:1px solid #d9c8e0;border-radius:12px;margin-top:24px}
+.wedding-collection-link h4{font-size:1.125rem;color:#34213e;font-weight:800;line-height:1.5;margin:5px 0}
+.wedding-collection-link p{font-size:.875rem;color:var(--muted);line-height:1.65}
+.wedding-collection-strip{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:7px;margin:16px 0}
+.wedding-collection-strip:empty{display:none}
+.wedding-collection-strip img{width:100%;aspect-ratio:1;object-fit:cover;border-radius:7px}
+.highlight-number{color:#74468a;background:#eee1f4;border-radius:8px;min-width:34px;height:34px;display:grid;place-items:center;font-size:.8125rem;font-weight:800;flex:0 0 34px}
+#hlList{display:grid;gap:12px}
+#hlList .list-row{padding:14px;background:#f9f5fa;border:1px solid #e4d8e9;border-radius:10px;margin:0;align-items:center;gap:12px}
+#hlList .list-row input{background:#fff;border-color:#bba8c4}
+#hl-add{margin-top:18px}
+.wedding-policy-grid,.pricing-booking-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:32px}
+.policy-group{min-width:0}
+.policy-group+ .policy-group{border-left:1px solid var(--line);padding-left:32px}
+.policy-group>h4,.booking-message-editor>h4,.subsection-heading h4{font-size:1.125rem;color:#34213e;font-weight:800;margin-bottom:18px}
+.wedding-workspace .field textarea,.pricing-workspace .field textarea{background:#fff;line-height:1.7}
+.wedding-workspace .field input,.pricing-workspace .field input{background:#fff;border-color:#b09bbc}
+.dashboard-media-dialog{position:fixed;inset:0;margin:auto;width:min(860px,calc(100% - 32px));max-height:calc(100dvh - 48px);overflow:auto;border:1px solid #bca6c5;border-radius:18px;padding:28px;background:#fffdf9;color:#2b2230;box-shadow:0 24px 80px #24142f40}
+.dashboard-media-dialog::backdrop{background:#24142f99}
+.media-dialog-header{display:flex;align-items:center;justify-content:space-between;gap:16px}
+.media-dialog-header h3{font-size:1.5rem;letter-spacing:-.025em;margin-top:4px}
+.media-dialog-header .icon-btn{flex:0 0 44px}
+.picker-search{display:block;margin-top:20px}
+.picker-search>span,.session-description .field>span,.rate-amount>span{display:block;font-size:.875rem;line-height:1.5;font-weight:750;color:#53335f;margin-bottom:7px}
+.picker-result-count{font-size:.875rem;margin-bottom:16px;color:var(--muted)}
+.media-choice-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px}
+.media-choice{display:flex;flex-direction:column;text-align:left;padding:0;border:1px solid #ccb7d5;background:#fff;border-radius:10px;overflow:hidden;cursor:pointer;color:#34213e;min-width:0}
+.media-choice:hover{border-color:#74468a;background:#f5edf8}
+.media-choice img{width:100%;aspect-ratio:4/3;object-fit:cover;display:block}
+.media-choice span{font-size:.8125rem;font-weight:700;line-height:1.5;padding:10px;overflow-wrap:anywhere;display:block}
+.media-picker-paging{display:flex;justify-content:space-between;gap:14px;margin-top:22px}
+.rate-session-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,260px),1fr));gap:20px;align-items:start}
+.rate-session{border:1px solid #cbb6d4;border-radius:12px;overflow:hidden;background:#fff;min-width:0}
+.rate-session-head{background:#53335f;color:#fff;padding:22px}
+.rate-session-head .workspace-eyebrow{color:#e9d4f2;letter-spacing:.09em}
+.rate-session-head h4{font-size:1.625rem;font-weight:800;line-height:1.25;letter-spacing:-.03em;margin:8px 0}
+.rate-session-head p{font-size:.875rem;line-height:1.6;color:#f1e5f5;min-height:1.6em}
+.rate-session-body{padding:20px}
+.session-description{display:grid;gap:12px;padding-bottom:20px;border-bottom:1px solid #e1d4e6;margin-bottom:20px}
+.session-description .field{margin:0}
+.session-description .field input{border-color:#b09bbc;min-height:46px;padding:10px 12px}
+.session-rate-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.rate-amount.field{padding:12px;background:#f1e8f5;border:1px solid #dbc8e4;border-radius:9px;margin:0}
+.rate-amount.field input{font-size:1.125rem;font-weight:800;color:#34213e;padding:8px;min-height:46px;border-color:#b49abf;border-radius:6px}
+.rate-notes{border-top:1px solid var(--line);padding-top:28px;margin-top:28px;scroll-margin-top:24px}
+.subsection-heading{margin-bottom:24px}
+.subsection-heading h4{margin-bottom:5px}
+.subsection-heading p{font-size:.9375rem;color:var(--muted);line-height:1.7}
+.booking-message-editor{background:#f3ebf6;border:1px solid #d9c5e2;border-radius:12px;padding:24px;min-width:0}
+.booking-message-editor .section-context{margin-bottom:20px}
+.pricing-booking-grid>.booking-message-editor .field:last-child{margin-bottom:0}
+#panel-home .home-metrics .stat-card:first-child{background:#53335f;border-color:#53335f}
+#panel-home .home-metrics .stat-card:first-child .num,#panel-home .home-metrics .stat-card:first-child .lbl{color:#fff}
+#panel-home .home-metrics .stat-card:first-child .metric-symbol{color:#fff;background:#ffffff12}
+#panel-home .home-metrics .stat-card:nth-child(2){background:#eee0f3;border-color:#d3badf}
+#panel-home .home-metrics .stat-card:nth-child(3){background:#f0e7da;border-color:#dbcab3}
+.dashboard-overview-layout{grid-template-columns:minmax(0,1.3fr) minmax(0,1fr);grid-template-areas:"calendar attention" "upcoming details" "status details"}
+.overview-calendar{grid-area:calendar;padding:24px;border-color:#cbb6d4;min-width:0}
+.overview-calendar .overview-card-head{margin:-24px -24px 22px;padding:22px 24px;background:#eee0f3;border-bottom:1px solid #d5c0df;border-radius:15px 15px 0 0}
+.overview-calendar #homeCal{min-width:0}
+.overview-calendar .cal-cell{min-height:66px;padding:5px}
+.overview-calendar .cal-cell.today{padding:4px;background:#f0e5f5}
+.overview-attention{grid-area:attention}
+.overview-details{grid-area:details}
+.overview-upcoming{grid-area:upcoming}
+.overview-secondary{grid-area:status}
+@media(max-width:1200px){.wedding-story-grid{grid-template-columns:1fr}.wedding-photo-stage{aspect-ratio:16/9}.wedding-media-editor{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,.8fr);gap:0 24px;align-items:start}.wedding-photo-stage{grid-row:1/5}.wedding-photo-actions{margin-top:0}.wedding-media-editor .image-path-options{grid-column:2}.wedding-policy-grid,.pricing-booking-grid{gap:24px}.policy-group+ .policy-group{padding-left:24px}}
+@media(max-width:1100px){.dashboard-overview-layout{grid-template-columns:minmax(0,1fr);grid-template-areas:"calendar" "attention" "upcoming" "details" "status"}.wedding-policy-grid,.pricing-booking-grid{grid-template-columns:1fr}.policy-group+ .policy-group{border-left:0;border-top:1px solid var(--line);padding:24px 0 0}}
+@media(max-width:700px){:is(#panel-weddings,#panel-pricing,#panel-home)>.dashboard-page-heading{padding:24px 20px}.editorial-jumps{gap:4px}.editorial-jumps a{flex-basis:calc(50% - 4px);text-align:left;padding:10px;font-size:.8125rem}.wedding-media-editor{display:block}.wedding-photo-actions{margin-top:16px}.wedding-story-grid{gap:26px}.editorial-heading{gap:12px}.editorial-step{flex-basis:32px;height:32px;border-radius:8px}.editorial-heading h3{font-size:1.125rem}.editorial-heading p{font-size:.875rem}.wedding-collection-link{padding:18px}.wedding-policy-grid{gap:20px}.highlight-number{display:none}#hlList .list-row{padding:10px;gap:8px}.rate-session-grid{grid-template-columns:1fr}.rate-session-head{padding:22px}.rate-session-body{padding:20px}.rate-notes{padding-top:24px}.booking-message-editor{padding:20px}.dashboard-media-dialog{width:calc(100% - 24px);padding:20px;max-height:calc(100dvh - 24px)}.media-choice-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.media-picker-paging{flex-wrap:wrap}.media-picker-paging .btn{flex:1 1 auto}.overview-calendar{padding:18px 14px}.overview-calendar .overview-card-head{margin:-18px -14px 20px;padding:20px}.overview-calendar .cal-cell{min-height:60px;padding:4px}.overview-calendar .cal-cell.today{padding:3px}.overview-calendar .cal-dows,.overview-calendar .cal-grid{gap:3px}}
+@media(prefers-reduced-motion:reduce){.editorial-jumps a,.media-choice{transition:none}}
+#hlList .list-row textarea{min-height:80px;resize:vertical;flex:1;min-width:0;margin:0;background:#fff;border-color:#bba8c4;font-size:1rem;line-height:1.65}
+.rate-amount>span,.session-description .field>span{overflow-wrap:anywhere}

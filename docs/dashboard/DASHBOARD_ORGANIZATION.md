@@ -11,7 +11,7 @@ The native dashboard presents existing content differently. Canonical website co
 - Real counts: upcoming events, photos in the loaded gallery, and content sections with unpublished drafts.
 - **Needs your attention:** actual load/conflict/save errors, unsaved or shared content drafts, explicitly unpublished photos, event drafts and unfinished event recovery. Calendar setup, read-only and failed-load states are distinguished; an unavailable feed is not called an empty calendar.
 - **Published details:** business/contact/location/hours from published Settings, separate from the staff member's working draft. A read-only published snapshot can advance after an external commit while the conflicting local draft and its original SHA baseline stay protected.
-- Upcoming events remain visible. The month calendar and the per-section content status list are expandable rather than dominating the landing view.
+- The month calendar is always visible at the start of the overview, alongside upcoming events and operational information. Only the per-section content status list is expandable.
 - Contextual actions open the appropriate existing page/category. Home contains no cloned save/publish controls, contact editor or upload flow. Page Editor design drafts are explicitly managed in Page Editor; Home does not invent a combined design-draft count, analytics, uptime, team identities or deployment-health claims.
 
 The overview recomputes on return to Home, event load completion (including failure), and applicable external-source updates. Replacing Home never replaces the editor iframe or an editing form.

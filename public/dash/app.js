@@ -58,9 +58,10 @@
     calSelected: '',     // YYYY-MM-DD selected on the Home calendar
   };
 
-  var homeView={calendar:false,content:false},overviewPublishedSettings=null;
+  var homeView={content:false},overviewPublishedSettings=null;
   var galleryView={query:'',filter:'all',pages:{},open:{venue:true},photoOpen:new Set()};
   var galleryKeys=new WeakMap(),galleryKeyNumber=0,settingsOpen={};
+  var weddingMediaView={query:"",page:0};
   function photoKey(photo){if(!galleryKeys.has(photo))galleryKeys.set(photo,'photo-'+(++galleryKeyNumber));return galleryKeys.get(photo);}
   function revealPhoto(photo){var section=photo.section||'venue',photos=state.data.gallery.photos.filter(function(p){return (p.section||'venue')===section;});galleryView.query='';galleryView.filter='all';galleryView.open[section]=true;galleryView.pages[section]=Math.floor(photos.indexOf(photo)/12);galleryView.photoOpen.add(photoKey(photo));}
 
@@ -136,6 +137,7 @@
     if(editorFrame&&state.section==='editor'&&id!=='editor')editorFrame.contentWindow.postMessage({type:'sane-editor:flush'},location.origin);
     state.section = id;
     if(id==='home' && $('#panel-home'))refreshPanel('home');
+    if(id==='weddings')updateWeddingCollection();
     document.body.classList.toggle('page-editor-open',id==='editor');
     history.replaceState(null,'','#'+id);
     if(id==='editor'&&!editorFrame){var host=document.getElementById('pageEditorHost');if(host){var frame=document.createElement('iframe');frame.id='pageEditorFrame';frame.title='Sane Living page editor';frame.src='/dash/editor/index.html'+(aboutAlias?'?page=about':'');frame.allow='autoplay; fullscreen; picture-in-picture';frame.style.cssText='width:100%;height:100dvh;min-height:690px;border:0;border-radius:0;background:#f7f8fa;display:block';host.appendChild(frame);}}
@@ -429,7 +431,7 @@
     var calendar=calendarError?'<p class="empty-note">The calendar could not be loaded. Open Events to review the connection and retry.</p>':state.events===null?'<div class="empty-note">Loading the venue calendar…</div>':'<div id="homeCal">'+calGridHtml()+'</div>'+(state.readOnly?'<p class="section-help">Read-only view from the live website — event editing unlocks when the Airtable keys are added.</p>':'');
     return panelShell('home','Website overview','See what needs attention, check your published details and plan what comes next. Editing stays in each dedicated page.',
       '<div class="grid grid-3 home-metrics"><div class="card stat-card"><div class="metric-copy"><div class="num">'+upcoming+'</div><div class="lbl">upcoming events</div></div><span class="metric-symbol" aria-hidden="true">'+SECTIONS[1].icon+'</span></div><div class="card stat-card"><div class="metric-copy"><div class="num">'+(state.loaded.gallery?photos.length:'—')+'</div><div class="lbl">photos in the gallery</div></div><span class="metric-symbol" aria-hidden="true">'+SECTIONS[2].icon+'</span></div><div class="card stat-card"><div class="metric-copy"><div class="num">'+drafts+'</div><div class="lbl">sections with drafts</div></div><span class="metric-symbol" aria-hidden="true">'+SECTIONS[6].icon+'</span></div></div>'+
-      '<div class="dashboard-overview-layout"><section class="card overview-attention"><div class="overview-card-head"><span class="workspace-eyebrow">Your next steps</span><h3>Needs your attention</h3><p>Unfinished edits and unpublished content, together in one place.</p></div><div class="attention-list">'+attention+'</div><div class="overview-footnote">Design any page, preview your changes and publish when ready in <button type="button" class="inline-action" data-goto="editor">Page Editor ↗</button>.</div></section><section class="card overview-details"><div class="overview-card-head"><span class="workspace-eyebrow">Published details</span><h3>Your website at a glance</h3><p>These values come from published Settings. Draft changes stay separate.</p></div>'+details+'</section><section class="card overview-upcoming"><div id="homeCalList">'+(calendarError?'<h3 class="block-title">Upcoming events unavailable</h3><p>Open Events to review the connection and retry.</p>':state.events===null?'<p>Loading upcoming events…</p>':calDayListHtml())+'</div>'+(state.calSelected?'<button type="button" class="btn btn-ghost btn-small" data-home-clear-day>Show all upcoming events</button>':'')+'<div class="overview-actions"><button type="button" class="btn btn-ghost btn-small" data-goto="events">Manage events</button></div></section><div class="overview-secondary"><details class="card overview-disclosure" data-home-disclosure="calendar" '+(homeView.calendar?'open':'')+'><summary><span><strong>Venue calendar</strong><small>Open the month view and choose a day.</small></span><span class="disclosure-chevron" aria-hidden="true">⌄</span></summary><div class="overview-disclosure-body">'+calendar+'</div></details><details class="card overview-disclosure" data-home-disclosure="content" '+(homeView.content?'open':'')+'><summary><span><strong>Content status</strong><small>Check counts and publication status for each section.</small></span><span class="disclosure-chevron" aria-hidden="true">⌄</span></summary><div class="content-status-list">'+contentRows+'</div></details></div></div>');
+      '<div class="dashboard-overview-layout"><section class="card overview-calendar"><div class="overview-card-head"><span class="workspace-eyebrow">Plan your next gathering</span><h3>Venue calendar</h3><p>Choose a day to see its events. Use the arrows to browse months.</p></div>'+calendar+'</section><section class="card overview-attention"><div class="overview-card-head"><span class="workspace-eyebrow">Your next steps</span><h3>Needs your attention</h3><p>Unfinished edits and unpublished content, together in one place.</p></div><div class="attention-list">'+attention+'</div><div class="overview-footnote">Design any page, preview your changes and publish when ready in <button type="button" class="inline-action" data-goto="editor">Page Editor ↗</button>.</div></section><section class="card overview-details"><div class="overview-card-head"><span class="workspace-eyebrow">Published details</span><h3>Your website at a glance</h3><p>These values come from published Settings. Draft changes stay separate.</p></div>'+details+'</section><section class="card overview-upcoming"><div id="homeCalList">'+(calendarError?'<h3 class="block-title">Upcoming events unavailable</h3><p>Open Events to review the connection and retry.</p>':state.events===null?'<p>Loading upcoming events…</p>':calDayListHtml())+'</div>'+(state.calSelected?'<button type="button" class="btn btn-ghost btn-small" data-home-clear-day>Show all upcoming events</button>':'')+'<div class="overview-actions"><button type="button" class="btn btn-ghost btn-small" data-goto="events">Manage events</button></div></section><div class="overview-secondary"><details class="card overview-disclosure" data-home-disclosure="content" '+(homeView.content?'open':'')+'><summary><span><strong>Content status</strong><small>Check counts and publication status for each section.</small></span><span class="disclosure-chevron" aria-hidden="true">⌄</span></summary><div class="content-status-list">'+contentRows+'</div></details></div></div>');
   }
   function bindHome() {
     var root = $('#panel-home');
@@ -838,86 +840,73 @@
   }
 
   /* ---------------- WEDDINGS ---------------- */
-  function renderWeddings() {
-    var w = state.data.weddings || {};
-    var highlights = (w.highlights || []).map(function (h, i) {
-      return '<div class="list-row"><input aria-label="Highlight ' + (i + 1) + '" data-hl="' + i + '" value="' + esc(h) + '"><button type="button" class="icon-btn danger" data-hl-del="' + i + '" title="Remove">✕</button></div>';
-    }).join('');
-    var inner = '<div class="dashboard-form-stack"><div class="card form-card form-section"><div class="form-section-heading"><h3>Page content</h3><p>The title, opening image and introduction guests see on the Weddings page.</p></div>' +
-      fieldHtml('Page heading', 'heading', w.heading) +
-      fieldHtml('Top photo (path or link)', 'heroImage', w.heroImage, { hint: 'Example: /images/rent-center.jpg — the photo at the top of the Weddings page.' }) +
-      '<img class="thumb-preview" src="' + esc(w.heroImage || '') + '" alt="" onerror="this.style.display=\'none\'">' +
-      fieldHtml('Intro text', 'intro', w.intro, { textarea: true, rows: 5 }) +
-      '</div><div class="card form-card form-section"><div class="field highlight-field"><label>Highlights (the checklist with purple ticks)</label><p class="section-context">A short checklist of what makes the venue useful for weddings. Each line is one item.</p><div class="list-editor" id="hlList">' + highlights + '</div>' +
-      '<button type="button" class="btn btn-ghost btn-small" id="hl-add" style="margin-top:10px">+ Add a highlight</button></div>' +
-      '</div><div class="card form-card form-section form-section-grid"><div class="form-section-heading"><h3>Pricing &amp; policies</h3><p>Explain the price, what is included and the conditions guests need to know.</p></div>' +
-      fieldHtml('Pricing text', 'pricingText', w.pricingText, { textarea: true, rows: 3 }) +
-      fieldHtml('What\'s included', 'includesText', w.includesText, { textarea: true, rows: 3 }) +
-      fieldHtml('Catering policy', 'cateringPolicy', w.cateringPolicy, { textarea: true, rows: 3 }) +
-      fieldHtml('Alcohol policy', 'alcoholPolicy', w.alcoholPolicy, { textarea: true, rows: 3 }) +
-      fieldHtml('Parking note', 'parkingNote', w.parkingNote, { textarea: true, rows: 2 }) +
-      '</div><div class="card form-card form-section"><div class="form-section-heading"><h3>Contact &amp; availability</h3><p>The phone number and availability note displayed on this page.</p></div><div class="form-row">' + fieldHtml('Phone shown on the page', 'phoneDisplay', w.phoneDisplay) +
-      fieldHtml('Availability note', 'availabilityNote', w.availabilityNote) + '</div>' +
-      '</div></div>' + savebarHtml('weddings', 'weddings page');
-    return panelShell('weddings', 'Weddings Page', 'Everything on the public Weddings page — heading, photo, highlights, pricing and policies.', inner);
+  function editorialHeading(step,title,description) {
+    return '<div class="form-section-heading editorial-heading"><span class="editorial-step" aria-hidden="true">'+step+'</span><div><h3>'+title+'</h3><p>'+description+'</p></div></div>';
   }
+  function updateWeddingCollection(){
+    var collection=$('.wedding-collection-link');if(!collection)return;
+    var photos=(state.data.gallery&&state.data.gallery.photos||[]).filter(function(p){return p.section==='weddings';});
+    $('p',collection).textContent=photos.length+' photos in your working gallery. Manage their order, captions and publication in the wedding collection.';
+    $('.wedding-collection-strip',collection).innerHTML=photos.slice(0,4).map(function(photo){return '<img src="'+esc(SaneSettings.safeUrl(photo.image,'image'))+'" alt="" loading="lazy">';}).join('');
+  }
+  function renderWeddings() {
+    var w=state.data.weddings||{},photos=(state.data.gallery&&state.data.gallery.photos||[]).filter(function(p){return p.section==='weddings';});
+    var highlights=(w.highlights||[]).map(function(h,i){return '<div class="list-row"><span class="highlight-number" aria-hidden="true">'+String(i+1).padStart(2,'0')+'</span><textarea aria-label="Highlight '+(i+1)+'" data-hl="'+i+'" rows="2">'+esc(h)+'</textarea><button type="button" class="icon-btn danger" data-hl-del="'+i+'" aria-label="Remove highlight '+(i+1)+'" title="Remove highlight '+(i+1)+'">✕</button></div>';}).join('');
+    var hero=SaneSettings.safeUrl(w.heroImage,'image');
+    var inner='<nav class="editorial-jumps" aria-label="Weddings page sections"><a href="#wedding-story" data-form-jump="wedding-story">Photo &amp; introduction</a><a href="#wedding-highlights-editor" data-form-jump="wedding-highlights-editor">Highlights</a><a href="#wedding-policies" data-form-jump="wedding-policies">Packages &amp; policies</a><a href="#wedding-contact" data-form-jump="wedding-contact">Contact</a></nav><div class="dashboard-form-stack wedding-workspace">'+
+      '<section id="wedding-story" class="card form-card form-section">'+editorialHeading('01','First impressions','Your main wedding photo, page heading and welcome message.')+'<div class="wedding-story-grid"><div class="wedding-media-editor"><div class="wedding-photo-stage"><img id="wedding-main-preview" src="'+esc(hero)+'" alt="Main wedding photo preview" '+(!hero?'hidden':'')+'><span id="wedding-image-empty" '+(hero?'hidden':'')+'>Choose a main wedding photo</span><span class="image-role-label">Main page photo</span></div><div class="wedding-photo-actions"><label class="btn btn-primary">Upload photo<input type="file" id="wedding-photo-upload" accept=".png,.jpg,.jpeg,.webp,.gif" aria-label="Upload main wedding photo"></label><button type="button" class="btn btn-ghost" id="wedding-photo-choose">Choose from gallery</button></div><p id="wedding-photo-status" class="media-feedback" role="status">Upload a photo or choose an existing gallery image. Maximum 4 MB.</p><details class="image-path-options"><summary>Image link &amp; restore options</summary>'+fieldHtml('Main photo link','heroImage',w.heroImage,{hint:'Use a local image path or an HTTPS image URL.'})+'<button type="button" class="btn btn-text btn-small" id="wedding-photo-restore">Restore published photo</button></details></div><div class="wedding-story-fields">'+fieldHtml('Page heading','heading',w.heading)+fieldHtml('Intro text','intro',w.intro,{textarea:true,rows:7,hint:'Separate paragraphs with a blank line.'})+'<div class="wedding-collection-link"><span class="workspace-eyebrow">Wedding photo collection</span><h4>More moments from the venue</h4><p>'+photos.length+' photos in your working gallery. Manage their order, captions and publication in the wedding collection.</p><div class="wedding-collection-strip">'+photos.slice(0,4).map(function(photo){return '<img src="'+esc(SaneSettings.safeUrl(photo.image,'image'))+'" alt="" loading="lazy">';}).join('')+'</div><button type="button" class="btn btn-ghost btn-small" id="wedding-open-gallery">Edit wedding gallery ↗</button></div></div></div></section>'+
+      '<section id="wedding-highlights-editor" class="card form-card form-section">'+editorialHeading('02','Venue highlights','The checklist guests read when considering the venue.')+'<div class="highlight-field field"><div class="list-editor" id="hlList">'+highlights+'</div><button type="button" class="btn btn-ghost btn-small" id="hl-add">+ Add a highlight</button></div></section>'+
+      '<section id="wedding-policies" class="card form-card form-section">'+editorialHeading('03','Packages &amp; policies','Keep your wedding offer clear, then explain the practical details.')+'<div class="wedding-policy-grid"><div class="policy-group"><h4>Wedding package</h4>'+fieldHtml('Pricing text','pricingText',w.pricingText,{textarea:true,rows:4})+fieldHtml("What's included",'includesText',w.includesText,{textarea:true,rows:3})+'</div><div class="policy-group"><h4>Venue guidelines</h4>'+fieldHtml('Catering policy','cateringPolicy',w.cateringPolicy,{textarea:true,rows:3})+fieldHtml('Alcohol policy','alcoholPolicy',w.alcoholPolicy,{textarea:true,rows:3})+fieldHtml('Parking note','parkingNote',w.parkingNote,{textarea:true,rows:2})+'</div></div></section>'+
+      '<section id="wedding-contact" class="card form-card form-section">'+editorialHeading('04','Contact &amp; availability','The phone label and calendar note shown on the Weddings page.')+'<div class="form-row">'+fieldHtml('Phone shown on the page','phoneDisplay',w.phoneDisplay)+fieldHtml('Availability note','availabilityNote',w.availabilityNote)+'</div><p class="section-context">The call destination uses the phone link in Settings → Contact &amp; social.</p></section></div>'+savebarHtml('weddings')+
+      '<dialog id="wedding-photo-picker" class="dashboard-media-dialog" aria-labelledby="wedding-picker-title"><div class="media-dialog-header"><div><span class="workspace-eyebrow">Photo library</span><h3 id="wedding-picker-title">Choose your main photo</h3></div><button type="button" class="icon-btn" id="wedding-picker-close" aria-label="Close photo library">✕</button></div><p class="section-context">Select a gallery photo for this page. Your published photo stays in place until you publish Weddings.</p><label class="field picker-search"><span>Search gallery photos</span><input type="search" id="wedding-picker-search" placeholder="Search by caption, description or filename"></label><div id="wedding-picker-results"></div></dialog>';
+    return panelShell('weddings','Weddings Page','Shape the first impression. Update your photography, tell your story and keep every detail clear.',inner);
+  }
+  function bindEditorialJumps(root){$$('[data-form-jump]',root).forEach(function(a){a.onclick=function(e){e.preventDefault();var target=$('#'+a.dataset.formJump,root);target.setAttribute('tabindex','-1');target.focus({preventScroll:true});target.scrollIntoView({block:'start'});};});}
   function bindWeddings() {
-    bindFields('weddings', $('#panel-weddings'));
-    function bindHl() {
-      $$('#panel-weddings [data-hl]').forEach(function (input) {
-        input.addEventListener('input', function () {
-          state.data.weddings.highlights[+input.getAttribute('data-hl')] = input.value;
-          setDirty('weddings', true);
-        });
-      });
-      $$('#panel-weddings [data-hl-del]').forEach(function (b) {
-        b.addEventListener('click', function () {
-          state.data.weddings.highlights.splice(+b.getAttribute('data-hl-del'), 1);
-          setDirty('weddings', true);
-          refreshPanel('weddings');
-        });
-      });
+    var root=$('#panel-weddings'),photoInput=$('[data-field="heroImage"]',root),preview=$('#wedding-main-preview'),empty=$('#wedding-image-empty'),status=$('#wedding-photo-status'),dialog=$('#wedding-photo-picker');
+    bindFields('weddings',root);bindEditorialJumps(root);
+    function showPhoto(url,local){var safe=local||SaneSettings.safeUrl(url,'image');preview.hidden=!safe;preview.src=safe;empty.hidden=!!safe;}
+    function selectPhoto(url,message){state.data.weddings.heroImage=url;photoInput.value=url;setDirty('weddings',true);showPhoto(url);status.textContent=message;}
+    preview.onerror=function(){preview.hidden=true;empty.hidden=false;empty.textContent='This photo could not be loaded. Choose another image or check its link.';};
+    preview.onload=function(){preview.hidden=false;empty.hidden=true;};
+    photoInput.addEventListener('input',function(){showPhoto(photoInput.value);status.textContent='Photo changed on this device. Save a draft or publish when ready.';});
+    $('#wedding-photo-restore').onclick=function(){try{selectPhoto(JSON.parse(state.versions.weddings.published).heroImage||'','Published photo restored in your working copy. Save or publish to keep this choice.');}catch(e){status.textContent='Published photo is unavailable. Reload the page before restoring.';}};
+    $('#wedding-open-gallery').onclick=function(){galleryView.query='';galleryView.filter='all';galleryView.open.weddings=true;goTo('gallery');refreshPanel('gallery');var collection=$('#gal-group-weddings');collection.scrollIntoView({block:'start'});$('summary',collection).focus({preventScroll:true});};
+    $('#wedding-photo-upload').onchange=async function(){var input=this,file=input.files[0];if(!file)return;if(state.uploading){status.textContent='Another upload is in progress. Try again when it finishes.';input.value='';return;}
+      if(file.size>4*1024*1024||! /\.(png|jpe?g|webp|gif)$/i.test(file.name)){status.textContent='Choose a PNG, JPEG, WebP or GIF smaller than 4 MB.';input.value='';return;}
+      var controls=$$('#wedding-photo-upload,#wedding-photo-choose,#wedding-photo-restore,#hl-add,[data-hl-del],[data-field="heroImage"]',root);
+      state.uploading=true;controls.forEach(function(control){control.disabled=true;});Object.keys(state.versions).forEach(updateSaveUI);status.textContent='Uploading your photo…';
+      try{var encoded=await new Promise(function(resolve,reject){var reader=new FileReader();reader.onload=function(){resolve(String(reader.result).split(',')[1]);};reader.onerror=function(){reject(Error('The image could not be read.'));};reader.readAsDataURL(file);});
+        var ext=file.name.split('.').pop().toLowerCase(),result=await api('/api/dash-save',{method:'POST',body:JSON.stringify({path:'public/images/wedding-main-'+Date.now()+'-'+Math.random().toString(36).slice(2,8)+'.'+ext,contentBase64:encoded})});
+        selectPhoto(result.url,'Uploaded. Save draft to share your choice, or Publish changes to use it on the website.');
+        var local=URL.createObjectURL(file);showPhoto(result.url,local);
+        function release(){URL.revokeObjectURL(local);preview.removeEventListener('load',release);preview.removeEventListener('error',release);}
+        preview.addEventListener('load',release);preview.addEventListener('error',release);
+      }catch(e){status.textContent='Upload failed: '+e.message+' Your previous photo is kept.';}finally{state.uploading=false;controls.forEach(function(control){control.disabled=false;});input.value='';Object.keys(state.versions).forEach(updateSaveUI);}
+    };
+    function renderPicker(){var query=weddingMediaView.query.trim().toLowerCase(),photos=(state.data.gallery&&state.data.gallery.photos||[]).filter(function(p){return SaneSettings.safeUrl(p.image,'image')&&(!query||[p.caption,p.alt,p.image].join(' ').toLowerCase().includes(query));}),pages=Math.max(1,Math.ceil(photos.length/24));weddingMediaView.page=Math.min(weddingMediaView.page,pages-1);var start=weddingMediaView.page*24;
+      $('#wedding-picker-results').innerHTML='<p class="picker-result-count" role="status">'+photos.length+' photo'+(photos.length===1?'':'s')+' · Page '+(weddingMediaView.page+1)+' of '+pages+'</p><div class="media-choice-grid">'+photos.slice(start,start+24).map(function(p,i){return '<button type="button" class="media-choice" data-wedding-choice="'+(start+i)+'"><img src="'+esc(SaneSettings.safeUrl(p.image,'image'))+'" alt="" loading="lazy"><span>'+esc(p.caption||p.alt||p.image.split('/').pop())+'</span></button>';}).join('')+'</div>'+(!photos.length?'<p class="empty-note">No matching gallery photos. Try another search or upload a photo.</p>':'')+'<div class="media-picker-paging"><button type="button" class="btn btn-ghost btn-small" data-picker-page="-1" '+(!weddingMediaView.page?'disabled':'')+'>Previous photos</button><button type="button" class="btn btn-ghost btn-small" data-picker-page="1" '+(weddingMediaView.page===pages-1?'disabled':'')+'>Next photos</button></div>';
+      $$('[data-wedding-choice]',dialog).forEach(function(b){b.onclick=function(){selectPhoto(photos[+b.dataset.weddingChoice].image,'Photo selected. Save a draft or publish Weddings to use it.');dialog.close();};});$$('[data-picker-page]',dialog).forEach(function(b){b.onclick=function(){weddingMediaView.page+=+b.dataset.pickerPage;renderPicker();$('#wedding-picker-search').focus({preventScroll:true});};});
     }
-    bindHl();
-    var add = $('#hl-add');
-    if (add) add.addEventListener('click', function () {
-      state.data.weddings.highlights.push('');
-      setDirty('weddings', true);
-      refreshPanel('weddings');
-    });
+    $('#wedding-photo-choose').onclick=function(){weddingMediaView.query='';weddingMediaView.page=0;$('#wedding-picker-search').value='';renderPicker();dialog.showModal();$('#wedding-picker-search').focus();};
+    $('#wedding-picker-close').onclick=function(){dialog.close();};
+    dialog.addEventListener('close',function(){$('#wedding-photo-choose').focus({preventScroll:true});});
+    $('#wedding-picker-search').oninput=function(){weddingMediaView.query=this.value;weddingMediaView.page=0;renderPicker();};
+    $$('[data-hl]',root).forEach(function(input){input.oninput=function(){state.data.weddings.highlights[+input.dataset.hl]=input.value;setDirty('weddings',true);};});
+    $$('[data-hl-del]',root).forEach(function(b){b.onclick=function(){state.data.weddings.highlights.splice(+b.dataset.hlDel,1);setDirty('weddings',true);refreshPanel('weddings');var next=$('[data-hl="'+b.dataset.hlDel+'"]')||$('#hl-add');next.focus();};});
+    $('#hl-add').onclick=function(){(state.data.weddings.highlights||(state.data.weddings.highlights=[])).push('');setDirty('weddings',true);refreshPanel('weddings');$$('[data-hl]',$('#panel-weddings')).slice(-1)[0].focus();};
   }
 
   /* ---------------- PRICING ---------------- */
   function renderPricing() {
-    var p = state.data.pricing || {};
-    var rows = (p.rows || []).map(function (r, i) {
-      return '<tr><td data-label="Session"><input aria-label="Session name" data-row="' + i + '" data-col="label" value="' + esc(r.label) + '"><input aria-label="Session detail" data-row="' + i + '" data-col="sublabel" value="' + esc(r.sublabel) + '" style="margin-top:6px"></td>' +
-        '<td data-label="Mon–Thu"><input aria-label="Mon–Thu rate" data-row="' + i + '" data-col="monThu" value="' + esc(r.monThu) + '"></td>' +
-        '<td data-label="Friday"><input aria-label="Friday rate" data-row="' + i + '" data-col="friday" value="' + esc(r.friday) + '"></td>' +
-        '<td data-label="Saturday"><input aria-label="Saturday rate" data-row="' + i + '" data-col="saturday" value="' + esc(r.saturday) + '"></td>' +
-        '<td data-label="Sunday"><input aria-label="Sunday rate" data-row="' + i + '" data-col="sunday" value="' + esc(r.sunday) + '"></td></tr>';
-    }).join('');
-    var inner = '<div class="dashboard-form-stack"><div class="card form-card form-section">' +
-      '<div class="field"><label>Rental rates</label><p class="section-context">Each row is a rental session. Edit the price for each day without changing the other sessions.</p>' +
-      '<div style="overflow-x:auto"><table class="rate-table"><thead><tr><th>Session</th><th>Mon–Thu</th><th>Friday</th><th>Saturday</th><th>Sunday</th></tr></thead><tbody>' + rows + '</tbody></table></div>' +
-      '<div class="hint">Type prices exactly as they should appear, e.g. $400.</div></div>' +
-      '<div class="form-row">' + fieldHtml('Rates as-of date', 'noteDate', p.noteDate) + fieldHtml('Hours line', 'hoursHeader', p.hoursHeader) + '</div>' +
-      fieldHtml('Note under the table', 'noteText', p.noteText) +
-      '</div><div class="card form-card form-section"><div class="form-section-heading"><h3>Booking information</h3><p>The notes and booking card shown alongside your rental rates.</p></div>' +
-      fieldHtml('Weddings note', 'weddingsNote', p.weddingsNote, { textarea: true, rows: 2 }) +
-      fieldHtml('Availability note', 'availabilityNote', p.availabilityNote) +
-      '<div class="form-row">' + fieldHtml('Booking card heading', 'ctaHeading', p.ctaHeading) + fieldHtml('Booking card text', 'ctaText', p.ctaText) + '</div>' +
-      '</div></div>' + savebarHtml('pricing', 'pricing');
-    return panelShell('pricing', 'Pricing & Rates', 'The rate table and notes on the public Pricing page.', inner);
+    var p=state.data.pricing||{};
+    var sessions=(p.rows||[]).map(function(r,i){return '<article class="rate-session" aria-labelledby="rate-title-'+i+'"><header class="rate-session-head"><span class="workspace-eyebrow">Rental session '+String(i+1).padStart(2,'0')+'</span><h4 id="rate-title-'+i+'" data-rate-title="'+i+'">'+esc(r.label||'Untitled session')+'</h4><p data-rate-time="'+i+'">'+esc(r.sublabel)+'</p></header><div class="rate-session-body"><div class="session-description"><label class="field"><span>Session name</span><input aria-label="Session name" data-row="'+i+'" data-col="label" value="'+esc(r.label)+'"></label><label class="field"><span>Session hours</span><input aria-label="Session detail" data-row="'+i+'" data-col="sublabel" value="'+esc(r.sublabel)+'"></label></div><div class="session-rate-grid">'+[['monThu','Mon–Thu'],['friday','Friday'],['saturday','Saturday'],['sunday','Sunday']].map(function(pair){return '<label class="rate-amount field"><span>'+pair[1]+'</span><input aria-label="'+pair[1]+' rate" data-row="'+i+'" data-col="'+pair[0]+'" value="'+esc(r[pair[0]])+'"></label>';}).join('')+'</div></div></article>';}).join('');
+    var inner='<nav class="editorial-jumps" aria-label="Pricing page sections"><a href="#pricing-rates" data-form-jump="pricing-rates">Rental sessions</a><a href="#pricing-notes" data-form-jump="pricing-notes">Rate details</a><a href="#pricing-booking" data-form-jump="pricing-booking">Booking information</a></nav><div class="dashboard-form-stack pricing-workspace"><section id="pricing-rates" class="card form-card form-section">'+editorialHeading('01','Rental sessions','Set each day’s rate for each session. Values appear exactly as you enter them, including currency symbols.')+'<div class="rate-session-grid">'+sessions+'</div><div id="pricing-notes" class="rate-notes"><div class="subsection-heading"><h4>Rate details</h4><p>The date, opening hours and note displayed with the rates.</p></div><div class="form-row">'+fieldHtml('Rates as-of date','noteDate',p.noteDate)+fieldHtml('Hours line','hoursHeader',p.hoursHeader)+'</div>'+fieldHtml('Note under the table','noteText',p.noteText)+'</div></section><section id="pricing-booking" class="card form-card form-section">'+editorialHeading('02','Booking information','Give guests a clear next step after reviewing your rates.')+'<div class="pricing-booking-grid"><div>'+fieldHtml('Weddings note','weddingsNote',p.weddingsNote,{textarea:true,rows:3})+fieldHtml('Availability note','availabilityNote',p.availabilityNote)+'</div><div class="booking-message-editor"><h4>Booking card message</h4><p class="section-context">The heading and text on the public booking card.</p>'+fieldHtml('Booking card heading','ctaHeading',p.ctaHeading)+fieldHtml('Booking card text','ctaText',p.ctaText,{textarea:true,rows:3})+'</div></div></section></div>'+savebarHtml('pricing');
+    return panelShell('pricing','Pricing & Rates','A clear rate for every session. Keep rental prices, practical details and your booking message in one place.',inner);
   }
   function bindPricing() {
-    bindFields('pricing', $('#panel-pricing'));
-    $$('#panel-pricing [data-row]').forEach(function (input) {
-      input.addEventListener('input', function () {
-        state.data.pricing.rows[+input.getAttribute('data-row')][input.getAttribute('data-col')] = input.value;
-        setDirty('pricing', true);
-      });
-    });
+    var root=$('#panel-pricing');bindFields('pricing',root);bindEditorialJumps(root);
+    $$('[data-row]',root).forEach(function(input){input.oninput=function(){var row=+input.dataset.row,col=input.dataset.col;state.data.pricing.rows[row][col]=input.value;setDirty('pricing',true);var title=$('[data-rate-'+(col==='label'?'title':'time')+'="'+row+'"]',root);if((col==='label'||col==='sublabel')&&title)title.textContent=input.value;};});
   }
 
   /* ---------------- PARTNERS ---------------- */
@@ -1153,7 +1142,7 @@
       var protectedSections=[],homeChanged=false;
       for(var id of Object.keys(state.versions)){
         if(!state.loaded[id] || (!changed && !sourcePending[id]))continue;
-        var focused=$('#panel-'+id),editing=focused && focused.contains(document.activeElement) && /^(INPUT|TEXTAREA|SELECT)$/.test(document.activeElement.tagName);
+        var focused=$('#panel-'+id),editing=focused && (focused.querySelector('dialog[open]') || focused.contains(document.activeElement) && /^(INPUT|TEXTAREA|SELECT)$/.test(document.activeElement.tagName));
         if(state.busy[id] || state.uploading || editing){sourcePending[id]=true;continue;}
         if(!changed && (state.unsaved[id] || state.dirty[id])){protectedSections.push(id);continue;}
         var before=contentText(id),old=state.versions[id],remote=await api('/api/dash-content?section='+encodeURIComponent(id)+'&ref='+encodeURIComponent(revision.head));
@@ -1162,7 +1151,7 @@
         var same=remote.published && old.sha===remote.published.sha && old.draftSha===(remote.draft?remote.draft.sha:null);
         if(same){versionPanelImages(id,revision.head);delete sourcePending[id];continue;}
         if(state.unsaved[id] || state.dirty[id] || state.busy[id] || contentText(id)!==before){sourcePending[id]=true;protectedSections.push(id);state.conflicts[id]='The website or shared draft changed externally. Your work is kept; load the latest version when you are ready.';updateSaveUI(id);continue;}
-        if(focused && focused.contains(document.activeElement) && /^(INPUT|TEXTAREA|SELECT)$/.test(document.activeElement.tagName)){sourcePending[id]=true;continue;}
+        if(focused && (focused.querySelector('dialog[open]') || focused.contains(document.activeElement) && /^(INPUT|TEXTAREA|SELECT)$/.test(document.activeElement.tagName))){sourcePending[id]=true;continue;}
         await loadContentSection(id,false,remote);refreshPanel(id);versionPanelImages(id,revision.head);updateSaveUI(id);delete sourcePending[id];
         homeChanged=true;
       }

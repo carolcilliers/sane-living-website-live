@@ -32,8 +32,8 @@ const create=require('./qa-server.cjs'),{launch}=require('./browser.cjs');
  }
  for(const width of [390,1024]){await page.setViewportSize({width,height:1000});await page.evaluate(()=>document.documentElement.style.fontSize='200%');for(const id of sections){await page.locator('[data-nav="'+id+'"]').click();await bounds(id,'200% text at '+width);}await page.evaluate(()=>document.documentElement.style.fontSize='');}console.log('PASS 200% text resizing at phone and laptop widths');
  await page.setViewportSize({width:390,height:844});await page.locator('[data-nav="pricing"]').click();
- assert.equal(await page.locator('.rate-table tr').last().evaluate(n=>getComputedStyle(n).display),'grid');
- assert.deepEqual(await page.locator('.rate-table tbody tr').first().locator('td').evaluateAll(ns=>ns.map(n=>getComputedStyle(n,'::before').content)),['"Session"','"Mon–Thu"','"Friday"','"Saturday"','"Sunday"']);await shot('rates-phone');
+ assert.equal(await page.locator('.rate-session').count(),3);
+ assert.deepEqual(await page.locator('.rate-session').first().locator('.rate-amount>span').allTextContents(),['Mon–Thu','Friday','Saturday','Sunday']);assert.equal(await page.locator('.rate-session').first().getByLabel('Saturday rate',{exact:true}).isVisible(),true);await shot('rates-phone');
  await page.locator('[data-nav="gallery"]').click();await page.locator('#gal-group-venue .photo-editor>summary').first().click();const caption=page.getByLabel('Caption',{exact:true}).first();await caption.fill('Private presentation QA');await caption.blur();
  const bar=page.locator('#savebar-gallery');assert(await bar.evaluate(n=>n.classList.contains('has-changes')));assert.equal(await bar.evaluate(n=>getComputedStyle(n).position),'sticky');assert((await bar.boundingBox()).height<=180,'compact mobile save bar');
  await page.locator('[data-nav="weddings"]').click();await page.locator('[data-nav="gallery"]').click();assert.equal(await caption.inputValue(),'Private presentation QA');
