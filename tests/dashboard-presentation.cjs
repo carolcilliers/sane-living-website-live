@@ -8,8 +8,16 @@ const create=require('./qa-server.cjs'),{launch}=require('./browser.cjs');
  await context.route('**/*',r=>r.request().url().startsWith(s.url)?r.continue():r.abort());
  const page=await context.newPage(),errors=[];page.on('pageerror',e=>errors.push(e.message));page.setDefaultTimeout(15000);
  await page.goto(s.url+'/dash/');await page.locator('#panel-home.active').waitFor();await page.evaluate(()=>document.fonts.ready);
+ if(process.env.DASHBOARD_BASELINE_APP_JS){
+  async function inventory(target){await target.locator('.cal-grid').waitFor();return await target.locator('#panels').evaluate(root=>[...root.querySelectorAll('.panel')].filter(p=>p.id!=='panel-editor').map(p=>{const copy=p.cloneNode(true);copy.querySelectorAll('.form-section-heading,[aria-hidden=true],input,textarea').forEach(n=>n.remove());return {id:p.id,text:copy.textContent.replace(/loaded \d{1,2}:\d{2}\s*[AP]M/g,'loaded TIME'),controls:[...p.querySelectorAll('input,select,textarea,a,button')].map(n=>({kind:n.matches('textarea[data-ph="alt"]')?'INPUT':n.tagName,id:n.id,data:{...n.dataset},value:n.value,href:n.getAttribute('href'),type:n.getAttribute('type')}))};}));}
+  const baseline=await browser.newContext();await baseline.addCookies([{name:'sl_dash',value:s.cookie.split('=')[1],url:s.url}]);const oldApp=fs.readFileSync(process.env.DASHBOARD_BASELINE_APP_JS,'utf8');
+  await baseline.route('**/*',r=>{const url=r.request().url();if(!url.startsWith(s.url))return r.abort();if(new URL(url).pathname==='/dash/app.js')return r.fulfill({contentType:'application/javascript',body:oldApp});return r.continue();});const oldPage=await baseline.newPage();await oldPage.goto(s.url+'/dash/');await oldPage.locator('#panel-home.active').waitFor();
+  assert.deepEqual(await inventory(page),await inventory(oldPage),'original dashboard copy, field order/values, bindings and destinations preserved');await baseline.close();console.log('PASS direct before/after content and control preservation');
+ }
+
  const sections=['home','events','gallery','weddings','pricing','partners','settings'];
- async function shot(name){if(evidence)await page.screenshot({path:path.join(evidence,name+'.png')});}
+ assert.equal(await page.locator('.dashboard-page-heading').count(),7);assert.equal(await page.locator('#panel-weddings .form-section').count(),4);assert.equal(await page.locator('#panel-pricing .form-section').count(),2);
+ async function shot(name){await page.waitForTimeout(180);if(evidence)await page.screenshot({path:path.join(evidence,name+'.png')});}
  async function bounds(id,width){const problems=await page.locator('#panel-'+id).evaluate(panel=>{
    const out=[],root=document.documentElement;
    if(root.scrollWidth>innerWidth+1)out.push('document overflow '+root.scrollWidth+' > '+innerWidth);
@@ -22,9 +30,9 @@ const create=require('./qa-server.cjs'),{launch}=require('./browser.cjs');
    }return out;
  });assert.deepEqual(problems,[],id+' at '+width);}
  for(const width of [320,390,768,1024,1440,1920]){
-  await page.setViewportSize({width,height:1000});
-  for(const id of sections){await page.locator('[data-nav="'+id+'"]').click();await page.locator('#panel-'+id+'.active').waitFor();await bounds(id,width);
-   if(id==='settings')for(const tab of await page.locator('[data-settings-tab]').all()){await tab.click();await bounds(id,width);assert.equal(await tab.getAttribute('aria-selected'),'true');}
+  await page.setViewportSize({width,height:1000});await page.waitForTimeout(100);
+  for(const id of sections){await page.locator('[data-nav="'+id+'"]').click();await page.locator('#panel-'+id+'.active').waitFor();if(width===1440 && ['gallery','weddings','pricing','events'].includes(id))await shot(id+'-desktop');await bounds(id,width);
+   if(id==='settings'){assert.equal(await page.locator('.settings-tabs').getAttribute('aria-orientation'),width>=1100?'vertical':'horizontal');}if(id==='settings')for(const tab of await page.locator('[data-settings-tab]').all()){await tab.click();await bounds(id,width);assert.equal(await tab.getAttribute('aria-selected'),'true');}
   }
   await shot('settings-'+width);
   console.log('PASS dashboard layout and all settings categories at '+width+'px');
@@ -51,7 +59,7 @@ const create=require('./qa-server.cjs'),{launch}=require('./browser.cjs');
  }
  await page.locator('[data-nav="editor"]').click();const editor=page.frameLocator('#pageEditorFrame');await editor.locator('.studio-workspace').waitFor();
  for(const width of [390,1024,1440]){await page.setViewportSize({width,height:1000});assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth>innerWidth+1),false,'editor host overflow');assert.equal(await page.locator('#mainNav').isVisible(),true);}
- await editor.getByRole('button',{name:'Return to dashboard',exact:true}).click();await page.locator('[data-nav="home"]').click();await shot('home-desktop');
+ await editor.getByRole('button',{name:'Return to dashboard',exact:true}).click();await page.locator('[data-nav="home"]').click();if(process.env.AXE_CORE_PATH){const result=await page.evaluate(async()=>await axe.run('#mainNav',{runOnly:{type:'tag',values:['wcag2a','wcag2aa','wcag21aa']}}));assert.deepEqual(result.violations.map(v=>v.id),[],'navigation contrast after leaving the dark editor');}await shot('home-desktop');
  await page.emulateMedia({reducedMotion:'reduce'});assert.equal(await page.locator('.shortcut').first().evaluate(n=>getComputedStyle(n).transitionDuration),'0s');
  const guest=await browser.newContext({viewport:{width:320,height:844}}),login=await guest.newPage();await guest.route('**/*',r=>r.request().url().startsWith(s.url)?r.continue():r.abort());await login.goto(s.url+'/dash/');await login.locator('#li-pass').waitFor();assert.equal(await login.evaluate(()=>document.documentElement.scrollWidth>innerWidth),false);await login.getByLabel('Password',{exact:true}).focus();await guest.close();
  assert.equal(s.commits,0,'presentation checks never publish or save shared content');assert.deepEqual(errors,[]);

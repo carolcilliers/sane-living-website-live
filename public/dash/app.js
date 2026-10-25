@@ -335,8 +335,8 @@
   function panelShell(id, title, sub, inner) {
     var view = VIEW_PATHS[id] ? '<a class="btn btn-ghost btn-small" href="' + VIEW_PATHS[id] + '" target="_blank" rel="noopener">View on the website ↗</a>' : '';
     return '<section class="panel" id="panel-' + id + '">' +
-      '<div class="page-head"><h2>' + esc(title) + '</h2>' + view + '</div>' +
-      (sub ? '<p class="page-sub">' + esc(sub) + '</p>' : '') + inner + '</section>';
+      '<header class="dashboard-page-heading"><div class="page-head"><h2>' + esc(title) + '</h2>' + view + '</div>' +
+      (sub ? '<p class="page-sub">' + esc(sub) + '</p>' : '') + '</header>' + inner + '</section>';
   }
 
   /* ---------------- HOME (with venue calendar) ---------------- */
@@ -410,7 +410,7 @@
         editor: 'Design any page, preview your changes and publish when ready.',
         about: 'Edit the About page’s sections, story and links.',
       }[x.id];
-      return '<button type="button" class="shortcut" data-goto="' + x.id + '"><span class="shortcut-copy"><h3>' + x.label + '</h3><p>' + blurb + '</p></span><span class="shortcut-arrow" aria-hidden="true">↗</span></button>';
+      return '<button type="button" class="shortcut" data-goto="' + x.id + '"><span class="shortcut-icon" aria-hidden="true">' + x.icon + '</span><span class="shortcut-copy"><h3>' + x.label + '</h3><p>' + blurb + '</p></span><span class="shortcut-arrow" aria-hidden="true">↗</span></button>';
     }).join('');
     var calInner;
     if (state.events === null) {
@@ -421,9 +421,9 @@
     }
     return panelShell('home', 'Welcome', 'Everything here updates the Sane Living website. Pick a section on the left — save a draft to review, or publish changes when they are ready.',
       '<div class="grid grid-3 home-metrics" style="margin-bottom:24px">' +
-      '<div class="card stat-card"><div class="num">' + evCount + '</div><div class="lbl">upcoming events</div></div>' +
-      '<div class="card stat-card"><div class="num">' + photos + '</div><div class="lbl">photos in the gallery</div></div>' +
-      '<div class="card stat-card"><div class="num">' + partners + '</div><div class="lbl">partners listed</div></div></div>' +
+      '<div class="card stat-card"><div class="metric-copy"><div class="num">' + evCount + '</div><div class="lbl">upcoming events</div></div><span class="metric-symbol" aria-hidden="true">' + SECTIONS.find(function(x){return x.id==='events';}).icon + '</span></div>' +
+      '<div class="card stat-card"><div class="metric-copy"><div class="num">' + photos + '</div><div class="lbl">photos in the gallery</div></div><span class="metric-symbol" aria-hidden="true">' + SECTIONS.find(function(x){return x.id==='gallery';}).icon + '</span></div>' +
+      '<div class="card stat-card"><div class="metric-copy"><div class="num">' + partners + '</div><div class="lbl">partners listed</div></div><span class="metric-symbol" aria-hidden="true">' + SECTIONS.find(function(x){return x.id==='partners';}).icon + '</span></div></div>' +
       '<div class="home-workbench"><div class="card home-calendar" style="margin-bottom:18px"><h3 class="block-title" style="margin-bottom:14px">What\'s on at the venue</h3>' + calInner + '</div>' +
       '<div class="home-tools"><div class="workspace-section-heading"><h3>Manage your website</h3><p>Choose what you want to work on.</p></div><div class="grid grid-2 home-shortcuts">' + cards + '</div></div></div>');
   }
@@ -685,7 +685,7 @@
       '<div class="pc-body">' +
       (p.draft ? '<div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:10px"><span style="background:#fdf0d5;color:#8a6d00;border:1px solid #ecd28a;border-radius:999px;padding:2px 10px;font-size:.76rem;font-weight:700">\u25CF NOT PUBLISHED</span><button type="button" class="btn btn-primary" style="padding:6px 14px;font-size:.85rem" data-ph-publish="' + idx + '">Publish to website</button></div>' : '') +
       '<label class="photo-field"><span>Caption</span><input data-ph="caption" data-idx="' + idx + '" value="' + esc(p.caption || '') + '" placeholder="Caption (shown under the photo)"></label>' +
-      '<label class="photo-field"><span>Photo description</span><input data-ph="alt" data-idx="' + idx + '" value="' + esc(p.alt || '') + '" placeholder="Describe the photo (for accessibility)"></label>' +
+      '<label class="photo-field"><span>Photo description</span><textarea data-ph="alt" data-idx="' + idx + '" rows="2" placeholder="Describe the photo (for accessibility)">' + esc(p.alt || '') + '</textarea></label>' +
       '<label class="pc-section-label">Website section<select data-ph="section" data-idx="' + idx + '">' + sections + '</select></label>' +
       groupPicker +
       '<div class="pc-actions">' +
@@ -863,21 +863,22 @@
     var highlights = (w.highlights || []).map(function (h, i) {
       return '<div class="list-row"><input aria-label="Highlight ' + (i + 1) + '" data-hl="' + i + '" value="' + esc(h) + '"><button type="button" class="icon-btn danger" data-hl-del="' + i + '" title="Remove">✕</button></div>';
     }).join('');
-    var inner = '<div class="card form-card">' +
+    var inner = '<div class="dashboard-form-stack"><div class="card form-card form-section"><div class="form-section-heading"><h3>Page content</h3></div>' +
       fieldHtml('Page heading', 'heading', w.heading) +
       fieldHtml('Top photo (path or link)', 'heroImage', w.heroImage, { hint: 'Example: /images/rent-center.jpg — the photo at the top of the Weddings page.' }) +
       '<img class="thumb-preview" src="' + esc(w.heroImage || '') + '" alt="" onerror="this.style.display=\'none\'">' +
       fieldHtml('Intro text', 'intro', w.intro, { textarea: true, rows: 5 }) +
-      '<div class="field"><label>Highlights (the checklist with purple ticks)</label><div class="list-editor" id="hlList">' + highlights + '</div>' +
+      '</div><div class="card form-card form-section"><div class="field highlight-field"><label>Highlights (the checklist with purple ticks)</label><div class="list-editor" id="hlList">' + highlights + '</div>' +
       '<button type="button" class="btn btn-ghost btn-small" id="hl-add" style="margin-top:10px">+ Add a highlight</button></div>' +
+      '</div><div class="card form-card form-section form-section-grid"><div class="form-section-heading"><h3>Pricing &amp; policies</h3></div>' +
       fieldHtml('Pricing text', 'pricingText', w.pricingText, { textarea: true, rows: 3 }) +
       fieldHtml('What\'s included', 'includesText', w.includesText, { textarea: true, rows: 3 }) +
       fieldHtml('Catering policy', 'cateringPolicy', w.cateringPolicy, { textarea: true, rows: 3 }) +
       fieldHtml('Alcohol policy', 'alcoholPolicy', w.alcoholPolicy, { textarea: true, rows: 3 }) +
       fieldHtml('Parking note', 'parkingNote', w.parkingNote, { textarea: true, rows: 2 }) +
-      '<div class="form-row">' + fieldHtml('Phone shown on the page', 'phoneDisplay', w.phoneDisplay) +
+      '</div><div class="card form-card form-section"><div class="form-section-heading"><h3>Contact &amp; availability</h3></div><div class="form-row">' + fieldHtml('Phone shown on the page', 'phoneDisplay', w.phoneDisplay) +
       fieldHtml('Availability note', 'availabilityNote', w.availabilityNote) + '</div>' +
-      '</div>' + savebarHtml('weddings', 'weddings page');
+      '</div></div>' + savebarHtml('weddings', 'weddings page');
     return panelShell('weddings', 'Weddings Page', 'Everything on the public Weddings page — heading, photo, highlights, pricing and policies.', inner);
   }
   function bindWeddings() {
@@ -916,16 +917,17 @@
         '<td data-label="Saturday"><input aria-label="Saturday rate" data-row="' + i + '" data-col="saturday" value="' + esc(r.saturday) + '"></td>' +
         '<td data-label="Sunday"><input aria-label="Sunday rate" data-row="' + i + '" data-col="sunday" value="' + esc(r.sunday) + '"></td></tr>';
     }).join('');
-    var inner = '<div class="card form-card">' +
+    var inner = '<div class="dashboard-form-stack"><div class="card form-card form-section">' +
       '<div class="field"><label>Rental rates</label>' +
       '<div style="overflow-x:auto"><table class="rate-table"><thead><tr><th>Session</th><th>Mon–Thu</th><th>Friday</th><th>Saturday</th><th>Sunday</th></tr></thead><tbody>' + rows + '</tbody></table></div>' +
       '<div class="hint">Type prices exactly as they should appear, e.g. $400.</div></div>' +
       '<div class="form-row">' + fieldHtml('Rates as-of date', 'noteDate', p.noteDate) + fieldHtml('Hours line', 'hoursHeader', p.hoursHeader) + '</div>' +
       fieldHtml('Note under the table', 'noteText', p.noteText) +
+      '</div><div class="card form-card form-section"><div class="form-section-heading"><h3>Booking information</h3></div>' +
       fieldHtml('Weddings note', 'weddingsNote', p.weddingsNote, { textarea: true, rows: 2 }) +
       fieldHtml('Availability note', 'availabilityNote', p.availabilityNote) +
       '<div class="form-row">' + fieldHtml('Booking card heading', 'ctaHeading', p.ctaHeading) + fieldHtml('Booking card text', 'ctaText', p.ctaText) + '</div>' +
-      '</div>' + savebarHtml('pricing', 'pricing');
+      '</div></div>' + savebarHtml('pricing', 'pricing');
     return panelShell('pricing', 'Pricing & Rates', 'The rate table and notes on the public Pricing page.', inner);
   }
   function bindPricing() {
@@ -1007,10 +1009,13 @@
     $$('#panel-settings [role="tab"]').forEach(function(b){var active=b.dataset.settingsTab===id;b.setAttribute('aria-selected',String(active));b.tabIndex=active?0:-1;if(active&&focus)b.focus();});
     $$('#panel-settings [role="tabpanel"]').forEach(function(p){p.classList.toggle('is-active',p.id==='settings-'+id);});
   }
+  function orientSettingsTabs(){var tabs=$('#panel-settings [role=tablist]');if(tabs)tabs.setAttribute('aria-orientation',matchMedia('(min-width:1100px)').matches?'vertical':'horizontal');}
+  window.addEventListener('resize',orientSettingsTabs);
   function bindSettings() {
+    orientSettingsTabs();
     var root=$('#panel-settings');
     bindFields('settings',root);
-    $$('[data-settings-tab]',root).forEach(function(b){b.onclick=function(){selectSettingsTab(b.dataset.settingsTab);};b.onkeydown=function(e){var tabs=$$('[data-settings-tab]',root),i=tabs.indexOf(b);if(['ArrowRight','ArrowLeft','Home','End'].indexOf(e.key)===-1)return;e.preventDefault();var next=e.key==='Home'?0:e.key==='End'?tabs.length-1:(i+(e.key==='ArrowRight'?1:-1)+tabs.length)%tabs.length;selectSettingsTab(tabs[next].dataset.settingsTab,true);};});
+    $$('[data-settings-tab]',root).forEach(function(b){b.onclick=function(){selectSettingsTab(b.dataset.settingsTab);};b.onkeydown=function(e){var tabs=$$('[data-settings-tab]',root),i=tabs.indexOf(b);if(['ArrowRight','ArrowLeft','ArrowDown','ArrowUp','Home','End'].indexOf(e.key)===-1)return;e.preventDefault();var next=e.key==='Home'?0:e.key==='End'?tabs.length-1:(i+(e.key==='ArrowRight'||e.key==='ArrowDown'?1:-1)+tabs.length)%tabs.length;selectSettingsTab(tabs[next].dataset.settingsTab,true);};});
     $$('[data-setting-toggle]',root).forEach(function(b){b.onchange=function(){state.data.settings[b.dataset.settingToggle]=b.checked;setDirty('settings',true);};});
     $$('[data-menu-label]',root).forEach(function(b){b.oninput=function(){state.data.settings.navigation[+b.dataset.menuLabel].label=b.value;setDirty('settings',true);};});
     $$('[data-menu-visible]',root).forEach(function(b){b.onchange=function(){state.data.settings.navigation[+b.dataset.menuVisible].visible=b.checked;setDirty('settings',true);};});
