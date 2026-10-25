@@ -58,6 +58,12 @@
     calSelected: '',     // YYYY-MM-DD selected on the Home calendar
   };
 
+  var homeView={calendar:false,content:false},overviewPublishedSettings=null;
+  var galleryView={query:'',filter:'all',pages:{},open:{venue:true},photoOpen:new Set()};
+  var galleryKeys=new WeakMap(),galleryKeyNumber=0,settingsOpen={};
+  function photoKey(photo){if(!galleryKeys.has(photo))galleryKeys.set(photo,'photo-'+(++galleryKeyNumber));return galleryKeys.get(photo);}
+  function revealPhoto(photo){var section=photo.section||'venue',photos=state.data.gallery.photos.filter(function(p){return (p.section||'venue')===section;});galleryView.query='';galleryView.filter='all';galleryView.open[section]=true;galleryView.pages[section]=Math.floor(photos.indexOf(photo)/12);galleryView.photoOpen.add(photoKey(photo));}
+
   var SECTIONS = [
     { id: 'home', label: 'Home', icon: '<svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 10.5 12 3l9 7.5"/><path d="M5 9.5V21h14V9.5"/></svg>' },
     { id: 'events', label: 'Events', icon: '<svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/></svg>' },
@@ -129,6 +135,7 @@
     var editorFrame=document.getElementById('pageEditorFrame');
     if(editorFrame&&state.section==='editor'&&id!=='editor')editorFrame.contentWindow.postMessage({type:'sane-editor:flush'},location.origin);
     state.section = id;
+    if(id==='home' && $('#panel-home'))refreshPanel('home');
     document.body.classList.toggle('page-editor-open',id==='editor');
     history.replaceState(null,'','#'+id);
     if(id==='editor'&&!editorFrame){var host=document.getElementById('pageEditorHost');if(host){var frame=document.createElement('iframe');frame.id='pageEditorFrame';frame.title='Sane Living page editor';frame.src='/dash/editor/index.html'+(aboutAlias?'?page=about':'');frame.allow='autoplay; fullscreen; picture-in-picture';frame.style.cssText='width:100%;height:100dvh;min-height:690px;border:0;border-radius:0;background:#f7f8fa;display:block';host.appendChild(frame);}}
@@ -209,7 +216,7 @@
     // Validate before replacing local state; bad remote content cannot erase a recovered draft.
     if (id === 'about') SaneContent.parseAbout(published); else JSON.parse(published);
     state.versions[id] = { sha: response.published.sha, draftSha: response.draft ? response.draft.sha : null, published: published };
-    if(id==='settings')applyDashboardBranding(JSON.parse(published));
+    if(id==='settings'){overviewPublishedSettings=published;applyDashboardBranding(JSON.parse(published));}
     state.loaded[id] = true; state.loadErrors[id] = ''; state.errors[id] = ''; state.conflicts[id] = '';
     var draft = !publishedOnly && response.draft && response.draft.content !== published ? response.draft : null;
     putContent(id, draft ? draft.content : published);
@@ -268,7 +275,7 @@
       state.dirty[id] = action === 'draft' || newerEdits;
       state.unsaved[id] = newerEdits;
       state.saveStates[id] = newerEdits ? 'New changes since the last save' : action === 'draft' ? 'Draft saved · '+new Date().toLocaleTimeString([], {hour:'numeric',minute:'2-digit'}) : 'Published · deployment updating';
-      if(action === 'publish') { version.published = snapshot; if(id==='settings')applyDashboardBranding(JSON.parse(snapshot)); watchPublication(id,snapshot); }
+      if(action === 'publish') { version.published = snapshot; if(id==='settings'){overviewPublishedSettings=snapshot;applyDashboardBranding(JSON.parse(snapshot));} watchPublication(id,snapshot); }
       if (newerEdits) cacheWork(id); else try { localStorage.removeItem(RECOVERY_PREFIX+id); } catch(e) {}
       if(result.warning) { state.conflicts[id] = result.warning; toast(result.warning,true); }
       else toast(action === 'draft' ? 'Draft saved. Ready to review.' : 'Published. The website updates after deployment, usually within a minute.');
@@ -395,41 +402,42 @@
         '<span>' + esc([e.startTime ? (e.startTime + (e.endTime ? ' – ' + e.endTime : '')) : '', e.location || ''].filter(Boolean).join(' · ')) + '</span></div></div>';
     }).join('');
   }
+  function contentState(id){
+    if(state.loadErrors[id]||state.conflicts[id]||state.errors[id])return {label:'Needs review',tone:'review',detail:state.loadErrors[id]||state.conflicts[id]||state.errors[id]};
+    if(!state.loaded[id])return {label:'Unavailable',tone:'review',detail:'This section has not loaded. Open it to retry before editing.'};
+    if(state.unsaved[id])return {label:'Unsaved changes',tone:'review',detail:'Changes are kept on this device. Save a draft to share them.'};
+    if(state.dirty[id])return {label:'Draft saved',tone:'draft',detail:'Unpublished changes are waiting for review.'};
+    return {label:'Published content',tone:'quiet',detail:'No unpublished changes in this loaded section.'};
+  }
   function renderHome() {
-    var photos = state.data.gallery && state.data.gallery.photos ? state.data.gallery.photos.length : '—';
-    var partners = state.data.partners && state.data.partners.partners ? state.data.partners.partners.length : '—';
-    var evCount = state.events ? state.events.filter(function (e) { return e.date && e.date >= todayStr(); }).length : '—';
-    var cards = SECTIONS.filter(function (x) { return x.id !== 'home'; }).map(function (x) {
-      var blurb = {
-        events: 'Add and edit events — saved straight into the Airtable calendar the website reads.',
-        gallery: 'Photos organized by where they appear on the website. Add, caption, reorder.',
-        weddings: 'Heading, highlights, prices and policies on the Weddings page.',
-        pricing: 'The rental rate table and booking notes on the Pricing page.',
-        partners: 'Local partners shown on the Partners page.',
-        settings: 'Phone, email, address, hours and social links used across the site.',
-        editor: 'Design any page, preview your changes and publish when ready.',
-        about: 'Edit the About page’s sections, story and links.',
-      }[x.id];
-      return '<button type="button" class="shortcut" data-goto="' + x.id + '"><span class="shortcut-icon" aria-hidden="true">' + x.icon + '</span><span class="shortcut-copy"><h3>' + x.label + '</h3><p>' + blurb + '</p></span><span class="shortcut-arrow" aria-hidden="true">↗</span></button>';
-    }).join('');
-    var calInner;
-    if (state.events === null) {
-      calInner = '<div class="empty-note">Loading the venue calendar…</div>';
-    } else {
-      calInner = '<div id="homeCal">' + calGridHtml() + '</div><div id="homeCalList" style="margin-top:18px">' + calDayListHtml() + '</div>' +
-        (state.readOnly ? '<p style="color:var(--muted);font-size:.88rem;margin-top:12px">Read-only view from the live website — event editing unlocks when the Airtable keys are added.</p>' : '');
-    }
-    return panelShell('home', 'Welcome', 'Everything here updates the Sane Living website. Pick a section on the left — save a draft to review, or publish changes when they are ready.',
-      '<div class="grid grid-3 home-metrics" style="margin-bottom:24px">' +
-      '<div class="card stat-card"><div class="metric-copy"><div class="num">' + evCount + '</div><div class="lbl">upcoming events</div></div><span class="metric-symbol" aria-hidden="true">' + SECTIONS.find(function(x){return x.id==='events';}).icon + '</span></div>' +
-      '<div class="card stat-card"><div class="metric-copy"><div class="num">' + photos + '</div><div class="lbl">photos in the gallery</div></div><span class="metric-symbol" aria-hidden="true">' + SECTIONS.find(function(x){return x.id==='gallery';}).icon + '</span></div>' +
-      '<div class="card stat-card"><div class="metric-copy"><div class="num">' + partners + '</div><div class="lbl">partners listed</div></div><span class="metric-symbol" aria-hidden="true">' + SECTIONS.find(function(x){return x.id==='partners';}).icon + '</span></div></div>' +
-      '<div class="home-workbench"><div class="card home-calendar" style="margin-bottom:18px"><h3 class="block-title" style="margin-bottom:14px">What\'s on at the venue</h3>' + calInner + '</div>' +
-      '<div class="home-tools"><div class="workspace-section-heading"><h3>Manage your website</h3><p>Choose what you want to work on.</p></div><div class="grid grid-2 home-shortcuts">' + cards + '</div></div></div>');
+    var ids=Object.keys(JSON_SECTIONS),photos=state.data.gallery&&state.data.gallery.photos||[],draftPhotos=photos.filter(function(p){return p.draft;}).length;
+    var drafts=ids.filter(function(id){return state.dirty[id];}).length;
+    var upcoming=state.events===null||state.eventsStatus&&(state.eventsStatus.kind==='err'||state.eventsStatus.kind==='warn'&&!state.readOnly)?'—':state.events.filter(function(e){return e.date&&e.date>=todayStr();}).length;
+    var attention=ids.filter(function(id){return !state.loaded[id]||state.loadErrors[id]||state.conflicts[id]||state.errors[id]||state.dirty[id];}).map(function(id){var status=contentState(id),section=SECTIONS.find(function(x){return x.id===id;});return '<button type="button" class="attention-row" data-goto="'+id+'"><span class="attention-copy"><strong>'+esc(section.label)+'</strong><span>'+esc(status.detail)+'</span></span><span class="status-chip status-'+status.tone+'">'+esc(status.label)+'</span><span aria-hidden="true">↗</span></button>';}).join('');
+    if(draftPhotos)attention+='<button type="button" class="attention-row" data-home-gallery="draft"><span class="attention-copy"><strong>'+draftPhotos+' photo'+(draftPhotos===1?'':'s')+' marked not published</strong><span>Review these photos in the gallery before publishing.</span></span><span class="status-chip status-review">Photo review</span><span aria-hidden="true">↗</span></button>';
+    var eventDrafts=state.readOnly?0:(state.events||[]).filter(function(e){return e.publish===false;}).length;
+    if(eventDrafts)attention+='<button type="button" class="attention-row" data-goto="events"><span class="attention-copy"><strong>'+eventDrafts+' unpublished event'+(eventDrafts===1?'':'s')+'</strong><span>Saved in the calendar, hidden from the website.</span></span><span class="status-chip status-draft">Event drafts</span><span aria-hidden="true">↗</span></button>';
+    var unfinishedEvent=false;try{unfinishedEvent=!!localStorage.getItem(RECOVERY_PREFIX+'event');}catch(e){}
+    if(unfinishedEvent)attention+='<button type="button" class="attention-row" data-goto="events"><span class="attention-copy"><strong>Unfinished event on this device</strong><span>Open Events and choose Resume editing.</span></span><span class="status-chip status-review">Unsaved event</span><span aria-hidden="true">↗</span></button>';
+    if(state.eventsStatus&&state.eventsStatus.kind==='err')attention+='<button type="button" class="attention-row" data-goto="events"><span class="attention-copy"><strong>Calendar could not be loaded</strong><span>Open Events to review the connection and retry.</span></span><span class="status-chip status-review">Needs review</span><span aria-hidden="true">↗</span></button>';
+    if(state.eventsStatus&&state.eventsStatus.kind==='warn')attention+='<button type="button" class="attention-row" data-goto="events"><span class="attention-copy"><strong>'+(state.readOnly?'Calendar is read-only':'Calendar needs setup')+'</strong><span>'+(state.readOnly?'Published events can be viewed. Open Events for editing and connection details.':'Open Events for connection details before relying on the calendar.')+'</span></span><span class="status-chip status-review">Calendar status</span><span aria-hidden="true">↗</span></button>';
+    if(!attention)attention='<div class="overview-clear"><strong>No content changes waiting for review</strong><p>Your content sections have no unfinished edits. Design drafts stay in Page Editor.</p></div>';
+    var published=null;try{if(overviewPublishedSettings||state.versions.settings)published=SaneSettings.normalize(JSON.parse(overviewPublishedSettings||state.versions.settings.published));}catch(e){}
+    var details=published?'<dl class="website-detail-list">'+[['Business',published.businessName],['Phone',published.phoneDisplay],['Email',published.email],['Address',published.address],['Hours',published.hours]].map(function(pair){return '<div><dt>'+pair[0]+'</dt><dd>'+esc(pair[1]||'Not set')+'</dd></div>';}).join('')+'</dl><div class="overview-actions"><button type="button" class="btn btn-ghost btn-small" data-home-settings="contact">Edit contact details</button><button type="button" class="btn btn-ghost btn-small" data-home-settings="booking">Booking settings</button></div>':'<p class="empty-note">Published website details could not be loaded. Open Settings to review the source.</p>';
+    var contentRows=ids.map(function(id){var status=contentState(id),section=SECTIONS.find(function(x){return x.id===id;}),data=state.data[id],detail=id==='gallery'&&data?data.photos.length+' photos':id==='partners'&&data?data.partners.length+' partners':id==='pricing'&&data?data.rows.length+' rate sessions':id==='weddings'&&data?(data.highlights||[]).length+' highlights':id==='settings'?'Brand, contact and site-wide settings':'Content section';return '<button type="button" class="content-status-row" data-goto="'+id+'"><span><strong>'+esc(section.label)+'</strong><small>'+esc(detail)+'</small></span><span class="status-chip status-'+status.tone+'">'+esc(status.label)+'</span><span aria-hidden="true">↗</span></button>';}).join('');
+    var calendarError=state.eventsStatus&&(state.eventsStatus.kind==='err'||state.eventsStatus.kind==='warn'&&!state.readOnly);
+    var calendar=calendarError?'<p class="empty-note">The calendar could not be loaded. Open Events to review the connection and retry.</p>':state.events===null?'<div class="empty-note">Loading the venue calendar…</div>':'<div id="homeCal">'+calGridHtml()+'</div>'+(state.readOnly?'<p class="section-help">Read-only view from the live website — event editing unlocks when the Airtable keys are added.</p>':'');
+    return panelShell('home','Website overview','See what needs attention, check your published details and plan what comes next. Editing stays in each dedicated page.',
+      '<div class="grid grid-3 home-metrics"><div class="card stat-card"><div class="metric-copy"><div class="num">'+upcoming+'</div><div class="lbl">upcoming events</div></div><span class="metric-symbol" aria-hidden="true">'+SECTIONS[1].icon+'</span></div><div class="card stat-card"><div class="metric-copy"><div class="num">'+(state.loaded.gallery?photos.length:'—')+'</div><div class="lbl">photos in the gallery</div></div><span class="metric-symbol" aria-hidden="true">'+SECTIONS[2].icon+'</span></div><div class="card stat-card"><div class="metric-copy"><div class="num">'+drafts+'</div><div class="lbl">sections with drafts</div></div><span class="metric-symbol" aria-hidden="true">'+SECTIONS[6].icon+'</span></div></div>'+
+      '<div class="dashboard-overview-layout"><section class="card overview-attention"><div class="overview-card-head"><span class="workspace-eyebrow">Your next steps</span><h3>Needs your attention</h3><p>Unfinished edits and unpublished content, together in one place.</p></div><div class="attention-list">'+attention+'</div><div class="overview-footnote">Design any page, preview your changes and publish when ready in <button type="button" class="inline-action" data-goto="editor">Page Editor ↗</button>.</div></section><section class="card overview-details"><div class="overview-card-head"><span class="workspace-eyebrow">Published details</span><h3>Your website at a glance</h3><p>These values come from published Settings. Draft changes stay separate.</p></div>'+details+'</section><section class="card overview-upcoming"><div id="homeCalList">'+(calendarError?'<h3 class="block-title">Upcoming events unavailable</h3><p>Open Events to review the connection and retry.</p>':state.events===null?'<p>Loading upcoming events…</p>':calDayListHtml())+'</div>'+(state.calSelected?'<button type="button" class="btn btn-ghost btn-small" data-home-clear-day>Show all upcoming events</button>':'')+'<div class="overview-actions"><button type="button" class="btn btn-ghost btn-small" data-goto="events">Manage events</button></div></section><div class="overview-secondary"><details class="card overview-disclosure" data-home-disclosure="calendar" '+(homeView.calendar?'open':'')+'><summary><span><strong>Venue calendar</strong><small>Open the month view and choose a day.</small></span><span class="disclosure-chevron" aria-hidden="true">⌄</span></summary><div class="overview-disclosure-body">'+calendar+'</div></details><details class="card overview-disclosure" data-home-disclosure="content" '+(homeView.content?'open':'')+'><summary><span><strong>Content status</strong><small>Check counts and publication status for each section.</small></span><span class="disclosure-chevron" aria-hidden="true">⌄</span></summary><div class="content-status-list">'+contentRows+'</div></details></div></div>');
   }
   function bindHome() {
     var root = $('#panel-home');
     if (!root) return;
+    $$('[data-home-disclosure]',root).forEach(function(d){d.ontoggle=function(){homeView[d.dataset.homeDisclosure]=d.open;};});
+    $$('[data-home-settings]',root).forEach(function(b){b.onclick=function(){goTo('settings');selectSettingsTab(b.dataset.homeSettings);var group=$('[data-settings-group]',$('#settings-'+b.dataset.homeSettings));if(group){group.open=true;settingsOpen[group.dataset.settingsGroup]=true;$('summary',group).focus({preventScroll:true});}};});
+    $$('[data-home-gallery]',root).forEach(function(b){b.onclick=function(){galleryView.filter=b.dataset.homeGallery;galleryView.query='';galleryView.pages={};goTo('gallery');refreshPanel('gallery');};});
+    var clear=$('[data-home-clear-day]',root);if(clear)clear.onclick=function(){state.calSelected='';refreshPanel('home');};
     $$('#panel-home [data-cal-nav]').forEach(function (b) {
       b.addEventListener('click', function () {
         var cur = state.calCursor || new Date();
@@ -535,8 +543,7 @@
         state.eventsStatus = { kind: 'ok', msg: '<strong>Connected to Airtable.</strong> ' + data.count + ' event' + (data.count === 1 ? '' : 's') + ' in the calendar · loaded ' + new Date().toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' }) + '.' };
       }
       if (showToast) toast('Calendar reloaded.');
-      var homePanel = $('#panel-home');
-      if (homePanel) refreshPanel('home');
+
     } catch (e) {
       state.events = state.events || [];
       if (e.code === 'AIRTABLE_NOT_CONFIGURED') {
@@ -545,6 +552,7 @@
         state.eventsStatus = { kind: 'err', msg: '<strong>Could not reach Airtable.</strong> ' + esc(e.message) + ' <button type="button" class="btn btn-ghost btn-small" id="ev-retry">Retry</button>' };
       }
     }
+    if($('#panel-home'))refreshPanel('home');
     var slot = $('#syncSlot');
     if (slot) {
       slot.innerHTML = syncBanner();
@@ -670,84 +678,60 @@
     { id: 'performances', title: 'Concerts & performances' },
     { id: 'meetings', title: 'Meetings & classes' },
   ];
-  function photoCard(p, idx, total) {
-    var sections = SECTION_DEFS.map(function (sd) {
-      return '<option value="' + sd.id + '"' + (p.section === sd.id ? ' selected' : '') + '>' + sd.title + '</option>';
-    }).join('');
-    var groups = GROUP_DEFS.map(function (gd) {
-      return '<option value="' + gd.id + '"' + ((p.group || '') === gd.id ? ' selected' : '') + '>' + gd.title + '</option>';
-    }).join('');
-    var groupPicker = (p.section || 'venue') === 'venue'
-      ? '<label class="pc-section-label">Gallery page group<select data-ph="group" data-idx="' + idx + '">' + groups + '</select></label>'
-      : '';
-    return '<div class="photo-card">' +
-      '<img src="' + esc(p.image) + '" alt="' + esc(p.alt || '') + '" loading="lazy" onerror="this.style.opacity=0.25">' +
-      '<div class="pc-body">' +
-      (p.draft ? '<div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:10px"><span style="background:#fdf0d5;color:#8a6d00;border:1px solid #ecd28a;border-radius:999px;padding:2px 10px;font-size:.76rem;font-weight:700">\u25CF NOT PUBLISHED</span><button type="button" class="btn btn-primary" style="padding:6px 14px;font-size:.85rem" data-ph-publish="' + idx + '">Publish to website</button></div>' : '') +
-      '<label class="photo-field"><span>Caption</span><input data-ph="caption" data-idx="' + idx + '" value="' + esc(p.caption || '') + '" placeholder="Caption (shown under the photo)"></label>' +
-      '<label class="photo-field"><span>Photo description</span><textarea data-ph="alt" data-idx="' + idx + '" rows="2" placeholder="Describe the photo (for accessibility)">' + esc(p.alt || '') + '</textarea></label>' +
-      '<label class="pc-section-label">Website section<select data-ph="section" data-idx="' + idx + '">' + sections + '</select></label>' +
-      groupPicker +
-      '<div class="pc-actions">' +
-      '<button type="button" class="icon-btn" data-ph-move="-1" data-idx="' + idx + '" title="Move earlier" ' + (idx === 0 ? 'disabled' : '') + '>↑</button>' +
-      '<button type="button" class="icon-btn" data-ph-move="1" data-idx="' + idx + '" title="Move later" ' + (idx === total - 1 ? 'disabled' : '') + '>↓</button>' +
-      '<span style="flex:1"></span>' +
-      '<button type="button" class="icon-btn danger" data-ph-del="' + idx + '" title="Remove from gallery">✕</button>' +
-      '</div></div></div>';
+  function galleryNeighbor(index,direction){var photos=state.data.gallery.photos,section=photos[index].section||'venue';for(var i=index+direction;i>=0&&i<photos.length;i+=direction)if((photos[i].section||'venue')===section)return i;return -1;}
+  function galleryMatches(photo){var query=galleryView.query.trim().toLowerCase(),text=[photo.caption,photo.alt,photo.image,GROUP_DEFS.find(function(g){return g.id===(photo.group||'');})?.title].join(' ').toLowerCase();return (!query||text.includes(query))&&(galleryView.filter==='all'||galleryView.filter==='draft'&&photo.draft||galleryView.filter==='included'&&!photo.draft||galleryView.filter==='description'&&!String(photo.alt||'').trim());}
+  function photoCard(p,idx,total){
+    var key=photoKey(p),sections=SECTION_DEFS.map(function(sd){return '<option value="'+sd.id+'"'+((p.section||'venue')===sd.id?' selected':'')+'>'+sd.title+'</option>';}).join('');
+    var groups=GROUP_DEFS.map(function(gd){return '<option value="'+gd.id+'"'+((p.group||'')===gd.id?' selected':'')+'>'+gd.title+'</option>';}).join('');
+    var filtered=galleryView.query.trim()||galleryView.filter!=='all';
+    return '<article class="photo-card" data-photo-card="'+key+'"><img src="'+esc(p.image)+'" alt="'+esc(p.alt||'')+'" loading="lazy" onerror="this.style.opacity=0.25"><div class="pc-body"><div class="photo-card-overview"><strong data-photo-title>'+esc(p.caption||'Untitled photo')+'</strong><span class="status-chip status-'+(p.draft?'review':'quiet')+'">'+(p.draft?'Not published':'In gallery')+'</span></div>'+
+      (p.draft?'<div class="photo-publication-actions"><button type="button" class="btn btn-primary btn-small" data-ph-publish="'+idx+'">Publish to website</button></div>':'')+
+      '<details class="photo-editor" data-photo-key="'+key+'" '+(galleryView.photoOpen.has(key)?'open':'')+'><summary><span>Edit photo details</span><span class="disclosure-chevron" aria-hidden="true">⌄</span></summary><div class="photo-editor-fields"><label class="photo-field"><span>Caption</span><input data-ph="caption" data-idx="'+idx+'" value="'+esc(p.caption||'')+'" placeholder="Caption (shown under the photo)"></label><label class="photo-field"><span>Photo description</span><textarea data-ph="alt" data-idx="'+idx+'" rows="2" placeholder="Describe the photo (for accessibility)">'+esc(p.alt||'')+'</textarea></label><label class="pc-section-label">Website section<select data-ph="section" data-idx="'+idx+'">'+sections+'</select></label>'+((p.section||'venue')==='venue'?'<label class="pc-section-label">Gallery page group<select data-ph="group" data-idx="'+idx+'">'+groups+'</select></label>':'')+'<div class="pc-actions"><button type="button" class="icon-btn" data-ph-move="-1" data-idx="'+idx+'" title="Move earlier" '+(filtered||galleryNeighbor(idx,-1)<0?'disabled':'')+'>↑</button><button type="button" class="icon-btn" data-ph-move="1" data-idx="'+idx+'" title="Move later" '+(filtered||galleryNeighbor(idx,1)<0?'disabled':'')+'>↓</button><button type="button" class="btn btn-danger btn-small" data-ph-del="'+idx+'">Remove photo</button></div>'+(filtered?'<p class="photo-order-hint">Clear search and filters to reorder this collection.</p>':'')+'</div></details></div></article>';
   }
-  function groupsHtml() {
-    var photos = (state.data.gallery && state.data.gallery.photos) || [];
-    return SECTION_DEFS.map(function (sd) {
-      var mine = [];
-      photos.forEach(function (p, i) { if ((p.section || 'venue') === sd.id) mine.push([p, i]); });
-      var cards = mine.length
-        ? '<div class="photo-grid">' + mine.map(function (pair) { return photoCard(pair[0], pair[1], photos.length); }).join('') + '</div>'
-        : '<div class="empty-note">No photos in this section yet — add the first one.</div>';
-      return '<section class="group-block gallery-section-card" aria-labelledby="gallery-title-'+sd.id+'" id="gal-group-' + sd.id + '">' +
-        '<div class="group-head"><div><span class="gallery-section-eyebrow">Gallery collection</span><h3 id="gallery-title-'+sd.id+'">' + sd.title + ' <span class="group-count">' + mine.length + ' photo' + (mine.length === 1 ? '' : 's') + '</span></h3>' +
-        '<p>' + sd.blurb + '<br><span class="where">Appears: ' + sd.where + '</span></p></div>' +
-        '<label class="btn btn-primary btn-small" style="margin:0">+ Add photos<input type="file" class="gal-upload-group" data-section="' + sd.id + '" accept="image/*" multiple></label></div>' +
-        '<div class="gallery-section-photos">'+cards+'</div></section>';
+  function groupsHtml(){
+    var photos=state.data.gallery&&state.data.gallery.photos||[],filtering=galleryView.query.trim()||galleryView.filter!=='all';
+    return SECTION_DEFS.map(function(sd){
+      var all=[],mine=[];photos.forEach(function(p,i){if((p.section||'venue')===sd.id){all.push([p,i]);if(galleryMatches(p))mine.push([p,i]);}});
+      var pages=Math.max(1,Math.ceil(mine.length/12)),page=Math.max(0,Math.min(galleryView.pages[sd.id]||0,pages-1));galleryView.pages[sd.id]=page;
+      var shown=mine.slice(page*12,page*12+12),drafts=all.filter(function(pair){return pair[0].draft;}).length;
+      return '<details class="group-block gallery-section-card gallery-collection" id="gal-group-'+sd.id+'" data-gallery-collection="'+sd.id+'" '+((filtering?mine.length>0:galleryView.open[sd.id])?'open':'')+'><summary class="collection-summary"><span class="collection-summary-copy"><span class="gallery-section-eyebrow">Gallery collection</span><strong id="gallery-title-'+sd.id+'">'+sd.title+'</strong><small>'+all.length+' photo'+(all.length===1?'':'s')+(filtering?' · '+mine.length+' matching':'')+(drafts?' · '+drafts+' not published':'')+'</small></span><span class="disclosure-chevron" aria-hidden="true">⌄</span></summary><div class="gallery-collection-body"><div class="collection-context"><div><p>'+sd.blurb+'</p><p class="where">Appears: '+sd.where+'</p></div><label class="btn btn-primary btn-small">+ Add photos<input type="file" class="gal-upload-group" data-section="'+sd.id+'" accept="image/*" multiple></label></div><div class="gallery-section-photos">'+(shown.length?'<div class="photo-grid">'+shown.map(function(pair){return photoCard(pair[0],pair[1],photos.length);}).join('')+'</div>':'<div class="empty-note">'+(all.length?'No photos match this search or filter. Clear filters to see the collection.':'No photos in this section yet — add the first one.')+'</div>')+'<div class="gallery-page-controls"><span>'+ (mine.length?(page*12+1)+'–'+Math.min((page+1)*12,mine.length)+' of '+mine.length+' photos':'0 photos')+'</span><div><button type="button" class="btn btn-ghost btn-small" data-gallery-page="'+sd.id+'" data-step="-1" '+(page===0?'disabled':'')+'>Previous</button><span class="gallery-page-number">Page '+(page+1)+' of '+pages+'</span><button type="button" class="btn btn-ghost btn-small" data-gallery-page="'+sd.id+'" data-step="1" '+(page===pages-1?'disabled':'')+'>Next</button></div></div></div></div></details>';
     }).join('');
   }
-  function renderGallery() {
-    var photos = (state.data.gallery && state.data.gallery.photos) || [];
-    var strip = '<div class="grid grid-3" style="margin-bottom:20px">' + SECTION_DEFS.map(function (sd) {
-      var n = photos.filter(function (p) { return (p.section || 'venue') === sd.id; }).length;
-      return '<a class="card where-card" href="#gal-group-' + sd.id + '" data-jump="gal-group-' + sd.id + '"><div class="num">' + n + '</div><div class="lbl">' + sd.title + '</div><p>' + sd.where + '</p></a>';
-    }).join('') + '</div>';
-    var inner = strip +
-      '<div style="margin-bottom:18px;display:flex;gap:10px;flex-wrap:wrap;align-items:center">' +
-      '<button type="button" class="btn btn-ghost" id="gal-add-url">Add a photo from a link</button>' +
-      '<span style="color:var(--muted);font-size:.9rem">Every photo below sits in exactly one website section. Change a photo\'s section with its dropdown; order inside a section follows the ↑ ↓ arrows.</span></div>' +
-      '<div id="photoGroups">' + groupsHtml() + '</div>' +
-      savebarHtml('gallery', 'gallery');
-    return panelShell('gallery', 'Photo Gallery', 'Each collection below matches one section on the website. Edit photos together, save a draft, then publish your gallery changes when ready.', inner);
+  function renderGallery(){
+    var photos=state.data.gallery&&state.data.gallery.photos||[],nav=SECTION_DEFS.map(function(sd){var count=photos.filter(function(p){return (p.section||'venue')===sd.id;}).length;return '<a href="#gal-group-'+sd.id+'" data-jump="gal-group-'+sd.id+'">'+sd.title+' <span>'+count+'</span></a>';}).join('');
+    return panelShell('gallery','Photo Gallery','Choose a collection, find a photo and expand its details only when you want to edit. Your full gallery stays organized as it grows.',
+      '<nav class="gallery-collection-nav" aria-label="Gallery collections">'+nav+'</nav><div class="card gallery-toolbar"><div class="gallery-find-fields"><div class="field"><label for="gallery-search">Find a photo</label><input type="search" id="gallery-search" value="'+esc(galleryView.query)+'" placeholder="Search your photos"></div><div class="field"><label for="gallery-filter">Show</label><select id="gallery-filter"><option value="all">All photos</option><option value="draft">Marked not published</option><option value="included">In gallery</option><option value="description">No photo description</option></select></div><button type="button" class="btn btn-ghost" id="gallery-clear">Clear filters</button></div><div class="gallery-toolbar-bottom"><p id="gallery-result-count" role="status"></p><button type="button" class="btn btn-ghost btn-small" id="gal-add-url">Add a photo from a link</button></div><p class="gallery-save-help">Photo badges describe the gallery you are editing. Save draft to keep changes unpublished, or Publish changes to update the website.</p></div><div id="photoGroups">'+groupsHtml()+'</div>'+savebarHtml('gallery','gallery'));
   }
   function bindGallery() {
     var wrap = $('#photoGroups');
     if (!wrap) return;
-    function rerender() {
-      wrap.innerHTML = groupsHtml();
-      bindGallery();
-    }
+    function rerender(){wrap.innerHTML=groupsHtml();bindGallery();}
+    var search=$('#gallery-search'),filter=$('#gallery-filter'),clear=$('#gallery-clear');
+    if(search){search.value=galleryView.query;search.oninput=function(){galleryView.query=this.value;galleryView.pages={};rerender();};}
+    if(filter){filter.value=galleryView.filter;filter.onchange=function(){galleryView.filter=this.value;galleryView.pages={};rerender();};}
+    if(clear)clear.onclick=function(){galleryView.query='';galleryView.filter='all';galleryView.pages={};rerender();search.focus();};
+    var photos=state.data.gallery.photos,matched=photos.filter(galleryMatches).length,count=$('#gallery-result-count');if(count)count.textContent=matched+' of '+photos.length+' photos · up to 12 per collection page';
+    $$('[data-gallery-collection]',wrap).forEach(function(d){d.ontoggle=function(){if(!galleryView.query.trim()&&galleryView.filter==='all')galleryView.open[d.dataset.galleryCollection]=d.open;};});
+    $$('[data-photo-key]',wrap).forEach(function(d){d.ontoggle=function(){if(d.open)galleryView.photoOpen.add(d.dataset.photoKey);else galleryView.photoOpen.delete(d.dataset.photoKey);};});
+    $$('[data-gallery-page]',wrap).forEach(function(b){b.onclick=function(){var section=b.dataset.galleryPage,step=+b.dataset.step;galleryView.pages[section]=(galleryView.pages[section]||0)+step;rerender();var collection=$('#gal-group-'+section);var button=$('[data-gallery-page][data-step="'+step+'"]',collection);if(button&&!button.disabled)button.focus();else $('summary',collection).focus();};});
     $$('#photoGroups [data-ph]').forEach(function (input) {
       var evt = input.tagName === 'SELECT' ? 'change' : 'input';
       input.addEventListener(evt, function () {
         var idx = +input.getAttribute('data-idx');
         state.data.gallery.photos[idx][input.getAttribute('data-ph')] = input.value;
         setDirty('gallery', true);
-        if (input.getAttribute('data-ph') === 'section') rerender();
+        var photo=state.data.gallery.photos[idx];var title=input.closest('.photo-card').querySelector('[data-photo-title]');if(title&&input.dataset.ph==='caption')title.textContent=photo.caption||'Untitled photo';
+        if (input.getAttribute('data-ph') === 'section'){revealPhoto(photo);rerender();}
       });
     });
     $$('#photoGroups [data-ph-move]').forEach(function (b) {
       b.addEventListener('click', function () {
         var idx = +b.getAttribute('data-idx');
-        var to = idx + (+b.getAttribute('data-ph-move'));
+        var to = galleryNeighbor(idx,+b.getAttribute('data-ph-move'));
         var arr = state.data.gallery.photos;
         if (to < 0 || to >= arr.length) return;
         var tmp = arr[idx]; arr[idx] = arr[to]; arr[to] = tmp;
-        setDirty('gallery', true);
+        revealPhoto(arr[to]);setDirty('gallery', true);
         rerender();
       });
     });
@@ -777,11 +761,7 @@
       });
     });
     $$('#panel-gallery [data-jump]').forEach(function (a) {
-      a.addEventListener('click', function (ev) {
-        ev.preventDefault();
-        var el = document.getElementById(a.getAttribute('data-jump'));
-        if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
-      });
+      a.onclick=function(ev){ev.preventDefault();var id=a.dataset.jump,section=id.replace('gal-group-','');galleryView.query='';galleryView.filter='all';galleryView.open[section]=true;rerender();var el=document.getElementById(id);if(el){el.open=true;el.scrollIntoView({behavior:matchMedia('(prefers-reduced-motion:reduce)').matches?'auto':'smooth',block:'start'});$('summary',el).focus({preventScroll:true});}};
     });
     function fileToDataUrl(file) {
       return new Promise(function (resolve, reject) {
@@ -831,7 +811,7 @@
           if (prep.to < prep.from) shrunk++;
           var safeName = Date.now() + '-' + Math.random().toString(36).slice(2,7) + '-' + prep.name.toLowerCase().replace(/[^a-z0-9._-]/g, '-');
           await api('/api/dash-save', { method: 'POST', body: JSON.stringify({ path: 'public/images/' + safeName, contentBase64: prep.base64 }) });
-          state.data.gallery.photos.push({ image: '/images/' + safeName, caption: '', alt: '', section: section, draft: true });
+          var added={image:'/images/'+safeName,caption:'',alt:'',section:section,draft:true};state.data.gallery.photos.push(added);revealPhoto(added);
         } catch (e) {
           toast('Upload failed for ' + f.name + ': ' + e.message, true);
         }
@@ -849,7 +829,7 @@
     if (addUrl) addUrl.onclick = async function () {
       var url = window.prompt('Paste the photo link (it should start with /images/ or https://):');
       if (!url) return;
-      state.data.gallery.photos.push({ image: url.trim(), caption: '', alt: '', section: 'venue', draft: true });
+      var added={image:url.trim(),caption:'',alt:'',section:'venue',draft:true};state.data.gallery.photos.push(added);revealPhoto(added);
       rerender();
       setDirty('gallery',true);
       var saved = await saveJsonSection('gallery', null, 'draft');
@@ -863,20 +843,20 @@
     var highlights = (w.highlights || []).map(function (h, i) {
       return '<div class="list-row"><input aria-label="Highlight ' + (i + 1) + '" data-hl="' + i + '" value="' + esc(h) + '"><button type="button" class="icon-btn danger" data-hl-del="' + i + '" title="Remove">✕</button></div>';
     }).join('');
-    var inner = '<div class="dashboard-form-stack"><div class="card form-card form-section"><div class="form-section-heading"><h3>Page content</h3></div>' +
+    var inner = '<div class="dashboard-form-stack"><div class="card form-card form-section"><div class="form-section-heading"><h3>Page content</h3><p>The title, opening image and introduction guests see on the Weddings page.</p></div>' +
       fieldHtml('Page heading', 'heading', w.heading) +
       fieldHtml('Top photo (path or link)', 'heroImage', w.heroImage, { hint: 'Example: /images/rent-center.jpg — the photo at the top of the Weddings page.' }) +
       '<img class="thumb-preview" src="' + esc(w.heroImage || '') + '" alt="" onerror="this.style.display=\'none\'">' +
       fieldHtml('Intro text', 'intro', w.intro, { textarea: true, rows: 5 }) +
-      '</div><div class="card form-card form-section"><div class="field highlight-field"><label>Highlights (the checklist with purple ticks)</label><div class="list-editor" id="hlList">' + highlights + '</div>' +
+      '</div><div class="card form-card form-section"><div class="field highlight-field"><label>Highlights (the checklist with purple ticks)</label><p class="section-context">A short checklist of what makes the venue useful for weddings. Each line is one item.</p><div class="list-editor" id="hlList">' + highlights + '</div>' +
       '<button type="button" class="btn btn-ghost btn-small" id="hl-add" style="margin-top:10px">+ Add a highlight</button></div>' +
-      '</div><div class="card form-card form-section form-section-grid"><div class="form-section-heading"><h3>Pricing &amp; policies</h3></div>' +
+      '</div><div class="card form-card form-section form-section-grid"><div class="form-section-heading"><h3>Pricing &amp; policies</h3><p>Explain the price, what is included and the conditions guests need to know.</p></div>' +
       fieldHtml('Pricing text', 'pricingText', w.pricingText, { textarea: true, rows: 3 }) +
       fieldHtml('What\'s included', 'includesText', w.includesText, { textarea: true, rows: 3 }) +
       fieldHtml('Catering policy', 'cateringPolicy', w.cateringPolicy, { textarea: true, rows: 3 }) +
       fieldHtml('Alcohol policy', 'alcoholPolicy', w.alcoholPolicy, { textarea: true, rows: 3 }) +
       fieldHtml('Parking note', 'parkingNote', w.parkingNote, { textarea: true, rows: 2 }) +
-      '</div><div class="card form-card form-section"><div class="form-section-heading"><h3>Contact &amp; availability</h3></div><div class="form-row">' + fieldHtml('Phone shown on the page', 'phoneDisplay', w.phoneDisplay) +
+      '</div><div class="card form-card form-section"><div class="form-section-heading"><h3>Contact &amp; availability</h3><p>The phone number and availability note displayed on this page.</p></div><div class="form-row">' + fieldHtml('Phone shown on the page', 'phoneDisplay', w.phoneDisplay) +
       fieldHtml('Availability note', 'availabilityNote', w.availabilityNote) + '</div>' +
       '</div></div>' + savebarHtml('weddings', 'weddings page');
     return panelShell('weddings', 'Weddings Page', 'Everything on the public Weddings page — heading, photo, highlights, pricing and policies.', inner);
@@ -918,12 +898,12 @@
         '<td data-label="Sunday"><input aria-label="Sunday rate" data-row="' + i + '" data-col="sunday" value="' + esc(r.sunday) + '"></td></tr>';
     }).join('');
     var inner = '<div class="dashboard-form-stack"><div class="card form-card form-section">' +
-      '<div class="field"><label>Rental rates</label>' +
+      '<div class="field"><label>Rental rates</label><p class="section-context">Each row is a rental session. Edit the price for each day without changing the other sessions.</p>' +
       '<div style="overflow-x:auto"><table class="rate-table"><thead><tr><th>Session</th><th>Mon–Thu</th><th>Friday</th><th>Saturday</th><th>Sunday</th></tr></thead><tbody>' + rows + '</tbody></table></div>' +
       '<div class="hint">Type prices exactly as they should appear, e.g. $400.</div></div>' +
       '<div class="form-row">' + fieldHtml('Rates as-of date', 'noteDate', p.noteDate) + fieldHtml('Hours line', 'hoursHeader', p.hoursHeader) + '</div>' +
       fieldHtml('Note under the table', 'noteText', p.noteText) +
-      '</div><div class="card form-card form-section"><div class="form-section-heading"><h3>Booking information</h3></div>' +
+      '</div><div class="card form-card form-section"><div class="form-section-heading"><h3>Booking information</h3><p>The notes and booking card shown alongside your rental rates.</p></div>' +
       fieldHtml('Weddings note', 'weddingsNote', p.weddingsNote, { textarea: true, rows: 2 }) +
       fieldHtml('Availability note', 'availabilityNote', p.availabilityNote) +
       '<div class="form-row">' + fieldHtml('Booking card heading', 'ctaHeading', p.ctaHeading) + fieldHtml('Booking card text', 'ctaText', p.ctaText) + '</div>' +
@@ -953,8 +933,8 @@
         '<div><button type="button" class="btn btn-danger btn-small" data-pt-del="' + i + '">Remove this partner</button></div></div>';
     }).join('');
     var inner = '<div class="card form-card" style="margin-bottom:18px">' +
-      fieldHtml('Intro text (top of the Partners page)', 'intro', d.intro, { textarea: true, rows: 4 }) + '</div>' +
-      '<div id="partnerList">' + (cards || '<div class="empty-note">No partners listed yet — add the first one below. Only add a business after they have agreed to be listed.</div>') + '</div>' +
+      fieldHtml('Intro text (top of the Partners page)', 'intro', d.intro, { textarea: true, rows: 4, hint: 'This introduction appears above the partner directory on the website.' }) + '</div>' +
+      '<div class="workspace-section-heading"><h3>Partner directory</h3><p>One business per card. Contact details, descriptions and photos stay together.</p></div><div id="partnerList">' + (cards || '<div class="empty-note">No partners listed yet — add the first one below. Only add a business after they have agreed to be listed.</div>') + '</div>' +
       '<button type="button" class="btn btn-primary" id="pt-add">+ Add a partner</button>' +
       savebarHtml('partners', 'partners');
     return panelShell('partners', 'Partners', 'Local businesses shown on the Partners page. Reminder of the house rule: mutual referrals only — no referral fees, ever.', inner);
@@ -998,11 +978,29 @@
   function navigationEditor() {
     return '<div class="navigation-editor">'+state.data.settings.navigation.map(function(n,i){return '<div class="navigation-row"><div class="nav-order">'+(i+1)+'</div><div class="field"><label for="nav-label-'+i+'">Menu label</label><input id="nav-label-'+i+'" data-menu-label="'+i+'" value="'+esc(n.label)+'"><span class="hint">'+esc(n.route)+'</span></div><label class="menu-visible"><input type="checkbox" data-menu-visible="'+i+'" '+(n.visible?'checked':'')+'> Visible</label><div class="reorder-actions"><button type="button" class="icon-btn" data-menu-move="'+i+'" data-direction="-1" aria-label="Move '+esc(n.label)+' up" '+(i===0?'disabled':'')+'>↑</button><button type="button" class="icon-btn" data-menu-move="'+i+'" data-direction="1" aria-label="Move '+esc(n.label)+' down" '+(i===state.data.settings.navigation.length-1?'disabled':'')+'>↓</button></div></div>';}).join('')+'</div>';
   }
+  var SETTINGS_CONTEXT={brand:'Set the business name, website logo, browser tab icon and footer note.',contact:'Update the phone, email, venue address, hours and social links displayed to guests.',home:'Update the opening headline, main button and hero image or video.',booking:'Choose booking destinations, the rental inquiry form and availability calendar.',newsletter:'Control the footer signup, its message and the existing signup form destination.',announcement:'Show or hide a short notice across the website.',sharing:'Choose the descriptions and images used when people search for or share your pages.',navigation:'Choose the labels, order and visibility of the website menu.'};
+  var SETTINGS_SECTIONS={
+    brand:[['identity','Logo & business name','The identity used across the website.',['businessName','logoUrl','logoAlt']],['icon','Browser tab icon','The small icon guests see in their browser tabs.',['faviconUrl']],['footer','Footer note','The short message at the bottom of the website.',['footerText']]],
+    contact:[['contact','Phone & email','The main ways guests can contact the team.',['email','phoneDisplay','phoneLink']],['location','Address & opening hours','The venue details displayed to guests.',['address','hours']],['social','Social profiles','Links to the business’s social pages.',['instagramUrl','facebookUrl']],['maps','Directions, map & inquiry form','Destinations and embedded tools on the Contact page.',['directionsUrl','mapEmbedUrl','contactFormUrl']]],
+    home:[['message','Hero message','The headline and introduction at the top of the homepage.',['homeHeading','homeIntro']],['button','Main button','The button label and where it takes guests.',['homePrimaryLabel','homePrimaryUrl']],['media','Hero image & video','The image, poster and optional video used by the homepage.',['homePosterUrl','homeVideoUrl']]],
+    booking:[['destination','Booking page','Where booking links take guests.',['bookingPageUrl']],['inquiry','Rental inquiry form','The form guests use to ask about renting the venue.',['rentalFormUrl']],['calendar','Availability calendar','The calendar embedded on the website. Event synchronization is unchanged.',['availabilityEmbedUrl']]],
+    newsletter:[['message','Signup visibility & message','Choose whether the signup is shown and what guests read.',['newsletterEnabled','newsletterTitle','newsletterDescription']],['destination','Subscribe button & destination','The button label and existing newsletter form destination.',['newsletterButton','newsletterUrl']]],
+    announcement:[['message','Visibility & message','An optional site-wide notice for guests.',['announcementEnabled','announcementText']],['link','Optional announcement link','Add a destination only when the notice needs one.',['announcementLinkLabel','announcementLinkUrl']]],
+    sharing:[['description','Default search description','The fallback description used when a page has no override.',['siteDescription']],['image','Default sharing image','The image used when the website is shared.',['defaultShareImage']]]
+  };
+  function settingsGroup(group,id,title,description,body,count,index){var key=group+'-'+id,open=Object.prototype.hasOwnProperty.call(settingsOpen,key)?settingsOpen[key]:index===0;return '<details class="settings-field-group" id="settings-group-'+key+'" data-settings-group="'+key+'" '+(open?'open':'')+'><summary><span><strong>'+title+'</strong><small>'+description+'</small></span><span class="field-count">'+count+' field'+(count===1?'':'s')+'</span><span class="disclosure-chevron" aria-hidden="true">⌄</span></summary><div class="settings-group-fields">'+body+'</div></details>';}
+  function settingsFields(group,value){
+    if(group.id==='navigation')return '<div class="settings-context-note">Change a menu label, its visibility or its order. The page address stays the same.</div>'+navigationEditor();
+    var used=new Set(),sections=SETTINGS_SECTIONS[group.id]||[],html=sections.map(function(section,index){var fields=group.fields.filter(function(f){return section[3].includes(f.key);});fields.forEach(function(f){used.add(f.key);});return fields.length?settingsGroup(group.id,section[0],section[1],section[2],fields.map(function(f){return settingsField(f,value[f.key]);}).join(''),fields.length,index):'';}).join('');
+    var extra=group.fields.filter(function(f){return !used.has(f.key);});if(extra.length)html+=settingsGroup(group.id,'additional','Additional settings','Other controls available in this category.',extra.map(function(f){return settingsField(f,value[f.key]);}).join(''),extra.length,sections.length);
+    if(group.id==='sharing')html+=settingsGroup(group.id,'pages','Individual page overrides','Choose a page to give it its own search and sharing details.',metadataEditor(),4,sections.length);
+    return html;
+  }
   function renderSettings() {
-    var x = state.data.settings || SaneSettings.normalize({});
-    var tabs = '<div class="settings-tabs" role="tablist" aria-label="Website settings categories">'+SaneSettings.groups.map(function(g){var active=state.settingsTab===g.id;return '<button type="button" role="tab" id="tab-'+g.id+'" aria-controls="settings-'+g.id+'" aria-selected="'+active+'" tabindex="'+(active?'0':'-1')+'" data-settings-tab="'+g.id+'">'+esc(g.label)+'</button>';}).join('')+'</div>';
-    var panels = SaneSettings.groups.map(function(g){return '<div role="tabpanel" aria-labelledby="tab-'+g.id+'" id="settings-'+g.id+'" class="settings-tab-panel '+(state.settingsTab===g.id?'is-active':'')+'"><div class="card settings-card"><div class="workspace-card-head"><div><span class="workspace-eyebrow">Website settings</span><h3>'+esc(g.label)+'</h3><p>'+esc(g.intro)+'</p></div></div><div class="settings-fields">'+g.fields.map(function(f){return settingsField(f,x[f.key]);}).join('')+(g.id==='sharing'?metadataEditor():'')+(g.id==='navigation'?navigationEditor():'')+'</div></div></div>';}).join('');
-    return panelShell('settings','Settings','Shared site controls, ready for the next design. Save a draft to review with the team, or publish changes to the website.',tabs+panels+savebarHtml('settings'));
+    var x=state.data.settings||SaneSettings.normalize({});
+    var tabs='<div class="settings-tabs" role="tablist" aria-label="Website settings categories">'+SaneSettings.groups.map(function(g){var active=state.settingsTab===g.id;return '<button type="button" role="tab" id="tab-'+g.id+'" aria-controls="settings-'+g.id+'" aria-selected="'+active+'" tabindex="'+(active?'0':'-1')+'" data-settings-tab="'+g.id+'">'+esc(g.label)+'</button>';}).join('')+'</div>';
+    var panels=SaneSettings.groups.map(function(g){return '<div role="tabpanel" aria-labelledby="tab-'+g.id+'" id="settings-'+g.id+'" class="settings-tab-panel '+(state.settingsTab===g.id?'is-active':'')+'"><div class="card settings-card"><div class="workspace-card-head"><div><span class="workspace-eyebrow">Website settings</span><h3>'+esc(g.label)+'</h3><p>'+esc(SETTINGS_CONTEXT[g.id]||g.intro)+'</p></div>'+(g.id!=='navigation'?'<button type="button" class="btn btn-ghost btn-small" data-settings-expand="'+g.id+'">Show all fields</button>':'')+'</div><div class="settings-fields">'+settingsFields(g,x)+'</div></div></div>';}).join('');
+    return panelShell('settings','Settings','Choose a category, then open the section you need. Save a draft to review changes with the team, or publish when ready.',tabs+panels+savebarHtml('settings'));
   }
   function selectSettingsTab(id, focus) {
     state.settingsTab=id;
@@ -1015,6 +1013,9 @@
     orientSettingsTabs();
     var root=$('#panel-settings');
     bindFields('settings',root);
+    function updateSectionButton(id){var panel=$('#settings-'+id),button=$('[data-settings-expand]',panel),groups=$$('[data-settings-group]',panel),open=groups.length&&groups.every(function(d){return d.open;});if(button){button.textContent=open?'Collapse fields':'Show all fields';button.setAttribute('aria-expanded',String(!!open));button.setAttribute('aria-controls',groups.map(function(d){return d.id;}).join(' '));}}
+    $$('[data-settings-group]',root).forEach(function(d){d.ontoggle=function(){settingsOpen[d.dataset.settingsGroup]=d.open;updateSectionButton(d.closest('[role=tabpanel]').id.replace('settings-',''));};});
+    $$('[data-settings-expand]',root).forEach(function(b){var id=b.dataset.settingsExpand;updateSectionButton(id);b.onclick=function(){var groups=$$('[data-settings-group]',$('#settings-'+id)),open=groups.some(function(d){return !d.open;});groups.forEach(function(d){d.open=open;settingsOpen[d.dataset.settingsGroup]=open;});updateSectionButton(id);};});
     $$('[data-settings-tab]',root).forEach(function(b){b.onclick=function(){selectSettingsTab(b.dataset.settingsTab);};b.onkeydown=function(e){var tabs=$$('[data-settings-tab]',root),i=tabs.indexOf(b);if(['ArrowRight','ArrowLeft','ArrowDown','ArrowUp','Home','End'].indexOf(e.key)===-1)return;e.preventDefault();var next=e.key==='Home'?0:e.key==='End'?tabs.length-1:(i+(e.key==='ArrowRight'||e.key==='ArrowDown'?1:-1)+tabs.length)%tabs.length;selectSettingsTab(tabs[next].dataset.settingsTab,true);};});
     $$('[data-setting-toggle]',root).forEach(function(b){b.onchange=function(){state.data.settings[b.dataset.settingToggle]=b.checked;setDirty('settings',true);};});
     $$('[data-menu-label]',root).forEach(function(b){b.oninput=function(){state.data.settings.navigation[+b.dataset.menuLabel].label=b.value;setDirty('settings',true);};});
@@ -1149,7 +1150,7 @@
       if(revision.deployment && revision.deployment!==revision.head){sourceStatus('GitHub updates detected · waiting for the website deployment. Your work is kept.');return;}
       var changed=revision.head!==sourceHead;
       if(!changed && !Object.keys(sourcePending).length)return;
-      var protectedSections=[];
+      var protectedSections=[],homeChanged=false;
       for(var id of Object.keys(state.versions)){
         if(!state.loaded[id] || (!changed && !sourcePending[id]))continue;
         var focused=$('#panel-'+id),editing=focused && focused.contains(document.activeElement) && /^(INPUT|TEXTAREA|SELECT)$/.test(document.activeElement.tagName);
@@ -1157,13 +1158,15 @@
         if(!changed && (state.unsaved[id] || state.dirty[id])){protectedSections.push(id);continue;}
         var before=contentText(id),old=state.versions[id],remote=await api('/api/dash-content?section='+encodeURIComponent(id)+'&ref='+encodeURIComponent(revision.head));
         if(state.versions[id]!==old){sourcePending[id]=true;continue;}
+        if(id==='settings'&&remote.published){overviewPublishedSettings=remote.published.content;homeChanged=true;}
         var same=remote.published && old.sha===remote.published.sha && old.draftSha===(remote.draft?remote.draft.sha:null);
         if(same){versionPanelImages(id,revision.head);delete sourcePending[id];continue;}
         if(state.unsaved[id] || state.dirty[id] || state.busy[id] || contentText(id)!==before){sourcePending[id]=true;protectedSections.push(id);state.conflicts[id]='The website or shared draft changed externally. Your work is kept; load the latest version when you are ready.';updateSaveUI(id);continue;}
         if(focused && focused.contains(document.activeElement) && /^(INPUT|TEXTAREA|SELECT)$/.test(document.activeElement.tagName)){sourcePending[id]=true;continue;}
         await loadContentSection(id,false,remote);refreshPanel(id);versionPanelImages(id,revision.head);updateSaveUI(id);delete sourcePending[id];
-        if(id==='settings' && state.loaded.home)refreshPanel('home');
+        homeChanged=true;
       }
+      if(homeChanged&&state.section==='home')refreshPanel('home');
       sourceHead=revision.head;
       sourceStatus(protectedSections.length?'Website updates available · your unpublished '+protectedSections.join(', ')+' work is protected.':Object.keys(sourcePending).length?'Website updates waiting until you finish the active field.':'Website content is up to date · checked '+new Date().toLocaleTimeString([], {hour:'numeric',minute:'2-digit'}));
     }catch(e){if(e.message!=='unauthorized')sourceStatus('Update check paused · '+e.message+' Your work is kept.');}
