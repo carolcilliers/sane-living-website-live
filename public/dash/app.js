@@ -684,8 +684,8 @@
       '<img src="' + esc(p.image) + '" alt="' + esc(p.alt || '') + '" loading="lazy" onerror="this.style.opacity=0.25">' +
       '<div class="pc-body">' +
       (p.draft ? '<div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:10px"><span style="background:#fdf0d5;color:#8a6d00;border:1px solid #ecd28a;border-radius:999px;padding:2px 10px;font-size:.76rem;font-weight:700">\u25CF NOT PUBLISHED</span><button type="button" class="btn btn-primary" style="padding:6px 14px;font-size:.85rem" data-ph-publish="' + idx + '">Publish to website</button></div>' : '') +
-      '<input data-ph="caption" data-idx="' + idx + '" value="' + esc(p.caption || '') + '" placeholder="Caption (shown under the photo)">' +
-      '<input data-ph="alt" data-idx="' + idx + '" value="' + esc(p.alt || '') + '" placeholder="Describe the photo (for accessibility)">' +
+      '<label class="photo-field"><span>Caption</span><input data-ph="caption" data-idx="' + idx + '" value="' + esc(p.caption || '') + '" placeholder="Caption (shown under the photo)"></label>' +
+      '<label class="photo-field"><span>Photo description</span><input data-ph="alt" data-idx="' + idx + '" value="' + esc(p.alt || '') + '" placeholder="Describe the photo (for accessibility)"></label>' +
       '<label class="pc-section-label">Website section<select data-ph="section" data-idx="' + idx + '">' + sections + '</select></label>' +
       groupPicker +
       '<div class="pc-actions">' +
@@ -706,7 +706,7 @@
       return '<section class="group-block gallery-section-card" aria-labelledby="gallery-title-'+sd.id+'" id="gal-group-' + sd.id + '">' +
         '<div class="group-head"><div><span class="gallery-section-eyebrow">Gallery collection</span><h3 id="gallery-title-'+sd.id+'">' + sd.title + ' <span class="group-count">' + mine.length + ' photo' + (mine.length === 1 ? '' : 's') + '</span></h3>' +
         '<p>' + sd.blurb + '<br><span class="where">Appears: ' + sd.where + '</span></p></div>' +
-        '<label class="btn btn-primary btn-small" style="margin:0">+ Add photos<input type="file" class="gal-upload-group" data-section="' + sd.id + '" accept="image/*" multiple hidden></label></div>' +
+        '<label class="btn btn-primary btn-small" style="margin:0">+ Add photos<input type="file" class="gal-upload-group" data-section="' + sd.id + '" accept="image/*" multiple></label></div>' +
         '<div class="gallery-section-photos">'+cards+'</div></section>';
     }).join('');
   }
@@ -861,7 +861,7 @@
   function renderWeddings() {
     var w = state.data.weddings || {};
     var highlights = (w.highlights || []).map(function (h, i) {
-      return '<div class="list-row"><input data-hl="' + i + '" value="' + esc(h) + '"><button type="button" class="icon-btn danger" data-hl-del="' + i + '" title="Remove">✕</button></div>';
+      return '<div class="list-row"><input aria-label="Highlight ' + (i + 1) + '" data-hl="' + i + '" value="' + esc(h) + '"><button type="button" class="icon-btn danger" data-hl-del="' + i + '" title="Remove">✕</button></div>';
     }).join('');
     var inner = '<div class="card form-card">' +
       fieldHtml('Page heading', 'heading', w.heading) +
@@ -910,11 +910,11 @@
   function renderPricing() {
     var p = state.data.pricing || {};
     var rows = (p.rows || []).map(function (r, i) {
-      return '<tr><td><input data-row="' + i + '" data-col="label" value="' + esc(r.label) + '"><input data-row="' + i + '" data-col="sublabel" value="' + esc(r.sublabel) + '" style="margin-top:6px"></td>' +
-        '<td><input data-row="' + i + '" data-col="monThu" value="' + esc(r.monThu) + '"></td>' +
-        '<td><input data-row="' + i + '" data-col="friday" value="' + esc(r.friday) + '"></td>' +
-        '<td><input data-row="' + i + '" data-col="saturday" value="' + esc(r.saturday) + '"></td>' +
-        '<td><input data-row="' + i + '" data-col="sunday" value="' + esc(r.sunday) + '"></td></tr>';
+      return '<tr><td data-label="Session"><input aria-label="Session name" data-row="' + i + '" data-col="label" value="' + esc(r.label) + '"><input aria-label="Session detail" data-row="' + i + '" data-col="sublabel" value="' + esc(r.sublabel) + '" style="margin-top:6px"></td>' +
+        '<td data-label="Mon–Thu"><input aria-label="Mon–Thu rate" data-row="' + i + '" data-col="monThu" value="' + esc(r.monThu) + '"></td>' +
+        '<td data-label="Friday"><input aria-label="Friday rate" data-row="' + i + '" data-col="friday" value="' + esc(r.friday) + '"></td>' +
+        '<td data-label="Saturday"><input aria-label="Saturday rate" data-row="' + i + '" data-col="saturday" value="' + esc(r.saturday) + '"></td>' +
+        '<td data-label="Sunday"><input aria-label="Sunday rate" data-row="' + i + '" data-col="sunday" value="' + esc(r.sunday) + '"></td></tr>';
     }).join('');
     var inner = '<div class="card form-card">' +
       '<div class="field"><label>Rental rates</label>' +
@@ -943,11 +943,11 @@
     var d = state.data.partners || {};
     var cards = (d.partners || []).map(function (p, i) {
       return '<div class="card form-card" style="margin-bottom:14px">' +
-        '<div class="form-row"><div class="field"><label>Business name</label><input data-pt="' + i + '" data-k="name" value="' + esc(p.name || '') + '"></div>' +
-        '<div class="field"><label>Category</label><input data-pt="' + i + '" data-k="category" value="' + esc(p.category || '') + '" placeholder="Catering, Flowers, Photography…"></div></div>' +
-        '<div class="field"><label>Short description</label><textarea data-pt="' + i + '" data-k="description" rows="2">' + esc(p.description != null ? p.description : p.blurb || '') + '</textarea></div>' +
-        '<div class="form-row"><div class="field"><label>Website</label><input data-pt="' + i + '" data-k="website" value="' + esc(p.website || '') + '" placeholder="https://…"></div>' +
-        '<div class="field"><label>Photo (path or link)</label><input data-pt="' + i + '" data-k="image" value="' + esc(p.image || '') + '" placeholder="/images/…"></div></div>' +
+        '<div class="form-row"><div class="field"><label for="partner-name-' + i + '">Business name</label><input id="partner-name-' + i + '" data-pt="' + i + '" data-k="name" value="' + esc(p.name || '') + '"></div>' +
+        '<div class="field"><label for="partner-category-' + i + '">Category</label><input id="partner-category-' + i + '" data-pt="' + i + '" data-k="category" value="' + esc(p.category || '') + '" placeholder="Catering, Flowers, Photography…"></div></div>' +
+        '<div class="field"><label for="partner-description-' + i + '">Short description</label><textarea id="partner-description-' + i + '" data-pt="' + i + '" data-k="description" rows="2">' + esc(p.description != null ? p.description : p.blurb || '') + '</textarea></div>' +
+        '<div class="form-row"><div class="field"><label for="partner-website-' + i + '">Website</label><input id="partner-website-' + i + '" data-pt="' + i + '" data-k="website" value="' + esc(p.website || '') + '" placeholder="https://…"></div>' +
+        '<div class="field"><label for="partner-image-' + i + '">Photo (path or link)</label><input id="partner-image-' + i + '" data-pt="' + i + '" data-k="image" value="' + esc(p.image || '') + '" placeholder="/images/…"></div></div>' +
         '<div><button type="button" class="btn btn-danger btn-small" data-pt-del="' + i + '">Remove this partner</button></div></div>';
     }).join('');
     var inner = '<div class="card form-card" style="margin-bottom:18px">' +
@@ -985,7 +985,7 @@
   function settingsField(f, value) {
     if(f.type === 'boolean') return '<label class="switch-field"><span><strong>'+esc(f.label)+'</strong></span><input type="checkbox" data-setting-toggle="'+f.key+'" '+(value?'checked':'')+'><span class="switch-track" aria-hidden="true"></span></label>';
     var html = fieldHtml(f.label,f.key,value,{textarea:f.type==='textarea',rows:3,hint:f.hint,placeholder:f.type==='image'||f.type==='icon'?'Upload an image or enter /images/…':''});
-    if(f.type === 'image' || f.type === 'icon') html = '<div class="asset-field">'+html+'<div class="asset-controls"><div class="asset-preview"><img data-asset-preview="'+f.key+'" src="'+esc(SaneSettings.safeUrl(value,'image'))+'" alt="'+esc(f.label)+' preview" '+(!value?'hidden':'')+'></div><label class="btn btn-ghost btn-small">Upload '+(f.type==='icon'?'icon':'image')+'<input type="file" data-asset="'+f.key+'" accept="'+(f.type==='icon'?'.png,.ico':'.png,.jpg,.jpeg,.webp,.gif')+'" hidden></label><span class="asset-upload-status" data-asset-status="'+f.key+'" role="status">Maximum 4 MB</span></div></div>';
+    if(f.type === 'image' || f.type === 'icon') html = '<div class="asset-field">'+html+'<div class="asset-controls"><div class="asset-preview"><img data-asset-preview="'+f.key+'" src="'+esc(SaneSettings.safeUrl(value,'image'))+'" alt="'+esc(f.label)+' preview" '+(!value?'hidden':'')+'></div><label class="btn btn-ghost btn-small">Upload '+(f.type==='icon'?'icon':'image')+'<input type="file" data-asset="'+f.key+'" accept="'+(f.type==='icon'?'.png,.ico':'.png,.jpg,.jpeg,.webp,.gif')+'"></label><span class="asset-upload-status" data-asset-status="'+f.key+'" role="status">Maximum 4 MB</span></div></div>';
     return html;
   }
   var PAGE_CHOICES = [['/','Homepage'],['/about/','About'],['/contact/','Contact'],['/events/','Upcoming events'],['/events/past/','Past events'],['/rent/','Rent'],['/rent/pricing/','Rates & availability'],['/rent/weddings/','Weddings'],['/rent/farm/','Farm'],['/gallery/','Gallery'],['/partners/','Partners'],['/sculpture/','Sculpture'],['/evo3/','EVO 3'],['/lifestyle/','Lifestyle'],['/inspiration/','Inspiration'],['/self-heal/','Self 2 Heal'],['/lifestyle/natures-bio/','Nature’s Bio'],['/lifestyle/sapiens-ego/','Sapiens Ego'],['/lifestyle/ai-algo/','AI Algo'],['/lifestyle/evo3/','Lifestyle EVO 3'],['/self-heal/eat/','Eat'],['/self-heal/move/','Move'],['/self-heal/detox/','Detox'],['/self-heal/destress/','Destress']];
@@ -1134,7 +1134,7 @@
   }
 
   var sourceHead='',sourceBusy=false,sourceLast=0,sourcePending={};
-  function sourceStatus(message){var node=$('#dashboardSourceStatus');if(!node){node=document.createElement('div');node.id='dashboardSourceStatus';node.setAttribute('role','status');node.style.cssText='padding:10px 18px;background:#2c2634;color:#f4eef8;font:13px system-ui;border-bottom:1px solid #675375';$('#panels').before(node);}node.hidden=!message;node.textContent=message;}
+  function sourceStatus(message){var node=$('#dashboardSourceStatus');if(!node){node=document.createElement('div');node.id='dashboardSourceStatus';node.setAttribute('role','status');node.className='dashboard-source-status';$('#panels').before(node);}node.hidden=!message;node.textContent=message;}
   function versionPanelImages(id,revision){var panel=$('#panel-'+id);if(!panel)return;$$('img[src]',panel).forEach(function(img){var url=new URL(img.getAttribute('src'),location.origin);if(url.origin===location.origin && /\.(png|jpe?g|webp|gif|avif|svg)$/i.test(url.pathname) && !/^\/(api|dash|vendor)\//i.test(url.pathname)){url.searchParams.set('site-rev',revision);img.src=url.pathname+url.search;}});}
   async function checkWebsiteSource(force){
     if(!entered || $('#appView').style.display==='none' || sourceBusy || document.hidden || (!force && Date.now()-sourceLast<5000))return;
