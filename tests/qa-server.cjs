@@ -87,7 +87,7 @@ module.exports=async function createServer(){
    const latestRoutes=JSON.parse(fs.readFileSync(path.join(output,'vercel.json'))).rewrites;const rewrite=latestRoutes.find(r=>r.source===relative);if(rewrite)relative=rewrite.destination;
    const file=path.join(output,'public',relative);
    if(!file.startsWith(path.join(output,'public')+path.sep)||!fs.existsSync(file)||!fs.statSync(file).isFile()){res.statusCode=404;return res.end('Not found');}
-   const ext=path.extname(file);res.setHeader('Content-Type',({'.html':'text/html','.js':'application/javascript','.css':'text/css','.json':'application/json','.md':'text/plain','.svg':'image/svg+xml','.mp4':'video/mp4','.webm':'video/webm'})[ext]||'application/octet-stream');res.end(fs.readFileSync(file));
+   const ext=path.extname(file);res.setHeader('Content-Type',({'.html':'text/html','.js':'application/javascript','.css':'text/css','.json':'application/json','.md':'text/plain','.svg':'image/svg+xml','.jpg':'image/jpeg','.jpeg':'image/jpeg','.png':'image/png','.webp':'image/webp','.gif':'image/gif','.mp4':'video/mp4','.webm':'video/webm'})[ext]||'application/octet-stream');res.end(fs.readFileSync(file));
   }catch(e){console.error(e);res.statusCode=500;res.end(JSON.stringify({error:e.message}));}
  });
  await new Promise(r=>server.listen(0,'127.0.0.1',r));controls.url='http://127.0.0.1:'+server.address().port;controls.cookie=cookie;controls.close=async()=>{global.fetch=realFetch;await new Promise(r=>server.close(r));fs.rmSync(output,{recursive:true,force:true});};return controls;
