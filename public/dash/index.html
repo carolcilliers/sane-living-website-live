@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="robots" content="noindex">
 <title>Sane Living — Team Dashboard</title>
-<script src="/dash/appearance.js?v=20261026-glass-1"></script>
+<script src="/dash/appearance.js?v=20261026-planner-1"></script>
 <link rel="preload" href="/fonts/nunito-latin.woff" as="font" type="font/woff" crossorigin>
 <style>
   :root {
@@ -279,8 +279,8 @@
   }
 </style>
 <link rel="stylesheet" href="/dash/studio.css">
-<link rel="stylesheet" href="/dash/workspace.css?v=20261026-glass-1">
-<link rel="stylesheet" href="/dash/appearance.css?v=20261026-glass-1">
+<link rel="stylesheet" href="/dash/workspace.css?v=20261026-planner-1">
+<link rel="stylesheet" href="/dash/appearance.css?v=20261026-planner-1">
 <link rel="icon" href="/favicon.svg">
 </head>
 <body>
@@ -307,7 +307,7 @@
 <div id="appView">
   <aside class="sidebar">
     <div class="brand">
-      <span class="logo-chip"><img src="/images/logo.png" alt="Sane Living"></span>
+      <a class="logo-chip" href="#home" id="dashboardHomeLogo" aria-label="Sane Living dashboard home"><img src="/images/logo.png" alt="Sane Living"></a>
       <div class="brand-name">Team Dashboard</div>
       <div class="brand-sub">Sane Living Event Center · Ojai</div>
     </div>
@@ -325,7 +325,9 @@
 <script src="/site-config.js"></script>
 <script src="/vendor/js-yaml.min.js"></script>
 <script src="/content-model.js"></script>
-<script src="/dash/app.js?v=20261026-glass-1"></script>
+<script src="/event-model.js"></script>
+<script src="/dash/event-workspace.js?v=20261026-planner-1"></script>
+<script src="/dash/app.js?v=20261026-planner-1"></script>
 </body>
 </html>
 

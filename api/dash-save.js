@@ -4,8 +4,9 @@ var login = require('./_dashlib');
 var repo = require('./_contentlib');
 var settings = require('../public/site-config');
 var model = require('../public/content-model');
+var events = require('../public/event-model');
 function conflict(message) { var e = new Error(message); e.status = 409; throw e; }
-function validate(section, text) {
+function validate(section, text, publication) {
   if (Buffer.byteLength(text,'utf8') > 750000) return 'Content is too large (maximum 750 KB).';
   if (section === 'about') {
     try { return model.validateAbout(model.parseAbout(text)).join(' '); } catch(e) { return 'About content could not be read: ' + e.message; }
@@ -14,6 +15,7 @@ function validate(section, text) {
   try { data = JSON.parse(text); } catch(e) { return 'The content is not valid JSON — nothing was saved.'; }
   if (!data || typeof data !== 'object' || Array.isArray(data)) return 'Content must be an object.';
   if (section === 'settings') return settings.validate(settings.normalize(data)).join(' ');
+  if (section === 'eventStories') return events.validate(data,publication).join(' ');
   if (section === 'gallery' && !Array.isArray(data.photos)) return 'Gallery photos must be a list.';
   if (section === 'pricing' && !Array.isArray(data.rows)) return 'Pricing rows must be a list.';
   if (section === 'partners' && !Array.isArray(data.partners)) return 'Partners must be a list.';
@@ -28,15 +30,17 @@ module.exports = async function (req, res) {
   if (!body || typeof body !== 'object' || Array.isArray(body)) return res.status(400).json({ error: 'Send a content object.' });
   var path = String(body.path || ''), section = repo.sectionFor(path);
   var image = /^public\/images\/[A-Za-z0-9][A-Za-z0-9._-]*\.(jpg|jpeg|png|webp|gif|ico)$/i.exec(path);
-  if (!section && !image) return res.status(400).json({ error: 'That file is not editable from the dashboard.' });
+  var video = /^public\/media\/[A-Za-z0-9][A-Za-z0-9._-]*\.(mp4|webm)$/i.exec(path);
+  if (!section && !image && !video) return res.status(400).json({ error: 'That file is not editable from the dashboard.' });
   try {
-    if (image) {
+    if (image || video) {
       var base64 = body.contentBase64;
-      if (typeof base64 !== 'string' || !base64 || !/^[A-Za-z0-9+/]+={0,2}$/.test(base64) || base64.length % 4 !== 0) return res.status(400).json({ error: 'No valid image data received.' });
+      if (typeof base64 !== 'string' || !base64 || !/^[A-Za-z0-9+/]+={0,2}$/.test(base64) || base64.length % 4 !== 0) return res.status(400).json({ error: 'No valid media data received.' });
       var bytes = Buffer.from(base64,'base64');
-      if (bytes.length > 4 * 1024 * 1024) return res.status(413).json({ error: 'Image is too large (max 4 MB).' });
-      var ext = image[1].toLowerCase();
-      var valid = ext === 'png' ? bytes.subarray(0,8).equals(Buffer.from([137,80,78,71,13,10,26,10])) :
+      if (bytes.length > 4 * 1024 * 1024) return res.status(413).json({ error: 'File is too large. Images must be below 4 MB; video clips below 3 MB.' });
+      var ext = (image||video)[1].toLowerCase();
+      if(video&&bytes.length>3*1024*1024)return res.status(413).json({error:'Video is too large. Upload a clip below 3 MB or use a hosted video URL.'});
+      var valid = ext === 'mp4' ? bytes.subarray(4,8).toString()==='ftyp' : ext === 'webm' ? bytes.subarray(0,4).equals(Buffer.from([26,69,223,163])) : ext === 'png' ? bytes.subarray(0,8).equals(Buffer.from([137,80,78,71,13,10,26,10])) :
         /jpe?g/.test(ext) ? bytes[0] === 255 && bytes[1] === 216 && bytes[2] === 255 :
         ext === 'gif' ? /^GIF8[79]a$/.test(bytes.subarray(0,6).toString()) :
         ext === 'webp' ? bytes.subarray(0,4).toString() === 'RIFF' && bytes.subarray(8,12).toString() === 'WEBP' : bytes.subarray(0,4).equals(Buffer.from([0,0,1,0]));
@@ -64,7 +68,7 @@ module.exports = async function (req, res) {
     }
     if (typeof body.content !== 'string') return res.status(400).json({ error: 'No content received.' });
     if (Buffer.byteLength(body.content,'utf8') > 750000) return res.status(413).json({error:'Content is too large (maximum 750 KB).'});
-    var error = validate(section,body.content);
+    var error = validate(section,body.content,action==='publish');
     if (error && (action === 'publish' || !body.content || (section !== 'settings' && section !== 'about'))) return res.status(400).json({ error:error });
     if (action === 'draft') {
       try { if(section === 'about') model.parseAbout(body.content); else { var parsed=JSON.parse(body.content); if(!parsed || typeof parsed!=='object' || Array.isArray(parsed)) throw Error('object required'); } } catch(e) { return res.status(400).json({error:'Draft content is not readable.'}); }
@@ -72,13 +76,24 @@ module.exports = async function (req, res) {
       var result = await repo.write(repo.draftPath(section),JSON.stringify({version:1,baseSha:body.expectedSha,content:body.content,updatedAt:updatedAt},null,2)+'\n',draft && draft.sha,'Dashboard: save '+section+' draft');
       return res.status(200).json({ok:true,action:'draft',sha:body.expectedSha,draftSha:result.content.sha,updatedAt:updatedAt,commit:result.commit.sha});
     }
-    var result = await repo.write(path,body.content,published && published.sha,'Dashboard: publish '+section);
+    if(section==='eventStories'){
+      var working=JSON.parse(body.content),publicContent=JSON.stringify(Object.assign({},working,{stories:working.stories.filter(function(story){return story.published;})}),null,2)+'\n';
+      var publishedResult=await repo.write(path,publicContent,published&&published.sha,'Dashboard: publish approved event stories');
+      if(working.stories.some(function(story){return !story.published;})){
+        var kept;
+        try{kept=await repo.write(repo.draftPath(section),JSON.stringify({version:1,baseSha:publishedResult.content.sha,content:body.content,updatedAt:new Date().toISOString()},null,2)+'\n',draft&&draft.sha,'Dashboard: retain planning and archive story drafts');}
+        catch(draftError){return res.status(200).json({ok:true,action:'publish',sha:publishedResult.content.sha,draftSha:draft&&draft.sha||null,publishedContent:publicContent,retainedDraft:true,commit:publishedResult.commit.sha,warning:'Approved stories were published, but the working draft changed while saving. Your device copy is kept. Reload before editing further.'});}
+        return res.status(200).json({ok:true,action:'publish',sha:publishedResult.content.sha,draftSha:kept.content.sha,publishedContent:publicContent,retainedDraft:true,commit:publishedResult.commit.sha});
+      }
+      body.content=publicContent;
+      var result=publishedResult;
+    }else var result = await repo.write(path,body.content,published && published.sha,'Dashboard: publish '+section);
     var warning = '';
     if (draft) {
       var cleaned = await repo.gh('/contents/'+repo.draftPath(section),{method:'DELETE',headers:{'Content-Type':'application/json'},body:JSON.stringify({branch:repo.BRANCH,message:'Dashboard: clear published '+section+' draft',sha:draft.sha})});
       if (!cleaned.ok) warning = 'Published, but the shared draft could not be cleared. Reload to see its latest state.';
     }
-    return res.status(200).json({ok:true,action:'publish',sha:result.content.sha,draftSha:warning ? draft && draft.sha : null,commit:result.commit.sha,warning:warning});
+    return res.status(200).json({ok:true,action:'publish',sha:result.content.sha,draftSha:warning ? draft && draft.sha : null,commit:result.commit.sha,warning:warning,publishedContent:section==='eventStories'?body.content:undefined});
   } catch(e) { return res.status(e.status || 500).json({error:e.message || 'Saving failed. Your changes are kept on this device.'}); }
 };
 

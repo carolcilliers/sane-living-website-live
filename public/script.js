@@ -387,3 +387,11 @@ function initGalleryModal() {
     if (e.key === 'ArrowRight') nextImage();
   });
 }
+
+// Optional published event-story data enriches existing event components only.
+if (/^\/events(?:\/|$)/.test(location.pathname)) {
+  const eventStoriesScript = document.createElement('script');
+  eventStoriesScript.src = '/event-stories-public.js';
+  eventStoriesScript.defer = true;
+  document.head.appendChild(eventStoriesScript);
+}

@@ -54,3 +54,6 @@ fs.writeFileSync(aboutPath,aboutHtml);
 // A real tab icon is present even before user branding is uploaded.
 const dashPath=path.join(publicDir,'dash/index.html');let dash=fs.readFileSync(dashPath,'utf8');const icon='<link rel="icon" href="'+content.esc(s.faviconUrl||'/favicon.svg')+'">';dash=/<link[^>]+rel="icon"[^>]*>/i.test(dash)?dash.replace(/<link[^>]+rel="icon"[^>]*>/i,()=>icon):dash.replace('</head>',icon+'\n</head>');fs.writeFileSync(dashPath,dash);
 console.log('Built published About content, favicon and metadata for '+files.length+' public pages.');
+
+// Validate approved event data before deployment; this does not alter page design.
+{const eventModel=require('../public/event-model');const stories=require('../public/content/event-stories.json');const problems=eventModel.validate(stories,true);if(problems.length)throw new Error('Event story publication: '+problems.join(' '));}

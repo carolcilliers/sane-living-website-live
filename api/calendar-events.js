@@ -8,7 +8,12 @@
  *   ?debug=1  — return raw Airtable field names (for development)
  */
 
+var eventModel=require('../public/event-model');
+var eventStories=require('../public/content/event-stories.json');
+var login=require('./_dashlib');
 module.exports = async function handler(req, res) {
+  req.query=req.query||{};
+  if(req.query.debug){res.setHeader('Cache-Control','private, no-store');if(!login.requireLogin(req,res))return;}
   if (req.method !== 'GET') {
     return res.status(405).json({ error: 'Method not allowed' });
   }
@@ -26,7 +31,7 @@ module.exports = async function handler(req, res) {
     if (req.query.debug !== '2') {
       params.append('filterByFormula', '{Publish} = TRUE()');
     }
-    params.append('maxRecords', '100');
+    params.append('pageSize','100');
 
     var url = 'https://api.airtable.com/v0/' + baseId + '/' + encodeURIComponent(table) + '?' + params.toString();
 
@@ -41,6 +46,7 @@ module.exports = async function handler(req, res) {
     }
 
     var data = await response.json();
+    var offsets=new Set();while(data.offset){if(offsets.has(data.offset))throw Error('Repeated Airtable page offset');offsets.add(data.offset);params.set('offset',data.offset);var next=await fetch('https://api.airtable.com/v0/'+baseId+'/'+encodeURIComponent(table)+'?'+params.toString(),{headers:{Authorization:'Bearer '+token}});if(!next.ok)throw Error('The next Airtable page could not be read');var page=await next.json();data.records=(data.records||[]).concat(page.records||[]);data.offset=page.offset;}
 
     // Debug mode: return raw field names
     if (req.query.debug === '1') {
@@ -52,7 +58,7 @@ module.exports = async function handler(req, res) {
     }
 
     var now = new Date();
-    var todayStr = now.toISOString().split('T')[0];
+    var todayStr = eventModel.today();
 
     var events = (data.records || []).map(function(record) {
       var f = record.fields;
@@ -106,11 +112,12 @@ module.exports = async function handler(req, res) {
       return evt.title && (!evt.date || evt.date >= todayStr);
     });
 
+    events=events.map(function(event){return eventModel.enrich(event,eventStories);});
     events.sort(function(a, b) {
       return a.date < b.date ? -1 : a.date > b.date ? 1 : 0;
     });
 
-    res.setHeader('Cache-Control', 's-maxage=300, stale-while-revalidate=600');
+    res.setHeader('Cache-Control', req.query.debug?'private, no-store':'s-maxage=300, stale-while-revalidate=600');
     return res.status(200).json({ events: events });
   } catch (err) {
     console.error('Calendar events API error:', err);

@@ -17,6 +17,8 @@
  * AIRTABLE_CALENDAR_TABLE (optional).
  */
 var lib = require('./_dashlib');
+var crypto = require('node:crypto');
+var eventModel=require('../public/event-model');
 
 var TZ = 'America/Los_Angeles';
 
@@ -97,6 +99,7 @@ function mapRecord(record) {
   if (Array.isArray(att) && att.length) img = att[0].url || null;
   return {
     id: record.id,
+    version:crypto.createHash('sha256').update(JSON.stringify(Object.keys(f).sort().map(function(key){return [key,f[key]];}))).digest('hex'),
     title: f['Public Title'] || f['Title'] || f['Name'] || '',
     date: startRaw ? fmtDate(startRaw) : '',
     startTime: startRaw ? fmtTime(startRaw) : '',
@@ -120,7 +123,7 @@ function buildFields(body) {
     if (body.endTime) {
       var endIso = zonedToIso(body.date, body.endTime);
       if (endIso) fields['End Time'] = endIso;
-    }
+    } else if(body.endTime==='')fields['End Time']=null;
   }
   if (body.location !== undefined) fields['Location'] = String(body.location || '');
   if (body.description !== undefined) fields['Description'] = String(body.description || '');
@@ -140,6 +143,7 @@ async function readOnlyEvents() {
   var resp = await fetch(LIVE_FEED);
   if (!resp.ok) throw new Error('live feed HTTP ' + resp.status);
   var data = await resp.json();
+  try{var past=await fetch(process.env.LIVE_PAST_EVENTS_FEED_URL||new URL('/api/calendar-events-past',LIVE_FEED).href);if(past.ok){var archive=await past.json();var ids=new Set((data.events||[]).map(function(e){return e.id;}));data.events=(data.events||[]).concat((archive.events||[]).filter(function(e){return !ids.has(e.id);}));}}catch(e){}
   return (data.events || []).map(function (e) {
     return {
       id: e.id, title: e.title || '', date: e.date || '',
@@ -152,6 +156,8 @@ async function readOnlyEvents() {
 }
 
 module.exports = async function handler(req, res) {
+  res.setHeader('Cache-Control','private, no-store');
+  if(!['GET','POST','PATCH','DELETE'].includes(req.method))return res.status(405).json({error:'Method not allowed'});
   if (!lib.requireLogin(req, res)) return;
   var cfg = airtableConfig();
   if (!cfg) {
@@ -193,7 +199,13 @@ module.exports = async function handler(req, res) {
     }
     if (req.method === 'POST' || req.method === 'PATCH') {
       var body = lib.readJsonBody(req);
+      if(!body||typeof body!=='object')return res.status(400).json({error:'Send an event object.'});
+      if(body.date!==undefined&&(!eventModel.validDate(body.date)||!body.date||!parseTimeToHM(body.startTime||'12 PM')||body.endTime&&!parseTimeToHM(body.endTime)))return res.status(400).json({error:'Use a valid date and time, for example 2026-12-20 and 6:00 PM.'});
+      if(body.rsvpUrl&&!eventModel.safeUrl(body.rsvpUrl))return res.status(400).json({error:'Use an HTTPS RSVP URL or a local path.'});
+      if(body.id&&!/^rec[A-Za-z0-9]+$/.test(body.id))return res.status(400).json({error:'Invalid Airtable record id.'});
       var fields = buildFields(body);
+      if(body.id){var currentResponse=await at(cfg,'/'+encodeURIComponent(body.id));if(!currentResponse.ok)return res.status(502).json({error:'The current Airtable event could not be checked. Your work is kept.'});var currentRecord=await currentResponse.json();if(body.expectedVersion&&mapRecord(currentRecord).version!==body.expectedVersion)return res.status(409).json({error:'This event changed in Airtable. Reload the calendar before saving; your work is kept.'});
+        var overrides={'title':'Title','location':'Location','description':'Description','type':'Type','price':'Price','rsvpUrl':'RSVP Link'};for(var key of Object.keys(overrides)){var override=currentRecord.fields&&currentRecord.fields['Public '+overrides[key]];if(body[key]!==undefined&&override&&String(override)!==String(currentRecord.fields[overrides[key]]||'')&&String(override)!==String(body[key]))return res.status(409).json({error:'The Airtable Public '+overrides[key]+' override controls this website value. Resolve that override in Airtable before changing it here. Your work is kept.'});}}
       if (req.method === 'POST') {
         if (!fields['Title']) return res.status(400).json({ error: 'An event needs a title.' });
         if (!fields['Start Time']) return res.status(400).json({ error: 'An event needs a valid date and start time.' });
@@ -210,7 +222,8 @@ module.exports = async function handler(req, res) {
     }
     if (req.method === 'DELETE') {
       var dBody = lib.readJsonBody(req);
-      if (!dBody.id) return res.status(400).json({ error: 'Missing event id.' });
+      if (!dBody.id||!/^rec[A-Za-z0-9]+$/.test(dBody.id)) return res.status(400).json({ error: 'Missing event id.' });
+      if(dBody.expectedVersion){var dCurrent=await at(cfg,'/'+encodeURIComponent(dBody.id));if(!dCurrent.ok)return res.status(502).json({error:'The current event could not be checked.'});if(mapRecord(await dCurrent.json()).version!==dBody.expectedVersion)return res.status(409).json({error:'This event changed in Airtable. Reload before deleting it.'});}
       var dResp = await at(cfg, '?records[]=' + encodeURIComponent(String(dBody.id)), { method: 'DELETE' });
       if (!dResp.ok) { var dErr = await dResp.text(); return res.status(502).json({ error: 'Airtable refused the delete.', detail: dErr.slice(0, 300) }); }
       return res.status(200).json({ ok: true });

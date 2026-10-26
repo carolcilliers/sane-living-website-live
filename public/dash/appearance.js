@@ -5,8 +5,10 @@
   var system=window.matchMedia('(prefers-color-scheme: dark)');
   try{var saved=localStorage.getItem(key);if(['light','dark','system'].includes(saved))preference=saved;}catch(e){}
   function apply(){
+    root.classList.add('dashboard-theme-changing');
     var theme=preference==='system'?(system.matches?'dark':'light'):preference;
     root.dataset.dashboardTheme=theme;root.dataset.dashboardAppearance=preference;root.style.colorScheme=theme;
+    requestAnimationFrame(function(){requestAnimationFrame(function(){root.classList.remove('dashboard-theme-changing');});});
     document.querySelectorAll('[data-dashboard-appearance]').forEach(function(button){button.setAttribute('aria-pressed',String(button.dataset.dashboardAppearance===preference));});
   }
   function select(value){preference=value;try{localStorage.setItem(key,value);}catch(e){}apply();}

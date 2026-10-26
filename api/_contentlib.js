@@ -1,7 +1,7 @@
 'use strict';
 var REPO = 'carolcilliers/sane-living-website-live';
 var BRANCH = process.env.DASH_BRANCH || 'main';
-var FILES = Object.freeze({ gallery: 'public/content/gallery.json', weddings: 'public/content/weddings.json', pricing: 'public/content/pricing.json', partners: 'public/content/partners.json', settings: 'public/content/settings.json', about: 'public/content/about.md' });
+var FILES = Object.freeze({ eventStories: 'public/content/event-stories.json', gallery: 'public/content/gallery.json', weddings: 'public/content/weddings.json', pricing: 'public/content/pricing.json', partners: 'public/content/partners.json', settings: 'public/content/settings.json', about: 'public/content/about.md' });
 function sectionFor(path) { return Object.keys(FILES).find(function (k) { return FILES[k] === path; }) || null; }
 function draftPath(section) { return 'dashboard-drafts/' + section + '.json'; }
 async function gh(path, options) {

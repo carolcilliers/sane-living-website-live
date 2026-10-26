@@ -53,9 +53,9 @@ module.exports=async function createServer(){
   controls.commits++;
   if(method==='DELETE'){records.delete(file);advance('delete-'+file);return json(200,{commit:{sha:controls.head}});}
   if(method==='PUT'){
-   const text=Buffer.from(body.content,'base64').toString('utf8'),record={content:text,sha:sha(text)};records.set(file,record);
+   const binary=Buffer.from(body.content,'base64'),text=binary.toString('utf8'),record={content:text,sha:sha(text),...(/^public\/(images|media)\//.test(file)?{bytes:binary}:{})};records.set(file,record);
    if(file.startsWith('public/content/')){fs.writeFileSync(path.join(output,file),text);materialize();}advance(file);
-   if(file.startsWith('public/images/'))controls.uploads++;
+   if(/^public\/(images|media)\//.test(file)){controls.uploads++;const target=path.join(output,file);fs.mkdirSync(path.dirname(target),{recursive:true});fs.writeFileSync(target,binary);}
    return json(200,{content:{sha:record.sha},commit:{sha:controls.head}});
   }
   return json(405,{});
@@ -64,7 +64,7 @@ module.exports=async function createServer(){
  const login=require('../api/_dashlib'),read=require('../api/dash-content'),save=require('../api/dash-save'),studio=require('../api/studio');
  const cookie=login.makeSessionCookie().split(';')[0];
  const routes=JSON.parse(fs.readFileSync(path.join(root,'vercel.json'))).rewrites;
- let events=[];
+ let events=[],eventNumber=0;
  const server=http.createServer(async(req,res)=>{
   const u=new URL(req.url,'http://localhost');req.query=Object.fromEntries(u.searchParams);let body='';for await(const part of req)body+=part;
   try{req.body=body?JSON.parse(body):{};}catch(e){res.writeHead(400);res.end('{}');return;}
@@ -78,7 +78,7 @@ module.exports=async function createServer(){
    if(u.pathname==='/api/dash-login'){if(req.method==='DELETE'){res.setHeader('Set-Cookie',login.clearSessionCookie());return res.json({loggedIn:false});}return res.json({loggedIn:login.isLoggedIn(req)});}
    if(u.pathname==='/api/dash-events'){
     if(!login.requireLogin(req,res))return;
-    if(req.method==='POST'){const event={...req.body,id:'rec-test-'+events.length};events.push(event);return res.json({event});}
+    if(req.method==='POST'){const event={...req.body,id:'recTest'+(++eventNumber)};events.push(event);return res.json({event});}
     if(req.method==='PATCH'){let event=events.find(e=>e.id===req.body.id);Object.assign(event,req.body);return res.json({event});}
     if(req.method==='DELETE'){events=events.filter(e=>e.id!==req.body.id);return res.json({ok:true});}
     return res.json({events,count:events.length,readOnly:false});

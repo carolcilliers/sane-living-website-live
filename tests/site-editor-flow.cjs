@@ -263,13 +263,13 @@ const create = require("./qa-server.cjs"),
     assert.equal(await page.locator(".gallery-section-card").count(), 3);
     for (const id of ["venue", "weddings", "outdoor"]) {
       const group = page.locator("#gal-group-" + id);
-      assert.equal(await group.locator(".group-head").count(), 1);
+      assert.equal(await group.locator(".collection-summary").count(), 1);
       assert.equal(await group.locator(".gallery-section-photos").count(), 1);
       assert.equal(
         await group.locator(".photo-card").count(),
-        JSON.parse(
+        Math.min(12, JSON.parse(
           server.records.get("public/content/gallery.json").content,
-        ).photos.filter((p) => (p.section || "venue") === id).length,
+        ).photos.filter((p) => (p.section || "venue") === id).length),
       );
     }
     for (const width of [375, 768, 1024, 1440]) {

@@ -33,6 +33,7 @@
     return data;
   }
   function todayStr() {
+    if(window.SaneEvents)return SaneEvents.today();
     var n = new Date();
     return n.getFullYear() + '-' + String(n.getMonth() + 1).padStart(2, '0') + '-' + String(n.getDate()).padStart(2, '0');
   }
@@ -64,6 +65,8 @@
   var weddingMediaView={query:"",page:0};
   function photoKey(photo){if(!galleryKeys.has(photo))galleryKeys.set(photo,'photo-'+(++galleryKeyNumber));return galleryKeys.get(photo);}
   function revealPhoto(photo){var section=photo.section||'venue',photos=state.data.gallery.photos.filter(function(p){return (p.section||'venue')===section;});galleryView.query='';galleryView.filter='all';galleryView.open[section]=true;galleryView.pages[section]=Math.floor(photos.indexOf(photo)/12);galleryView.photoOpen.add(photoKey(photo));}
+
+  var eventWorkspace=SaneEventWorkspace.create({state:state,esc:esc,dirty:setDirty,toast:toast,request:api,goto:goTo,refreshEvents:function(){refreshPanel('events');},bindCalendar:bindEventButtons,eventCard:eventCard,openCalendar:openEventEditor,saveDraft:function(id){return saveSection(id,'draft');},uploading:function(value){state.uploading=value;Object.keys(state.versions).forEach(updateSaveUI);}});
 
   var SECTIONS = [
     { id: 'home', label: 'Home', icon: '<svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 10.5 12 3l9 7.5"/><path d="M5 9.5V21h14V9.5"/></svg>' },
@@ -187,7 +190,7 @@
     var msg = $('.msg',bar);
     if (msg) msg.textContent = state.busy[id] ? 'Saving…' : status;
     var detail = $('.save-detail',bar);
-    if (detail) detail.textContent = state.busy[id] ? 'You can keep editing while this version saves.' : state.unsaved[id] ? (state.storageOk ? 'Recovered on this device after refresh. Save draft to share it with the team.' : 'Device recovery is unavailable. Save a shared draft before leaving.') : state.dirty[id] ? 'Shared draft saved. The public website has not changed.' : 'Publish changes when you want to update the website.';
+    if (detail) detail.textContent = id==='eventStories'&&state.eventStoryPublication&&!state.unsaved[id]?'Approved story changes were published. Unapproved planning and archive drafts are kept for the team.':state.busy[id] ? 'You can keep editing while this version saves.' : state.unsaved[id] ? (state.storageOk ? 'Recovered on this device after refresh. Save draft to share it with the team.' : 'Device recovery is unavailable. Save a shared draft before leaving.') : state.dirty[id] ? 'Shared draft saved. The public website has not changed.' : 'Publish changes when you want to update the website.';
     $$('[data-save],[data-draft],[data-discard]',bar).forEach(function (button) { button.disabled = !!state.busy[id] || !!state.uploading || !state.loaded[id] || !!state.conflicts[id]; });
     var feedback = $('#feedback-' + id);
     if (feedback) {
@@ -205,6 +208,7 @@
     updateSaveUI(section);
   }
   var JSON_SECTIONS = {
+    eventStories:{file:'public/content/event-stories.json',load:'/content/event-stories.json'},
     gallery: { file: 'public/content/gallery.json', load: '/content/gallery.json' },
     weddings: { file: 'public/content/weddings.json', load: '/content/weddings.json' },
     pricing: { file: 'public/content/pricing.json', load: '/content/pricing.json' },
@@ -217,6 +221,7 @@
     var published = response.published.content;
     // Validate before replacing local state; bad remote content cannot erase a recovered draft.
     if (id === 'about') SaneContent.parseAbout(published); else JSON.parse(published);
+    if(id==='eventStories'){var storyErrors=SaneEvents.validate(JSON.parse(published),false);if(storyErrors.length)throw Error('Event stories could not be loaded: '+storyErrors.join(' '));}
     state.versions[id] = { sha: response.published.sha, draftSha: response.draft ? response.draft.sha : null, published: published };
     if(id==='settings'){overviewPublishedSettings=published;applyDashboardBranding(JSON.parse(published));}
     state.loaded[id] = true; state.loadErrors[id] = ''; state.errors[id] = ''; state.conflicts[id] = '';
@@ -244,6 +249,7 @@
     }
   }
   function validationErrors(id) {
+    if (id === 'eventStories') return SaneEvents.validate(state.data.eventStories,true);
     if (id === 'settings') return SaneSettings.validate(state.data.settings);
     if (id === 'about') { try { return SaneContent.validateAbout(SaneContent.parseAbout(state.aboutText)); } catch(e) { return [e.message]; } }
     return [];
@@ -256,7 +262,7 @@
         var url=id==='about'?'/content/about.md':JSON_SECTIONS[id].load;
         var response=await fetch(url+'?studio-check='+Date.now(),{cache:'no-store'});
         if(response.ok && await response.text()===snapshot) {
-          if(!state.dirty[id]){state.saveStates[id]='Live on the website';updateSaveUI(id);}return;
+          if(!state.dirty[id]||id==='eventStories'&&state.eventStoryPublication&&!state.unsaved[id]){state.saveStates[id]=id==='eventStories'?'Approved stories live · planning drafts kept':'Live on the website';updateSaveUI(id);}return;
         }
       } catch(e) {}
       if(++attempts<10)setTimeout(check,6000);
@@ -274,11 +280,12 @@
       var result = await api('/api/dash-save',{ method:'POST',body:JSON.stringify({ path:id==='about' ? 'public/content/about.md' : JSON_SECTIONS[id].file, content:snapshot, action:action, expectedSha:version.sha, expectedDraftSha:version.draftSha }) });
       version.sha = result.sha; version.draftSha = result.draftSha;
       var newerEdits = contentText(id) !== snapshot;
-      state.dirty[id] = action === 'draft' || newerEdits;
+      state.dirty[id] = action === 'draft' || newerEdits || !!result.retainedDraft;
+      if(id==='eventStories')state.eventStoryPublication=action==='publish';
       state.unsaved[id] = newerEdits;
       state.saveStates[id] = newerEdits ? 'New changes since the last save' : action === 'draft' ? 'Draft saved · '+new Date().toLocaleTimeString([], {hour:'numeric',minute:'2-digit'}) : 'Published · deployment updating';
-      if(action === 'publish') { version.published = snapshot; if(id==='settings'){overviewPublishedSettings=snapshot;applyDashboardBranding(JSON.parse(snapshot));} watchPublication(id,snapshot); }
-      if (newerEdits) cacheWork(id); else try { localStorage.removeItem(RECOVERY_PREFIX+id); } catch(e) {}
+      if(action === 'publish') { version.published = result.publishedContent||snapshot; if(id==='settings'){overviewPublishedSettings=snapshot;applyDashboardBranding(JSON.parse(snapshot));} watchPublication(id,version.published); }
+      if (newerEdits||result.warning) cacheWork(id); else try { localStorage.removeItem(RECOVERY_PREFIX+id); } catch(e) {}
       if(result.warning) { state.conflicts[id] = result.warning; toast(result.warning,true); }
       else toast(action === 'draft' ? 'Draft saved. Ready to review.' : 'Published. The website updates after deployment, usually within a minute.');
       return true;
@@ -351,7 +358,7 @@
   /* ---------------- HOME (with venue calendar) ---------------- */
   function eventsByDate() {
     var map = {};
-    (state.events || []).forEach(function (e) {
+    eventWorkspace.calendarItems().forEach(function (e) {
       if (!e.date) return;
       if (!map[e.date]) map[e.date] = [];
       map[e.date].push(e);
@@ -377,7 +384,7 @@
       else if (i >= startDay + daysInMonth) { dayNum = i - startDay - daysInMonth + 1; var nd = new Date(year, month + 1, dayNum); cellDate = nd.getFullYear() + '-' + String(nd.getMonth() + 1).padStart(2, '0') + '-' + String(nd.getDate()).padStart(2, '0'); dim = true; }
       else { dayNum = i - startDay + 1; cellDate = year + '-' + String(month + 1).padStart(2, '0') + '-' + String(dayNum).padStart(2, '0'); }
       var evs = byDate[cellDate] || [];
-      var chips = evs.slice(0, 2).map(function (e) { return '<span class="cal-chip">' + esc(e.title) + '</span>'; }).join('');
+      var chips = evs.slice(0, 2).map(function (e) { return '<span class="cal-chip">' + esc((e.planning?'Planning: ':'')+e.title) + '</span>'; }).join('');
       if (evs.length > 2) chips += '<span class="cal-more">+' + (evs.length - 2) + ' more</span>';
       cells += '<button type="button" class="cal-cell' + (dim ? ' dim' : '') + (evs.length ? ' has-events' : '') + (cellDate === today ? ' today' : '') + (cellDate === state.calSelected ? ' selected' : '') + '" data-cal-day="' + cellDate + '">' +
         '<span class="cal-dnum">' + dayNum + '</span>' + chips + '</button>';
@@ -390,7 +397,7 @@
       '<div class="cal-dows">' + dows + '</div><div class="cal-grid">' + cells + '</div>';
   }
   function calDayListHtml() {
-    var evs = (state.events || []).filter(function (e) { return e.date && e.date >= todayStr(); })
+    var evs = eventWorkspace.calendarItems().filter(function (e) { return e.date && (state.calSelected?e.date===state.calSelected:e.date>=todayStr()); })
       .sort(function (a, b) { return a.date < b.date ? -1 : 1; });
     var sel = state.calSelected;
     var list = sel ? evs.filter(function (e) { return e.date === sel; }) : evs.slice(0, 5);
@@ -401,7 +408,7 @@
     return '<h3 class="block-title">' + head + '</h3>' + list.map(function (e) {
       return '<div class="up-row"><div class="up-date">' + esc(fmtDateLong(e.date)) + '</div>' +
         '<div class="up-main"><strong>' + esc(e.title) + '</strong>' +
-        '<span>' + esc([e.startTime ? (e.startTime + (e.endTime ? ' – ' + e.endTime : '')) : '', e.location || ''].filter(Boolean).join(' · ')) + '</span></div></div>';
+        '<span>' + esc([e.planning?'Planning draft':'',e.startTime ? (e.startTime + (e.endTime ? ' – ' + e.endTime : '')) : '', e.location || ''].filter(Boolean).join(' · ')) + '</span><button type="button" class="btn btn-ghost btn-small" data-home-event="'+esc(e.id)+'">'+(e.planning?'Edit planning draft':state.readOnly?'View event':'Edit event')+'</button></div></div>';
     }).join('');
   }
   function contentState(id){
@@ -415,7 +422,7 @@
     var ids=Object.keys(JSON_SECTIONS),photos=state.data.gallery&&state.data.gallery.photos||[],draftPhotos=photos.filter(function(p){return p.draft;}).length;
     var drafts=ids.filter(function(id){return state.dirty[id];}).length;
     var upcoming=state.events===null||state.eventsStatus&&(state.eventsStatus.kind==='err'||state.eventsStatus.kind==='warn'&&!state.readOnly)?'—':state.events.filter(function(e){return e.date&&e.date>=todayStr();}).length;
-    var attention=ids.filter(function(id){return !state.loaded[id]||state.loadErrors[id]||state.conflicts[id]||state.errors[id]||state.dirty[id];}).map(function(id){var status=contentState(id),section=SECTIONS.find(function(x){return x.id===id;});return '<button type="button" class="attention-row" data-goto="'+id+'"><span class="attention-copy"><strong>'+esc(section.label)+'</strong><span>'+esc(status.detail)+'</span></span><span class="status-chip status-'+status.tone+'">'+esc(status.label)+'</span><span aria-hidden="true">↗</span></button>';}).join('');
+    var attention=ids.filter(function(id){return !state.loaded[id]||state.loadErrors[id]||state.conflicts[id]||state.errors[id]||state.dirty[id];}).map(function(id){var status=contentState(id),section=SECTIONS.find(function(x){return x.id===id;})||{id:'events',label:'Event details'};return '<button type="button" class="attention-row" data-goto="'+(id==='eventStories'?'events':id)+'"><span class="attention-copy"><strong>'+esc(section.label)+'</strong><span>'+esc(status.detail)+'</span></span><span class="status-chip status-'+status.tone+'">'+esc(status.label)+'</span><span aria-hidden="true">↗</span></button>';}).join('');
     if(draftPhotos)attention+='<button type="button" class="attention-row" data-home-gallery="draft"><span class="attention-copy"><strong>'+draftPhotos+' photo'+(draftPhotos===1?'':'s')+' marked not published</strong><span>Review these photos in the gallery before publishing.</span></span><span class="status-chip status-review">Photo review</span><span aria-hidden="true">↗</span></button>';
     var eventDrafts=state.readOnly?0:(state.events||[]).filter(function(e){return e.publish===false;}).length;
     if(eventDrafts)attention+='<button type="button" class="attention-row" data-goto="events"><span class="attention-copy"><strong>'+eventDrafts+' unpublished event'+(eventDrafts===1?'':'s')+'</strong><span>Saved in the calendar, hidden from the website.</span></span><span class="status-chip status-draft">Event drafts</span><span aria-hidden="true">↗</span></button>';
@@ -426,16 +433,18 @@
     if(!attention)attention='<div class="overview-clear"><strong>No content changes waiting for review</strong><p>Your content sections have no unfinished edits. Design drafts stay in Page Editor.</p></div>';
     var published=null;try{if(overviewPublishedSettings||state.versions.settings)published=SaneSettings.normalize(JSON.parse(overviewPublishedSettings||state.versions.settings.published));}catch(e){}
     var details=published?'<dl class="website-detail-list">'+[['Business',published.businessName],['Phone',published.phoneDisplay],['Email',published.email],['Address',published.address],['Hours',published.hours]].map(function(pair){return '<div><dt>'+pair[0]+'</dt><dd>'+esc(pair[1]||'Not set')+'</dd></div>';}).join('')+'</dl><div class="overview-actions"><button type="button" class="btn btn-ghost btn-small" data-home-settings="contact">Edit contact details</button><button type="button" class="btn btn-ghost btn-small" data-home-settings="booking">Booking settings</button></div>':'<p class="empty-note">Published website details could not be loaded. Open Settings to review the source.</p>';
-    var contentRows=ids.map(function(id){var status=contentState(id),section=SECTIONS.find(function(x){return x.id===id;}),data=state.data[id],detail=id==='gallery'&&data?data.photos.length+' photos':id==='partners'&&data?data.partners.length+' partners':id==='pricing'&&data?data.rows.length+' rate sessions':id==='weddings'&&data?(data.highlights||[]).length+' highlights':id==='settings'?'Brand, contact and site-wide settings':'Content section';return '<button type="button" class="content-status-row" data-goto="'+id+'"><span><strong>'+esc(section.label)+'</strong><small>'+esc(detail)+'</small></span><span class="status-chip status-'+status.tone+'">'+esc(status.label)+'</span><span aria-hidden="true">↗</span></button>';}).join('');
+    var contentRows=ids.map(function(id){var status=contentState(id),section=SECTIONS.find(function(x){return x.id===id;})||{id:'events',label:'Event details'},data=state.data[id],detail=id==='gallery'&&data?data.photos.length+' photos':id==='partners'&&data?data.partners.length+' partners':id==='pricing'&&data?data.rows.length+' rate sessions':id==='weddings'&&data?(data.highlights||[]).length+' highlights':id==='settings'?'Brand, contact and site-wide settings':'Content section';return '<button type="button" class="content-status-row" data-goto="'+(id==='eventStories'?'events':id)+'"><span><strong>'+esc(section.label)+'</strong><small>'+esc(detail)+'</small></span><span class="status-chip status-'+status.tone+'">'+esc(status.label)+'</span><span aria-hidden="true">↗</span></button>';}).join('');
     var calendarError=state.eventsStatus&&(state.eventsStatus.kind==='err'||state.eventsStatus.kind==='warn'&&!state.readOnly);
-    var calendar=calendarError?'<p class="empty-note">The calendar could not be loaded. Open Events to review the connection and retry.</p>':state.events===null?'<div class="empty-note">Loading the venue calendar…</div>':'<div id="homeCal">'+calGridHtml()+'</div>'+(state.readOnly?'<p class="section-help">Read-only view from the live website — event editing unlocks when the Airtable keys are added.</p>':'');
+    var calendar=(calendarError?'<p class="section-help">The live calendar is unavailable. You can still prepare shared planning drafts below.</p>':'')+'<div id="homeCal">'+calGridHtml()+'</div>'+(state.readOnly?'<p class="section-help">Published events are read-only until Airtable is connected. Planning drafts can be added and saved now.</p>':'');
     return panelShell('home','Website overview','See what needs attention, check your published details and plan what comes next. Editing stays in each dedicated page.',
       '<div class="grid grid-3 home-metrics"><div class="card stat-card"><div class="metric-copy"><div class="num">'+upcoming+'</div><div class="lbl">upcoming events</div></div><span class="metric-symbol" aria-hidden="true">'+SECTIONS[1].icon+'</span></div><div class="card stat-card"><div class="metric-copy"><div class="num">'+(state.loaded.gallery?photos.length:'—')+'</div><div class="lbl">photos in the gallery</div></div><span class="metric-symbol" aria-hidden="true">'+SECTIONS[2].icon+'</span></div><div class="card stat-card"><div class="metric-copy"><div class="num">'+drafts+'</div><div class="lbl">sections with drafts</div></div><span class="metric-symbol" aria-hidden="true">'+SECTIONS[6].icon+'</span></div></div>'+
-      '<div class="dashboard-overview-layout"><section class="card overview-calendar"><div class="overview-card-head"><span class="workspace-eyebrow">Plan your next gathering</span><h3>Venue calendar</h3><p>Choose a day to see its events. Use the arrows to browse months.</p></div>'+calendar+'</section><section class="card overview-attention"><div class="overview-card-head"><span class="workspace-eyebrow">Your next steps</span><h3>Needs your attention</h3><p>Unfinished edits and unpublished content, together in one place.</p></div><div class="attention-list">'+attention+'</div><div class="overview-footnote">Design any page, preview your changes and publish when ready in <button type="button" class="inline-action" data-goto="editor">Page Editor ↗</button>.</div></section><section class="card overview-details"><div class="overview-card-head"><span class="workspace-eyebrow">Published details</span><h3>Your website at a glance</h3><p>These values come from published Settings. Draft changes stay separate.</p></div>'+details+'</section><section class="card overview-upcoming"><div id="homeCalList">'+(calendarError?'<h3 class="block-title">Upcoming events unavailable</h3><p>Open Events to review the connection and retry.</p>':state.events===null?'<p>Loading upcoming events…</p>':calDayListHtml())+'</div>'+(state.calSelected?'<button type="button" class="btn btn-ghost btn-small" data-home-clear-day>Show all upcoming events</button>':'')+'<div class="overview-actions"><button type="button" class="btn btn-ghost btn-small" data-goto="events">Manage events</button></div></section><div class="overview-secondary"><details class="card overview-disclosure" data-home-disclosure="content" '+(homeView.content?'open':'')+'><summary><span><strong>Content status</strong><small>Check counts and publication status for each section.</small></span><span class="disclosure-chevron" aria-hidden="true">⌄</span></summary><div class="content-status-list">'+contentRows+'</div></details></div></div>');
+      '<div class="dashboard-overview-layout"><div class="overview-column overview-main-column"><section class="card overview-calendar"><div class="overview-card-head"><span class="workspace-eyebrow">Plan your next gathering</span><h3>Venue calendar</h3><p>Choose a day to see events or plan something new.</p><button type="button" class="btn btn-primary btn-small" data-home-add-event>+ Add event'+(state.calSelected?' on '+esc(state.calSelected):'')+'</button></div>'+calendar+'</section><section class="card overview-upcoming"><div id="homeCalList">'+(calendarError?'<h3 class="block-title">Upcoming events unavailable</h3><p>Open Events to review the connection and retry.</p>':state.events===null?'<p>Loading upcoming events…</p>':calDayListHtml())+'</div>'+(state.calSelected?'<button type="button" class="btn btn-ghost btn-small" data-home-clear-day>Show all upcoming events</button>':'')+'<div class="overview-actions"><button type="button" class="btn btn-ghost btn-small" data-goto="events">Manage events</button></div></section><div class="overview-secondary"><details class="card overview-disclosure" data-home-disclosure="content" '+(homeView.content?'open':'')+'><summary><span><strong>Content status</strong><small>Check counts and publication status for each section.</small></span><span class="disclosure-chevron" aria-hidden="true">⌄</span></summary><div class="content-status-list">'+contentRows+'</div></details></div></div><div class="overview-column overview-side-column"><section class="card overview-attention"><div class="overview-card-head"><span class="workspace-eyebrow">Your next steps</span><h3>Needs your attention</h3><p>Unfinished edits and unpublished content, together in one place.</p></div><div class="attention-list">'+attention+'</div><div class="overview-footnote">Design any page, preview your changes and publish when ready in <button type="button" class="inline-action" data-goto="editor">Page Editor ↗</button>.</div></section><section class="card overview-details"><div class="overview-card-head"><span class="workspace-eyebrow">Published details</span><h3>Your website at a glance</h3><p>These values come from published Settings. Draft changes stay separate.</p></div>'+details+'</section></div></div>');
   }
   function bindHome() {
     var root = $('#panel-home');
     if (!root) return;
+    $$('[data-home-event]',root).forEach(function(b){b.onclick=function(){var id=b.dataset.homeEvent,e=eventWorkspace.calendarItems().find(function(x){return x.id===id;});goTo('events');if(e&&e.planning){eventWorkspace.openStory(id);}else if(e&&eventWorkspace.connected())openEventEditor(e);};});
+    var quick=$('[data-home-add-event]',root);if(quick)quick.onclick=function(){goTo('events');openEventEditor({date:state.calSelected||todayStr()});};
     $$('[data-home-disclosure]',root).forEach(function(d){d.ontoggle=function(){homeView[d.dataset.homeDisclosure]=d.open;};});
     $$('[data-home-settings]',root).forEach(function(b){b.onclick=function(){goTo('settings');selectSettingsTab(b.dataset.homeSettings);var group=$('[data-settings-group]',$('#settings-'+b.dataset.homeSettings));if(group){group.open=true;settingsOpen[group.dataset.settingsGroup]=true;$('summary',group).focus({preventScroll:true});}};});
     $$('[data-home-gallery]',root).forEach(function(b){b.onclick=function(){galleryView.filter=b.dataset.homeGallery;galleryView.query='';galleryView.pages={};goTo('gallery');refreshPanel('gallery');};});
@@ -489,7 +498,7 @@
           '<button type="button" class="btn btn-ghost btn-small" data-ev-toggle="' + esc(e.id) + '">' + (e.publish ? 'Unpublish' : 'Publish') + '</button>' +
           '<button type="button" class="btn btn-danger btn-small" data-ev-del="' + esc(e.id) + '">Delete</button>' +
           '</div>') +
-      '</div>';
+      eventWorkspace.calendarDetailsHtml(e)+'</div>';
   }
   function eventFormHtml(e) {
     e = e || {};
@@ -513,7 +522,7 @@
       '<div class="hint">Unticked events are drafts — saved in Airtable but hidden from the website.</div></div>' +
       '</section><p class="event-work-status" id="ev-work-status" role="status">Save this event to keep it in Airtable. The checkbox above controls whether it appears on the website.</p>'+
       '<div style="display:flex;gap:10px;margin-top:8px;flex-wrap:wrap">' +
-      '<button type="button" class="btn btn-primary" id="ev-save">' + (e.publish ? 'Publish event changes' : 'Save unpublished event') + '</button>' +
+      '<button type="button" class="btn btn-primary" id="ev-save">' + (!eventWorkspace.connected()?'Save planning draft':e.publish ? 'Publish event changes' : 'Save unpublished event') + '</button>' +
       '<button type="button" class="btn btn-ghost" id="ev-cancel">Cancel</button></div></div>';
   }
   function renderEvents() {
@@ -521,16 +530,9 @@
     inner += '<div class="workspace-list-heading"><div><span class="workspace-eyebrow">Venue calendar</span><h3>Your events</h3><p>Each card keeps the date, guest details and publication controls together.</p></div><button type="button" class="btn btn-primary" id="ev-add">+ Add an event</button></div>';
     var recoveredEvent = null; try { recoveredEvent = JSON.parse(localStorage.getItem(RECOVERY_PREFIX+'event') || 'null'); } catch(e){}
     if(recoveredEvent) inner += '<div class="event-recovery-note" id="eventRecovery">There is unfinished event work on this device. <button type="button" class="btn btn-ghost btn-small" id="ev-restore">Resume editing</button></div>';
-    inner += '<div id="eventEditorSlot"></div><div id="eventList">';
-    if (state.events === null) {
-      inner += '<div class="empty-note">Loading events…</div>';
-    } else if (state.events.length === 0) {
-      inner += '<div class="empty-note">No events in the calendar yet. Add the first one above.</div>';
-    } else {
-      inner += state.events.map(eventCard).join('');
-    }
-    inner += '</div>';
-    return panelShell('events', 'Events', 'These events live in the Airtable calendar — the same one the public website reads. Anything you add or change here shows on the website (allow up to ~5 minutes) and in Airtable itself.', inner);
+    inner += eventWorkspace.toolbarHtml()+'<div id="eventEditorSlot"></div><div id="eventList">';
+    inner += eventWorkspace.listHtml()+'</div><section class="event-details-save"><h3>Event details &amp; story publication</h3><p>Save a shared draft to keep planning work private. Publish changes updates approved stories; calendar visibility is controlled in Airtable.</p>'+savebarHtml('eventStories')+'</section>';
+    return panelShell('events', 'Events', 'Plan events, workshops and wedding stories. Airtable controls the public calendar; the shared story library holds hosts, photos, recordings and archive details.', inner);
   }
   async function loadEvents(showToast) {
     try {
@@ -538,7 +540,7 @@
       state.events = data.events || [];
       state.readOnly = data.readOnly === true;
       var addBtn0 = $('#ev-add');
-      if (addBtn0) addBtn0.style.display = state.readOnly ? 'none' : '';
+      if (addBtn0) addBtn0.style.display = '';
       if (state.readOnly) {
         state.eventsStatus = { kind: 'warn', msg: '<strong>Showing the live website\'s published events</strong> (read from saneliving.com). Viewing works without the Airtable keys — to add or change events here, the keys (AIRTABLE_API_TOKEN + AIRTABLE_BASE_ID) still need to be added in Vercel. ' + data.count + ' upcoming event' + (data.count === 1 ? '' : 's') + ' · loaded ' + new Date().toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' }) + '.' };
       } else {
@@ -559,13 +561,14 @@
     if (slot) {
       slot.innerHTML = syncBanner();
       var list = $('#eventList');
-      if (list) list.innerHTML = state.events.length ? state.events.map(eventCard).join('') : '<div class="empty-note">No events in the calendar yet. Add the first one above.</div>';
+      if (list) list.innerHTML = eventWorkspace.listHtml();
       bindEventButtons();
       var retry = $('#ev-retry');
       if (retry) retry.addEventListener('click', function () { loadEvents(true); });
     }
   }
   function bindEventButtons() {
+    eventWorkspace.bind();
     var restore=$('#ev-restore');if(restore)restore.onclick=function(){try{var work=JSON.parse(localStorage.getItem(RECOVERY_PREFIX+'event'));if(work)openEventEditor(work);}catch(e){toast('The saved event could not be read.',true);}};
     $$('#panel-events [data-ev-edit]').forEach(function (b) {
       b.addEventListener('click', function () {
@@ -579,10 +582,10 @@
         if (!e) return;
         b.disabled = true;
         try {
-          var r = await api('/api/dash-events', { method: 'PATCH', body: JSON.stringify({ id: e.id, publish: !e.publish }) });
+          var r = await api('/api/dash-events', { method: 'PATCH', body: JSON.stringify({ id: e.id, publish: !e.publish,expectedVersion:e.version }) });
           var i = state.events.findIndex(function (x) { return x.id === e.id; });
           if (i >= 0) state.events[i] = r.event;
-          $('#eventList').innerHTML = state.events.map(eventCard).join('');
+          $('#eventList').innerHTML = eventWorkspace.listHtml();
           bindEventButtons();
           toast(r.event.publish ? 'Published — it will appear on the website within ~5 minutes.' : 'Unpublished — hidden from the website, kept in Airtable.');
         } catch (err) { toast('Could not update: ' + err.message, true); b.disabled = false; }
@@ -595,9 +598,9 @@
         if (!window.confirm('Delete "' + (e.title || 'this event') + '" from the calendar permanently?\n\nTip: "Unpublish" hides it from the website but keeps it in Airtable.')) return;
         b.disabled = true;
         try {
-          await api('/api/dash-events', { method: 'DELETE', body: JSON.stringify({ id: e.id }) });
+          await api('/api/dash-events', { method: 'DELETE', body: JSON.stringify({ id: e.id,expectedVersion:e.version }) });
           state.events = state.events.filter(function (x) { return x.id !== e.id; });
-          $('#eventList').innerHTML = state.events.length ? state.events.map(eventCard).join('') : '<div class="empty-note">No events in the calendar yet.</div>';
+          $('#eventList').innerHTML = eventWorkspace.listHtml();
           bindEventButtons();
           toast('Event deleted from Airtable.');
         } catch (err) { toast('Delete failed: ' + err.message, true); b.disabled = false; }
@@ -615,9 +618,10 @@
     slot.innerHTML = eventFormHtml(e || {});
     slot.scrollIntoView({ behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth', block: 'start' });
     $('#ev-title').focus({preventScroll:true});
-    var captureEvent=function(){var work={id:state.editingEventId,title:$('#ev-title').value,date:$('#ev-date').value,startTime:$('#ev-start').value,endTime:$('#ev-end').value,location:$('#ev-loc').value,type:$('#ev-type').value,price:$('#ev-price').value,rsvpUrl:$('#ev-rsvp').value,description:$('#ev-desc').value,publish:$('#ev-publish').checked};state.unsaved.events=true;try{localStorage.setItem(RECOVERY_PREFIX+'event',JSON.stringify(work));}catch(e){}var eventStatus=$('#ev-work-status');if(eventStatus)eventStatus.textContent='Unsaved event changes · kept on this device until you save.';$('#ev-save').textContent=work.publish?'Publish event changes':'Save unpublished event';};
+    var captureEvent=function(){var work={id:state.editingEventId,title:$('#ev-title').value,date:$('#ev-date').value,startTime:$('#ev-start').value,endTime:$('#ev-end').value,location:$('#ev-loc').value,type:$('#ev-type').value,price:$('#ev-price').value,rsvpUrl:$('#ev-rsvp').value,description:$('#ev-desc').value,publish:$('#ev-publish').checked};state.unsaved.events=true;try{localStorage.setItem(RECOVERY_PREFIX+'event',JSON.stringify(work));}catch(e){}var eventStatus=$('#ev-work-status');if(eventStatus)eventStatus.textContent='Unsaved event changes · kept on this device until you save.';$('#ev-save').textContent=!eventWorkspace.connected()?'Save planning draft':work.publish?'Publish event changes':'Save unpublished event';};
     $$('input,textarea',slot).forEach(function(input){input.addEventListener('input',captureEvent);input.addEventListener('change',captureEvent);});
     $('#ev-cancel').addEventListener('click', function () { if(state.unsaved.events&&!confirm('Discard the unfinished event changes on this device?'))return;slot.innerHTML = ''; state.editingEventId = null;state.unsaved.events=false;try{localStorage.removeItem(RECOVERY_PREFIX+'event');}catch(e){}var notice=$('#eventRecovery');if(notice)notice.remove(); });
+    var planningId='';
     $('#ev-save').addEventListener('click', async function () {
       var btn = this;
       var payload = {
@@ -638,8 +642,16 @@
       btn.disabled = true;
       btn.innerHTML = '<span class="spinner"></span> Saving…';
       try {
+        if(!eventWorkspace.connected()){
+          if(!state.loaded.eventStories)throw Error('The shared event library has not loaded. Reload before saving.');
+          var planning=planningId&&state.data.eventStories.stories.find(function(x){return x.id===planningId;});
+          if(!planning){planning=SaneEvents.create(Object.assign({},payload,{summary:payload.description,published:false,period:payload.date<todayStr()?'past':'upcoming'}));planningId=planning.id;state.data.eventStories.stories.unshift(planning);}else Object.assign(planning,payload,{published:false});
+          setDirty('eventStories',true);var saved=await saveSection('eventStories','draft');if(!saved)throw Error(state.errors.eventStories||'Planning draft could not be saved.');
+          state.unsaved.events=false;try{localStorage.removeItem(RECOVERY_PREFIX+'event');}catch(storageError){}slot.innerHTML='';state.editingEventId=null;eventWorkspace.openStory(planning.id);refreshPanel('home');toast('Planning draft saved. It has not been added to Airtable or the website.');return;
+        }
         if (state.editingEventId) {
           payload.id = state.editingEventId;
+          var original=state.events.find(function(event){return event.id===payload.id;});if(original&&original.version)payload.expectedVersion=original.version;
           var r = await api('/api/dash-events', { method: 'PATCH', body: JSON.stringify(payload) });
           var i = state.events.findIndex(function (x) { return x.id === payload.id; });
           if (i >= 0) state.events[i] = r.event;
@@ -653,14 +665,14 @@
         state.unsaved.events=false;try{localStorage.removeItem(RECOVERY_PREFIX+'event');}catch(e){}var notice=$('#eventRecovery');if(notice)notice.remove();
         slot.innerHTML = '';
         state.editingEventId = null;
-        $('#eventList').innerHTML = state.events.map(eventCard).join('');
+        $('#eventList').innerHTML = eventWorkspace.listHtml();
         bindEventButtons();
         loadEvents(false);
       } catch (err) {
         toast('Save failed: ' + err.message, true);
         btn.disabled = false;
         $$('input,textarea,button',slot).forEach(function(control){control.disabled=false;});
-        btn.textContent = $('#ev-publish').checked ? 'Publish event changes' : 'Save unpublished event';
+        btn.textContent = !eventWorkspace.connected()?'Save planning draft':$('#ev-publish').checked ? 'Publish event changes' : 'Save unpublished event';
       }
     });
   }
@@ -715,7 +727,7 @@
     if(clear)clear.onclick=function(){galleryView.query='';galleryView.filter='all';galleryView.pages={};rerender();search.focus();};
     var photos=state.data.gallery.photos,matched=photos.filter(galleryMatches).length,count=$('#gallery-result-count');if(count)count.textContent=matched+' of '+photos.length+' photos · up to 12 per collection page';
     $$('[data-gallery-collection]',wrap).forEach(function(d){d.ontoggle=function(){if(!galleryView.query.trim()&&galleryView.filter==='all')galleryView.open[d.dataset.galleryCollection]=d.open;};});
-    $$('[data-photo-key]',wrap).forEach(function(d){d.ontoggle=function(){if(d.open)galleryView.photoOpen.add(d.dataset.photoKey);else galleryView.photoOpen.delete(d.dataset.photoKey);};});
+    $$('[data-photo-key]',wrap).forEach(function(d){$('summary',d).onclick=function(){if(!d.open){galleryView.photoOpen.clear();$$('[data-photo-key]',wrap).forEach(function(other){if(other!==d)other.open=false;});}};d.ontoggle=function(){if(d.open){galleryView.photoOpen.clear();galleryView.photoOpen.add(d.dataset.photoKey);$$('[data-photo-key]',wrap).forEach(function(other){if(other!==d)other.open=false;});}else galleryView.photoOpen.delete(d.dataset.photoKey);};});
     $$('[data-gallery-page]',wrap).forEach(function(b){b.onclick=function(){var section=b.dataset.galleryPage,step=+b.dataset.step;galleryView.pages[section]=(galleryView.pages[section]||0)+step;rerender();var collection=$('#gal-group-'+section);var button=$('[data-gallery-page][data-step="'+step+'"]',collection);if(button&&!button.disabled)button.focus();else $('summary',collection).focus();};});
     $$('#photoGroups [data-ph]').forEach(function (input) {
       var evt = input.tagName === 'SELECT' ? 'change' : 'input';
@@ -858,14 +870,14 @@
       '<section id="wedding-story" class="card form-card form-section">'+editorialHeading('01','First impressions','Your main wedding photo, page heading and welcome message.')+'<div class="wedding-story-grid"><div class="wedding-media-editor"><div class="wedding-photo-stage"><img id="wedding-main-preview" src="'+esc(hero)+'" alt="Main wedding photo preview" '+(!hero?'hidden':'')+'><span id="wedding-image-empty" '+(hero?'hidden':'')+'>Choose a main wedding photo</span><span class="image-role-label">Main page photo</span></div><div class="wedding-photo-actions"><label class="btn btn-primary">Upload photo<input type="file" id="wedding-photo-upload" accept=".png,.jpg,.jpeg,.webp,.gif" aria-label="Upload main wedding photo"></label><button type="button" class="btn btn-ghost" id="wedding-photo-choose">Choose from gallery</button></div><p id="wedding-photo-status" class="media-feedback" role="status">Upload a photo or choose an existing gallery image. Maximum 4 MB.</p><details class="image-path-options"><summary>Image link &amp; restore options</summary>'+fieldHtml('Main photo link','heroImage',w.heroImage,{hint:'Use a local image path or an HTTPS image URL.'})+'<button type="button" class="btn btn-text btn-small" id="wedding-photo-restore">Restore published photo</button></details></div><div class="wedding-story-fields">'+fieldHtml('Page heading','heading',w.heading)+fieldHtml('Intro text','intro',w.intro,{textarea:true,rows:7,hint:'Separate paragraphs with a blank line.'})+'<div class="wedding-collection-link"><span class="workspace-eyebrow">Wedding photo collection</span><h4>More moments from the venue</h4><p>'+photos.length+' photos in your working gallery. Manage their order, captions and publication in the wedding collection.</p><div class="wedding-collection-strip">'+photos.slice(0,4).map(function(photo){return '<img src="'+esc(SaneSettings.safeUrl(photo.image,'image'))+'" alt="" loading="lazy">';}).join('')+'</div><button type="button" class="btn btn-ghost btn-small" id="wedding-open-gallery">Edit wedding gallery ↗</button></div></div></div></section>'+
       '<section id="wedding-highlights-editor" class="card form-card form-section">'+editorialHeading('02','Venue highlights','The checklist guests read when considering the venue.')+'<div class="highlight-field field"><div class="list-editor" id="hlList">'+highlights+'</div><button type="button" class="btn btn-ghost btn-small" id="hl-add">+ Add a highlight</button></div></section>'+
       '<section id="wedding-policies" class="card form-card form-section">'+editorialHeading('03','Packages &amp; policies','Keep your wedding offer clear, then explain the practical details.')+'<div class="wedding-policy-grid"><div class="policy-group"><h4>Wedding package</h4>'+fieldHtml('Pricing text','pricingText',w.pricingText,{textarea:true,rows:4})+fieldHtml("What's included",'includesText',w.includesText,{textarea:true,rows:3})+'</div><div class="policy-group"><h4>Venue guidelines</h4>'+fieldHtml('Catering policy','cateringPolicy',w.cateringPolicy,{textarea:true,rows:3})+fieldHtml('Alcohol policy','alcoholPolicy',w.alcoholPolicy,{textarea:true,rows:3})+fieldHtml('Parking note','parkingNote',w.parkingNote,{textarea:true,rows:2})+'</div></div></section>'+
-      '<section id="wedding-contact" class="card form-card form-section">'+editorialHeading('04','Contact &amp; availability','The phone label and calendar note shown on the Weddings page.')+'<div class="form-row">'+fieldHtml('Phone shown on the page','phoneDisplay',w.phoneDisplay)+fieldHtml('Availability note','availabilityNote',w.availabilityNote)+'</div><p class="section-context">The call destination uses the phone link in Settings → Contact &amp; social.</p></section></div>'+savebarHtml('weddings')+
+      '<section id="wedding-contact" class="card form-card form-section">'+editorialHeading('04','Contact &amp; availability','The phone label and calendar note shown on the Weddings page.')+'<div class="form-row">'+fieldHtml('Phone shown on the page','phoneDisplay',w.phoneDisplay)+fieldHtml('Availability note','availabilityNote',w.availabilityNote)+'</div><p class="section-context">The call destination uses the phone link in Settings → Contact &amp; social.</p></section></div>'+eventWorkspace.weddingsHtml()+savebarHtml('weddings')+
       '<dialog id="wedding-photo-picker" class="dashboard-media-dialog" aria-labelledby="wedding-picker-title"><div class="media-dialog-header"><div><span class="workspace-eyebrow">Photo library</span><h3 id="wedding-picker-title">Choose your main photo</h3></div><button type="button" class="icon-btn" id="wedding-picker-close" aria-label="Close photo library">✕</button></div><p class="section-context">Select a gallery photo for this page. Your published photo stays in place until you publish Weddings.</p><label class="field picker-search"><span>Search gallery photos</span><input type="search" id="wedding-picker-search" placeholder="Search by caption, description or filename"></label><div id="wedding-picker-results"></div></dialog>';
     return panelShell('weddings','Weddings Page','Shape the first impression. Update your photography, tell your story and keep every detail clear.',inner);
   }
   function bindEditorialJumps(root){$$('[data-form-jump]',root).forEach(function(a){a.onclick=function(e){e.preventDefault();var target=$('#'+a.dataset.formJump,root);target.setAttribute('tabindex','-1');target.focus({preventScroll:true});target.scrollIntoView({block:'start'});};});}
   function bindWeddings() {
     var root=$('#panel-weddings'),photoInput=$('[data-field="heroImage"]',root),preview=$('#wedding-main-preview'),empty=$('#wedding-image-empty'),status=$('#wedding-photo-status'),dialog=$('#wedding-photo-picker');
-    bindFields('weddings',root);bindEditorialJumps(root);
+    bindFields('weddings',root);bindEditorialJumps(root);eventWorkspace.bindWeddings();
     function showPhoto(url,local){var safe=local||SaneSettings.safeUrl(url,'image');preview.hidden=!safe;preview.src=safe;empty.hidden=!!safe;}
     function selectPhoto(url,message){state.data.weddings.heroImage=url;photoInput.value=url;setDirty('weddings',true);showPhoto(url);status.textContent=message;}
     preview.onerror=function(){preview.hidden=true;empty.hidden=false;empty.textContent='This photo could not be loaded. Choose another image or check its link.';};
@@ -1092,6 +1104,7 @@
     });
   }
   function refreshPanel(id) {
+    if(id==='eventStories')id='events';
     var old = $('#panel-' + id);
     if (!old) return;
     var wasActive = old.classList.contains('active');
@@ -1115,6 +1128,7 @@
   }
 
   /* ---------------- enter ---------------- */
+  var logo=$('#dashboardHomeLogo');if(logo)logo.onclick=function(e){e.preventDefault();goTo('home');};
   var entered = false;
   async function enterApp() {
     showApp();
@@ -1147,7 +1161,7 @@
       var protectedSections=[],homeChanged=false;
       for(var id of Object.keys(state.versions)){
         if(!state.loaded[id] || (!changed && !sourcePending[id]))continue;
-        var focused=$('#panel-'+id),editing=focused && (focused.querySelector('dialog[open]') || focused.contains(document.activeElement) && /^(INPUT|TEXTAREA|SELECT)$/.test(document.activeElement.tagName));
+        var focused=$('#panel-'+(id==='eventStories'?'events':id)),editing=focused && (focused.querySelector('dialog[open]') || focused.contains(document.activeElement) && /^(INPUT|TEXTAREA|SELECT)$/.test(document.activeElement.tagName));
         if(state.busy[id] || state.uploading || editing){sourcePending[id]=true;continue;}
         if(!changed && (state.unsaved[id] || state.dirty[id])){protectedSections.push(id);continue;}
         var before=contentText(id),old=state.versions[id],remote=await api('/api/dash-content?section='+encodeURIComponent(id)+'&ref='+encodeURIComponent(revision.head));

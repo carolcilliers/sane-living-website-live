@@ -221,3 +221,72 @@ html[data-dashboard-theme] body.page-editor-open #appView>.sidebar{background:va
 @media(max-width:860px){html[data-dashboard-theme] body.page-editor-open #appView>.sidebar{background:var(--workspace-surface)}}
 
 html[data-dashboard-theme] #appView #partnerList>.empty-note{grid-column:1/-1}
+/* Planner and focused photo editing: independent card heights, natural overview columns. */
+html[data-dashboard-theme] #appView .brand .logo-chip{display:flex;align-items:center;justify-content:center;width:min(100%,184px);min-height:68px;padding:14px 18px;border-radius:16px;box-shadow:inset 0 1px 0 #fff,0 6px 18px #37233e0a}
+html[data-dashboard-theme] #appView .brand .logo-chip img{width:100%;height:auto;max-height:42px;object-fit:contain}
+html[data-dashboard-theme] #appView .dashboard-overview-layout{display:grid;grid-template-columns:minmax(0,1.3fr) minmax(0,1fr);grid-template-areas:none;align-items:start;gap:24px}
+html[data-dashboard-theme] #appView .overview-column{display:grid;gap:24px;min-width:0;align-content:start}
+html[data-dashboard-theme] #appView .overview-column>*{grid-area:auto;margin:0}
+html[data-dashboard-theme] #appView .overview-card-head [data-home-add-event]{margin-top:16px}
+html[data-dashboard-theme] #appView .overview-upcoming .up-main>.btn{margin-top:12px}
+html[data-dashboard-theme] #appView .photo-grid{align-items:start}
+html[data-dashboard-theme] #appView .photo-card{align-self:start;height:auto}
+html[data-dashboard-theme] #appView .photo-card:has(.photo-editor[open]){grid-column:1/-1;display:grid;grid-template-columns:minmax(200px,.75fr) minmax(0,1.25fr);gap:4px 14px;align-items:start;border-color:var(--field-line);background:linear-gradient(140deg,#ffffff08,transparent 50%),var(--workspace-surface);box-shadow:var(--glass-sheen),var(--glass-shadow)}
+html[data-dashboard-theme] #appView .photo-card:has(.photo-editor[open])>img{position:sticky;top:20px;margin:16px;width:calc(100% - 32px);aspect-ratio:4/3}
+html[data-dashboard-theme] #appView .photo-card:has(.photo-editor[open])>.pc-body{padding:22px;min-width:0}
+html[data-dashboard-theme] #appView .photo-card:has(.photo-editor[open]) .photo-editor-fields{grid-template-columns:repeat(2,minmax(0,1fr));column-gap:20px}
+html[data-dashboard-theme] #appView .photo-card:has(.photo-editor[open]) .photo-editor-fields>:is(.photo-field:has(textarea),.pc-actions,.photo-order-hint){grid-column:1/-1}
+html[data-dashboard-theme] #appView .photo-editor>summary{background:var(--surface-accent);padding:12px;border-radius:8px;margin:8px 0}
+html[data-dashboard-theme] #appView .event-library-tools{margin:24px 0;background:var(--glass-panel);border-color:var(--field-line);box-shadow:var(--glass-sheen),var(--glass-shadow)}
+html[data-dashboard-theme] #appView .event-library-tools .workspace-list-heading{margin-top:0}
+html[data-dashboard-theme] #appView .event-filter-grid{display:grid;grid-template-columns:1.5fr 1fr 1fr;gap:18px;align-items:end}
+html[data-dashboard-theme] #appView .event-filter-grid .field{margin:0;display:block}
+html[data-dashboard-theme] #appView .event-filter-grid .field>span{display:block;font-size:.875rem;font-weight:750;margin-bottom:8px;color:var(--label-ink)}
+html[data-dashboard-theme] #appView .event-library-count{font-size:.875rem;color:var(--muted);margin:18px 0}
+html[data-dashboard-theme] #appView .event-library-card{padding:0;margin-bottom:18px;overflow:visible}
+html[data-dashboard-theme] #appView .event-library-card>details>summary{padding:22px;display:flex;gap:18px;align-items:center;cursor:pointer;list-style:none;border-radius:15px}
+html[data-dashboard-theme] #appView .event-library-card>details>summary::-webkit-details-marker{display:none}
+html[data-dashboard-theme] #appView .event-library-card>details>summary>img{width:86px;height:100px;object-fit:contain;background:var(--surface-soft);border-radius:9px;flex:0 0 86px}
+html[data-dashboard-theme] #appView .event-library-card>details>summary>span:nth-child(2){flex:1;min-width:0;display:grid;gap:7px}
+html[data-dashboard-theme] #appView .event-library-card summary strong{color:var(--ink);font-size:1.125rem;line-height:1.5;overflow-wrap:anywhere}
+html[data-dashboard-theme] #appView .event-library-card summary small{color:var(--muted);font-size:.875rem;line-height:1.65;overflow-wrap:anywhere}
+html[data-dashboard-theme] #appView .event-library-card details[open]>summary{background:var(--surface-accent);border-radius:15px 15px 0 0;border-bottom:1px solid var(--line)}
+html[data-dashboard-theme] #appView .event-story-invite{grid-column:1/-1;display:flex;align-items:center;justify-content:space-between;gap:16px;border-top:1px solid var(--line);padding-top:18px;font-size:.875rem;color:var(--muted)}
+html[data-dashboard-theme] #appView .event-story-invite>.btn{flex-shrink:0}
+html[data-dashboard-theme] #appView .calendar-story-disclosure{grid-column:1/-1;border-top:1px solid var(--line);padding-top:12px}
+html[data-dashboard-theme] #appView .calendar-story-disclosure>summary{padding:14px;background:var(--surface-accent);color:var(--accent-ink);font-weight:750;border-radius:9px;cursor:pointer;min-height:48px}
+html[data-dashboard-theme] #appView .story-editor{padding:26px;min-width:0}
+html[data-dashboard-theme] #appView .story-editor-note{padding:16px 18px;background:var(--surface-soft);border:1px solid var(--line);border-radius:10px;color:var(--label-ink);font-size:.875rem;line-height:1.7}
+html[data-dashboard-theme] #appView .story-editor-note p{color:var(--muted);margin-top:5px}
+html[data-dashboard-theme] #appView .story-field-section{padding:26px 0;border-bottom:1px solid var(--line)}
+html[data-dashboard-theme] #appView .story-field-section:last-child{border:0;padding-bottom:0}
+html[data-dashboard-theme] #appView .story-field-section>h4{font-size:1.125rem;margin-bottom:20px;color:var(--ink)}
+html[data-dashboard-theme] #appView .story-field-section>.form-row:last-child .field{margin-bottom:0}
+html[data-dashboard-theme] #appView .story-toolbar,.story-pagination{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+html[data-dashboard-theme] #appView .story-toolbar{margin-top:16px}
+html[data-dashboard-theme] #appView .story-pagination{justify-content:space-between;margin:22px 0}
+html[data-dashboard-theme] #appView .story-poster-link{display:block;width:fit-content;max-width:100%;margin-bottom:22px;text-decoration:none;color:var(--accent-ink);font-size:.875rem}
+html[data-dashboard-theme] #appView .story-poster-link>img{display:block;max-width:100%;max-height:380px;border-radius:10px;border:1px solid var(--line)}
+html[data-dashboard-theme] #appView .story-poster-link>span{display:block;padding:10px 0;font-weight:700}
+html[data-dashboard-theme] #appView .story-media-list{display:grid;gap:14px}
+html[data-dashboard-theme] #appView .story-media-item{display:flex;gap:14px;padding:16px;border:1px solid var(--line);border-radius:10px;background:var(--surface-soft);align-items:start;min-width:0}
+html[data-dashboard-theme] #appView .story-media-item>img{width:90px;aspect-ratio:1;object-fit:cover;border-radius:8px}
+html[data-dashboard-theme] #appView .story-media-item>.field{flex:1;min-width:0;margin:0}
+html[data-dashboard-theme] #appView .story-media-item .field label:not(:first-child){margin-top:12px}
+html[data-dashboard-theme] #appView .story-media-symbol{display:grid;place-items:center;flex:0 0 44px;height:44px;background:var(--surface-accent);color:var(--accent-ink);border-radius:9px}
+html[data-dashboard-theme] #appView .story-check{display:flex;align-items:center;gap:12px;font-size:.9375rem;line-height:1.6;min-height:48px;margin-bottom:10px;color:var(--label-ink)}
+html[data-dashboard-theme] #appView .story-check input{width:20px;height:20px;flex:0 0 20px}
+html[data-dashboard-theme] #appView .story-status{font-size:.875rem;line-height:1.7;color:var(--muted);margin-top:18px}
+html[data-dashboard-theme] #appView .event-details-save{margin:28px 0 0}
+html[data-dashboard-theme] #appView .event-details-save>h3{font-size:1.25rem;margin-bottom:8px}
+html[data-dashboard-theme] #appView .event-details-save>p{color:var(--muted);font-size:.9375rem;line-height:1.7}
+html[data-dashboard-theme] #appView .wedding-stories-bridge{margin-top:28px;background:var(--surface-accent)}
+html[data-dashboard-theme] #appView .wedding-stories-bridge h3{font-size:1.375rem;margin:5px 0 10px;color:var(--ink)}
+html[data-dashboard-theme] #appView .wedding-stories-bridge p{font-size:.9375rem;line-height:1.7;color:var(--muted);max-width:80ch}
+@supports(backdrop-filter:blur(16px)){html[data-dashboard-theme] #appView :is(.event-library-tools,.overview-card-head,.collection-summary){background:linear-gradient(110deg,#ffffff0b,transparent 65%),var(--surface-accent);box-shadow:var(--glass-sheen)}}
+@media(max-width:1100px){html[data-dashboard-theme] #appView .dashboard-overview-layout{grid-template-columns:1fr}html[data-dashboard-theme] #appView .event-filter-grid{grid-template-columns:1fr 1fr}html[data-dashboard-theme] #appView .event-filter-grid>.field:first-child{grid-column:1/-1}}
+@media(max-width:700px){html[data-dashboard-theme] #appView .brand .logo-chip{width:124px;min-height:50px;padding:10px 12px;border-radius:12px}html[data-dashboard-theme] #appView .brand .logo-chip img{max-height:30px}html[data-dashboard-theme] #appView .photo-card:has(.photo-editor[open]){display:flex;grid-column:1/-1}html[data-dashboard-theme] #appView .photo-card:has(.photo-editor[open])>img{position:static;width:calc(100% - 24px);margin:12px 12px 0}html[data-dashboard-theme] #appView .photo-card:has(.photo-editor[open])>.pc-body{padding:18px}html[data-dashboard-theme] #appView .photo-card:has(.photo-editor[open]) .photo-editor-fields{grid-template-columns:1fr}html[data-dashboard-theme] #appView .event-library-card>details>summary{flex-wrap:wrap;gap:12px;padding:18px}html[data-dashboard-theme] #appView .event-library-card>details>summary>img{width:64px;height:80px;flex-basis:64px}html[data-dashboard-theme] #appView .event-library-card>details>summary>.status-chip{margin-left:76px}html[data-dashboard-theme] #appView .story-editor{padding:20px 16px}html[data-dashboard-theme] #appView .story-media-item{padding:12px;flex-wrap:wrap}html[data-dashboard-theme] #appView .story-media-item>img{width:56px}html[data-dashboard-theme] #appView .story-media-item>.field{flex-basis:calc(100% - 80px)}html[data-dashboard-theme] #appView .story-media-item>.icon-btn{margin-left:auto}html[data-dashboard-theme] #appView .event-story-invite{flex-direction:column;align-items:stretch}html[data-dashboard-theme] #appView .event-filter-grid{grid-template-columns:1fr}html[data-dashboard-theme] #appView .event-library-card summary strong{font-size:1rem}html[data-dashboard-theme] #appView .overview-column{gap:20px}}
+
+html[data-dashboard-theme] #appView .story-poster-link[hidden]{display:none}
+
+html.dashboard-theme-changing #appView :is(.btn,.icon-btn,a,input,select,textarea){transition:none}

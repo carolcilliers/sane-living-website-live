@@ -6,7 +6,7 @@ The public website consumes published files in `public/content/`. A redesign can
 
 - **Settings:** `public/content/settings.json`. Defaults, categories, URL validation and schema version live in `public/site-config.js` (shared by browser, API and build).
 - **About:** `public/content/about.md`. YAML frontmatter holds the title and section list. The dashboard presents ordinary text fields; `public/content-model.js` parses and serializes the source with vendored js-yaml 4.1.0. Unknown metadata and section fields survive edits. Optional Markdown after the frontmatter is preserved. `visible: false` keeps a section saved without rendering it. The existing Farm source starts hidden, matching its previous absence from the public page.
-- Gallery, Weddings, Pricing and Partners keep their existing JSON paths. Photos retain their per-photo `draft` flag. Publishing gallery changes does not automatically reveal photos still marked unpublished.
+- Event stories use `public/content/event-stories.json` and the `eventStories` shared-draft key. Public publication includes approved stories only and retains unapproved working stories in the shared draft; see `docs/handbook/CONTENT_AND_OPERATIONS.md`. Airtable remains the calendar authority. Gallery, Weddings, Pricing and Partners keep their existing JSON paths. Photos retain their per-photo `draft` flag. Publishing gallery changes does not automatically reveal photos still marked unpublished.
 - **Events remain in Airtable**, using the existing `/api/dash-events` and public calendar endpoints. Event form recovery is local to the device; saving an unpublished event creates/updates the Airtable record without publishing it.
 
 ## Save and publish states
@@ -24,7 +24,7 @@ All `dash-content` and `dash-save` responses are private/no-store. Every request
 
 - `GET /api/dash-content?section=settings` (or gallery, weddings, pricing, partners, about): returns published content/SHA and the optional shared draft/SHA/base SHA.
 - `POST /api/dash-save`: `{path, action: "draft" | "publish" | "discard", content, expectedSha, expectedDraftSha}`. Discard does not require content. Null versions represent absent files.
-- Image upload: `{path: "public/images/<unique-name>.png", contentBase64}`. PNG, JPEG, WebP, GIF and ICO are accepted, up to 4 MB, with extension/signature checks. Existing assets cannot be overwritten. Uploading stages a new asset; it does not select it on the website until the referencing settings/content are published. SVG uploads and video uploads are intentionally not accepted; use a published video URL/path. The bundled SVG favicon is a fixed local asset.
+- Image upload: `{path: "public/images/<unique-name>.png", contentBase64}`. PNG, JPEG, WebP, GIF and ICO are accepted, up to 4 MB, with extension/signature checks. Existing assets cannot be overwritten. Uploading stages a new asset; it does not select it on the website until the referencing settings/content are published. SVG uploads are not accepted. Short MP4/WebM clips use `public/media/<unique-name>.mp4|webm`, with matching signature checks and a 3 MB limit; larger videos use hosted URLs. The bundled SVG favicon is a fixed local asset.
 
 ## Redesign integration
 

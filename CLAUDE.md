@@ -77,7 +77,7 @@ availability/inquiry embed URLs.
 ## API + environment
 
 `api/calendar-events.js` and `api/calendar-events-past.js` read a published-events
-view from Airtable (`filterByFormula: {Publish} = TRUE()`, max 100 records).
+view from Airtable (`filterByFormula: {Publish} = TRUE()`), following all pagination offsets.
 
 - `AIRTABLE_API_TOKEN`, `AIRTABLE_BASE_ID` — set on Vercel, **Production only**.
   Preview and development deploys return `500 Airtable configuration missing`.
@@ -103,9 +103,7 @@ local editing run `npm run cms` and uncomment it.
 
 - Contact form is dead code: `initContactForm()` posts to `/api/contact`, which
   does not exist (404), and no page defines `#contact-form`.
-- Upcoming events render empty because nothing has `Publish` ticked in Airtable,
-  not because the API is broken. Compare `/api/calendar-events` against
-  `/api/calendar-events?debug=2` to tell a data gap from an outage.
+- An empty calendar can mean no published records, missing credentials or an upstream error. Inspect the dashboard connection status and authenticated debug output before changing data. Debug modes require staff login; never expose unpublished rows anonymously.
 
 
 ## Website Studio
@@ -117,3 +115,7 @@ Read `docs/editor/14_WEBSITE_STUDIO_GUIDE.md` and `IMPLEMENTATION_STATUS.md` bef
 Drafts, staged images and immutable preview snapshots stay in browser IndexedDB. `api/studio.js` publishes a validated reviewed snapshot through one non-force commit directly to main. Save is not Publish; accepted commit is not verified live. The existing staff cookie and server-side CMS GitHub credential remain required. No shared private database, per-user roles or durable deployment worker is installed.
 
 Run `npm ci`, `npm run typecheck`, `npm test`, `npm run build`. `npm run dev:editor` is fixture-backed and never writes real services. Compiled `public/dash/editor/` is generated and ignored. Do not commit test layouts or test release descriptors.
+
+## Current dashboard / event authoring handoff
+
+Start at docs/handbook/README.md and the matching per-page rulebook. Event stories are supplemental metadata in public/content/event-stories.json; the full working library uses dashboard-drafts/eventStories.json. Publishing filters approved stories and retains unapproved plans as a shared draft. Airtable remains the calendar authority; planning drafts can be prepared before connection and do not become calendar bookings automatically. public/event-model.js is the shared validation contract. Event galleries, hosts, source flyers, recordings and wedding permission are covered in the Events rulebook. Short MP4/WebM uploads use public/media with the 3 MB limit; use hosted URLs for larger films. Existing public design remains unchanged: the event content adapter fills existing components only after explicit publication.
