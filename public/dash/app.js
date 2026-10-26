@@ -184,6 +184,7 @@
   function updateSaveUI(id) {
     var status = state.saveStates[id] || 'Published version loaded';
     var bar = $('#savebar-' + id);
+    if (id === 'gallery') updatePhotoSaveUI();
     if (!bar) return;
     bar.classList.add('show');
     bar.classList.toggle('has-changes', !!state.dirty[id]);
@@ -226,6 +227,7 @@
     if(id==='settings'){overviewPublishedSettings=published;applyDashboardBranding(JSON.parse(published));}
     state.loaded[id] = true; state.loadErrors[id] = ''; state.errors[id] = ''; state.conflicts[id] = '';
     var draft = !publishedOnly && response.draft && response.draft.content !== published ? response.draft : null;
+    state.versions[id].saved = draft ? draft.content : published;
     putContent(id, draft ? draft.content : published);
     state.dirty[id] = !!draft; state.unsaved[id] = false;
     state.saveStates[id] = draft ? 'Shared draft loaded' : 'Published version loaded';
@@ -278,7 +280,7 @@
     state.busy[id] = true; state.errors[id] = ''; updateSaveUI(id);
     try {
       var result = await api('/api/dash-save',{ method:'POST',body:JSON.stringify({ path:id==='about' ? 'public/content/about.md' : JSON_SECTIONS[id].file, content:snapshot, action:action, expectedSha:version.sha, expectedDraftSha:version.draftSha }) });
-      version.sha = result.sha; version.draftSha = result.draftSha;
+      version.sha = result.sha; version.draftSha = result.draftSha; version.saved = snapshot;
       var newerEdits = contentText(id) !== snapshot;
       state.dirty[id] = action === 'draft' || newerEdits || !!result.retainedDraft;
       if(id==='eventStories')state.eventStoryPublication=action==='publish';
@@ -695,13 +697,49 @@
   ];
   function galleryNeighbor(index,direction){var photos=state.data.gallery.photos,section=photos[index].section||'venue';for(var i=index+direction;i>=0&&i<photos.length;i+=direction)if((photos[i].section||'venue')===section)return i;return -1;}
   function galleryMatches(photo){var query=galleryView.query.trim().toLowerCase(),text=[photo.caption,photo.alt,photo.image,GROUP_DEFS.find(function(g){return g.id===(photo.group||'');})?.title].join(' ').toLowerCase();return (!query||text.includes(query))&&(galleryView.filter==='all'||galleryView.filter==='draft'&&photo.draft||galleryView.filter==='included'&&!photo.draft||galleryView.filter==='description'&&!String(photo.alt||'').trim());}
+  function galleryPhotoState(photo) {
+    var v=state.versions.gallery;
+    if(!v||!state.loaded.gallery)return {saved:false,label:'Gallery could not be loaded'};
+    var saved=JSON.parse(v.saved||v.published).photos.filter(function(p){return p.image===photo.image;});
+    var same=saved.length===1&&JSON.stringify(saved[0])===JSON.stringify(photo);
+    return {saved:same,label:same?(v.draftSha?'Photo saved in draft':'Published details'):'Unsaved photo changes'};
+  }
+  function updatePhotoSaveUI(){
+    $$('#photoGroups [data-photo-key]').forEach(function(d){
+      var photo=state.data.gallery&&state.data.gallery.photos.find(function(p){return photoKey(p)===d.dataset.photoKey;});
+      if(!photo)return;
+      var info=galleryPhotoState(photo),button=$('[data-photo-save]',d),status=$('[data-photo-save-status]',d);
+      if(button){button.disabled=!!state.busy.gallery||!!state.uploading||!state.loaded.gallery||!!state.conflicts.gallery;button.textContent=state.busy.gallery?'Saving…':'Save photo';}
+      if(status&&!status.dataset.pending&&!status.dataset.error){status.textContent=info.label;status.dataset.saved=String(info.saved);}
+    });
+  }
+  async function saveGalleryPhoto(photo){
+    if(state.busy.gallery||state.uploading)throw Error('A gallery save or upload is already running. Please wait.');
+    if(!state.loaded.gallery||state.conflicts.gallery)throw Error(state.conflicts.gallery||'Load the gallery successfully before saving.');
+    var version=state.versions.gallery,base=JSON.parse(version.saved||version.published),selected=JSON.parse(JSON.stringify(photo));
+    var matches=base.photos.map(function(p,i){return p.image===selected.image?i:-1;}).filter(function(i){return i>=0;});
+    if(matches.length>1||state.data.gallery.photos.filter(function(p){return p.image===selected.image;}).length>1)throw Error('This image is used more than once. Use the gallery Save draft button to save it safely.');
+    if(matches.length)base.photos[matches[0]]=selected;else base.photos.push(selected);
+    var snapshot=JSON.stringify(base,null,2)+'\n';
+    state.busy.gallery=true;state.errors.gallery='';updateSaveUI('gallery');
+    try{
+      var result=await api('/api/dash-save',{method:'POST',body:JSON.stringify({path:JSON_SECTIONS.gallery.file,action:'draft',content:snapshot,expectedSha:version.sha,expectedDraftSha:version.draftSha})});
+      version.sha=result.sha;version.draftSha=result.draftSha;version.saved=snapshot;
+      state.dirty.gallery=true;state.unsaved.gallery=contentText('gallery')!==snapshot;
+      state.saveStates.gallery=state.unsaved.gallery?'Photo saved · other gallery changes still unsaved':'Photo saved in shared draft';
+      if(state.unsaved.gallery)cacheWork('gallery');else try{localStorage.removeItem(RECOVERY_PREFIX+'gallery');}catch(e){}
+      return JSON.stringify(photo)===JSON.stringify(selected)?'Photo saved in draft':'Saved · newer edits still unsaved';
+    }catch(e){
+      cacheWork('gallery');state.errors.gallery=e.message;if(e.status===409)state.conflicts.gallery=e.message;throw e;
+    }finally{state.busy.gallery=false;updateSaveUI('gallery');}
+  }
   function photoCard(p,idx,total){
     var key=photoKey(p),sections=SECTION_DEFS.map(function(sd){return '<option value="'+sd.id+'"'+((p.section||'venue')===sd.id?' selected':'')+'>'+sd.title+'</option>';}).join('');
     var groups=GROUP_DEFS.map(function(gd){return '<option value="'+gd.id+'"'+((p.group||'')===gd.id?' selected':'')+'>'+gd.title+'</option>';}).join('');
     var filtered=galleryView.query.trim()||galleryView.filter!=='all';
     return '<article class="photo-card" data-photo-card="'+key+'"><img src="'+esc(p.image)+'" alt="'+esc(p.alt||'')+'" loading="lazy" onerror="this.style.opacity=0.25"><div class="pc-body"><div class="photo-card-overview"><strong data-photo-title>'+esc(p.caption||'Untitled photo')+'</strong><span class="status-chip status-'+(p.draft?'review':'quiet')+'">'+(p.draft?'Not published':'In gallery')+'</span></div>'+
       (p.draft?'<div class="photo-publication-actions"><button type="button" class="btn btn-primary btn-small" data-ph-publish="'+idx+'">Publish to website</button></div>':'')+
-      '<details class="photo-editor" data-photo-key="'+key+'" '+(galleryView.photoOpen.has(key)?'open':'')+'><summary aria-haspopup="dialog"><span>Edit photo details</span><span aria-hidden="true">↗</span></summary><dialog class="photo-details-panel" aria-labelledby="photo-panel-title-'+key+'"><header class="photo-panel-head"><div><span class="gallery-section-eyebrow">Photo settings</span><h3 id="photo-panel-title-'+key+'">Edit photo details</h3></div><button type="button" class="btn btn-ghost btn-small" data-photo-close aria-label="Close photo details">Close ×</button></header><div class="photo-panel-scroll"><img class="photo-panel-preview" src="'+esc(p.image)+'" alt="'+esc(p.alt||'')+'"><p class="photo-panel-help">Edit this photo without rearranging your gallery. Changes stay in your working gallery until you save or publish.</p><div class="photo-editor-fields"><label class="photo-field"><span>Caption</span><input data-ph="caption" data-idx="'+idx+'" value="'+esc(p.caption||'')+'" placeholder="Caption (shown under the photo)"></label><label class="photo-field"><span>Photo description</span><textarea data-ph="alt" data-idx="'+idx+'" rows="2" placeholder="Describe the photo (for accessibility)">'+esc(p.alt||'')+'</textarea></label><label class="pc-section-label">Website section<select data-ph="section" data-idx="'+idx+'">'+sections+'</select></label>'+((p.section||'venue')==='venue'?'<label class="pc-section-label">Gallery page group<select data-ph="group" data-idx="'+idx+'">'+groups+'</select></label>':'')+'<div class="pc-actions"><button type="button" class="icon-btn" data-ph-move="-1" data-idx="'+idx+'" title="Move earlier" '+(filtered||galleryNeighbor(idx,-1)<0?'disabled':'')+'>↑</button><button type="button" class="icon-btn" data-ph-move="1" data-idx="'+idx+'" title="Move later" '+(filtered||galleryNeighbor(idx,1)<0?'disabled':'')+'>↓</button><button type="button" class="btn btn-danger btn-small" data-ph-del="'+idx+'">Remove photo</button></div>'+(filtered?'<p class="photo-order-hint">Clear search and filters to reorder this collection.</p>':'')+'</div></div><footer class="photo-panel-foot"><button type="button" class="btn btn-primary" data-photo-save>Save gallery draft</button><button type="button" class="btn btn-ghost" data-photo-close>Done editing</button><span role="status" data-photo-save-status></span></footer></dialog></details></div></article>';
+      '<details class="photo-editor" data-photo-key="'+key+'" '+(galleryView.photoOpen.has(key)?'open':'')+'><summary aria-controls="photo-panel-'+key+'"><span>Edit photo details</span><span class="photo-open-icon" aria-hidden="true">⌄</span><span class="photo-close-label">Close ×</span></summary><div class="photo-details-panel" id="photo-panel-'+key+'"><div class="photo-panel-scroll"><div class="photo-edit-context"><img src="'+esc(p.image)+'" alt=""><div><span class="gallery-section-eyebrow">Photo details</span><strong data-photo-edit-title>'+esc(p.caption||'Untitled photo')+'</strong></div></div><div class="photo-editor-fields"><div class="photo-field-heading"><strong>Text &amp; description</strong><span>What visitors see and screen readers read.</span></div><label class="photo-field"><span>Caption</span><input data-ph="caption" data-idx="'+idx+'" value="'+esc(p.caption||'')+'" placeholder="Name this photo"></label><label class="photo-field"><span>Photo description</span><textarea aria-label="Photo description" data-ph="alt" data-idx="'+idx+'" rows="3" placeholder="Describe what is in this photo">'+esc(p.alt||'')+'</textarea></label><div class="photo-field-heading"><strong>Where it appears</strong><span>Choose its collection on the website.</span></div><label class="pc-section-label">Website section<select aria-label="Website section" data-ph="section" data-idx="'+idx+'">'+sections+'</select></label>'+((p.section||'venue')==='venue'?'<label class="pc-section-label">Gallery page group<select aria-label="Gallery page group" data-ph="group" data-idx="'+idx+'">'+groups+'</select></label>':'')+'<div class="photo-field-heading"><strong>Organize photo</strong><span>Reorder or remove this gallery entry.</span></div><div class="pc-actions"><button type="button" class="icon-btn" data-ph-move="-1" data-idx="'+idx+'" title="Move earlier" '+(filtered||galleryNeighbor(idx,-1)<0?'disabled':'')+'>↑</button><button type="button" class="icon-btn" data-ph-move="1" data-idx="'+idx+'" title="Move later" '+(filtered||galleryNeighbor(idx,1)<0?'disabled':'')+'>↓</button><button type="button" class="btn btn-danger btn-small" data-ph-del="'+idx+'">Remove photo</button></div><p class="photo-order-hint">'+(filtered?'Clear filters to reorder. ':'')+'Save gallery order or removals with the page’s Save draft button.</p></div></div><footer class="photo-panel-foot"><span role="status" data-photo-save-status></span><button type="button" class="btn btn-primary" data-photo-save>Save photo</button><small>Saves this photo as a draft. Publish changes makes it live.</small></footer></div></details></div></article>';
   }
   function groupsHtml(){
     var photos=state.data.gallery&&state.data.gallery.photos||[],filtering=galleryView.query.trim()||galleryView.filter!=='all';
@@ -714,7 +752,7 @@
   }
   function renderGallery(){
     var photos=state.data.gallery&&state.data.gallery.photos||[],nav=SECTION_DEFS.map(function(sd){var count=photos.filter(function(p){return (p.section||'venue')===sd.id;}).length;return '<a href="#gal-group-'+sd.id+'" data-jump="gal-group-'+sd.id+'">'+sd.title+' <span>'+count+'</span></a>';}).join('');
-    return panelShell('gallery','Photo Gallery','Choose a collection, find a photo and open its details in the side panel. Your photos stay in place while you edit. Your full gallery stays organized as it grows.',
+    return panelShell('gallery','Photo Gallery','Open a photo card to edit its details and save that photo. Each card scrolls independently, keeping your gallery in place.',
       '<nav class="gallery-collection-nav" aria-label="Gallery collections">'+nav+'</nav><div class="card gallery-toolbar"><div class="gallery-find-fields"><div class="field"><label for="gallery-search">Find a photo</label><input type="search" id="gallery-search" value="'+esc(galleryView.query)+'" placeholder="Search your photos"></div><div class="field"><label for="gallery-filter">Show</label><select id="gallery-filter"><option value="all">All photos</option><option value="draft">Marked not published</option><option value="included">In gallery</option><option value="description">No photo description</option></select></div><button type="button" class="btn btn-ghost" id="gallery-clear">Clear filters</button></div><div class="gallery-toolbar-bottom"><p id="gallery-result-count" role="status"></p><button type="button" class="btn btn-ghost btn-small" id="gal-add-url">Add a photo from a link</button></div><p class="gallery-save-help">Photo badges describe the gallery you are editing. Save draft to keep changes unpublished, or Publish changes to update the website.</p></div><div id="photoGroups">'+groupsHtml()+'</div>'+savebarHtml('gallery','gallery'));
   }
   function bindGallery() {
@@ -728,30 +766,33 @@
     var photos=state.data.gallery.photos,matched=photos.filter(galleryMatches).length,count=$('#gallery-result-count');if(count)count.textContent=matched+' of '+photos.length+' photos · up to 12 per collection page';
     $$('[data-gallery-collection]',wrap).forEach(function(d){d.ontoggle=function(){if(!galleryView.query.trim()&&galleryView.filter==='all')galleryView.open[d.dataset.galleryCollection]=d.open;};});
     $$('[data-photo-key]',wrap).forEach(function(d){
-      var trigger=$('summary',d),panel=$('dialog',d);
-      function closePanel(restoreFocus){panel.close();d.open=false;galleryView.photoOpen.delete(d.dataset.photoKey);trigger.setAttribute('aria-expanded','false');if(restoreFocus)trigger.focus({preventScroll:true});}
+      var trigger=$('summary',d),panel=$('.photo-details-panel',d);
+      function closePanel(restoreFocus){d.open=false;galleryView.photoOpen.delete(d.dataset.photoKey);trigger.setAttribute('aria-expanded','false');if(restoreFocus)trigger.focus({preventScroll:true});}
       function openPanel(){
-        $$('[data-photo-key]',wrap).forEach(function(other){if(other!==d){other.open=false;$('dialog',other).close();$('summary',other).setAttribute('aria-expanded','false');}});
+        $$('[data-photo-key]',wrap).forEach(function(other){if(other!==d){other.open=false;$('summary',other).setAttribute('aria-expanded','false');}});
         galleryView.photoOpen.clear();galleryView.photoOpen.add(d.dataset.photoKey);d.open=true;trigger.setAttribute('aria-expanded','true');
-        // Non-modal: the grid, navigation and page-level Save/Publish controls stay usable.
-        if(!panel.open){var scrollY=window.scrollY;panel.show();window.scrollTo(window.scrollX,scrollY);}
       }
-      trigger.onclick=function(ev){ev.preventDefault();if(panel.open)closePanel(true);else openPanel();};
-      panel.addEventListener('keydown',function(ev){if(ev.key==='Escape'){ev.preventDefault();ev.stopPropagation();closePanel(true);}});
-      panel.oncancel=function(ev){ev.preventDefault();closePanel(true);};
-      $$('[data-photo-close]',panel).forEach(function(b){b.onclick=function(){closePanel(true);};});
-      $('[data-photo-save]',panel).onclick=async function(){var b=this;b.disabled=true;var status=$('[data-photo-save-status]',panel);status.textContent='Saving gallery draft…';try{var ok=await saveJsonSection('gallery',null,'draft');status.textContent=ok===false?'Draft not saved. Check the gallery save message and retry.':'Gallery draft saved. Website unchanged.';}finally{b.disabled=false;}};
-      // Reordering/section changes can rebuild cards; reopen the same photo without shifting the grid.
+      trigger.onclick=function(ev){ev.preventDefault();if(d.open)closePanel(true);else openPanel();};
+      d.addEventListener('keydown',function(ev){if(ev.key==='Escape'){ev.preventDefault();ev.stopPropagation();closePanel(true);}});
+      $('[data-photo-save]',panel).onclick=async function(){
+        var photo=photos.find(function(p){return photoKey(p)===d.dataset.photoKey;}),status=$('[data-photo-save-status]',panel);
+        status.dataset.pending='true';delete status.dataset.error;status.textContent='Saving this photo…';
+        try{status.textContent=await saveGalleryPhoto(photo);status.dataset.saved=String(galleryPhotoState(photo).saved);}
+        catch(e){status.textContent='Not saved: '+e.message;status.dataset.error='true';status.dataset.saved='false';}
+        finally{delete status.dataset.pending;updatePhotoSaveUI();}
+      };
       if(d.open)openPanel();else trigger.setAttribute('aria-expanded','false');
     });
+    updatePhotoSaveUI();
     $$('[data-gallery-page]',wrap).forEach(function(b){b.onclick=function(){var section=b.dataset.galleryPage,step=+b.dataset.step;galleryView.pages[section]=(galleryView.pages[section]||0)+step;rerender();var collection=$('#gal-group-'+section);var button=$('[data-gallery-page][data-step="'+step+'"]',collection);if(button&&!button.disabled)button.focus();else $('summary',collection).focus();};});
     $$('#photoGroups [data-ph]').forEach(function (input) {
       var evt = input.tagName === 'SELECT' ? 'change' : 'input';
       input.addEventListener(evt, function () {
         var idx = +input.getAttribute('data-idx');
         state.data.gallery.photos[idx][input.getAttribute('data-ph')] = input.value;
+        var card=input.closest('.photo-card'),status=$('[data-photo-save-status]',card);if(status)delete status.dataset.error;
         setDirty('gallery', true);
-        var photo=state.data.gallery.photos[idx];var title=input.closest('.photo-card').querySelector('[data-photo-title]');if(title&&input.dataset.ph==='caption')title.textContent=photo.caption||'Untitled photo';
+        var photo=state.data.gallery.photos[idx];if(input.dataset.ph==='caption')$$('[data-photo-title],[data-photo-edit-title]',card).forEach(function(title){title.textContent=photo.caption||'Untitled photo';});
         if (input.getAttribute('data-ph') === 'section'){revealPhoto(photo);rerender();}
       });
     });
@@ -1177,7 +1218,7 @@
       var protectedSections=[],homeChanged=false;
       for(var id of Object.keys(state.versions)){
         if(!state.loaded[id] || (!changed && !sourcePending[id]))continue;
-        var focused=$('#panel-'+(id==='eventStories'?'events':id)),editing=focused && (focused.querySelector('dialog[open]') || focused.contains(document.activeElement) && /^(INPUT|TEXTAREA|SELECT)$/.test(document.activeElement.tagName));
+        var focused=$('#panel-'+(id==='eventStories'?'events':id)),editing=focused && (focused.querySelector('dialog[open],.photo-editor[open]') || focused.contains(document.activeElement) && /^(INPUT|TEXTAREA|SELECT)$/.test(document.activeElement.tagName));
         if(state.busy[id] || state.uploading || editing){sourcePending[id]=true;continue;}
         if(!changed && (state.unsaved[id] || state.dirty[id])){protectedSections.push(id);continue;}
         var before=contentText(id),old=state.versions[id],remote=await api('/api/dash-content?section='+encodeURIComponent(id)+'&ref='+encodeURIComponent(revision.head));
@@ -1186,7 +1227,7 @@
         var same=remote.published && old.sha===remote.published.sha && old.draftSha===(remote.draft?remote.draft.sha:null);
         if(same){versionPanelImages(id,revision.head);delete sourcePending[id];continue;}
         if(state.unsaved[id] || state.dirty[id] || state.busy[id] || contentText(id)!==before){sourcePending[id]=true;protectedSections.push(id);state.conflicts[id]='The website or shared draft changed externally. Your work is kept; load the latest version when you are ready.';updateSaveUI(id);continue;}
-        if(focused && (focused.querySelector('dialog[open]') || focused.contains(document.activeElement) && /^(INPUT|TEXTAREA|SELECT)$/.test(document.activeElement.tagName))){sourcePending[id]=true;continue;}
+        if(focused && (focused.querySelector('dialog[open],.photo-editor[open]') || focused.contains(document.activeElement) && /^(INPUT|TEXTAREA|SELECT)$/.test(document.activeElement.tagName))){sourcePending[id]=true;continue;}
         await loadContentSection(id,false,remote);refreshPanel(id);versionPanelImages(id,revision.head);updateSaveUI(id);delete sourcePending[id];
         homeChanged=true;
       }
