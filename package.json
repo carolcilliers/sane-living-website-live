@@ -12,7 +12,7 @@
     "test:editor": "node tests/editor-contract.cjs && node tests/element-model.cjs && node tests/geometry-contract.cjs && node tests/site-publisher.cjs && node tests/site-editor-flow.cjs && node tests/studio-recovery.cjs && node tests/editor-elements.cjs && node tests/editor-depth.cjs && node tests/team-drafts.cjs && node tests/team-draft-flow.cjs && node tests/stale-draft-base.cjs && node tests/source-sync.cjs && node tests/studio-smooth.cjs && node tests/toolbar-interaction.cjs && node tests/canvas-tool-paths.cjs && node tests/image-card-drag.cjs && node tests/image-removal.cjs && node tests/workspace-polish.cjs && node tests/layout-backgrounds.cjs && node tests/pro-editor.cjs && node tests/insertion-regression.cjs && node tests/component-controls.cjs && node tests/component-pages.cjs",
     "typecheck": "tsc -p editor/tsconfig.json",
     "pretest": "npm run build:editor",
-    "test:dashboard": "node tests/dashboard-presentation.cjs && node tests/dashboard-organization.cjs && node tests/dashboard-editorial.cjs"
+    "test:dashboard": "node tests/dashboard-presentation.cjs && node tests/dashboard-organization.cjs && node tests/dashboard-editorial.cjs && node tests/dashboard-appearance.cjs"
   },
   "devDependencies": {
     "@types/react": "19.2.7",

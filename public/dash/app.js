@@ -495,30 +495,30 @@
     e = e || {};
     var v = function (k, dflt) { return e[k] !== undefined ? e[k] : (dflt || ''); };
     return '<div class="card editor-card" id="eventEditor" style="margin-bottom:18px">' +
-      '<h3 style="color:var(--plum);margin-bottom:12px">' + (e.id ? 'Edit event' : 'New event') + '</h3>' +
+      '<div class="event-editor-heading"><span class="workspace-eyebrow">Calendar entry</span><h3>'+(e.id?'Edit event':'New event')+'</h3><p>Start with the essentials, then add the details guests need.</p></div><section class="event-form-group" aria-labelledby="event-basics-title"><div class="subsection-heading"><h4 id="event-basics-title">Event essentials</h4><p>The name, date and time shown in the calendar.</p></div>' +
       '<div class="form-row">' +
       '<div class="field"><label for="ev-title">Title</label><input id="ev-title" value="' + esc(v('title')) + '"></div>' +
       '<div class="field"><label for="ev-date">Date</label><input id="ev-date" type="date" value="' + esc(v('date')) + '"></div></div>' +
       '<div class="form-row">' +
       '<div class="field"><label for="ev-start">Start time</label><input id="ev-start" value="' + esc(v('startTime')) + '" placeholder="7:00 PM"></div>' +
       '<div class="field"><label for="ev-end">End time</label><input id="ev-end" value="' + esc(v('endTime')) + '" placeholder="9:00 PM"></div></div>' +
-      '<div class="form-row">' +
+      '</section><section class="event-form-group" aria-labelledby="event-details-title"><div class="subsection-heading"><h4 id="event-details-title">Location &amp; guest information</h4><p>Where it happens, what it costs and how guests can join.</p></div><div class="form-row">' +
       '<div class="field"><label for="ev-loc">Location</label><input id="ev-loc" value="' + esc(v('location')) + '" placeholder="Sane Living Center"></div>' +
       '<div class="field"><label for="ev-type">Type</label><input id="ev-type" value="' + esc(v('type')) + '" placeholder="Free"></div></div>' +
       '<div class="form-row">' +
       '<div class="field"><label for="ev-price">Price</label><input id="ev-price" value="' + esc(v('price')) + '" placeholder="$10 suggested donation"></div>' +
       '<div class="field"><label for="ev-rsvp">RSVP / tickets link</label><input id="ev-rsvp" value="' + esc(v('rsvpUrl')) + '" placeholder="https://…"></div></div>' +
       '<div class="field"><label for="ev-desc">Description</label><textarea id="ev-desc" rows="4">' + esc(v('description')) + '</textarea></div>' +
-      '<div class="field"><label style="text-transform:none;letter-spacing:0;font-size:.95rem"><input type="checkbox" id="ev-publish" ' + (e.publish ? 'checked' : '') + ' style="width:auto;margin-right:8px">Show on the website (published)</label>' +
+      '</section><section class="event-form-group event-publication" aria-labelledby="event-publication-title"><div class="subsection-heading"><h4 id="event-publication-title">Website visibility</h4><p>Keep an event unpublished while you prepare it.</p></div><div class="field"><label style="text-transform:none;letter-spacing:0;font-size:.95rem"><input type="checkbox" id="ev-publish" ' + (e.publish ? 'checked' : '') + ' style="width:auto;margin-right:8px">Show on the website (published)</label>' +
       '<div class="hint">Unticked events are drafts — saved in Airtable but hidden from the website.</div></div>' +
-      '<p class="event-work-status" id="ev-work-status" role="status">Save this event to keep it in Airtable. The checkbox above controls whether it appears on the website.</p>'+
+      '</section><p class="event-work-status" id="ev-work-status" role="status">Save this event to keep it in Airtable. The checkbox above controls whether it appears on the website.</p>'+
       '<div style="display:flex;gap:10px;margin-top:8px;flex-wrap:wrap">' +
       '<button type="button" class="btn btn-primary" id="ev-save">' + (e.publish ? 'Publish event changes' : 'Save unpublished event') + '</button>' +
       '<button type="button" class="btn btn-ghost" id="ev-cancel">Cancel</button></div></div>';
   }
   function renderEvents() {
     var inner = '<div id="syncSlot">' + syncBanner() + '</div>';
-    inner += '<div style="margin-bottom:18px"><button type="button" class="btn btn-primary" id="ev-add">+ Add an event</button></div>';
+    inner += '<div class="workspace-list-heading"><div><span class="workspace-eyebrow">Venue calendar</span><h3>Your events</h3><p>Each card keeps the date, guest details and publication controls together.</p></div><button type="button" class="btn btn-primary" id="ev-add">+ Add an event</button></div>';
     var recoveredEvent = null; try { recoveredEvent = JSON.parse(localStorage.getItem(RECOVERY_PREFIX+'event') || 'null'); } catch(e){}
     if(recoveredEvent) inner += '<div class="event-recovery-note" id="eventRecovery">There is unfinished event work on this device. <button type="button" class="btn btn-ghost btn-small" id="ev-restore">Resume editing</button></div>';
     inner += '<div id="eventEditorSlot"></div><div id="eventList">';
@@ -613,7 +613,8 @@
     state.editingEventId = e ? e.id : null;
     var slot = $('#eventEditorSlot');
     slot.innerHTML = eventFormHtml(e || {});
-    slot.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    slot.scrollIntoView({ behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth', block: 'start' });
+    $('#ev-title').focus({preventScroll:true});
     var captureEvent=function(){var work={id:state.editingEventId,title:$('#ev-title').value,date:$('#ev-date').value,startTime:$('#ev-start').value,endTime:$('#ev-end').value,location:$('#ev-loc').value,type:$('#ev-type').value,price:$('#ev-price').value,rsvpUrl:$('#ev-rsvp').value,description:$('#ev-desc').value,publish:$('#ev-publish').checked};state.unsaved.events=true;try{localStorage.setItem(RECOVERY_PREFIX+'event',JSON.stringify(work));}catch(e){}var eventStatus=$('#ev-work-status');if(eventStatus)eventStatus.textContent='Unsaved event changes · kept on this device until you save.';$('#ev-save').textContent=work.publish?'Publish event changes':'Save unpublished event';};
     $$('input,textarea',slot).forEach(function(input){input.addEventListener('input',captureEvent);input.addEventListener('change',captureEvent);});
     $('#ev-cancel').addEventListener('click', function () { if(state.unsaved.events&&!confirm('Discard the unfinished event changes on this device?'))return;slot.innerHTML = ''; state.editingEventId = null;state.unsaved.events=false;try{localStorage.removeItem(RECOVERY_PREFIX+'event');}catch(e){}var notice=$('#eventRecovery');if(notice)notice.remove(); });
@@ -913,27 +914,30 @@
   function renderPartners() {
     var d = state.data.partners || {};
     var cards = (d.partners || []).map(function (p, i) {
-      return '<div class="card form-card" style="margin-bottom:14px">' +
+      return '<article class="card form-card partner-editor-card"><div class="partner-card-heading"><span class="partner-avatar" aria-hidden="true">'+SECTIONS[5].icon+'</span><div><span class="workspace-eyebrow">Partner '+String(i+1).padStart(2,'0')+'</span><h4 data-partner-title="'+i+'">'+esc(p.name||'New partner')+'</h4></div></div><div class="partner-photo-frame"><img data-partner-preview="'+i+'" src="'+esc(SaneSettings.safeUrl(p.image,'image'))+'" alt="Partner photo preview" '+(!SaneSettings.safeUrl(p.image,'image')?'hidden':'')+'><span data-partner-empty="'+i+'" '+(SaneSettings.safeUrl(p.image,'image')?'hidden':'')+'>Add a photo link below to preview it here</span></div>' +
         '<div class="form-row"><div class="field"><label for="partner-name-' + i + '">Business name</label><input id="partner-name-' + i + '" data-pt="' + i + '" data-k="name" value="' + esc(p.name || '') + '"></div>' +
         '<div class="field"><label for="partner-category-' + i + '">Category</label><input id="partner-category-' + i + '" data-pt="' + i + '" data-k="category" value="' + esc(p.category || '') + '" placeholder="Catering, Flowers, Photography…"></div></div>' +
         '<div class="field"><label for="partner-description-' + i + '">Short description</label><textarea id="partner-description-' + i + '" data-pt="' + i + '" data-k="description" rows="2">' + esc(p.description != null ? p.description : p.blurb || '') + '</textarea></div>' +
         '<div class="form-row"><div class="field"><label for="partner-website-' + i + '">Website</label><input id="partner-website-' + i + '" data-pt="' + i + '" data-k="website" value="' + esc(p.website || '') + '" placeholder="https://…"></div>' +
         '<div class="field"><label for="partner-image-' + i + '">Photo (path or link)</label><input id="partner-image-' + i + '" data-pt="' + i + '" data-k="image" value="' + esc(p.image || '') + '" placeholder="/images/…"></div></div>' +
-        '<div><button type="button" class="btn btn-danger btn-small" data-pt-del="' + i + '">Remove this partner</button></div></div>';
+        '<div><button type="button" class="btn btn-danger btn-small" data-pt-del="' + i + '">Remove this partner</button></div></article>';
     }).join('');
-    var inner = '<div class="card form-card" style="margin-bottom:18px">' +
+    var inner = '<div class="card form-card partners-intro"><div class="form-section-heading"><h3>Introduce your community</h3><p>The introduction guests read before exploring local partners.</p></div>' +
       fieldHtml('Intro text (top of the Partners page)', 'intro', d.intro, { textarea: true, rows: 4, hint: 'This introduction appears above the partner directory on the website.' }) + '</div>' +
-      '<div class="workspace-section-heading"><h3>Partner directory</h3><p>One business per card. Contact details, descriptions and photos stay together.</p></div><div id="partnerList">' + (cards || '<div class="empty-note">No partners listed yet — add the first one below. Only add a business after they have agreed to be listed.</div>') + '</div>' +
+      '<div class="workspace-list-heading"><div><span class="workspace-eyebrow">Local connections</span><h3>Partner directory</h3><p>One business per card. Contact details, descriptions and photos stay together.</p></div></div><div id="partnerList">' + (cards || '<div class="empty-note">No partners listed yet — add the first one below. Only add a business after they have agreed to be listed.</div>') + '</div>' +
       '<button type="button" class="btn btn-primary" id="pt-add">+ Add a partner</button>' +
       savebarHtml('partners', 'partners');
     return panelShell('partners', 'Partners', 'Local businesses shown on the Partners page. Reminder of the house rule: mutual referrals only — no referral fees, ever.', inner);
   }
   function bindPartners() {
     bindFields('partners', $('#panel-partners'));
+    $$('[data-partner-preview]').forEach(function(image){var empty=$('[data-partner-empty="'+image.dataset.partnerPreview+'"]');image.onerror=function(){image.hidden=true;empty.hidden=false;empty.textContent='This photo could not be loaded. Check the image link below.';};image.onload=function(){image.hidden=false;empty.hidden=true;};});
     $$('#panel-partners [data-pt]').forEach(function (input) {
       input.addEventListener('input', function () {
         state.data.partners.partners[+input.getAttribute('data-pt')][input.getAttribute('data-k')] = input.value;
         setDirty('partners', true);
+        var index=input.dataset.pt;if(input.dataset.k==='name')$('[data-partner-title="'+index+'"]').textContent=input.value||'New partner';
+        if(input.dataset.k==='image'){var image=$('[data-partner-preview="'+index+'"]'),empty=$('[data-partner-empty="'+index+'"]'),url=SaneSettings.safeUrl(input.value,'image');image.hidden=!url;image.src=url;empty.hidden=!!url;}
       });
     });
     $$('#panel-partners [data-pt-del]').forEach(function (b) {
@@ -949,6 +953,7 @@
       state.data.partners.partners.push({ name: '', category: '', description: '', website: '', image: '' });
       setDirty('partners', true);
       refreshPanel('partners');
+      var nameFields=$$('#partnerList [data-k="name"]');if(nameFields.length)nameFields[nameFields.length-1].focus();
     });
   }
 

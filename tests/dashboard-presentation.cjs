@@ -3,7 +3,8 @@ const assert=require('node:assert/strict'),fs=require('node:fs'),path=require('n
 const create=require('./qa-server.cjs'),{launch}=require('./browser.cjs');
 (async()=>{const s=await create();let browser;const evidence=process.env.DASHBOARD_QA_DIR;if(evidence)fs.mkdirSync(evidence,{recursive:true});try{
  await fetch(s.url+'/api/dash-events',{method:'POST',headers:{Cookie:s.cookie,'Content-Type':'application/json'},body:JSON.stringify({title:'Dashboard QA event with a longer title',date:'2026-11-20',description:'An isolated fixture for checking readable event cards and responsive action controls.',startTime:'6:00 PM',endTime:'8:00 PM',location:'Sane Living',publish:false})});
- browser=await launch();const context=await browser.newContext({viewport:{width:1440,height:1050}});
+ browser=await launch();const context=await browser.newContext({viewport:{width:1440,height:1050},colorScheme:'light'});
+ if(process.env.DASHBOARD_THEME)await context.addInitScript(theme=>localStorage.setItem('sane-dashboard-appearance',theme),process.env.DASHBOARD_THEME);
  await context.addCookies([{name:'sl_dash',value:s.cookie.split('=')[1],url:s.url}]);
  await context.route('**/*',r=>r.request().url().startsWith(s.url)?r.continue():r.abort());
  const page=await context.newPage(),errors=[];page.on('pageerror',e=>errors.push(e.message));page.setDefaultTimeout(15000);

@@ -112,3 +112,7 @@ The public marketing rules above remain the venue website's baseline. Dashboard 
 - Floating canvas controls stay compact. Detailed sizing/style controls remain in the inspector; whole sections still move in Layers.
 
 Guidance applied from [ByChokeYT/Impecable](https://github.com/ByChokeYT/Impecable/tree/d0453bffd697f6fdd08e5d5244643d6afadcc7de/source/skills): impeccable context, polish, typeset and adapt. This is an adaptation to the existing product, not an installed skill bundle or copied editor runtime.
+
+### Native dashboard appearance (October 25, 2026)
+
+Paul requested warm Light/Dark themes and restrained liquid-glass styling for the staff dashboard. `public/dash/appearance.css` owns the native dashboard's theme/material roles after `workspace.css`; `appearance.js` applies a browser-only Light/Dark/Auto preference before paint. Subtle static plum/sand lighting and translucent workspace chrome are permitted for this dashboard request. Fields and data stay opaque and readable, with visible borders, focus and status contrast. Keep the public website and Page Editor canvas independent of these styles. See `docs/dashboard/APPEARANCE_AND_NATIVE_PAGES.md` for scope and verification.

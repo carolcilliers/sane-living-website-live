@@ -80,6 +80,7 @@ module.exports=async function createServer(){
     if(!login.requireLogin(req,res))return;
     if(req.method==='POST'){const event={...req.body,id:'rec-test-'+events.length};events.push(event);return res.json({event});}
     if(req.method==='PATCH'){let event=events.find(e=>e.id===req.body.id);Object.assign(event,req.body);return res.json({event});}
+    if(req.method==='DELETE'){events=events.filter(e=>e.id!==req.body.id);return res.json({ok:true});}
     return res.json({events,count:events.length,readOnly:false});
    }
    let relative=u.pathname==='/'?'/index.html':u.pathname==='/dash/'?'/dash/index.html':u.pathname;

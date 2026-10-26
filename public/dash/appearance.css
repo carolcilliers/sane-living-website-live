@@ -1,0 +1,223 @@
+/* Dashboard appearance owner. Loaded after workspace.css. Solid controls over
+   softly translucent workspace surfaces; never loaded into the public site or editor iframe. */
+:root{
+ --workspace-canvas:#f5efe8;--workspace-surface:#fffdf9;--workspace-raised:#fff;
+ --workspace-ink:#302535;--workspace-secondary:#67576b;--workspace-border:#ddcfdc;
+ --plum:#302035;--plum2:#75478a;--accent:#86509c;--tint:#f0e5f3;--field-line:#aa96b4;--focus:#85509d;
+ --surface-line:#ddcfdc;--surface-soft:#f5eff6;--surface-accent:#ece0f1;--surface-sand:#f1e8dc;
+ --label-ink:#4e3a56;--accent-ink:#75478a;--accent-solid:#86509c;--accent-hover:#714184;--on-accent:#fff;
+ --hero-surface:#39243f;--hero-ink:#fff8ff;--hero-secondary:#eadcec;
+ --glass-panel:#fffdf9ed;--glass-rail:#fffdf9d9;
+ --glass-sheen:inset 0 1px 0 #ffffffdf;--glass-shadow:0 8px 28px #43284c09,0 2px 5px #43284c04;
+ --danger-surface:#fff0ed;--danger-ink:#9a343c;--danger-border:#c6888e;
+ --success-surface:#eaf3ec;--success-ink:#2f5b40;--success-border:#9db9a6;
+ --warning-surface:#fbefda;--warning-ink:#76531e;--warning-border:#cfb381;
+ --neutral-surface:#eee9e5;--neutral-ink:#655969;--placeholder:#79687f;
+ --shadow:var(--glass-shadow);--shadow-lg:0 16px 44px #38223f15;
+}
+html[data-dashboard-theme=dark]{
+ --workspace-canvas:#1c1820;--workspace-surface:#28222c;--workspace-raised:#322a37;
+ --workspace-ink:#f2e7ed;--workspace-secondary:#c5b6c9;--workspace-border:#514256;
+ --plum:#f2e7ed;--plum2:#dab4e8;--accent:#a46aba;--tint:#403047;--field-line:#88718f;--focus:#e2b7f1;
+ --surface-line:#514256;--surface-soft:#302735;--surface-accent:#3b2c43;--surface-sand:#3a302d;
+ --label-ink:#ead7ed;--accent-ink:#dfb5ed;--accent-solid:#87519b;--accent-hover:#9960ad;--on-accent:#fff;
+ --hero-surface:#39253f;--hero-ink:#fff7fc;--hero-secondary:#dfcbe5;
+ --glass-panel:#28222cef;--glass-rail:#29222edb;
+ --glass-sheen:inset 0 1px 0 #e6bff016;--glass-shadow:0 8px 28px #0d081d20,0 2px 5px #0d081d18;
+ --danger-surface:#462c32;--danger-ink:#ffbabd;--danger-border:#a16d76;
+ --success-surface:#283d33;--success-ink:#b5dec5;--success-border:#638772;
+ --warning-surface:#443724;--warning-ink:#efd1a0;--warning-border:#967d55;
+ --neutral-surface:#39313c;--neutral-ink:#d5c7d9;--placeholder:#b5a1be;
+ --shadow-lg:0 16px 44px #00000038;
+}
+html[data-dashboard-theme]{background:var(--workspace-canvas);scrollbar-color:var(--field-line) var(--workspace-canvas)}
+html[data-dashboard-theme] body{background:radial-gradient(ellipse at 92% 0,var(--surface-accent),transparent 56%),radial-gradient(ellipse at 12% 70%,var(--surface-sand),transparent 58%),var(--workspace-canvas);background-attachment:fixed;color:var(--ink)}
+html[data-dashboard-theme] #appView{background:transparent}
+html[data-dashboard-theme] #appView .sidebar{background:var(--workspace-surface);border-color:var(--line);box-shadow:var(--glass-sheen),1px 0 24px #34213e08;color:var(--ink)}
+html[data-dashboard-theme] #appView .brand{border-color:var(--line)}
+html[data-dashboard-theme] #appView .brand-name{color:var(--ink)}
+html[data-dashboard-theme] #appView .brand-sub{color:var(--muted)}
+html[data-dashboard-theme] .brand .logo-chip{background:#faf5ef;border-color:#ddd0d0;box-shadow:inset 0 1px 0 #fff}
+html[data-dashboard-theme] #appView .sidebar .nav button{color:var(--label-ink);border-radius:12px;min-height:48px;transition:none}
+html[data-dashboard-theme] #appView .sidebar .nav button:hover{background:var(--tint);color:var(--ink)}
+html[data-dashboard-theme] #appView .sidebar .nav button.active{background:var(--accent-solid);border-color:var(--accent-solid);color:var(--on-accent);box-shadow:inset 0 1px 0 #ffffff25,0 3px 10px #42214b18}
+html[data-dashboard-theme] #appView .sidebar .nav button.active:hover{background:var(--accent-hover)}
+html[data-dashboard-theme] #appView .sidebar .nav button .dot{background:#53335f;border-color:#c8a7d7;color:#fff}
+html[data-dashboard-theme] #appView .sidebar-foot{border-color:var(--line);gap:12px 16px}
+html[data-dashboard-theme] #appView .sidebar-foot :is(a,.linklike){color:var(--accent-ink)}
+html[data-dashboard-theme] .dashboard-appearance{width:100%;display:grid;gap:8px;color:var(--muted);font-size:.75rem;font-weight:700;letter-spacing:.03em}
+html[data-dashboard-theme] .appearance-options{display:flex;align-items:stretch;padding:4px;border:1px solid var(--line);border-radius:12px;background:var(--surface-soft);gap:3px}
+html[data-dashboard-theme] .appearance-options button{display:flex;align-items:center;justify-content:center;gap:5px;flex:1;min-height:44px;min-width:0;padding:8px 5px;border:1px solid transparent;border-radius:8px;background:transparent;color:var(--label-ink);font-size:.8125rem;font-weight:750;line-height:1.4}
+html[data-dashboard-theme] .appearance-options button[aria-pressed=true]{background:var(--workspace-raised);border-color:var(--field-line);color:var(--ink);box-shadow:var(--glass-sheen),0 2px 4px #34213e08}
+html[data-dashboard-theme] .appearance-options svg{width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:1.6;flex:0 0 16px}
+html[data-dashboard-theme] #appView .dashboard-source-status{background:var(--workspace-surface);border-color:var(--line);color:var(--muted)}
+html[data-dashboard-theme] #appView .dashboard-page-heading{padding:28px 30px;background:var(--hero-surface);border:1px solid #b293c33b;border-radius:18px;box-shadow:var(--glass-sheen),var(--glass-shadow)}
+html[data-dashboard-theme] #appView .dashboard-page-heading h2{color:var(--hero-ink)}
+html[data-dashboard-theme] #appView .dashboard-page-heading .page-sub{color:var(--hero-secondary);max-width:78ch;margin-top:12px}
+html[data-dashboard-theme] #appView .dashboard-page-heading .btn-ghost{background:#ffffff0a;border-color:#a78ab3;color:#fff}
+html[data-dashboard-theme] #appView .dashboard-page-heading .btn-ghost:hover{background:#ffffff18;color:#fff}
+html[data-dashboard-theme] #appView :is(.card,.photo-card,.gallery-section-card,.settings-tabs){background:var(--workspace-surface);border-color:var(--line);box-shadow:var(--glass-sheen),var(--glass-shadow)}
+html[data-dashboard-theme] #appView #panel-settings{--workspace-border:var(--surface-line)}
+html[data-dashboard-theme] #appView :is(.form-section-heading,.workspace-card-head,.editorial-heading,.collection-summary,.overview-calendar .overview-card-head){background:var(--surface-accent);border-color:var(--line)}
+html[data-dashboard-theme] #appView :is(.form-section-heading,.workspace-card-head) :is(h3,h4){color:var(--ink)}
+html[data-dashboard-theme] #appView :is(.field label,.photo-field>span,.pc-section-label,.gallery-find-fields .field>span){color:var(--label-ink)}
+html[data-dashboard-theme] :is(#appView,#loginView) :is(input:not([type=checkbox]):not([type=file]),select,textarea){background:var(--workspace-raised);color:var(--ink);border:1px solid var(--field-line);border-radius:10px;box-shadow:inset 0 1px 2px #34213e03;font-size:1rem;min-height:48px}
+html[data-dashboard-theme] :is(#appView,#loginView) :is(input,textarea)::placeholder{color:var(--placeholder);opacity:1}
+html[data-dashboard-theme] :is(#appView,#loginView) :is(input:not([type=checkbox]):not([type=file]),select,textarea):focus{background:var(--workspace-raised);border-color:var(--focus);outline:2px solid var(--focus);outline-offset:2px;box-shadow:none}
+html[data-dashboard-theme] :is(input[type=checkbox],.menu-visible input){accent-color:var(--accent-solid)}
+html[data-dashboard-theme] #appView :is(.btn-ghost,.icon-btn){background:var(--workspace-raised);color:var(--accent-ink);border-color:var(--field-line);box-shadow:var(--glass-sheen)}
+html[data-dashboard-theme] #appView :is(.btn-ghost,.icon-btn):hover{background:var(--tint);color:var(--ink);border-color:var(--accent-ink)}
+html[data-dashboard-theme] :is(#appView,#loginView) .btn-primary{background:var(--accent-solid);color:var(--on-accent);border-color:transparent;box-shadow:inset 0 1px 0 #ffffff25,0 3px 8px #38203e10}
+html[data-dashboard-theme] :is(#appView,#loginView) .btn-primary:hover{background:var(--accent-hover);color:var(--on-accent)}
+html[data-dashboard-theme] #appView :is(.btn-danger,.icon-btn.danger){color:var(--danger-ink);border-color:var(--danger-border);background:var(--workspace-raised)}
+html[data-dashboard-theme] #appView :is(.btn-danger,.icon-btn.danger):hover{background:var(--danger-surface);color:var(--danger-ink)}
+html[data-dashboard-theme] #appView .btn-text{color:var(--muted)}
+html[data-dashboard-theme] #appView :is(.savebar,.overview-disclosure,.overview-clear,.settings-field-group,.attention-row,.content-status-row){background:var(--workspace-surface);color:var(--ink);border-color:var(--line)}
+html[data-dashboard-theme] #appView .savebar{border-color:var(--field-line);box-shadow:var(--glass-sheen),var(--shadow-lg)}
+html[data-dashboard-theme] #appView .savebar.has-changes{border-color:var(--accent-ink)}
+html[data-dashboard-theme] #appView :is(.attention-row,.content-status-row):hover{background:var(--surface-accent);border-color:var(--field-line)}
+html[data-dashboard-theme] #appView :is(.status-draft,.badge-draft){background:var(--surface-accent);color:var(--accent-ink)}
+html[data-dashboard-theme] #appView :is(.status-quiet,.badge-past){background:var(--neutral-surface);color:var(--neutral-ink)}
+html[data-dashboard-theme] #appView :is(.status-review,.sync-warn){background:var(--warning-surface);color:var(--warning-ink);border-color:var(--warning-border)}
+html[data-dashboard-theme] #appView :is(.sync-ok,.badge-live){background:var(--success-surface);color:var(--success-ink);border-color:var(--success-border)}
+html[data-dashboard-theme] :is(#appView,#loginView) :is(.sync-err,.editor-feedback,.login-err){background:var(--danger-surface);color:var(--danger-ink);border-color:var(--danger-border)}
+html[data-dashboard-theme] #appView .editor-feedback button{color:var(--danger-ink);border-color:var(--danger-border)}
+html[data-dashboard-theme] #toast{background:var(--hero-surface);color:var(--hero-ink);border-color:#a482b1;box-shadow:var(--shadow-lg)}
+html[data-dashboard-theme] #toast.err{background:var(--danger-surface);color:var(--danger-ink);border-color:var(--danger-border)}
+html[data-dashboard-theme] #appView :is(.empty-note,.settings-context-note,.event-work-status,.event-recovery-note){background:var(--surface-soft);border-color:var(--line);color:var(--muted)}
+html[data-dashboard-theme] #appView :is(.workspace-eyebrow,.gallery-section-eyebrow,.inline-action,.disclosure-chevron,.up-date){color:var(--accent-ink)}
+/* Collections: equal image frames, stretching cards, details anchored below their captions. */
+html[data-dashboard-theme] #appView .gallery-collection-nav a{background:var(--workspace-surface);border-color:var(--field-line);color:var(--accent-ink);border-radius:12px;box-shadow:var(--glass-sheen)}
+html[data-dashboard-theme] #appView .gallery-collection-nav a:hover{background:var(--surface-accent)}
+html[data-dashboard-theme] #appView .gallery-collection-nav a>span{background:var(--surface-accent);color:var(--accent-ink)}
+html[data-dashboard-theme] #appView .gallery-collection[open]>.collection-summary{background:var(--surface-accent);border-color:var(--line)}
+html[data-dashboard-theme] #appView .collection-summary-copy>strong{color:var(--ink)}
+html[data-dashboard-theme] #appView .gallery-section-photos{background:var(--surface-soft);border-radius:0 0 16px 16px}
+html[data-dashboard-theme] #appView .photo-grid{align-items:stretch;gap:22px}
+html[data-dashboard-theme] #appView .photo-card{height:100%;background:var(--workspace-surface);border-color:var(--line);box-shadow:var(--glass-sheen),0 3px 12px #34213e05}
+html[data-dashboard-theme] #appView .photo-card img{aspect-ratio:4/3;background:var(--surface-sand)}
+html[data-dashboard-theme] #appView .photo-card-overview{align-content:start;min-height:88px}
+html[data-dashboard-theme] #appView .photo-card-overview>strong{color:var(--ink)}
+html[data-dashboard-theme] #appView .photo-editor{margin-top:auto}
+html[data-dashboard-theme] #appView .photo-editor>summary{color:var(--accent-ink)}
+/* Settings: one navigation rail and aligned independent field groups. */
+html[data-dashboard-theme] #appView .settings-tabs button{color:var(--label-ink);border-color:transparent;background:transparent}
+html[data-dashboard-theme] #appView .settings-tabs button:hover{background:var(--surface-accent)}
+html[data-dashboard-theme] #appView .settings-tabs button[aria-selected=true]{background:var(--accent-solid);border-color:var(--accent-solid);color:var(--on-accent);box-shadow:var(--glass-sheen)}
+html[data-dashboard-theme] #appView .settings-field-group{border-radius:12px;overflow:visible}
+html[data-dashboard-theme] #appView .settings-field-group[open]>summary{background:var(--surface-soft);border-color:var(--line)}
+html[data-dashboard-theme] #appView .settings-field-group summary strong{color:var(--ink)}
+html[data-dashboard-theme] #appView .settings-field-group .field-count{background:var(--surface-accent);color:var(--accent-ink);border-radius:6px;padding:4px 8px}
+html[data-dashboard-theme] #appView .settings-group-fields{padding:24px 22px 2px;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));column-gap:24px;align-items:start}
+html[data-dashboard-theme] #appView .settings-group-fields>:is(.asset-field,.switch-field,.metadata-editor,.field:has(textarea)){grid-column:1/-1}
+html[data-dashboard-theme] #appView .settings-group-fields>.field:only-child{grid-column:1/-1}
+html[data-dashboard-theme] #appView .asset-preview{background:repeating-conic-gradient(var(--surface-sand) 0% 25%,var(--workspace-raised) 0% 50%) 50%/16px 16px;border-color:var(--field-line)}
+html[data-dashboard-theme] #appView .switch-track{background:#786280}
+html[data-dashboard-theme] #appView .switch-track::after{background:#fff}
+html[data-dashboard-theme] #appView .switch-field input:checked+.switch-track{background:var(--accent-solid)}
+/* Events: date, content and actions maintain clear columns; forms have named groups. */
+html[data-dashboard-theme] #appView .workspace-list-heading{display:flex;align-items:center;justify-content:space-between;gap:24px;margin:26px 0 20px}
+html[data-dashboard-theme] #appView .workspace-list-heading>div{min-width:0}
+html[data-dashboard-theme] #appView .workspace-list-heading h3{font-size:1.375rem;line-height:1.5;letter-spacing:-.025em;color:var(--ink)}
+html[data-dashboard-theme] #appView .workspace-list-heading p{font-size:.9375rem;line-height:1.7;color:var(--muted);max-width:66ch;margin-top:4px}
+html[data-dashboard-theme] #appView .workspace-list-heading>.btn{flex-shrink:0}
+html[data-dashboard-theme] #appView .event-card{display:grid;grid-template-columns:76px minmax(0,1fr) 118px;gap:24px;padding:24px;align-items:start;margin-bottom:18px}
+html[data-dashboard-theme] #appView .event-date{background:var(--accent-solid);border:1px solid #ffffff1a;box-shadow:inset 0 1px 0 #ffffff21;padding:14px 6px}
+html[data-dashboard-theme] #appView .event-date :is(.dow,.dnum,.dmon){color:#fff}
+html[data-dashboard-theme] #appView .event-main h3{display:flex;flex-wrap:wrap;align-items:center;gap:10px;color:var(--ink);line-height:1.5}
+html[data-dashboard-theme] #appView .event-actions{width:118px;display:grid;grid-template-columns:1fr;gap:8px;min-width:0;border:0;padding:0}
+html[data-dashboard-theme] #appView .event-actions .btn{width:100%;min-width:0}
+html[data-dashboard-theme] #appView .event-editor-heading{margin:-28px -28px 0;padding:24px 28px;background:var(--surface-accent);border-bottom:1px solid var(--line);border-radius:15px 15px 0 0}
+html[data-dashboard-theme] #appView .event-editor-heading h3{font-size:1.5rem;color:var(--ink);margin:4px 0}
+html[data-dashboard-theme] #appView .event-editor-heading p{font-size:.9375rem;line-height:1.7;color:var(--muted)}
+html[data-dashboard-theme] #appView .event-form-group{padding:26px 0 2px;border-bottom:1px solid var(--line)}
+html[data-dashboard-theme] #appView .event-form-group .subsection-heading{margin-bottom:22px}
+html[data-dashboard-theme] #appView .event-form-group .subsection-heading h4{font-size:1.0625rem;color:var(--ink);margin-bottom:4px}
+html[data-dashboard-theme] #appView .event-publication{border:0}
+html[data-dashboard-theme] #appView .event-work-status{margin:0 0 20px}
+/* Partner cards share a stable photo frame, field rhythm and bottom action. */
+html[data-dashboard-theme] #appView .partners-intro{margin-bottom:28px}
+html[data-dashboard-theme] #appView #partnerList{grid-template-columns:repeat(auto-fill,minmax(min(100%,380px),1fr));align-items:stretch;gap:24px}
+html[data-dashboard-theme] #appView .partner-editor-card{height:100%;display:flex;padding:24px;gap:0}
+html[data-dashboard-theme] #appView .partner-card-heading{display:flex;align-items:center;gap:14px;min-height:58px;margin-bottom:20px}
+html[data-dashboard-theme] #appView .partner-card-heading>div{min-width:0}
+html[data-dashboard-theme] #appView .partner-card-heading h4{color:var(--ink);font-size:1.25rem;line-height:1.45;overflow-wrap:anywhere}
+html[data-dashboard-theme] #appView .partner-avatar{display:grid;place-items:center;width:44px;height:44px;flex:0 0 44px;border-radius:12px;background:var(--surface-accent);color:var(--accent-ink)}
+html[data-dashboard-theme] #appView .partner-photo-frame{aspect-ratio:16/7;background:var(--surface-soft);border:1px dashed var(--field-line);border-radius:10px;display:grid;place-items:center;overflow:hidden;margin-bottom:24px;position:relative;color:var(--muted);text-align:center}
+html[data-dashboard-theme] #appView .partner-photo-frame img{width:100%;height:100%;object-fit:cover;position:absolute;inset:0}
+html[data-dashboard-theme] #appView .partner-photo-frame span{font-size:.875rem;line-height:1.6;padding:20px;max-width:30ch}
+html[data-dashboard-theme] #appView .partner-editor-card>.form-row{grid-template-columns:1fr}
+html[data-dashboard-theme] #appView .partner-editor-card>div:last-child{margin-top:auto;padding-top:8px}
+/* Carry the existing Weddings / Pricing design through both appearances. */
+html[data-dashboard-theme] #appView :is(.editorial-jumps,.wedding-collection-link,.booking-message-editor,.rate-amount.field){background:var(--surface-accent);border-color:var(--line)}
+html[data-dashboard-theme] #appView :is(.editorial-jumps a,.wedding-collection-link h4,.policy-group>h4,.booking-message-editor>h4,.subsection-heading h4,.rate-amount>span,.session-description .field>span,.highlight-number){color:var(--label-ink)}
+html[data-dashboard-theme] #appView .editorial-jumps a:hover{background:var(--workspace-raised);color:var(--ink)}
+html[data-dashboard-theme] #appView :is(.editorial-step,.image-role-label){background:var(--accent-solid);color:#fff}
+html[data-dashboard-theme] #appView :is(.wedding-photo-stage,.highlight-number,#hlList .list-row){background:var(--surface-soft);border-color:var(--line)}
+html[data-dashboard-theme] #appView .wedding-photo-stage{color:var(--muted)}
+html[data-dashboard-theme] #appView :is(.rate-session,.dashboard-media-dialog){background:var(--workspace-surface);color:var(--ink);border-color:var(--field-line)}
+html[data-dashboard-theme] #appView .rate-session-head{background:var(--hero-surface);color:var(--hero-ink)}
+html[data-dashboard-theme] #appView .rate-session-head .workspace-eyebrow{color:var(--hero-secondary)}
+html[data-dashboard-theme] #appView .rate-session-head p{color:var(--hero-secondary)}
+html[data-dashboard-theme] #appView .session-description{border-color:var(--line)}
+html[data-dashboard-theme] #appView .dashboard-media-dialog{box-shadow:var(--shadow-lg)}
+html[data-dashboard-theme] #appView .media-choice{background:var(--workspace-raised);color:var(--ink);border-color:var(--field-line)}
+html[data-dashboard-theme] #appView .media-choice:hover{background:var(--surface-accent)}
+html[data-dashboard-theme] #appView .picker-search>span{color:var(--label-ink)}
+/* Overview data remains flat and legible over the glass shell. */
+html[data-dashboard-theme] #appView .overview-attention{background:var(--surface-sand);border-color:var(--line)}
+html[data-dashboard-theme] #appView .cal-cell{background:var(--workspace-raised);border-color:var(--line);color:var(--ink)}
+html[data-dashboard-theme] #appView .cal-cell.dim{background:var(--surface-soft)}
+html[data-dashboard-theme] #appView .cal-cell.dim .cal-dnum{color:var(--muted)}
+html[data-dashboard-theme] #appView .cal-cell:is(.today,.selected){background:var(--surface-accent);border-color:var(--accent-ink)}
+html[data-dashboard-theme] #appView .cal-chip{background:var(--accent-solid);color:#fff}
+html[data-dashboard-theme] #appView .home-metrics .stat-card{background:var(--surface-sand);border-color:var(--line)}
+html[data-dashboard-theme] #appView .home-metrics .stat-card:first-child{background:var(--hero-surface);border-color:#b293c33b}
+html[data-dashboard-theme] #appView .home-metrics .stat-card:first-child :is(.num,.lbl,.metric-symbol){color:#fff}
+html[data-dashboard-theme] #appView .home-metrics .stat-card:nth-child(2){background:var(--surface-accent)}
+html[data-dashboard-theme] #appView .home-metrics .stat-card:nth-child(3){background:var(--surface-sand)}
+html[data-dashboard-theme] #appView .overview-disclosure[open]>summary{background:var(--surface-accent);border-color:var(--line)}
+html[data-dashboard-theme] #loginView{background:transparent}
+html[data-dashboard-theme] .login-card{background:var(--workspace-surface);color:var(--ink);border-color:var(--line);box-shadow:var(--glass-sheen),var(--shadow-lg)}
+html[data-dashboard-theme=dark] .login-card>img{background:#faf5ef;padding:10px;border-radius:10px;height:72px}
+@supports(backdrop-filter:blur(16px)){
+ html[data-dashboard-theme] #appView .sidebar{background:var(--glass-rail);backdrop-filter:blur(20px) saturate(125%)}
+ html[data-dashboard-theme] #appView :is(.dashboard-source-status,.gallery-toolbar,.savebar){background:var(--glass-panel);backdrop-filter:blur(16px) saturate(115%);box-shadow:var(--glass-sheen),var(--glass-shadow)}
+ html[data-dashboard-theme] #appView .dashboard-page-heading{background:linear-gradient(120deg,#ffffff09,transparent 70%),var(--hero-surface)}
+}
+@media(max-width:1199px){
+ html[data-dashboard-theme] #appView .event-card{grid-template-columns:70px minmax(0,1fr);gap:20px}
+ html[data-dashboard-theme] #appView .event-actions{grid-column:1/-1;width:100%;grid-template-columns:repeat(3,minmax(0,1fr));padding-top:16px;border-top:1px solid var(--line)}
+}
+@media(max-width:860px){
+ html[data-dashboard-theme] #appView .sidebar{backdrop-filter:none;background:var(--workspace-surface)}
+ html[data-dashboard-theme] #appView .sidebar-foot{padding:8px 20px 14px;gap:10px 20px}
+ html[data-dashboard-theme] .dashboard-appearance{width:auto;display:flex;align-items:center;gap:10px;flex:1 1 100%}
+ html[data-dashboard-theme] .appearance-options{flex:1;max-width:360px}
+ html[data-dashboard-theme] #appView .sidebar .nav button{min-height:44px}
+ html[data-dashboard-theme] #appView .settings-group-fields{grid-template-columns:1fr}
+}
+@media(max-width:600px){
+ html[data-dashboard-theme] #appView .dashboard-page-heading{padding:24px 20px}
+ html[data-dashboard-theme] #appView .workspace-list-heading{align-items:flex-start;flex-direction:column;gap:16px}
+ html[data-dashboard-theme] #appView .workspace-list-heading>.btn{width:100%}
+ html[data-dashboard-theme] #appView .event-card{grid-template-columns:58px minmax(0,1fr);padding:20px;gap:16px}
+ html[data-dashboard-theme] #appView .event-actions{gap:6px}
+ html[data-dashboard-theme] #appView .event-editor-heading{margin:-20px -20px 0;padding:22px 20px}
+ html[data-dashboard-theme] #appView .event-form-group{padding-top:24px}
+ html[data-dashboard-theme] #appView .settings-group-fields{padding:22px 16px 2px;column-gap:0}
+ html[data-dashboard-theme] #appView .settings-field-group .field-count{justify-self:start;flex-basis:auto}
+ html[data-dashboard-theme] #appView .partner-editor-card{padding:20px}
+ html[data-dashboard-theme] #appView .partner-photo-frame{aspect-ratio:16/8}
+}
+@media(prefers-reduced-motion:reduce){html[data-dashboard-theme] #appView .sidebar .nav button{transition:none}}
+@media(forced-colors:active){
+ html[data-dashboard-theme] .appearance-options button[aria-pressed=true]{border:2px solid Highlight}
+ html[data-dashboard-theme] #appView .sidebar .nav button.active{border:2px solid Highlight}
+}
+@media(max-width:600px){html[data-dashboard-theme] .dashboard-appearance{display:grid;gap:7px;width:100%;min-width:0}html[data-dashboard-theme] .appearance-options{width:100%;max-width:none;min-width:0}}
+html[data-dashboard-theme] #appView .image-path-options>summary{color:var(--accent-ink)}
+html[data-dashboard-theme] body.page-editor-open #appView>.sidebar{background:var(--glass-rail);color:var(--ink);border-color:var(--line)}
+@media(max-width:860px){html[data-dashboard-theme] body.page-editor-open #appView>.sidebar{background:var(--workspace-surface)}}
+
+html[data-dashboard-theme] #appView #partnerList>.empty-note{grid-column:1/-1}
