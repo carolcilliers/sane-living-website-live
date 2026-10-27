@@ -1,7 +1,7 @@
 import Moveable from "moveable";
 
 export type CanvasMode = "move" | "resize" | "reorder" | null;
-export type GridResize = {row:string;column:string;tracks:string};
+export type GridResize = {row:string;column:string;tracks:string;rowWidth?:number};
 export type CanvasTarget = { node: HTMLElement; block: string; element: string };
 type Geometry = Record<string, string | number>;
 
@@ -13,7 +13,7 @@ export class CanvasTransform {
   private guides: HTMLElement;
   private picked: CanvasTarget | null = null;
   private mode: CanvasMode = null;
-  private gesture: { target: CanvasTarget; style: string; x: number; y: number; width: number; height: number; last?: Geometry; grid?: {parent:HTMLElement;style:string;row:string;tracks:number[];index:number;next?:string} } | null = null;
+  private gesture: { target: CanvasTarget; style: string; x: number; y: number; width: number; height: number; last?: Geometry; grid?: {parent:HTMLElement;style:string;row:string;tracks:number[];index:number;rowWidth:number;next?:string} } | null = null;
   private snapping = true;
   constructor(private doc: Document, private getTarget: () => CanvasTarget | null,
     private coordinates: (block: string, element: string) => number[],
@@ -62,7 +62,7 @@ export class CanvasTransform {
     const parent=node.parentElement!,row=parent.closest<HTMLElement>('.studio-layout-row[data-studio-block]');
     if(node.matches('.studio-layout-column') && row && parent===row.querySelector(':scope>.container')){
       const tracks=this.doc.defaultView!.getComputedStyle(parent).gridTemplateColumns.split(' ').map(parseFloat),columns=Array.from(parent.children).filter(n=>n.matches('.studio-layout-column'));
-      const index=columns.indexOf(node);if(tracks.length===columns.length && tracks.length>1 && tracks.every(Number.isFinite) && index>=0)this.gesture.grid={parent,style:parent.style.cssText,row:row.dataset.studioBlock!,tracks,index};
+      const index=columns.indexOf(node);if(tracks.length===columns.length && tracks.length>1 && tracks.every(Number.isFinite) && index>=0)this.gesture.grid={parent,style:parent.style.cssText,row:row.dataset.studioBlock!,tracks,index,rowWidth:Math.round(row.getBoundingClientRect().width*1000)/1000};
     }
     this.guides.style.display="block";this.guides.setAttribute("data-studio-guides","");
   }
@@ -90,7 +90,7 @@ export class CanvasTransform {
   private finish(){
     const g=this.gesture;if(!g)return;this.gesture=null;g.target.node.style.cssText=g.style;if(g.grid)g.grid.parent.style.cssText=g.grid.style;
     this.guides.style.display="none";this.guides.removeAttribute("data-studio-guides");
-    if(g.last)this.commit(g.target.block,g.target.element,g.last,g.grid?.next?{row:g.grid.row,column:g.target.block,tracks:g.grid.next}:undefined);
+    if(g.last)this.commit(g.target.block,g.target.element,g.last,g.grid?.next?{row:g.grid.row,column:g.target.block,tracks:g.grid.next,rowWidth:g.grid.rowWidth}:undefined);
     requestAnimationFrame(()=>this.refresh());
   }
   cancel(){

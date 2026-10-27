@@ -708,7 +708,7 @@ function App() {
   const selectedPart=isPart(block,elementId)?elementId:"";
   function partEdit(fn:(v:any)=>void){elementEdit(fn,block!.id,selectedPart);}
   function targetDesignEdit(blockID: string, id: string, values: Record<string, string|number>, grid?:GridResize) {
-    if(core.design.validate(values).length || (grid && core.design.validate({gridTracks:grid.tracks}).length)){notice("These dimensions are outside the supported range. Your previous size is kept.");return;}
+    if(core.design.validate(values).length || (grid && core.design.validate({gridTracks:grid.tracks,...(grid.rowWidth!=null?{widthCss:grid.rowWidth+"px"}:{})}).length)){notice("These dimensions are outside the supported range. Your previous size is kept.");return;}
     pageEdit(p=>{
       const apply=(target:string,element:string,changes:Record<string,string|number>)=>{
         const b=p.blocks.find(b=>b.id===target);if(!b)return;
@@ -721,7 +721,8 @@ function App() {
       if(grid){
         const row=p.blocks.find(b=>b.id===grid.row),column=p.blocks.find(b=>b.id===grid.column);
         if(row?.type!=="row" || column?.type!=="column" || column.placement?.section!==row.id)return;
-        apply(row.id,"",{gridTracks:grid.tracks});apply(column.id,"",{...values,x:0,y:0,widthCss:"100%"});
+        // Fractional tracks inside flex layouts must not change the row’s measured width.
+        apply(row.id,"",{gridTracks:grid.tracks,...(grid.rowWidth!=null?{widthCss:grid.rowWidth+"px",maxWidthCss:"100%"}:{})});apply(column.id,"",{...values,x:0,y:0,widthCss:"100%"});
       } else apply(blockID,id,values);
     });
   }

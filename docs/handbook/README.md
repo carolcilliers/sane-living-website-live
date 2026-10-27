@@ -28,3 +28,5 @@ This is the entry point for maintaining the real Sane Living website and staff d
 - Release: RELEASE_AND_TESTING.md → complete one reviewed batch → expected-head update → verified Vercel deployment and live asset checks.
 
 The event archive inventory is [EVENT_ARCHIVE_SOURCES.md](EVENT_ARCHIVE_SOURCES.md). Original flyers and recordings are preserved. Unknown dates/hosts remain blank for verification, rather than being guessed from filenames.
+
+The [October 26 dashboard audit](../dashboard/FINAL_DASHBOARD_AUDIT_2026-10-26.md) records page-by-page validation, event-poster behavior, the row-width resize repair, source-aware regression updates and the remaining production Airtable prerequisite.

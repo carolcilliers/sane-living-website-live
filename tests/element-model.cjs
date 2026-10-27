@@ -62,7 +62,8 @@ assert(
 );
 const room = description.blocks
   .flatMap((b) => b.elements.map((e) => ({ b, e })))
-  .find(({ e }) => e.tag === "img" && e.label === "Conference Room");
+  .find(({ e }) => e.tag === "img" && /conference room/i.test(e.label));
+assert(room, "current homepage exposes a conference-room image for gallery editing");
 const owner = home.blocks.find((b) => b.id === room.b.id);
 owner.elements = { [room.e.id]: { gallery: ["/images/hero-center.jpg"] } };
 html = core.renderPage(home, project, registry, resources);
@@ -143,8 +144,11 @@ const cardDescriptor=description.blocks.find(b=>b.elements.some(e=>e.dragOwner))
 const cardImage=cardDescriptor.elements.find(e=>e.dragOwner&&e.tag==='img');
 const cardRoot=cardDescriptor.elements.find(e=>e.id===cardImage.dragOwner);
 assert.equal(core.cardLayout.owner(cardDescriptor,cardImage.id),cardRoot.id);
-assert.equal(cardDescriptor.fields.find(f=>f.id==='f7').value,'Conference Room','existing field IDs stay unchanged');
-assert.equal(cardDescriptor.fields.filter(f=>f.id.startsWith('card-caption-')).length,3);
+const originalAltField=cardDescriptor.fields.find(f=>f.id==='f7');
+assert.equal(originalAltField.element,cardImage.id,'existing field IDs still target the original source image');
+assert.equal(originalAltField.attribute,'alt');
+assert.equal(originalAltField.value,cardImage.label,'field text follows the current source image description');
+assert.equal(cardDescriptor.fields.filter(f=>f.kind==='text'&&f.label.startsWith('H3 ·')).length,3,'all three redesigned source cards expose their actual heading fields');
 const damaged={[cardImage.id]:{parent:cardRoot.parent,order:0,x:20,gallery:['/images/hero-center.jpg'],responsive:{desktop:{width:60,color:'#123456'},phone:{y:30,shadow:'soft'}}},[cardRoot.id]:{order:2,responsive:{desktop:{height:300,borderColor:'#123456'}}},untouched:{x:90}};
 const repaired=core.cardLayout.restore(cardDescriptor,damaged);
 assert.equal(repaired[cardImage.id].parent,undefined);assert.equal(repaired[cardImage.id].x,undefined);assert.deepEqual(repaired[cardImage.id].responsive.desktop,{color:'#123456'});assert.deepEqual(repaired[cardImage.id].responsive.phone,{shadow:'soft'});assert.deepEqual(repaired[cardImage.id].gallery,damaged[cardImage.id].gallery);assert.equal(repaired[cardRoot.id].order,undefined);assert.deepEqual(repaired.untouched,{x:90});assert.equal(damaged[cardImage.id].parent,cardRoot.parent,'repair never mutates Undo history');

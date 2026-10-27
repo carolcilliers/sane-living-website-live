@@ -14,7 +14,9 @@ const assert=require('node:assert/strict'),create=require('./qa-server.cjs'),{la
    if(dx)assert(b.width>a.width+3,'corner '+direction+' resizes horizontally');if(dy)assert(b.height>a.height+3,'handle '+direction+' resizes vertically');
  }
  await c.getByRole('button',{name:'Select tool',exact:true}).click();await move.click();
- const original=await button.boundingBox();await drag(button,14,8);await drag(button,-14,-8);const restored=await button.boundingBox();assert(Math.abs(original.x-restored.x)<3 && Math.abs(original.y-restored.y)<3,'repeated movement returns to its previous position');
+ // Start this independent movement check inside valid source bounds, with snapping explicitly off.
+ await c.getByRole('button',{name:'Reset size',exact:true}).click();await c.getByRole('button',{name:'Reset position',exact:true}).click();await c.getByRole('button',{name:'Snap on',exact:true}).click();await settle();
+ const original=await button.boundingBox();await drag(button,14,8);await drag(button,-14,-8);const restored=await button.boundingBox();assert(Math.abs(original.x-restored.x)<3 && Math.abs(original.y-restored.y)<3,'repeated unsnapped movement returns to its valid source position');await c.getByRole('button',{name:'Snap off',exact:true}).click();
  await resize.click();
  await c.locator('[data-site-text="homeIntro"]').click();assert.equal(await c.locator('body').getAttribute('data-studio-tool'),null,'another selection exits the tool');await button.click();await c.getByRole('button',{name:'Reset position',exact:true}).click();assert.equal(Number(await e.getByLabel('X offset',{exact:true}).inputValue()),0);assert.equal(Number(await e.getByLabel('Y offset',{exact:true}).inputValue()),0);
  await c.locator('[data-studio-align-menu] summary').click();await c.getByRole('button',{name:'Centre',exact:true}).click();await settle();assert.equal(await c.locator('body').getAttribute('data-studio-tool'),null);

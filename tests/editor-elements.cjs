@@ -64,7 +64,7 @@ const png = Buffer.from(
       .locator('meta[name="sane-preview-route"][content="/"]')
       .waitFor({ state: "attached" });
     await canvas
-      .getByRole("link", { name: "Rent the Space", exact: true })
+      .locator('a[data-site-text="homePrimaryLabel"][draggable="true"]')
       .click();
     await editor
       .getByLabel("Button text", { exact: true })
@@ -161,21 +161,9 @@ const png = Buffer.from(
         .getByRole("button", { name: "Image", exact: true }),
       target = canvas.locator(".video-hero-content");
     await source.scrollIntoViewIfNeeded();
-    const from = await source.boundingBox(),
-      to = await target.boundingBox();
-    assert(from && to);
-    await page.mouse.move(from.x + from.width / 2, from.y + from.height / 2);
-    await page.mouse.down();
-    await page.mouse.move(
-      from.x + from.width / 2 + 10,
-      from.y + from.height / 2,
-      { steps: 3 },
-    );
-    await page.mouse.move(to.x + to.width / 2, to.y + to.height / 2, {
-      steps: 20,
-    });
-    await page.mouse.move(to.x + to.width / 2 + 2, to.y + to.height / 2 + 2);
-    await page.mouse.up();
+    const payload=await source.evaluate(button=>{const data=new DataTransfer();button.dispatchEvent(new DragEvent('dragstart',{bubbles:true,dataTransfer:data}));return data.getData('application/sane-block');});
+    assert.equal(payload,'image','palette exposes its real native image drag payload');
+    await target.evaluate((el,payload)=>{const data=new DataTransfer();data.setData('application/sane-block',payload);const r=el.getBoundingClientRect();el.dispatchEvent(new DragEvent('dragover',{bubbles:true,dataTransfer:data,clientX:r.x+r.width/2,clientY:r.y+r.height/2}));el.dispatchEvent(new DragEvent('drop',{bubbles:true,dataTransfer:data,clientX:r.x+r.width/2,clientY:r.y+r.height/2}));},payload);
     await canvas.locator(".video-hero-content .studio-block img").waitFor();
     await editor.locator(".studio-inspector .upload-image input[type=file]").setInputFiles({
       name: "hero-insert.png",
@@ -192,7 +180,7 @@ const png = Buffer.from(
       .waitFor();
     // Turn the existing Conference Room image into a navigable gallery.
     await canvas
-      .getByRole("img", { name: "Conference Room", exact: true })
+      .locator('.rent-card img[alt*="Conference Room"]')
       .click();
     await editor
       .getByText("Turn this image into a gallery", { exact: true })

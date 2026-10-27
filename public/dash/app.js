@@ -489,6 +489,7 @@
     var badge = past ? '<span class="badge badge-past">Past</span>' : (e.publish ? '<span class="badge badge-live">On the website</span>' : '<span class="badge badge-draft">Draft — hidden</span>');
     var meta = [e.startTime ? (e.startTime + (e.endTime ? ' – ' + e.endTime : '')) : '', e.location || ''].filter(Boolean).join(' · ');
     return '<div class="card event-card" style="margin-bottom:14px">' +
+      eventWorkspace.calendarImageHtml(e) +
       '<div class="event-date"><div class="dow">' + esc(dow) + '</div><div class="dnum">' + dnum + '</div><div class="dmon">' + esc(mon) + '</div></div>' +
       '<div class="event-main"><h3>' + esc(e.title || '(untitled)') + ' ' + badge + '</h3>' +
       (meta ? '<div class="event-meta">' + esc(meta) + '</div>' : '') +
