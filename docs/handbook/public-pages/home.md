@@ -23,14 +23,17 @@ Scripts:
 - `data-site-text=homeHeading`
 - `data-site-text=homeIntro`
 - `data-site-text=homePrimaryLabel`
+- `data-site-text=hours` (also in the hero eyebrow)
 - `data-site-text=hours`
 - `data-site-text=phoneDisplay`
 
-Source IDs: `site-nav`, `eventsSection`, `eventsGrid`, `rent-the-space`, `availability`, `home-availability-note`, `find-us`, `site-footer`.
+Source IDs: `site-nav`, `top`, `eventsSection`, `eventsGrid`, `why-here`, `any-hour`, `rent-the-space` (now "Ways to book"), `home-rates`, `availability`, `home-availability-note`, `find-us`, `late`, `site-footer`.
+
+`home-rates` is filled from `/content/pricing.json` (lowest price per row). Design: V4 "day into night" (see DESIGN.md).
 
 ## Image placements
 
-`/images/main-hall.jpg`, `/IMG_0197.jpg`, `/images/center-office.jpg`
+`/hero-video.mp4` (day half of hero), `/images/venue-patio-dusk.jpg` (night half), `/images/main-hall-08.jpg`, `/images/main-hall-02.jpg`, `/images/main-hall-05.jpg`, `/images/main-hall-12.jpg`, `/IMG_0207.jpg`, `/images/venue-purple-doors.jpg`
 
 ## Editing rules
 

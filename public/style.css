@@ -1436,3 +1436,61 @@ h1, h2, h3, h4,
   text-wrap: balance;
 }
 p, li, dd, figcaption { text-wrap: pretty; }
+
+/* ============================================================
+   V4 FOUNDATION — "day into night" (Oct 29, 2026)
+   The rebrand keeps V3's cream, purple and fonts for daytime
+   sections and adds an evening palette: deep plum backgrounds
+   with a warm candle-glow accent. Use .section-night on any
+   section to switch it to evening. See DESIGN.md.
+   ============================================================ */
+:root {
+  --clr-night:        #1f1328;   /* evening sections */
+  --clr-night-deep:   #150c1b;   /* darkest band */
+  --clr-night-raised: #2a1a33;   /* cards on night */
+  --clr-night-line:   #4a3656;   /* borders on night */
+  --clr-dusk:         #4a2f58;   /* the in-between hour */
+  --clr-glow:         #e9b872;   /* candle glow: evening accent */
+  --clr-glow-hover:   #f2c88a;
+  --clr-on-night:     #f3ece2;   /* text on night */
+  --clr-on-night-muted: #cbbfd2;
+}
+
+.eyebrow {
+  display: block;
+  font-family: var(--font-body);
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--clr-accent);
+  margin-bottom: var(--space-md);
+}
+
+.section-night { background: var(--clr-night); color: var(--clr-on-night-muted); }
+.section-night h1, .section-night h2, .section-night h3 { color: var(--clr-on-night); }
+.section-night p { color: var(--clr-on-night-muted); }
+.section-night .eyebrow { color: var(--clr-glow); }
+.section-night a:not(.btn) { color: var(--clr-glow); }
+.section-night a:not(.btn):hover { color: var(--clr-glow-hover); }
+.glow { color: var(--clr-glow); }
+
+.btn-glow { background: var(--clr-glow); color: var(--clr-night); box-shadow: 0 8px 22px rgba(233, 184, 114, 0.22); }
+.btn-glow:hover { background: var(--clr-glow-hover); color: var(--clr-night); transform: translateY(-2px); }
+.btn-ghost-light { background: transparent; color: var(--clr-on-night); border: 1.5px solid rgba(243, 236, 226, 0.8); }
+.btn-ghost-light:hover { background: var(--clr-on-night); color: var(--clr-night); border-color: var(--clr-on-night); transform: translateY(-2px); }
+
+/* Day/night pill tags, e.g. on paired photos */
+.time-tag {
+  display: inline-block;
+  font-family: var(--font-body);
+  font-size: 11.5px;
+  font-weight: 800;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  padding: 8px 14px;
+  border-radius: 999px;
+  background: var(--clr-bg);
+  color: var(--clr-plum);
+}
+.time-tag-night { background: var(--clr-night); color: var(--clr-glow); }

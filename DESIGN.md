@@ -116,3 +116,30 @@ Guidance applied from [ByChokeYT/Impecable](https://github.com/ByChokeYT/Impecab
 ### Native dashboard appearance (October 25, 2026)
 
 Paul requested warm Light/Dark themes and restrained liquid-glass styling for the staff dashboard. `public/dash/appearance.css` owns the native dashboard's theme/material roles after `workspace.css`; `appearance.js` applies a browser-only Light/Dark/Auto preference before paint. Subtle static plum/sand lighting and translucent workspace chrome are permitted for this dashboard request. Fields and data stay opaque and readable, with visible borders, focus and status contrast. Keep the public website and Page Editor canvas independent of these styles. See `docs/dashboard/APPEARANCE_AND_NATIVE_PAGES.md` for scope and verification.
+
+## V4 — "Day into night" (rebrand foundation, Oct 29, 2026)
+
+The rebrand positions the venue as downtown Ojai's flexible, walkable, soundproof
+space for any hour: meetings and workshops by day, receptions and after-parties
+by night. V4 keeps V3's cream, purple and fonts for **day** sections and adds an
+**evening** palette. Pages should read like a day turning into night as you scroll.
+
+| Token | Value | Use |
+| --- | --- | --- |
+| `--clr-night` | `#1f1328` | Evening section background (`.section-night`) |
+| `--clr-night-deep` | `#150c1b` | Darkest closing band |
+| `--clr-night-raised` | `#2a1a33` | Cards on night, or one "night" card among day cards |
+| `--clr-night-line` | `#4a3656` | Borders and dividers on night |
+| `--clr-dusk` | `#4a2f58` | The in-between hour (e.g. 7 pm card) |
+| `--clr-glow` | `#e9b872` | Candle-glow accent: evening only (headline accents, night buttons) |
+| `--clr-on-night` / `--clr-on-night-muted` | `#f3ece2` / `#cbbfd2` | Text on night |
+
+Shared classes in `style.css` (V4 section): `.section-night`, `.eyebrow`, `.glow`,
+`.btn-glow`, `.btn-ghost-light`, `.time-tag` / `.time-tag-night`.
+
+Rules of thumb:
+- Purple stays the day accent; glow is the night accent. Don't use both in one block.
+- Pair day and night photos of the same place where possible.
+- Voice: warm, confident, a little insider ("Ojai goes quiet at 9. We don't have to.").
+  Daytime use is as important as nighttime; never pitch the venue as only after-hours.
+- The home headline's text after the first comma renders in the glow italic.

@@ -7,346 +7,159 @@
   <meta name="description" content="Sane Living Center — a beautiful auditorium and gathering venue in the heart of Ojai, California. Events, workshops, film screenings, and more.">
   <link rel="stylesheet" href="/style.css">
   <style>
-    /* ---- Video Hero: full-screen, menu floats over it, headline set low and left ---- */
+    /* ============ HOME — V4 "day into night" (Oct 29, 2026) ============ */
+    .home-wrap { max-width: var(--max-width); margin: 0 auto; padding: 0 var(--space-lg); }
+    .home-h2 { font-size: clamp(2.3rem, 4.2vw, 3.4rem); font-weight: 600; line-height: 1.08; margin: 0; }
+    .home-lede { font-size: 1.1rem; line-height: 1.7; max-width: 38rem; }
+
+    /* ---- 1. Hero: the Auditorium by day (video) beside the patio by night ---- */
     .video-hero {
       position: relative;
-      width: 100%;
+      min-height: 620px;
       height: 100vh;
       height: 100svh;
-      min-height: 560px;
-      max-height: 1100px;
+      max-height: 1000px;
+      background: var(--clr-night);
+      color: var(--clr-on-night);
       overflow: hidden;
-      display: flex;
-      align-items: flex-end;
-      background: var(--clr-plum);
     }
-
-    .video-hero-bg {
-      position: absolute;
-      inset: 0;
-      z-index: 0;
-    }
-
-    .video-hero-bg video {
-      position: absolute;
-      inset: 0;
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-      pointer-events: none;
-    }
-
-    /* Darker at the top (for the menu) and bottom (for the headline), clear in the middle */
-    .video-hero-overlay {
-      position: absolute;
-      inset: 0;
-      z-index: 1;
+    .hero-pair { position: absolute; inset: 0; display: grid; grid-template-columns: 1fr 1fr; }
+    .hero-half { position: relative; overflow: hidden; }
+    .hero-half video, .hero-half img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; display: block; border-radius: 0; }
+    .hero-half video { pointer-events: none; }
+    .hero-half .time-tag { position: absolute; bottom: auto; top: calc(var(--nav-height) + 20px); z-index: 2; }
+    .hero-half-day .time-tag { left: var(--space-lg); }
+    .hero-half-night .time-tag { right: var(--space-lg); }
+    .hero-scrim {
+      position: absolute; inset: 0; z-index: 1; pointer-events: none;
       background:
-        linear-gradient(90deg, rgba(36, 22, 44, 0.5) 0%, rgba(36, 22, 44, 0.18) 45%, rgba(36, 22, 44, 0) 70%),
-        linear-gradient(180deg, rgba(36, 22, 44, 0.55) 0%, rgba(36, 22, 44, 0.08) 26%, rgba(36, 22, 44, 0.12) 50%, rgba(36, 22, 44, 0.78) 100%);
+        linear-gradient(180deg, rgba(31, 19, 40, 0.55) 0%, rgba(31, 19, 40, 0) 22%),
+        linear-gradient(0deg, rgba(31, 19, 40, 0.97) 0%, rgba(31, 19, 40, 0.75) 30%, rgba(31, 19, 40, 0) 62%);
     }
-
-    .video-hero-content {
-      position: relative;
-      z-index: 2;
-      width: 100%;
-      max-width: var(--max-width);
-      margin: 0 auto;
-      padding: 0 var(--space-lg) clamp(4rem, 11vh, 7.5rem);
-      text-align: left;
+    .hero-copy {
+      position: absolute; left: 0; right: 0; bottom: 0; z-index: 2;
+      padding-bottom: clamp(3.5rem, 9vh, 6rem);
     }
-
-    .hero-eyebrow {
-      display: inline-flex;
-      align-items: center;
-      gap: 12px;
-      font-size: 12px;
-      font-weight: 700;
-      letter-spacing: 0.22em;
-      text-transform: uppercase;
-      color: rgba(255, 255, 255, 0.88);
-      margin-bottom: var(--space-lg);
-    }
-    .hero-eyebrow::before { content: ""; width: 36px; height: 1px; background: rgba(255, 255, 255, 0.7); }
-
-    .video-hero-content h1 {
-      font-size: clamp(3rem, 7.2vw, 5.8rem);
-      font-weight: 500;
-      line-height: 1.02;
-      letter-spacing: -0.01em;
-      color: #fff;
-      max-width: 13ch;
-      margin-bottom: var(--space-lg);
-      text-shadow: 0 2px 30px rgba(20, 10, 26, 0.35);
-    }
-
-    .video-hero-content .hero-subtitle {
-      font-size: clamp(1.05rem, 1.6vw, 1.25rem);
-      line-height: 1.6;
-      color: rgba(255, 255, 255, 0.9);
-      max-width: 34rem;
-      margin-bottom: var(--space-xl);
-    }
-
-    .video-hero-content .btn-group {
-      display: flex;
-      align-items: center;
-      gap: var(--space-lg);
-      justify-content: flex-start;
-      flex-wrap: wrap;
-    }
-
-    .hero-link {
-      display: inline-flex;
-      align-items: center;
-      gap: 10px;
-      color: #fff;
-      font-size: 12.5px;
-      font-weight: 700;
-      letter-spacing: 0.14em;
-      text-transform: uppercase;
-      padding: 10px 2px;
-      border-bottom: 1px solid rgba(255, 255, 255, 0.55);
-      transition: border-color 0.25s ease, gap 0.25s ease;
-    }
-    .hero-link:hover { color: #fff; border-color: #fff; gap: 14px; }
-
-    .hero-scroll {
-      position: absolute;
-      right: var(--space-lg);
-      bottom: clamp(4rem, 11vh, 7.5rem);
-      z-index: 2;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 12px;
-      color: rgba(255, 255, 255, 0.75);
-      font-size: 11px;
-      font-weight: 700;
-      letter-spacing: 0.24em;
-      text-transform: uppercase;
-      writing-mode: vertical-rl;
-    }
-    .hero-scroll::after { content: ""; width: 1px; height: 56px; background: linear-gradient(rgba(255,255,255,0.75), rgba(255,255,255,0)); }
-    @media (max-width: 768px) {
-      .hero-scroll { display: none; }
-      .video-hero-content h1 { max-width: none; }
-    }
-
-    /* ---- Upcoming Public Events Section ---- */
-    .events-section {
-      display: none; /* hidden by default, shown by JS when events exist */
-    }
-
-    .events-section.has-events {
-      display: block;
-    }
-
-    .events-grid {
-      display: flex;
-      flex-direction: column;
-      gap: var(--space-lg);
-      max-width: var(--max-width);
-      margin: 0 auto;
-    }
-
-    .event-card {
-      display: flex;
-      background: #fff;
-      border: 1px solid var(--clr-border);
-      border-radius: 12px;
-      overflow: hidden;
-      transition: transform 0.2s, box-shadow 0.2s;
-    }
-
-    .event-card:hover {
-      transform: translateY(-3px);
-      box-shadow: 0 8px 24px rgba(0,0,0,0.08);
-    }
-
-    .event-card-img {
-      width: 280px;
-      min-height: 280px;
-      object-fit: cover;
-      flex-shrink: 0;
-    }
-
-    .event-card-body {
-      padding: var(--space-xl);
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      flex: 1;
-      min-width: 0;
-    }
-
-    .event-card-date {
-      font-size: 0.82rem;
-      font-weight: 700;
-      text-transform: uppercase;
-      letter-spacing: 0.06em;
-      color: var(--clr-accent);
-      margin-bottom: var(--space-xs);
-    }
-
-    .event-card-title {
-      font-size: 1.25rem;
-      font-weight: 700;
-      color: var(--clr-text);
-      margin-bottom: var(--space-sm);
-    }
-
-    .event-card-meta {
-      font-size: 0.92rem;
-      color: var(--clr-text-muted);
-      line-height: 1.5;
-    }
-
-    .event-card-cta {
-      display: inline-block;
-      margin-top: var(--space-md);
-      padding: 10px 20px;
-      background: var(--clr-accent);
-      color: #fff;
-      border-radius: var(--radius-sm);
-      text-decoration: none;
-      font-size: 0.92rem;
+    .hero-copy .eyebrow { color: var(--clr-glow); }
+    .hero-copy h1 {
+      font-size: clamp(2.9rem, 6.4vw, 5.6rem);
       font-weight: 600;
-      transition: background 0.2s;
-      align-self: flex-start;
+      line-height: 1.0;
+      color: var(--clr-on-night);
+      max-width: 15ch;
+      margin: 0 0 var(--space-lg);
+    }
+    .hero-copy h1 em { font-weight: 500; color: var(--clr-glow); }
+    .hero-copy .hero-subtitle { font-size: clamp(1.05rem, 1.5vw, 1.2rem); line-height: 1.65; color: #e6dcea; max-width: 38rem; margin: 0 0 var(--space-xl); }
+    .hero-actions { display: flex; flex-wrap: wrap; gap: var(--space-md); }
+
+    @media (max-width: 760px) {
+      .video-hero { height: auto; max-height: none; min-height: 0; }
+      .hero-pair { position: relative; grid-template-columns: 1fr 1fr; height: 340px; }
+      .hero-half .time-tag { top: auto; bottom: 14px; font-size: 10.5px; padding: 6px 11px; }
+      .hero-half-day .time-tag { left: 12px; }
+      .hero-half-night .time-tag { right: 12px; }
+      .hero-scrim { background: linear-gradient(180deg, rgba(31, 19, 40, 0.6) 0%, rgba(31, 19, 40, 0) 30%); bottom: auto; height: 340px; }
+      .hero-copy { position: relative; padding: var(--space-xl) 0 var(--space-2xl); }
     }
 
-    .event-card-cta:hover {
-      background: #7b22cc;
-    }
-
+    /* ---- 2. Upcoming Public Events (auto-hidden when empty) ---- */
+    .events-section { display: none; }
+    .events-section.has-events { display: block; }
+    .events-head { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: flex-end; gap: var(--space-md); margin-bottom: var(--space-xl); }
+    .events-grid { display: flex; flex-direction: column; gap: var(--space-lg); }
+    .event-card { display: flex; background: var(--clr-bg-card); border: 1px solid var(--clr-border); border-radius: 18px; overflow: hidden; transition: transform 0.2s, box-shadow 0.2s; }
+    .event-card:hover { transform: translateY(-3px); box-shadow: var(--shadow-soft); }
+    .event-card-img { width: 280px; min-height: 280px; object-fit: cover; flex-shrink: 0; border-radius: 0; }
+    .event-card-body { padding: var(--space-xl); display: flex; flex-direction: column; justify-content: center; flex: 1; min-width: 0; }
+    .event-card-date { font-size: 0.8rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.14em; color: var(--clr-accent); margin-bottom: var(--space-xs); }
+    .event-card-title { font-family: var(--font-display); font-size: 1.7rem; font-weight: 600; line-height: 1.15; color: var(--clr-plum); margin-bottom: var(--space-sm); }
+    .event-card-meta { font-size: 0.95rem; color: var(--clr-text-muted); line-height: 1.55; }
+    .event-card-cta { display: inline-block; margin-top: var(--space-md); padding: 10px 22px; background: var(--clr-accent); color: #fff; border-radius: 999px; font-size: 0.9rem; font-weight: 700; align-self: flex-start; transition: background 0.2s; }
+    .event-card-cta:hover { background: var(--clr-accent-hover); color: #fff; }
     @media (max-width: 600px) {
-      .event-card {
-        flex-direction: column;
-      }
-      .event-card-img {
-        width: 100%;
-        min-height: 200px;
-        height: 200px;
-      }
+      .event-card { flex-direction: column; }
+      .event-card-img { width: 100%; min-height: 200px; height: 200px; }
     }
 
-    /* ---- Rent the Space: split header, then three tall photo cards with a short story each ---- */
-    .rent-head {
-      display: grid;
-      grid-template-columns: 1.1fr 1fr;
-      gap: var(--space-lg) var(--space-2xl);
-      align-items: end;
-      margin-bottom: clamp(2.5rem, 5vw, 3.75rem);
-    }
-    .rent-head h2 { margin: 0; }
-    .rent-head p { margin: 0 0 var(--space-lg); font-size: 1.05rem; max-width: 30rem; }
-    .section-eyebrow {
-      display: block;
-      font-size: 12px;
-      font-weight: 700;
-      letter-spacing: 0.2em;
-      text-transform: uppercase;
-      color: var(--clr-accent);
-      margin-bottom: var(--space-md);
+    /* ---- 3. Why here: three pillars ---- */
+    .pillars-head { text-align: center; max-width: 46rem; margin: 0 auto clamp(2.5rem, 5vw, 3.5rem); }
+    .pillars { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: clamp(1rem, 2.4vw, 1.75rem); }
+    .pillar { background: var(--clr-bg-card); border: 1px solid var(--clr-border); border-radius: 20px; padding: clamp(1.75rem, 3vw, 2.4rem); }
+    .pillar-num { font-family: var(--font-display); font-size: 2.8rem; font-weight: 600; line-height: 1; color: var(--clr-accent); margin: 0 0 var(--space-md); }
+    .pillar h3 { font-size: clamp(1.6rem, 2.3vw, 1.95rem); margin: 0 0 var(--space-sm); }
+    .pillar p { margin: 0; font-size: 1.02rem; line-height: 1.7; color: var(--clr-text-muted); }
+    .pillar-night { background: var(--clr-night-raised); border-color: var(--clr-night-raised); }
+    .pillar-night .pillar-num { color: var(--clr-glow); }
+    .pillar-night h3 { color: var(--clr-on-night); }
+    .pillar-night p { color: var(--clr-on-night-muted); }
+    @media (max-width: 900px) { .pillars { grid-template-columns: 1fr; } }
+
+    /* ---- 4. A day in the life of one room: cards darken from morning to night ---- */
+    .hours-head { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: flex-end; gap: var(--space-md); margin-bottom: clamp(2rem, 4vw, 2.75rem); }
+    .hours-link { font-weight: 700; color: var(--clr-accent); border-bottom: 1px solid var(--clr-accent); padding-bottom: 4px; }
+    .hours { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: clamp(0.85rem, 1.6vw, 1.15rem); }
+    .hour-card { display: flex; flex-direction: column; border-radius: 18px; overflow: hidden; color: var(--clr-plum); text-decoration: none; transition: transform 0.3s var(--ease-soft), box-shadow 0.3s var(--ease-soft); }
+    .hour-card:hover { transform: translateY(-4px); box-shadow: var(--shadow-lift); color: inherit; }
+    .hour-card img { width: 100%; aspect-ratio: 4 / 3; object-fit: cover; display: block; border-radius: 0; }
+    .hour-card-body { padding: 20px 22px 24px; }
+    .hour-time { display: block; font-size: 12px; font-weight: 800; letter-spacing: 0.16em; text-transform: uppercase; margin-bottom: 6px; }
+    .hour-card h3 { font-size: 1.65rem; margin: 0 0 6px; color: inherit; }
+    .hour-card p { margin: 0; font-size: 0.97rem; line-height: 1.55; }
+    .hour-morning { background: var(--clr-bg); }
+    .hour-morning .hour-time { color: var(--clr-accent); }
+    .hour-morning p { color: var(--clr-text-muted); }
+    .hour-afternoon { background: #e7dccd; }
+    .hour-afternoon .hour-time { color: var(--clr-accent-hover); }
+    .hour-afternoon p { color: #4f3f58; }
+    .hour-evening { background: var(--clr-dusk); color: var(--clr-on-night); }
+    .hour-late { background: var(--clr-night); color: var(--clr-on-night); }
+    .hour-evening .hour-time, .hour-late .hour-time { color: var(--clr-glow); }
+    .hour-evening p { color: #e2d6e8; }
+    .hour-late p { color: var(--clr-on-night-muted); }
+    .hour-evening:hover, .hour-late:hover { color: var(--clr-on-night); }
+    @media (max-width: 1000px) { .hours { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+    @media (max-width: 520px) { .hours { grid-template-columns: 1fr; } }
+
+    /* ---- 5. Ways to book (evening) ---- */
+    .book-head { max-width: 44rem; margin-bottom: clamp(2.25rem, 4.5vw, 3rem); }
+    .book-head .home-lede { margin: var(--space-md) 0 0; }
+    .book-grid { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 14px; }
+    .book-card { display: flex; flex-direction: column; gap: 10px; padding: 26px 22px; border: 1px solid var(--clr-night-line); border-radius: 18px; text-decoration: none; transition: border-color 0.25s ease, transform 0.25s var(--ease-soft); }
+    .section-night a.book-card { color: var(--clr-on-night); }
+    .book-card:hover { border-color: var(--clr-glow); transform: translateY(-3px); }
+    .book-card h3 { font-size: 1.75rem; margin: 0; }
+    .book-card p { margin: 0; font-size: 0.97rem; line-height: 1.55; }
+    .book-card-more { margin-top: auto; padding-top: 6px; font-size: 13px; font-weight: 800; letter-spacing: 0.08em; color: var(--clr-glow); }
+    .section-night a.book-card-feature { background: var(--clr-glow); border-color: var(--clr-glow); color: var(--clr-night); }
+    .section-night .book-card-feature h3 { color: var(--clr-night); }
+    .section-night .book-card-feature p { color: #3a2545; }
+    .book-card-feature .book-card-more { color: var(--clr-night); }
+    .book-card-feature:hover { border-color: var(--clr-glow-hover); }
+    @media (max-width: 1100px) { .book-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+    @media (max-width: 760px) { .book-grid { grid-template-columns: 1fr 1fr; } }
+    @media (max-width: 480px) { .book-grid { grid-template-columns: 1fr; } }
+
+    .rates { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); margin-top: clamp(2rem, 4vw, 2.75rem); border-top: 1px solid var(--clr-night-line); border-bottom: 1px solid var(--clr-night-line); }
+    .rates[hidden] { display: none; }
+    .rate { padding: 22px 20px; }
+    .rate + .rate { border-left: 1px solid var(--clr-night-line); }
+    .rate-label { display: block; font-family: var(--font-display); font-size: 1.5rem; font-weight: 600; color: var(--clr-on-night); line-height: 1.2; }
+    .rate-hours { display: block; font-size: 0.9rem; color: var(--clr-on-night-muted); }
+    .rate-from { display: block; margin-top: 6px; font-size: 0.95rem; font-weight: 800; color: var(--clr-glow); }
+    .rates-foot { margin: var(--space-md) 0 0; font-size: 0.95rem; }
+    @media (max-width: 700px) {
+      .rates { grid-template-columns: 1fr; }
+      .rate + .rate { border-left: 0; border-top: 1px solid var(--clr-night-line); }
     }
 
-    .rent-grid {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: clamp(1.5rem, 3vw, 2.5rem);
-    }
+    .wedding-band { display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 6fr); gap: clamp(1.75rem, 4vw, 3.5rem); align-items: center; margin-top: clamp(3rem, 6vw, 4.5rem); padding-top: clamp(2.5rem, 5vw, 3.5rem); border-top: 1px solid var(--clr-night-line); }
+    .wedding-band img { width: 100%; aspect-ratio: 4 / 3; object-fit: cover; border-radius: 18px; display: block; }
+    .wedding-band h3 { font-size: clamp(2rem, 3.4vw, 2.75rem); line-height: 1.1; margin: 0 0 var(--space-md); }
+    .wedding-band p { margin: 0 0 var(--space-lg); font-size: 1.05rem; line-height: 1.7; }
+    @media (max-width: 800px) { .wedding-band { grid-template-columns: 1fr; } }
 
-    .rent-card {
-      display: flex;
-      flex-direction: column;
-      color: inherit;
-      text-decoration: none;
-    }
-    .rent-card:hover { color: inherit; }
-
-    .rent-card-photo {
-      position: relative;
-      aspect-ratio: 4 / 5;
-      overflow: hidden;
-      border-radius: 16px;
-      box-shadow: var(--shadow-soft);
-      margin-bottom: var(--space-lg);
-    }
-    .rent-card-photo img {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-      border-radius: 0;
-      transition: transform 0.7s var(--ease-soft);
-    }
-    .rent-card:hover .rent-card-photo img,
-    .rent-card:focus-visible .rent-card-photo img { transform: scale(1.05); }
-
-    .rent-card-meta {
-      font-size: 12px;
-      font-weight: 700;
-      letter-spacing: 0.16em;
-      text-transform: uppercase;
-      color: var(--clr-accent);
-      margin-bottom: var(--space-sm);
-    }
-    .rent-card h3 {
-      font-size: clamp(1.7rem, 2.4vw, 2.1rem);
-      font-weight: 500;
-      margin-bottom: var(--space-sm);
-    }
-    .rent-card p { font-size: 1rem; line-height: 1.7; margin-bottom: var(--space-md); }
-    .rent-card-link {
-      margin-top: auto;
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      align-self: flex-start;
-      font-size: 12.5px;
-      font-weight: 700;
-      letter-spacing: 0.14em;
-      text-transform: uppercase;
-      color: var(--clr-plum);
-      padding-bottom: 6px;
-      border-bottom: 1px solid var(--clr-accent);
-      transition: gap 0.25s ease, color 0.25s ease;
-    }
-    .rent-card:hover .rent-card-link { gap: 12px; color: var(--clr-accent); }
-
-    @media (max-width: 900px) {
-      .rent-head { grid-template-columns: 1fr; align-items: start; }
-      .rent-grid { grid-template-columns: 1fr; gap: var(--space-2xl); }
-      .rent-card-photo { aspect-ratio: 4 / 3; }
-    }
-
-    @media (max-width: 768px) {
-      .video-hero {
-        min-height: 520px;
-      }
-    }
-
-    /* ---- Section Headers ---- */
-    .home-section-header {
-      text-align: center;
-      margin-bottom: var(--space-xl);
-    }
-
-    .home-section-header h2 {
-      font-size: clamp(2.1rem, 3.9vw, 3.1rem);
-      font-weight: 500;
-      color: var(--clr-plum);
-      margin-bottom: var(--space-sm);
-    }
-
-    .home-section-header p {
-      font-size: 1.05rem;
-      color: var(--clr-text-muted);
-      max-width: 600px;
-      margin: 0 auto;
-    }
-
-    /* ---- Availability: a short "how booking works" guide beside the live calendar ---- */
+    /* ---- 6. Availability: a short "how booking works" guide beside the live calendar ---- */
     .avail-layout {
       display: grid;
       grid-template-columns: minmax(0, 4fr) minmax(0, 7fr);
@@ -361,130 +174,60 @@
     .avail-calendar { grid-area: calendar; }
     .avail-intro h2 { margin-bottom: var(--space-md); }
     .avail-intro > p { font-size: 1.05rem; margin-bottom: var(--space-xl); }
-
     .avail-steps { list-style: none; margin: 0; padding: 0; counter-reset: step; }
-    .avail-steps li {
-      position: relative;
-      padding: 0 0 var(--space-lg) 64px;
-      counter-increment: step;
-    }
-    .avail-steps li::before {
-      content: counter(step, decimal-leading-zero);
-      position: absolute;
-      left: 0;
-      top: -6px;
-      font-family: var(--font-display);
-      font-size: 2rem;
-      line-height: 1;
-      color: var(--clr-accent);
-    }
-    .avail-steps li::after {
-      content: "";
-      position: absolute;
-      left: 0;
-      top: 34px;
-      bottom: 10px;
-      width: 1px;
-      margin-left: 14px;
-      background: var(--clr-border);
-    }
+    .avail-steps li { position: relative; padding: 0 0 var(--space-lg) 64px; counter-increment: step; }
+    .avail-steps li::before { content: counter(step, decimal-leading-zero); position: absolute; left: 0; top: -6px; font-family: var(--font-display); font-size: 2rem; line-height: 1; color: var(--clr-accent); }
+    .avail-steps li::after { content: ""; position: absolute; left: 0; top: 34px; bottom: 10px; width: 1px; margin-left: 14px; background: var(--clr-border); }
     .avail-steps li:last-child { padding-bottom: 0; }
     .avail-steps li:last-child::after { display: none; }
     .avail-steps strong { display: block; color: var(--clr-plum); font-weight: 700; margin-bottom: 2px; }
     .avail-steps span { color: var(--clr-text-muted); font-size: 0.98rem; line-height: 1.65; }
-
     .avail-actions { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-md) var(--space-lg); }
     .avail-call { font-size: 0.98rem; color: var(--clr-text-muted); }
     .avail-call a { color: var(--clr-plum); font-weight: 700; border-bottom: 1px solid var(--clr-accent); }
     .avail-call a:hover { color: var(--clr-accent); }
+    .avail-calendar { background: var(--clr-bg-card); border-radius: 20px; padding: 10px; box-shadow: var(--shadow-soft); }
+    .home-availability-embed { width: 100%; height: 560px; border: 0; border-radius: 14px; background: #fff; display: block; }
+    .home-availability-legend { display: flex; align-items: center; gap: 8px; font-size: 0.85rem; color: var(--clr-text-muted); padding: 12px 8px 4px; }
+    .home-availability-legend .purple-dot { display: inline-block; width: 12px; height: 12px; background: #8a56a0; border-radius: 50%; flex: none; }
+    @media (max-width: 900px) {
+      .avail-layout { grid-template-columns: 1fr; grid-template-areas: "intro" "calendar" "actions"; grid-template-rows: auto; }
+      .home-availability-embed { height: 500px; }
+    }
 
-    .avail-calendar {
-      background: var(--clr-bg-card);
-      border-radius: 20px;
-      padding: 10px;
-      box-shadow: var(--shadow-soft);
-    }
-    .home-availability-embed {
-      width: 100%;
-      height: 560px;
-      border: 0;
-      border-radius: 14px;
-      background: #fff;
-      display: block;
-    }
-    .home-availability-legend {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      font-size: 0.85rem;
-      color: var(--clr-text-muted);
-      padding: 12px 8px 4px;
-    }
-    .home-availability-legend .purple-dot {
-      display: inline-block;
-      width: 12px;
-      height: 12px;
-      background: #8a56a0;
-      border-radius: 50%;
-      flex: none;
-    }
-    /* ---- Find Us: visit details beside a large map ---- */
-    .find-layout {
-      display: grid;
-      grid-template-columns: minmax(0, 4fr) minmax(0, 7fr);
-      gap: clamp(2rem, 5vw, 4.5rem);
-      align-items: stretch;
-    }
+    /* ---- 7. Heart of town: walking distance + map ---- */
+    .find-layout { display: grid; grid-template-columns: minmax(0, 4fr) minmax(0, 7fr); gap: clamp(2rem, 5vw, 4.5rem); align-items: stretch; }
     .find-intro h2 { margin-bottom: var(--space-md); }
-    .find-intro > p { font-size: 1.05rem; margin-bottom: var(--space-xl); }
+    .find-intro > p { font-size: 1.05rem; margin-bottom: var(--space-lg); }
+    .walk-list { list-style: none; margin: 0 0 var(--space-xl); padding: 0; }
+    .walk-list li { display: flex; gap: 14px; align-items: baseline; padding: 10px 0; border-top: 1px solid var(--clr-border); }
+    .walk-list li:last-child { border-bottom: 1px solid var(--clr-border); }
+    .walk-list .walk-tag { flex: none; min-width: 6.5rem; font-size: 11.5px; font-weight: 800; letter-spacing: 0.14em; text-transform: uppercase; color: var(--clr-accent); }
     .find-details { margin: 0 0 var(--space-xl); }
-    .find-details > div { padding: var(--space-md) 0; border-top: 1px solid var(--clr-border); }
-    .find-details > div:last-child { border-bottom: 1px solid var(--clr-border); }
-    .find-details dt {
-      font-size: 12px;
-      font-weight: 700;
-      letter-spacing: 0.18em;
-      text-transform: uppercase;
-      color: var(--clr-accent);
-      margin-bottom: 4px;
-    }
+    .find-details > div { padding: var(--space-sm) 0; }
+    .find-details dt { font-size: 11.5px; font-weight: 800; letter-spacing: 0.16em; text-transform: uppercase; color: var(--clr-accent); margin-bottom: 2px; }
     .find-details dd { margin: 0; color: var(--clr-text); line-height: 1.65; }
     .find-details dd a { color: var(--clr-plum); }
     .find-details dd a:hover { color: var(--clr-accent); }
-    .find-link {
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      font-size: 12.5px;
-      font-weight: 700;
-      letter-spacing: 0.14em;
-      text-transform: uppercase;
-      color: var(--clr-plum);
-      padding-bottom: 6px;
-      border-bottom: 1px solid var(--clr-accent);
-      transition: gap 0.25s ease, color 0.25s ease;
-    }
+    .find-link { display: inline-flex; align-items: center; gap: 8px; font-size: 12.5px; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; color: var(--clr-plum); padding-bottom: 6px; border-bottom: 1px solid var(--clr-accent); transition: gap 0.25s ease, color 0.25s ease; }
     .find-link:hover { gap: 12px; color: var(--clr-accent); }
     .find-stay { margin-top: var(--space-lg); font-size: 0.98rem; color: var(--clr-text-muted); }
     .find-stay a { color: var(--clr-plum); font-weight: 700; border-bottom: 1px solid var(--clr-accent); }
-    .find-map {
-      background: var(--clr-bg-card);
-      border-radius: 20px;
-      padding: 10px;
-      box-shadow: var(--shadow-soft);
-      min-height: 460px;
-      display: flex;
-    }
+    .find-map { background: var(--clr-bg-card); border-radius: 20px; padding: 10px; box-shadow: var(--shadow-soft); min-height: 460px; display: flex; }
     .find-map iframe { flex: 1; width: 100%; min-height: 440px; border: 0; border-radius: 14px; display: block; }
     @media (max-width: 900px) {
       .find-layout { grid-template-columns: 1fr; }
       .find-map, .find-map iframe { min-height: 360px; }
     }
 
-    @media (max-width: 900px) {
-      .avail-layout { grid-template-columns: 1fr; grid-template-areas: "intro" "calendar" "actions"; grid-template-rows: auto; }
-      .home-availability-embed { height: 500px; }
-    }
+    /* ---- 8. Closing night band ---- */
+    .night-band { position: relative; overflow: hidden; background: var(--clr-night-deep); text-align: center; }
+    .night-band > img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; opacity: 0.26; border-radius: 0; }
+    .night-band .home-wrap { position: relative; max-width: 54rem; padding-top: clamp(5rem, 11vw, 8rem); padding-bottom: clamp(5rem, 11vw, 8rem); }
+    .night-band h2 { font-size: clamp(2.6rem, 5.4vw, 4.4rem); font-weight: 600; line-height: 1.04; margin: 0 0 var(--space-md); }
+    .night-band h2 em { font-weight: 500; }
+    .night-band p { font-size: 1.15rem; line-height: 1.65; max-width: 34rem; margin: 0 auto var(--space-xl); color: #e2d6e8; }
+    .night-band .hero-actions { justify-content: center; }
   </style>
 
   <meta property="og:title" content="Sane Living — Downtown Ojai&#39;s Premiere Event Space">
@@ -507,89 +250,184 @@
 <body>
   <nav id="site-nav"></nav>
 
-  <!-- 1. Video Hero -->
-  <section class="video-hero">
-    <div class="video-hero-bg">
-      <video data-site-hero-video autoplay muted loop playsinline>
-        <source src="/hero-video.mp4" type="video/mp4">
-      </video>
-    </div>
-    <div class="video-hero-overlay"></div>
-    <div class="video-hero-content">
-      <span class="hero-eyebrow">Weddings · Events · Gatherings</span>
-      <h1 data-site-text="homeHeading">Downtown Ojai's Premiere Event Space</h1>
-      <p class="hero-subtitle" data-site-text="homeIntro">A beautiful auditorium and gathering venue in the heart of Ojai, California</p>
-      <div class="btn-group">
-        <a href="/rent/" class="btn btn-primary" data-site-href="homePrimaryUrl" data-site-text="homePrimaryLabel">Rent the Space</a>
-        <a href="#availability" class="hero-link">Check availability <span aria-hidden="true">&rarr;</span></a>
+  <!-- 1. Hero: the Auditorium by day beside the patio by night -->
+  <section class="video-hero" id="top">
+    <div class="hero-pair">
+      <div class="hero-half hero-half-day">
+        <video data-site-hero-video autoplay muted loop playsinline poster="/images/main-hall.jpg" aria-hidden="true">
+          <source src="/hero-video.mp4" type="video/mp4">
+        </video>
+        <span class="time-tag">By day</span>
+      </div>
+      <div class="hero-half hero-half-night">
+        <img src="/images/venue-patio-dusk.jpg" alt="The patio at dusk, with umbrellas, a heater and the EVO3 sculpture">
+        <span class="time-tag time-tag-night">By night</span>
       </div>
     </div>
-    <div class="hero-scroll" aria-hidden="true">Scroll</div>
+    <div class="hero-scrim" aria-hidden="true"></div>
+    <div class="hero-copy">
+      <div class="home-wrap">
+        <span class="eyebrow">Downtown Ojai · <span data-site-text="hours">7 am – 12 midnight</span></span>
+        <h1 data-site-text="homeHeading">Ojai's living room, <em>right in the middle of town.</em></h1>
+        <p class="hero-subtitle" data-site-text="homeIntro">A downtown landmark, hiding in plain sight, is waking up. Morning meetings, afternoon workshops, evening parties and the celebration after the celebration.</p>
+        <div class="hero-actions">
+          <a href="/#availability" class="btn btn-glow" data-site-href="homePrimaryUrl" data-site-text="homePrimaryLabel">Check a date</a>
+          <a href="#rent-the-space" class="btn btn-ghost-light">See ways to book</a>
+        </div>
+      </div>
+    </div>
   </section>
 
   <!-- 2. Upcoming Public Events (auto-hidden when empty) -->
   <section class="section events-section" id="eventsSection">
-    <div class="container">
-      <div class="home-section-header" data-animate>
-        <h2>Upcoming Public Events</h2>
-        <p>What's happening at Sane Living Center</p>
+    <div class="home-wrap">
+      <div class="events-head" data-animate>
+        <div>
+          <span class="eyebrow">Coming up</span>
+          <h2 class="home-h2">Upcoming Public Events</h2>
+        </div>
+        <a href="/events/" class="btn btn-outline">View All Events</a>
       </div>
       <div class="events-grid" id="eventsGrid" data-animate>
         <!-- Populated by JS -->
       </div>
-      <div style="text-align: center; margin-top: var(--space-xl);">
-        <a href="/events/" class="btn btn-outline">View All Events</a>
+    </div>
+  </section>
+
+  <!-- 3. Why here: three pillars -->
+  <section class="section" id="why-here">
+    <div class="home-wrap">
+      <div class="pillars-head" data-animate>
+        <span class="eyebrow">Why here</span>
+        <h2 class="home-h2">The one space in Ojai that works from coffee to last call</h2>
+      </div>
+      <div class="pillars" data-animate>
+        <div class="pillar">
+          <p class="pillar-num">01</p>
+          <h3>Heart of town</h3>
+          <p>Walk from your hotel, from dinner, from the Arcade. No shuttles, no long drives up the valley. Your guests are already here.</p>
+        </div>
+        <div class="pillar">
+          <p class="pillar-num">02</p>
+          <h3>One room, any hour</h3>
+          <p>Boardroom at 9, workshop at 2, reception at 7, after-party at 10. Soundproof, so the music doesn't have to stop at sundown.</p>
+        </div>
+        <div class="pillar pillar-night">
+          <p class="pillar-num">03</p>
+          <h3>Ojai's best-kept secret</h3>
+          <p>Not a resort ballroom. A room with character and stained glass, the kind of place people hear about from a friend.</p>
+        </div>
       </div>
     </div>
   </section>
 
-  <!-- 3. Rent the Space -->
-  <section class="section section-alt" id="rent-the-space">
-    <div class="container">
-      <div class="rent-head" data-animate>
+  <!-- 4. A day in the life of one room -->
+  <section class="section section-alt" id="any-hour">
+    <div class="home-wrap">
+      <div class="hours-head" data-animate>
         <div>
-          <span class="section-eyebrow">Spaces for your event</span>
-          <h2>Rent the Space</h2>
+          <span class="eyebrow">A day in the life of one room</span>
+          <h2 class="home-h2">Morning to midnight, the same four walls</h2>
         </div>
-        <div>
-          <p>Host your next event at the Sane Living Center — a soundproof hall, a quiet conference room and room to celebrate, all in downtown Ojai.</p>
-          <a href="/rent/pricing/" class="btn btn-outline">Rates &amp; Availability</a>
-        </div>
+        <a href="/gallery/" class="hours-link">See the full gallery &rarr;</a>
       </div>
-      <div class="rent-grid" data-animate>
-        <a href="/rent/" class="rent-card">
-          <div class="rent-card-photo"><img src="/images/main-hall.jpg" alt="The Auditorium at Sane Living, set up with rows of chairs facing the stage" loading="lazy"></div>
-          <span class="rent-card-meta">Up to 225 guests</span>
-          <h3>Auditorium</h3>
-          <p>A soundproof space with a stage, projector, sound system and theatre lighting. Seats 110, or 225 standing.</p>
-          <span class="rent-card-link">Explore the Auditorium <span aria-hidden="true">&rarr;</span></span>
+      <div class="hours" data-animate>
+        <a href="/rent/" class="hour-card hour-morning">
+          <img src="/images/main-hall-08.jpg" alt="The Auditorium with tables in a U-shape for a meeting" loading="lazy">
+          <div class="hour-card-body">
+            <span class="hour-time">9:00 am</span>
+            <h3>The meeting</h3>
+            <p>Screen, sound and a short walk from your hotel.</p>
+          </div>
         </a>
-        <a href="/rent/weddings/" class="rent-card">
-          <div class="rent-card-photo"><img src="/IMG_0197.jpg" alt="A candlelit wedding ceremony in the Auditorium, with a floral arch and draped walls" loading="lazy"></div>
-          <span class="rent-card-meta">Ceremonies &amp; receptions</span>
+        <a href="/rent/" class="hour-card hour-afternoon">
+          <img src="/images/main-hall-02.jpg" alt="Cushions and blankets arranged in a large circle for a workshop" loading="lazy">
+          <div class="hour-card-body">
+            <span class="hour-time">2:00 pm</span>
+            <h3>The workshop</h3>
+            <p>Circles, classes and retreats in soft daylight.</p>
+          </div>
+        </a>
+        <a href="/rent/" class="hour-card hour-evening">
+          <img src="/images/main-hall-05.jpg" alt="A catered reception with cocktail tables in the Auditorium" loading="lazy">
+          <div class="hour-card-body">
+            <span class="hour-time">7:00 pm</span>
+            <h3>The reception</h3>
+            <p>Dinners, launches and toasts, with room to mingle.</p>
+          </div>
+        </a>
+        <a href="/rent/" class="hour-card hour-late">
+          <img src="/images/main-hall-12.jpg" alt="The stage set up with drums, guitars and a keyboard" loading="lazy">
+          <div class="hour-card-body">
+            <span class="hour-time">10:00 pm</span>
+            <h3>The after-party</h3>
+            <p>Soundproof walls, a real stage and no neighbors to wake.</p>
+          </div>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- 5. Ways to book (evening) -->
+  <section class="section section-night" id="rent-the-space">
+    <div class="home-wrap">
+      <div class="book-head" data-animate>
+        <span class="eyebrow">Ways to book</span>
+        <h2 class="home-h2">Pick your hour. We'll set the room.</h2>
+        <p class="home-lede">The Auditorium seats 110, or 225 standing, with a stage, projector, sound system and theatre lighting. Add the conference room or the patio as you need them.</p>
+      </div>
+      <div class="book-grid" data-animate>
+        <a href="/rent/" class="book-card">
+          <h3>Meetings</h3>
+          <p>Offsites and team days for groups staying in town. The conference room seats a smaller team.</p>
+          <span class="book-card-more">Plan a meeting &rarr;</span>
+        </a>
+        <a href="/rent/" class="book-card">
+          <h3>Workshops</h3>
+          <p>Classes, talks, screenings and retreats.</p>
+          <span class="book-card-more">Host a workshop &rarr;</span>
+        </a>
+        <a href="/rent/" class="book-card">
+          <h3>Celebrations</h3>
+          <p>Birthdays, launches, dinners and shows.</p>
+          <span class="book-card-more">Plan a party &rarr;</span>
+        </a>
+        <a href="/rent/weddings/" class="book-card">
           <h3>Weddings</h3>
-          <p>Say your vows in the Auditorium and celebrate outdoors, with your own caterer welcome.</p>
-          <span class="rent-card-link">Plan your wedding <span aria-hidden="true">&rarr;</span></span>
+          <p>An intimate Ojai wedding without the estate price. Bring your own caterer.</p>
+          <span class="book-card-more">Plan your wedding &rarr;</span>
         </a>
-        <a href="/rent/" class="rent-card">
-          <div class="rent-card-photo"><img src="/images/center-office.jpg" alt="The Conference Room at Sane Living, with a long table, whiteboard and natural light" loading="lazy"></div>
-          <span class="rent-card-meta">Meetings &amp; getting ready</span>
-          <h3>Conference Room</h3>
-          <p>A calm, separate room for meetings and workshops, or a private space to get ready on the big day.</p>
-          <span class="rent-card-link">Rent the Conference Room <span aria-hidden="true">&rarr;</span></span>
+        <a href="/rent/" class="book-card book-card-feature">
+          <h3>After-parties</h3>
+          <p>The party after the wedding, the show or the dinner, a short walk away.</p>
+          <span class="book-card-more">Keep it going &rarr;</span>
         </a>
+      </div>
+
+      <!-- Rates at a glance: filled from the dashboard's Pricing section; hidden if it can't load -->
+      <div class="rates" id="home-rates" hidden></div>
+      <p class="rates-foot" data-animate><a href="/rent/pricing/">See all rates &amp; availability &rarr;</a></p>
+
+      <div class="wedding-band" data-animate>
+        <img src="/IMG_0207.jpg" alt="An evening wedding reception outdoors, with lanterns and fairy lights in a tree" loading="lazy">
+        <div>
+          <span class="eyebrow">For couples</span>
+          <h3>Say "I do" in the afternoon. Dance into the night. Walk home.</h3>
+          <p>Ceremony in the Auditorium, dinner under the lights, and your guests' hotels just down the street.</p>
+          <a href="/rent/weddings/" class="btn btn-glow">Explore Weddings</a>
+        </div>
       </div>
     </div>
   </section>
 
-  <!-- 4. Availability calendar -->
+  <!-- 6. Availability calendar -->
   <section class="section" id="availability">
-    <div class="container">
+    <div class="home-wrap">
       <div class="avail-layout">
         <div class="avail-intro" data-animate>
-          <span class="section-eyebrow">Plan your date</span>
-          <h2>Check Availability</h2>
-          <p>See which dates are open at the Sane Living Center, then tell us about your event.</p>
+          <span class="eyebrow">Plan your date</span>
+          <h2 class="home-h2">Check a date</h2>
+          <p>See which dates are open, then tell us what you're planning.</p>
           <ol class="avail-steps">
             <li><strong>Find an open date</strong><span>Purple dates on the calendar are already booked.</span></li>
             <li><strong>Send a request</strong><span>Share your date, guest count and what you have in mind.</span></li>
@@ -616,22 +454,23 @@
     </div>
   </section>
 
-  <!-- 5. Find Us -->
+  <!-- 7. Heart of town / Find Us -->
   <section class="section section-alt" id="find-us">
-    <div class="container">
+    <div class="home-wrap">
       <div class="find-layout">
         <div class="find-intro" data-animate>
-          <span class="section-eyebrow">Visit us</span>
-          <h2>Find Us</h2>
-          <p>The Sane Living Center is right in downtown Ojai, California.</p>
+          <span class="eyebrow">Heart of town</span>
+          <h2 class="home-h2">Leave the car. Everything's a short walk.</h2>
+          <p>Meet here, dine on the Avenue, sleep around the corner.</p>
+          <ul class="walk-list">
+            <li><span class="walk-tag">Short walk</span><span>The Ojai Arcade &amp; Libbey Park</span></li>
+            <li><span class="walk-tag">Short walk</span><span>Downtown hotels &amp; inns</span></li>
+            <li><span class="walk-tag">Short walk</span><span>Restaurants, cafés &amp; wine bars</span></li>
+          </ul>
           <dl class="find-details">
             <div>
               <dt>Address</dt>
               <dd data-site-text="address">316 E Matilija St, Ojai, CA 93023</dd>
-            </div>
-            <div>
-              <dt>Hours</dt>
-              <dd data-site-text="hours">7 am – 12 midnight</dd>
             </div>
             <div>
               <dt>Contact</dt>
@@ -654,6 +493,19 @@
     </div>
   </section>
 
+  <!-- 8. Closing night band -->
+  <section class="night-band section-night" id="late">
+    <img src="/images/venue-purple-doors.jpg" alt="" aria-hidden="true" loading="lazy">
+    <div class="home-wrap">
+      <h2>Ojai goes quiet at 9.<br><em class="glow">We don't have to.</em></h2>
+      <p>Tell us your date and what you're planning. We'll take it from there.</p>
+      <div class="hero-actions">
+        <a href="#availability" class="btn btn-glow">Check a date</a>
+        <a href="/contact/" class="btn btn-ghost-light">Book a walk-through</a>
+      </div>
+    </div>
+  </section>
+
   <footer id="site-footer"></footer>
 
   <script src="/script.js"></script>
@@ -661,6 +513,40 @@
   // The calendar's legend uses the same wording as the Rates & Availability page (edited in the dashboard's Pricing section).
   fetch('/content/pricing.json').then(function(r) { return r.ok ? r.json() : null; }).then(function(d) {
     if (d && typeof d.availabilityNote === 'string' && d.availabilityNote.trim()) document.getElementById('home-availability-note').textContent = d.availabilityNote;
+  }).catch(function() {});
+  </script>
+  <script>
+  // Headline: everything after the first comma is shown in the gold italic accent
+  // (the words themselves are edited in the dashboard: Homepage → Main headline).
+  (function() {
+    function accent() {
+      var h = document.querySelector('[data-site-text="homeHeading"]');
+      if (!h || h.querySelector('em')) return;
+      var t = h.textContent, i = t.indexOf(',');
+      if (i < 1 || i >= t.trim().length - 1) return;
+      var em = document.createElement('em');
+      em.textContent = t.slice(i + 1).trim();
+      h.textContent = t.slice(0, i + 1) + ' ';
+      h.appendChild(em);
+    }
+    document.addEventListener('sane:settings-ready', accent);
+  })();
+  </script>
+  <script>
+  // Rates at a glance: the lowest price in each row of the dashboard's Pricing table.
+  fetch('/content/pricing.json').then(function(r) { return r.ok ? r.json() : null; }).then(function(d) {
+    var rows = (d && d.rows) || [];
+    function esc(s) { return String(s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+    var html = rows.slice(0, 3).map(function(r) {
+      var prices = ['monThu','friday','saturday','sunday'].map(function(k) { return parseFloat(String(r[k] || '').replace(/[^0-9.]/g, '')); }).filter(function(n) { return n > 0; });
+      if (!r.label || !prices.length) return '';
+      var low = Math.min.apply(null, prices);
+      return '<div class="rate"><span class="rate-label">' + esc(r.label) + '</span><span class="rate-hours">' + esc(r.sublabel) + '</span><span class="rate-from">from $' + low.toLocaleString('en-US') + '</span></div>';
+    }).join('');
+    if (!html) return;
+    var box = document.getElementById('home-rates');
+    box.innerHTML = html;
+    box.hidden = false;
   }).catch(function() {});
   </script>
   <script>
