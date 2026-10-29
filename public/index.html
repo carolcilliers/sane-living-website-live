@@ -77,18 +77,14 @@
       .event-card-img { width: 100%; min-height: 200px; height: 200px; }
     }
 
-    /* ---- 3. Why here: three pillars ---- */
-    .pillars-head { text-align: center; max-width: 46rem; margin: 0 auto clamp(2.5rem, 5vw, 3.5rem); }
-    .pillars { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: clamp(1rem, 2.4vw, 1.75rem); }
-    .pillar { background: var(--clr-bg-card); border: 1px solid var(--clr-border); border-radius: 20px; padding: clamp(1.75rem, 3vw, 2.4rem); }
-    .pillar-num { font-family: var(--font-display); font-size: 2.8rem; font-weight: 600; line-height: 1; color: var(--clr-accent); margin: 0 0 var(--space-md); }
-    .pillar h3 { font-size: clamp(1.6rem, 2.3vw, 1.95rem); margin: 0 0 var(--space-sm); }
-    .pillar p { margin: 0; font-size: 1.02rem; line-height: 1.7; color: var(--clr-text-muted); }
-    .pillar-night { background: var(--clr-night-raised); border-color: var(--clr-night-raised); }
-    .pillar-night .pillar-num { color: var(--clr-glow); }
-    .pillar-night h3 { color: var(--clr-on-night); }
-    .pillar-night p { color: var(--clr-on-night-muted); }
-    @media (max-width: 900px) { .pillars { grid-template-columns: 1fr; } }
+    /* ---- 3. Why here: three pillars, open columns (no boxes) ---- */
+    .pillars-head { text-align: center; max-width: 46rem; margin: 0 auto clamp(2.75rem, 6vw, 4rem); }
+    .pillars { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: clamp(2rem, 5vw, 4.5rem); }
+    .pillar { border-top: 1px solid var(--clr-plum); padding-top: var(--space-lg); }
+    .pillar .pillar-num { font-family: var(--font-display); font-style: italic; font-size: clamp(3.2rem, 5vw, 4.4rem); font-weight: 500; line-height: 0.9; color: var(--clr-accent); margin: 0 0 var(--space-md); }
+    .pillar h3 { font-size: clamp(1.75rem, 2.5vw, 2.15rem); margin: 0 0 var(--space-sm); }
+    .pillar p { margin: 0; font-size: 1.05rem; line-height: 1.75; color: var(--clr-text-muted); }
+    @media (max-width: 900px) { .pillars { grid-template-columns: 1fr; gap: var(--space-xl); } }
 
     /* ---- Photo strips between sections ---- */
     .photo-strip { display: grid; grid-template-columns: 2fr 1fr 1fr 1.4fr; gap: 6px; height: clamp(240px, 30vw, 420px); background: var(--clr-bg); }
@@ -104,50 +100,47 @@
     }
     @media (prefers-reduced-motion: reduce) { .photo-strip img { transition: none; } }
 
-    /* ---- 4. A day in the life of one space: cards darken from morning to night ---- */
+    /* ---- 4. A day in the life of one space: full-bleed photo panels that darken from morning to night ---- */
+    #any-hour { padding-bottom: 0; }
     .hours-head { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: flex-end; gap: var(--space-md); margin-bottom: clamp(2rem, 4vw, 2.75rem); }
     .hours-link { font-weight: 700; color: var(--clr-accent); border-bottom: 1px solid var(--clr-accent); padding-bottom: 4px; }
-    .hours { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: clamp(0.85rem, 1.6vw, 1.15rem); }
-    .hour-card { display: flex; flex-direction: column; border-radius: 18px; overflow: hidden; color: var(--clr-plum); text-decoration: none; transition: transform 0.3s var(--ease-soft), box-shadow 0.3s var(--ease-soft); }
-    .hour-card:hover { transform: translateY(-4px); box-shadow: var(--shadow-lift); color: inherit; }
-    .hour-card img { width: 100%; aspect-ratio: 4 / 3; object-fit: cover; display: block; border-radius: 0; }
-    .hour-card-body { padding: 20px 22px 24px; }
-    .hour-time { display: block; font-size: 12px; font-weight: 800; letter-spacing: 0.16em; text-transform: uppercase; margin-bottom: 6px; }
-    .hour-card h3 { font-size: 1.65rem; margin: 0 0 6px; color: inherit; }
-    .hour-card p { margin: 0; font-size: 0.97rem; line-height: 1.55; }
-    .hour-morning { background: var(--clr-bg); }
-    .hour-morning .hour-time { color: var(--clr-accent); }
-    .hour-morning p { color: var(--clr-text-muted); }
-    .hour-afternoon { background: #e7dccd; }
-    .hour-afternoon .hour-time { color: var(--clr-accent-hover); }
-    .hour-afternoon p { color: #4f3f58; }
-    .hour-evening { background: var(--clr-dusk); color: var(--clr-on-night); }
-    .hour-late { background: var(--clr-night); color: var(--clr-on-night); }
-    .hour-evening .hour-time, .hour-late .hour-time { color: var(--clr-glow); }
-    .hour-evening p { color: #e2d6e8; }
-    .hour-late p { color: var(--clr-on-night-muted); }
-    .hour-evening:hover, .hour-late:hover { color: var(--clr-on-night); }
+    .hours { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 3px; background: var(--clr-night); }
+    .hour-card { position: relative; display: flex; align-items: flex-end; min-height: clamp(420px, 44vw, 620px); overflow: hidden; color: #fff; text-decoration: none; isolation: isolate; }
+    .hour-card img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; display: block; border-radius: 0; z-index: -2; transition: transform 1s var(--ease-soft); }
+    .hour-card::before { content: ""; position: absolute; inset: 0; z-index: -1; transition: opacity 0.4s ease; }
+    .hour-morning::before { background: linear-gradient(to top, rgba(42, 26, 51, 0.82) 0%, rgba(42, 26, 51, 0.15) 55%, rgba(42, 26, 51, 0) 100%); }
+    .hour-afternoon::before { background: linear-gradient(to top, rgba(42, 26, 51, 0.86) 0%, rgba(42, 26, 51, 0.25) 55%, rgba(42, 26, 51, 0.08) 100%); }
+    .hour-evening::before { background: linear-gradient(to top, rgba(31, 19, 40, 0.92) 0%, rgba(74, 47, 88, 0.5) 55%, rgba(74, 47, 88, 0.3) 100%); }
+    .hour-late::before { background: linear-gradient(to top, rgba(21, 12, 27, 0.95) 0%, rgba(31, 19, 40, 0.6) 55%, rgba(31, 19, 40, 0.45) 100%); }
+    .hour-card:hover img, .hour-card:focus-visible img { transform: scale(1.06); }
+    .hour-card:hover { color: #fff; }
+    .hour-card-body { padding: clamp(1.5rem, 2.6vw, 2.25rem); }
+    .hour-time { display: block; font-size: 12px; font-weight: 800; letter-spacing: 0.18em; text-transform: uppercase; margin-bottom: 8px; color: var(--clr-glow); }
+    .hour-morning .hour-time, .hour-afternoon .hour-time { color: #f3ece2; }
+    .hour-card h3 { font-size: clamp(1.7rem, 2.3vw, 2.2rem); margin: 0 0 8px; color: #fff; }
+    .hour-card p { margin: 0; font-size: 0.98rem; line-height: 1.6; color: rgba(255, 255, 255, 0.86); max-width: 22rem; }
     @media (max-width: 1000px) { .hours { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
-    @media (max-width: 520px) { .hours { grid-template-columns: 1fr; } }
+    @media (max-width: 520px) { .hours { grid-template-columns: 1fr; } .hour-card { min-height: 380px; } }
+    @media (prefers-reduced-motion: reduce) { .hour-card img { transition: none; } }
 
     /* ---- 5. Ways to book (evening) ---- */
     .book-head { max-width: 44rem; margin-bottom: clamp(2.25rem, 4.5vw, 3rem); }
     .book-head .home-lede { margin: var(--space-md) 0 0; }
-    .book-grid { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 14px; }
-    .book-card { display: flex; flex-direction: column; gap: 10px; padding: 26px 22px; border: 1px solid var(--clr-night-line); border-radius: 18px; text-decoration: none; transition: border-color 0.25s ease, transform 0.25s var(--ease-soft); }
+    /* Ways to book as an editorial list: big titles on lines, no boxes */
+    .book-grid { display: flex; flex-direction: column; border-bottom: 1px solid var(--clr-night-line); }
+    .book-card { display: grid; grid-template-columns: minmax(0, 4fr) minmax(0, 6fr) 13rem; align-items: baseline; gap: var(--space-lg) clamp(1.5rem, 4vw, 3rem); padding: clamp(1.4rem, 2.6vw, 2rem) 0; border-top: 1px solid var(--clr-night-line); text-decoration: none; transition: padding 0.35s var(--ease-soft); }
     .section-night a.book-card { color: var(--clr-on-night); }
-    .book-card:hover { border-color: var(--clr-glow); transform: translateY(-3px); }
-    .book-card h3 { font-size: 1.75rem; margin: 0; }
-    .book-card p { margin: 0; font-size: 0.97rem; line-height: 1.55; }
-    .book-card-more { margin-top: auto; padding-top: 6px; font-size: 13px; font-weight: 800; letter-spacing: 0.08em; color: var(--clr-glow); }
-    .section-night a.book-card-feature { background: var(--clr-glow); border-color: var(--clr-glow); color: var(--clr-night); }
-    .section-night .book-card-feature h3 { color: var(--clr-night); }
-    .section-night .book-card-feature p { color: #3a2545; }
-    .book-card-feature .book-card-more { color: var(--clr-night); }
-    .book-card-feature:hover { border-color: var(--clr-glow-hover); }
-    @media (max-width: 1100px) { .book-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
-    @media (max-width: 760px) { .book-grid { grid-template-columns: 1fr 1fr; } }
-    @media (max-width: 480px) { .book-grid { grid-template-columns: 1fr; } }
+    .book-card h3 { font-size: clamp(2rem, 4vw, 3.2rem); font-weight: 500; line-height: 1.05; margin: 0; transition: color 0.3s ease; }
+    .book-card p { margin: 0; font-size: 1.02rem; line-height: 1.6; }
+    .book-card-more { font-size: 12px; font-weight: 800; letter-spacing: 0.14em; text-transform: uppercase; color: var(--clr-glow); white-space: nowrap; text-align: right; }
+    .book-card:hover, .book-card:focus-visible { padding-left: 14px; }
+    .section-night .book-card:hover h3, .section-night .book-card:focus-visible h3 { color: var(--clr-glow); }
+    .section-night .book-card-feature h3 { color: var(--clr-glow); font-style: italic; }
+    @media (max-width: 760px) {
+      .book-card { grid-template-columns: 1fr; gap: 8px; }
+      .book-card-more { text-align: left; }
+      .book-card:hover, .book-card:focus-visible { padding-left: 0; }
+    }
 
     .rates { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); margin-top: clamp(2rem, 4vw, 2.75rem); border-top: 1px solid var(--clr-night-line); border-bottom: 1px solid var(--clr-night-line); }
     .rates[hidden] { display: none; }
@@ -163,7 +156,7 @@
     }
 
     .wedding-band { display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 6fr); gap: clamp(1.75rem, 4vw, 3.5rem); align-items: center; margin-top: clamp(3rem, 6vw, 4.5rem); padding-top: clamp(2.5rem, 5vw, 3.5rem); border-top: 1px solid var(--clr-night-line); }
-    .wedding-band img { width: 100%; aspect-ratio: 4 / 3; object-fit: cover; border-radius: 18px; display: block; }
+    .wedding-band img { width: 100%; aspect-ratio: 4 / 3; object-fit: cover; border-radius: 4px; display: block; }
     .wedding-band h3 { font-size: clamp(2rem, 3.4vw, 2.75rem); line-height: 1.1; margin: 0 0 var(--space-md); }
     .wedding-band p { margin: 0 0 var(--space-lg); font-size: 1.05rem; line-height: 1.7; }
     @media (max-width: 800px) { .wedding-band { grid-template-columns: 1fr; } }
@@ -195,9 +188,9 @@
     .avail-call { font-size: 0.98rem; color: var(--clr-text-muted); }
     .avail-call a { color: var(--clr-plum); font-weight: 700; border-bottom: 1px solid var(--clr-accent); }
     .avail-call a:hover { color: var(--clr-accent); }
-    .avail-calendar { background: var(--clr-bg-card); border-radius: 20px; padding: 10px; box-shadow: var(--shadow-soft); }
-    .home-availability-embed { width: 100%; height: 560px; border: 0; border-radius: 14px; background: #fff; display: block; }
-    .home-availability-legend { display: flex; align-items: center; gap: 8px; font-size: 0.85rem; color: var(--clr-text-muted); padding: 12px 8px 4px; }
+    .avail-calendar { background: #fff; border-radius: 4px; overflow: hidden; border-top: 3px solid var(--clr-accent); }
+    .home-availability-embed { width: 100%; height: 560px; border: 0; border-radius: 0; background: #fff; display: block; }
+    .home-availability-legend { display: flex; align-items: center; gap: 8px; font-size: 0.85rem; color: var(--clr-text-muted); padding: 12px 14px; background: var(--clr-bg); }
     .home-availability-legend .purple-dot { display: inline-block; width: 12px; height: 12px; background: #8a56a0; border-radius: 50%; flex: none; }
     @media (max-width: 900px) {
       .avail-layout { grid-template-columns: 1fr; grid-template-areas: "intro" "calendar" "actions"; grid-template-rows: auto; }
@@ -222,8 +215,8 @@
     .find-link:hover { gap: 12px; color: var(--clr-accent); }
     .find-stay { margin-top: var(--space-lg); font-size: 0.98rem; color: var(--clr-text-muted); }
     .find-stay a { color: var(--clr-plum); font-weight: 700; border-bottom: 1px solid var(--clr-accent); }
-    .find-map { background: var(--clr-bg-card); border-radius: 20px; padding: 10px; box-shadow: var(--shadow-soft); min-height: 460px; display: flex; }
-    .find-map iframe { flex: 1; width: 100%; min-height: 440px; border: 0; border-radius: 14px; display: block; }
+    .find-map { min-height: 460px; display: flex; border-radius: 4px; overflow: hidden; }
+    .find-map iframe { flex: 1; width: 100%; min-height: 460px; border: 0; border-radius: 0; display: block; filter: saturate(0.85); }
     @media (max-width: 900px) {
       .find-layout { grid-template-columns: 1fr; }
       .find-map, .find-map iframe { min-height: 360px; }
@@ -316,7 +309,7 @@
           <h3>One Space, Any Hour</h3>
           <p>Boardroom at 9, workshop at 2, reception at 7, after-party at 10. Soundproof, so the music doesn't have to stop at sundown.</p>
         </div>
-        <div class="pillar pillar-night">
+        <div class="pillar">
           <p class="pillar-num">03</p>
           <h3>Ojai's Best-Kept Secret</h3>
           <p>Not a resort ballroom. A room with character and stained glass, the kind of place people hear about from a friend.</p>
@@ -343,7 +336,8 @@
         </div>
         <a href="/gallery/" class="hours-link">See the Full Gallery &rarr;</a>
       </div>
-      <div class="hours" data-animate>
+    </div>
+    <div class="hours" data-animate>
         <a href="/rent/" class="hour-card hour-morning">
           <img src="/images/main-hall-08.jpg" alt="The Auditorium with tables in a U-shape for a meeting" loading="lazy">
           <div class="hour-card-body">
@@ -376,7 +370,6 @@
             <p>Soundproof walls, a real stage and no neighbors to wake.</p>
           </div>
         </a>
-      </div>
     </div>
   </section>
 
@@ -483,7 +476,7 @@
           <h2 class="home-h2">Leave the Car. Everything's a Short Walk.</h2>
           <p>Meet here, dine on the Avenue, sleep around the corner.</p>
           <ul class="walk-list">
-            <li><span class="walk-tag">Short walk</span><span>The Ojai Arcade &amp; Libbey Park</span></li>
+            <li><span class="walk-tag">Short walk</span><span>The Ojai Playhouse &amp; Libbey Park</span></li>
             <li><span class="walk-tag">Short walk</span><span>Downtown hotels &amp; inns</span></li>
             <li><span class="walk-tag">Short walk</span><span>Restaurants, cafés &amp; wine bars</span></li>
           </ul>
