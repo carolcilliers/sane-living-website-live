@@ -90,7 +90,21 @@
     .pillar-night p { color: var(--clr-on-night-muted); }
     @media (max-width: 900px) { .pillars { grid-template-columns: 1fr; } }
 
-    /* ---- 4. A day in the life of one room: cards darken from morning to night ---- */
+    /* ---- Photo strips between sections ---- */
+    .photo-strip { display: grid; grid-template-columns: 2fr 1fr 1fr 1.4fr; gap: 6px; height: clamp(240px, 30vw, 420px); background: var(--clr-bg); }
+    .photo-strip figure { position: relative; margin: 0; overflow: hidden; }
+    .photo-strip img { width: 100%; height: 100%; object-fit: cover; display: block; border-radius: 0; transition: transform 0.8s var(--ease-soft); }
+    .photo-strip figure:hover img { transform: scale(1.04); }
+    .photo-strip figcaption { position: absolute; left: 0; right: 0; bottom: 0; padding: 32px 16px 12px; color: #fff; font-size: 12px; font-weight: 800; letter-spacing: 0.16em; text-transform: uppercase; background: linear-gradient(to top, rgba(31, 19, 40, 0.75), rgba(31, 19, 40, 0)); }
+    .photo-strip-night { background: var(--clr-night); }
+    @media (max-width: 760px) {
+      .photo-strip { grid-template-columns: 1fr 1fr; grid-auto-rows: 180px; height: auto; }
+      .photo-strip figure:first-child { grid-column: 1 / -1; }
+      .photo-strip figure:nth-child(4) { display: none; }
+    }
+    @media (prefers-reduced-motion: reduce) { .photo-strip img { transition: none; } }
+
+    /* ---- 4. A day in the life of one space: cards darken from morning to night ---- */
     .hours-head { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: flex-end; gap: var(--space-md); margin-bottom: clamp(2rem, 4vw, 2.75rem); }
     .hours-link { font-weight: 700; color: var(--clr-accent); border-bottom: 1px solid var(--clr-accent); padding-bottom: 4px; }
     .hours { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: clamp(0.85rem, 1.6vw, 1.15rem); }
@@ -258,11 +272,11 @@
     <div class="hero-copy">
       <div class="home-wrap">
         <span class="eyebrow">Downtown Ojai · <span data-site-text="hours">8 am – 1 am</span></span>
-        <h1 data-site-text="homeHeading">Ojai's gathering place, <em>right in the center of town.</em></h1>
+        <h1 data-site-text="homeHeading">Ojai's Gathering Place, <em>Right in the Center of Town.</em></h1>
         <p class="hero-subtitle" data-site-text="homeIntro">A downtown landmark, hiding in plain sight, is waking up. Morning meetings, afternoon workshops, evening parties and the celebration after the celebration.</p>
         <div class="hero-actions">
-          <a href="/#availability" class="btn btn-glow" data-site-href="homePrimaryUrl" data-site-text="homePrimaryLabel">Check a date</a>
-          <a href="#rent-the-space" class="btn btn-ghost-light">See ways to book</a>
+          <a href="/#availability" class="btn btn-glow" data-site-href="homePrimaryUrl" data-site-text="homePrimaryLabel">Check a Date</a>
+          <a href="#rent-the-space" class="btn btn-ghost-light">See Ways to Book</a>
         </div>
       </div>
     </div>
@@ -289,44 +303,52 @@
     <div class="home-wrap">
       <div class="pillars-head" data-animate>
         <span class="eyebrow">Why here</span>
-        <h2 class="home-h2">The one space in Ojai that works from coffee to last call</h2>
+        <h2 class="home-h2">The One Space in Ojai That Works from Coffee to Last Call</h2>
       </div>
       <div class="pillars" data-animate>
         <div class="pillar">
           <p class="pillar-num">01</p>
-          <h3>Heart of town</h3>
-          <p>Walk from your hotel, from dinner, from the Arcade. No shuttles, no long drives up the valley. Your guests are already here.</p>
+          <h3>Heart of Town</h3>
+          <p>Walk from your hotel, from dinner, from the Playhouse. No shuttles, no long drives up the valley. Your guests are already here.</p>
         </div>
         <div class="pillar">
           <p class="pillar-num">02</p>
-          <h3>One room, any hour</h3>
+          <h3>One Space, Any Hour</h3>
           <p>Boardroom at 9, workshop at 2, reception at 7, after-party at 10. Soundproof, so the music doesn't have to stop at sundown.</p>
         </div>
         <div class="pillar pillar-night">
           <p class="pillar-num">03</p>
-          <h3>Ojai's best-kept secret</h3>
+          <h3>Ojai's Best-Kept Secret</h3>
           <p>Not a resort ballroom. A room with character and stained glass, the kind of place people hear about from a friend.</p>
         </div>
       </div>
     </div>
   </section>
 
-  <!-- 4. A day in the life of one room -->
+  <!-- Photo strip: the building and its moods -->
+  <div class="photo-strip" role="group" aria-label="Photos of the venue">
+    <figure><img src="/images/venue-auditorium-open-doors.jpg" alt="The Auditorium with its folding glass doors open to the lobby" loading="lazy"><figcaption>The Auditorium</figcaption></figure>
+    <figure><img src="/images/venue-lobby-art.jpg" alt="The lobby, with a wooden ceiling and large colorful paintings" loading="lazy"><figcaption>The Lobby</figcaption></figure>
+    <figure><img src="/IMG_0197.jpg" alt="A candlelit wedding ceremony aisle with fairy lights" loading="lazy"><figcaption>Ceremonies</figcaption></figure>
+    <figure><img src="/images/main-hall-13.jpg" alt="The stage set for an acoustic music performance" loading="lazy"><figcaption>Live Music</figcaption></figure>
+  </div>
+
+  <!-- 4. A day in the life of one space -->
   <section class="section section-alt" id="any-hour">
     <div class="home-wrap">
       <div class="hours-head" data-animate>
         <div>
-          <span class="eyebrow">A day in the life of one room</span>
-          <h2 class="home-h2">8am to 1am, the same four walls</h2>
+          <span class="eyebrow">A day in the life of one space</span>
+          <h2 class="home-h2">8&nbsp;AM to 1&nbsp;AM, the Same Four Walls</h2>
         </div>
-        <a href="/gallery/" class="hours-link">See the full gallery &rarr;</a>
+        <a href="/gallery/" class="hours-link">See the Full Gallery &rarr;</a>
       </div>
       <div class="hours" data-animate>
         <a href="/rent/" class="hour-card hour-morning">
           <img src="/images/main-hall-08.jpg" alt="The Auditorium with tables in a U-shape for a meeting" loading="lazy">
           <div class="hour-card-body">
             <span class="hour-time">9:00 am</span>
-            <h3>The meeting</h3>
+            <h3>The Meeting</h3>
             <p>Screen, sound and a short walk from your hotel.</p>
           </div>
         </a>
@@ -334,23 +356,23 @@
           <img src="/images/main-hall-02.jpg" alt="Cushions and blankets arranged in a large circle for a workshop" loading="lazy">
           <div class="hour-card-body">
             <span class="hour-time">2:00 pm</span>
-            <h3>The workshop</h3>
+            <h3>The Workshop</h3>
             <p>Circles, classes and retreats in soft daylight.</p>
           </div>
         </a>
         <a href="/rent/" class="hour-card hour-evening">
-          <img src="/images/main-hall-05.jpg" alt="A catered reception with cocktail tables in the Auditorium" loading="lazy">
+          <img src="/images/main-hall-05.jpg" alt="A catered reception in the Auditorium, with cocktail tables and the projection screen" loading="lazy">
           <div class="hour-card-body">
             <span class="hour-time">7:00 pm</span>
-            <h3>The reception</h3>
-            <p>Dinners, launches and toasts, with room to mingle.</p>
+            <h3>The Screening &amp; Reception</h3>
+            <p>Film nights on the big screen with the full projector, then dinner, toasts and room to mingle.</p>
           </div>
         </a>
         <a href="/rent/" class="hour-card hour-late">
           <img src="/images/main-hall-12.jpg" alt="The stage set up with drums, guitars and a keyboard" loading="lazy">
           <div class="hour-card-body">
             <span class="hour-time">10:00 pm</span>
-            <h3>The after-party</h3>
+            <h3>The After-Party</h3>
             <p>Soundproof walls, a real stage and no neighbors to wake.</p>
           </div>
         </a>
@@ -363,46 +385,46 @@
     <div class="home-wrap">
       <div class="book-head" data-animate>
         <span class="eyebrow">Ways to book</span>
-        <h2 class="home-h2">Pick your hour. We'll set the room.</h2>
+        <h2 class="home-h2">Pick Your Hour. We'll Set the Space.</h2>
         <p class="home-lede">The Auditorium seats 110, or 225 standing, with a stage, projector, sound system and theatre lighting. Add the conference room or the patio as you need them.</p>
       </div>
       <div class="book-grid" data-animate>
         <a href="/rent/" class="book-card">
           <h3>Meetings</h3>
           <p>Offsites and team days for groups staying in town. The conference room seats a smaller team.</p>
-          <span class="book-card-more">Plan a meeting &rarr;</span>
+          <span class="book-card-more">Plan a Meeting &rarr;</span>
         </a>
         <a href="/rent/" class="book-card">
           <h3>Workshops</h3>
           <p>Classes, talks, screenings and retreats.</p>
-          <span class="book-card-more">Host a workshop &rarr;</span>
+          <span class="book-card-more">Host a Workshop &rarr;</span>
         </a>
         <a href="/rent/" class="book-card">
           <h3>Celebrations</h3>
-          <p>Birthdays, launches, dinners and shows.</p>
-          <span class="book-card-more">Plan a party &rarr;</span>
+          <p>Birthdays, launches, film screenings, dinners and shows.</p>
+          <span class="book-card-more">Plan a Party &rarr;</span>
         </a>
         <a href="/rent/weddings/" class="book-card">
           <h3>Weddings</h3>
           <p>An intimate Ojai wedding without the estate price. Bring your own caterer.</p>
-          <span class="book-card-more">Plan your wedding &rarr;</span>
+          <span class="book-card-more">Plan Your Wedding &rarr;</span>
         </a>
         <a href="/rent/" class="book-card book-card-feature">
-          <h3>After-parties</h3>
+          <h3>After-Parties</h3>
           <p>The party after the wedding, the show or the dinner, a short walk away.</p>
-          <span class="book-card-more">Keep it going &rarr;</span>
+          <span class="book-card-more">Keep It Going &rarr;</span>
         </a>
       </div>
 
       <!-- Rates at a glance: filled from the dashboard's Pricing section; hidden if it can't load -->
       <div class="rates" id="home-rates" hidden></div>
-      <p class="rates-foot" data-animate><a href="/rent/pricing/">See all rates &amp; availability &rarr;</a></p>
+      <p class="rates-foot" data-animate><a href="/rent/pricing/">See All Rates &amp; Availability &rarr;</a></p>
 
       <div class="wedding-band" data-animate>
         <img src="/IMG_0207.jpg" alt="An evening wedding reception outdoors, with lanterns and fairy lights in a tree" loading="lazy">
         <div>
           <span class="eyebrow">For couples</span>
-          <h3>Say "I do" in the afternoon. Dance into the night. Walk home.</h3>
+          <h3>Say &ldquo;I Do&rdquo; in the Afternoon. Dance into the Night. Walk Home.</h3>
           <p>Ceremony in the Auditorium, dinner under the lights, and your guests' hotels just down the street.</p>
           <a href="/rent/weddings/" class="btn btn-glow">Explore Weddings</a>
         </div>
@@ -416,12 +438,12 @@
       <div class="avail-layout">
         <div class="avail-intro" data-animate>
           <span class="eyebrow">Plan your date</span>
-          <h2 class="home-h2">Check a date</h2>
+          <h2 class="home-h2">Check a Date</h2>
           <p>See which dates are open, then tell us what you're planning.</p>
           <ol class="avail-steps">
-            <li><strong>Find an open date</strong><span>Purple dates on the calendar are already booked.</span></li>
-            <li><strong>Send a request</strong><span>Share your date, guest count and what you have in mind.</span></li>
-            <li><strong>We&rsquo;ll be in touch</strong><span>The team follows up to confirm the details and your rate.</span></li>
+            <li><strong>Find an Open Date</strong><span>Purple dates on the calendar are already booked.</span></li>
+            <li><strong>Send a Request</strong><span>Share your date, guest count and what you have in mind.</span></li>
+            <li><strong>We&rsquo;ll Be in Touch</strong><span>The team follows up to confirm the details and your rate.</span></li>
           </ol>
         </div>
         <div class="avail-actions" data-animate>
@@ -444,13 +466,21 @@
     </div>
   </section>
 
+  <!-- Photo strip: the rest of the venue -->
+  <div class="photo-strip photo-strip-night" role="group" aria-label="More photos of the venue">
+    <figure><img src="/images/venue-patio-dusk.jpg" alt="The patio at dusk, with umbrellas, a heater and the EVO3 sculpture" loading="lazy"><figcaption>The Patio at Dusk</figcaption></figure>
+    <figure><img src="/images/center-office.jpg" alt="The Conference Room, with a long wooden table and natural light" loading="lazy"><figcaption>Conference Room</figcaption></figure>
+    <figure><img src="/images/evo3-sculpture.jpg" alt="The EVO3 sculpture outside the Sane Living Center" loading="lazy"><figcaption>EVO3 Sculpture</figcaption></figure>
+    <figure><img src="/images/main-hall-10.jpg" alt="Draped chairs, plants and flowers in front of the stained-glass window" loading="lazy"><figcaption>Stained Glass</figcaption></figure>
+  </div>
+
   <!-- 7. Heart of town / Find Us -->
   <section class="section section-alt" id="find-us">
     <div class="home-wrap">
       <div class="find-layout">
         <div class="find-intro" data-animate>
           <span class="eyebrow">Heart of town</span>
-          <h2 class="home-h2">Leave the car. Everything's a short walk.</h2>
+          <h2 class="home-h2">Leave the Car. Everything's a Short Walk.</h2>
           <p>Meet here, dine on the Avenue, sleep around the corner.</p>
           <ul class="walk-list">
             <li><span class="walk-tag">Short walk</span><span>The Ojai Arcade &amp; Libbey Park</span></li>
@@ -487,11 +517,11 @@
   <section class="night-band section-night" id="late">
     <img src="/images/venue-purple-doors.jpg" alt="" aria-hidden="true" loading="lazy">
     <div class="home-wrap">
-      <h2>Ojai has its vortexes.<br><em class="glow">This one's open until 1am.</em></h2>
+      <h2>Ojai Has Its Vortexes.<br><em class="glow">This One&rsquo;s Open until 1&nbsp;AM.</em></h2>
       <p>Tell us your date and what you're planning. We'll take it from there.</p>
       <div class="hero-actions">
-        <a href="#availability" class="btn btn-glow">Check a date</a>
-        <a href="/contact/" class="btn btn-ghost-light">Book a walk-through</a>
+        <a href="#availability" class="btn btn-glow">Check a Date</a>
+        <a href="/contact/" class="btn btn-ghost-light">Book a Walk-Through</a>
       </div>
     </div>
   </section>
