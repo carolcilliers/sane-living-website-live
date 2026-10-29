@@ -142,18 +142,7 @@
       .book-card:hover, .book-card:focus-visible { padding-left: 0; }
     }
 
-    .rates { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); margin-top: clamp(2rem, 4vw, 2.75rem); border-top: 1px solid var(--clr-night-line); border-bottom: 1px solid var(--clr-night-line); }
-    .rates[hidden] { display: none; }
-    .rate { padding: 22px 20px; }
-    .rate + .rate { border-left: 1px solid var(--clr-night-line); }
-    .rate-label { display: block; font-family: var(--font-display); font-size: 1.5rem; font-weight: 600; color: var(--clr-on-night); line-height: 1.2; }
-    .rate-hours { display: block; font-size: 0.9rem; color: var(--clr-on-night-muted); }
-    .rate-from { display: block; margin-top: 6px; font-size: 0.95rem; font-weight: 800; color: var(--clr-glow); }
-    .rates-foot { margin: var(--space-md) 0 0; font-size: 0.95rem; }
-    @media (max-width: 700px) {
-      .rates { grid-template-columns: 1fr; }
-      .rate + .rate { border-left: 0; border-top: 1px solid var(--clr-night-line); }
-    }
+    .rates-foot { margin: var(--space-lg) 0 0; font-size: 0.95rem; }
 
     .wedding-band { display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 6fr); gap: clamp(1.75rem, 4vw, 3.5rem); align-items: center; margin-top: clamp(3rem, 6vw, 4.5rem); padding-top: clamp(2.5rem, 5vw, 3.5rem); border-top: 1px solid var(--clr-night-line); }
     .wedding-band img { width: 100%; aspect-ratio: 4 / 3; object-fit: cover; border-radius: 4px; display: block; }
@@ -322,7 +311,7 @@
       <div class="home-wrap">
         <span class="eyebrow">Downtown Ojai · <span data-site-text="hours">8 am – 1 am</span></span>
         <h1 data-site-text="homeHeading">Ojai's gathering place, <em>right in the center of town.</em></h1>
-        <p class="hero-subtitle" data-site-text="homeIntro">A downtown landmark, hiding in plain sight, is waking up. Morning meetings, afternoon workshops, evening parties and the celebration after the celebration.</p>
+        <p class="hero-subtitle" data-site-text="homeIntro">Ojai is known for its vortexes. This one just happens to be right downtown, with morning meetings, afternoon workshops, evening parties and the celebration after the celebration.</p>
         <div class="hero-actions">
           <a href="/#availability" class="btn btn-glow" data-site-href="homePrimaryUrl" data-site-text="homePrimaryLabel">Check a Date</a>
           <a href="#rent-the-space" class="btn btn-ghost-light">See Ways to Book</a>
@@ -376,7 +365,7 @@
         <div class="pillar">
           <p class="pillar-num">02</p>
           <h3>One Space, Any Hour</h3>
-          <p>Boardroom at 9, workshop at 2, reception at 7, after-party at 10. Soundproof, so the music doesn't have to stop at sundown.</p>
+          <p>Boardroom at 8, workshop at 2, reception at 7, after-party at 10. Soundproof, so the music doesn't have to stop at sundown.</p>
         </div>
         <div class="pillar">
           <p class="pillar-num">03</p>
@@ -410,7 +399,7 @@
         <a href="/rent/" class="hour-card hour-morning">
           <img src="/images/main-hall-08.jpg" alt="The Auditorium with tables in a U-shape for a meeting" loading="lazy">
           <div class="hour-card-body">
-            <span class="hour-time">9:00 am</span>
+            <span class="hour-time">8:00 am</span>
             <h3>The Meeting</h3>
             <p>Screen, sound and a short walk from your hotel.</p>
           </div>
@@ -468,7 +457,7 @@
         </a>
         <a href="/rent/weddings/" class="book-card">
           <h3>Weddings</h3>
-          <p>An intimate Ojai wedding without the estate price. Bring your own caterer.</p>
+          <p>An intimate Ojai wedding without the estate price.</p>
           <span class="book-card-more">Plan your wedding &rarr;</span>
         </a>
         <a href="/rent/" class="book-card book-card-feature">
@@ -478,8 +467,6 @@
         </a>
       </div>
 
-      <!-- Rates at a glance: filled from the dashboard's Pricing section; hidden if it can't load -->
-      <div class="rates" id="home-rates" hidden></div>
       <p class="rates-foot" data-animate><a href="/rent/pricing/">See all rates &amp; availability &rarr;</a></p>
 
       <div class="wedding-band" data-animate>
@@ -579,7 +566,7 @@
   <section class="night-band section-night" id="late">
     <img src="/images/venue-purple-doors.jpg" alt="" aria-hidden="true" loading="lazy">
     <div class="home-wrap">
-      <h2>Ojai has its vortexes.<br><em class="glow">This one&rsquo;s open until 1&nbsp;AM.</em></h2>
+      <h2>Ojai goes quiet at 9.<br><em class="glow">We don&rsquo;t have to.</em></h2>
       <p>Tell us your date and what you're planning. We'll take it from there.</p>
       <div class="hero-actions">
         <a href="#availability" class="btn btn-glow">Check a Date</a>
@@ -635,23 +622,6 @@
     }
     document.addEventListener('sane:settings-ready', accent);
   })();
-  </script>
-  <script>
-  // Rates at a glance: the lowest price in each row of the dashboard's Pricing table.
-  fetch('/content/pricing.json').then(function(r) { return r.ok ? r.json() : null; }).then(function(d) {
-    var rows = (d && d.rows) || [];
-    function esc(s) { return String(s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
-    var html = rows.slice(0, 3).map(function(r) {
-      var prices = ['monThu','friday','saturday','sunday'].map(function(k) { return parseFloat(String(r[k] || '').replace(/[^0-9.]/g, '')); }).filter(function(n) { return n > 0; });
-      if (!r.label || !prices.length) return '';
-      var low = Math.min.apply(null, prices);
-      return '<div class="rate"><span class="rate-label">' + esc(r.label) + '</span><span class="rate-hours">' + esc(r.sublabel) + '</span><span class="rate-from">from $' + low.toLocaleString('en-US') + '</span></div>';
-    }).join('');
-    if (!html) return;
-    var box = document.getElementById('home-rates');
-    box.innerHTML = html;
-    box.hidden = false;
-  }).catch(function() {});
   </script>
   <script>
   (function() {
