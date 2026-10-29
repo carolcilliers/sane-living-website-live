@@ -143,3 +143,10 @@ Rules of thumb:
 - Voice: warm, confident, a little insider ("Ojai goes quiet at 9. We don't have to.").
   Daytime use is as important as nighttime; never pitch the venue as only after-hours.
 - The home headline's text after the first comma renders in the glow italic.
+
+V4 additions (Oct 29): a faint film-grain texture (`--grain`) sits on every `.section-night`,
+and the shared footer is now a night footer (deep plum, glow headings, white logo).
+Home page personality pieces: the "Behind the purple doors" story, a fact strip of real
+numbers, sun → moon time markers with a filling day line, and a moving wall of real
+past-event flyers ("Recently at the Center"). Use only real facts and real event material;
+never invented reviews or numbers.

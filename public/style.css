@@ -1494,3 +1494,27 @@ p, li, dd, figcaption { text-wrap: pretty; }
   color: var(--clr-plum);
 }
 .time-tag-night { background: var(--clr-night); color: var(--clr-glow); }
+
+/* ---- V4: film grain for evening sections, and the night footer ---- */
+:root {
+  --grain: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 0.075 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+.section-night, .grain { background-image: var(--grain); }
+
+#site-footer.site-footer { background-color: var(--clr-night-deep); background-image: var(--grain); color: var(--clr-on-night-muted); border-top: 1px solid var(--clr-night-line); }
+.site-footer a { color: var(--clr-on-night); }
+.site-footer a:hover { color: var(--clr-glow); }
+.site-footer .footer-top, .site-footer .footer-bottom { border-color: var(--clr-night-line); }
+.site-footer .mc-signup-footer h4 { color: var(--clr-on-night); }
+.site-footer .footer-newsletter-description, .site-footer .footer-note, .site-footer .footer-copy, .site-footer .footer-team { color: var(--clr-on-night-muted); }
+.site-footer .mc-signup-footer input[type="email"] { background: rgba(255, 255, 255, 0.06); border-color: var(--clr-night-line); color: var(--clr-on-night); }
+.site-footer .mc-signup-footer input[type="email"]::placeholder { color: #a596ad; }
+.site-footer .mc-signup-footer input[type="email"]:focus { background: rgba(255, 255, 255, 0.1); border-color: var(--clr-glow); }
+.site-footer .mc-signup-footer button { background: var(--clr-glow); color: var(--clr-night); box-shadow: none; }
+.site-footer .mc-signup-footer button:hover { background: var(--clr-glow-hover); }
+.site-footer .footer-logo img { filter: brightness(0) invert(1); opacity: 0.92; }
+.site-footer .footer-heading { color: var(--clr-glow); }
+.site-footer .footer-address, .site-footer .footer-contact, .site-footer .footer-hours { color: var(--clr-on-night-muted); }
+.site-footer .footer-links a { color: var(--clr-on-night); }
+.site-footer .footer-links a:hover, .site-footer .footer-team:hover { color: var(--clr-glow); }
+.site-footer .footer-more { border-color: var(--clr-glow); }

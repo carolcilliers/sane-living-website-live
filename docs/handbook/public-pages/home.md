@@ -27,7 +27,7 @@ Scripts:
 - `data-site-text=hours`
 - `data-site-text=phoneDisplay`
 
-Source IDs: `site-nav`, `top`, `eventsSection`, `eventsGrid`, `why-here`, `any-hour`, `rent-the-space` (now "Ways to book"), `availability`, `home-availability-note`, `find-us`, `late`, `site-footer`.
+Source IDs: `site-nav`, `top`, `eventsSection`, `eventsGrid`, `story`, `why-here`, `any-hour`, `rent-the-space` (now "Ways to book"), `recently` (past-event flyers, same images as /events/), `availability`, `home-availability-note`, `find-us`, `late`, `site-footer`.
 
 Design: V4 "day into night" (see DESIGN.md).
 
