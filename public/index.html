@@ -230,6 +230,62 @@
     .night-band h2 em { font-weight: 500; }
     .night-band p { font-size: 1.15rem; line-height: 1.65; max-width: 34rem; margin: 0 auto var(--space-xl); color: #e2d6e8; }
     .night-band .hero-actions { justify-content: center; }
+
+    /* ============ Motion & polish (all switched off for reduced-motion visitors) ============ */
+    /* Scroll cue in the hero */
+    .hero-cue { position: absolute; right: var(--space-lg); bottom: clamp(3.5rem, 9vh, 6rem); z-index: 2; display: flex; flex-direction: column; align-items: center; gap: 12px; color: rgba(255, 255, 255, 0.8); font-size: 11px; font-weight: 800; letter-spacing: 0.24em; text-transform: uppercase; writing-mode: vertical-rl; text-decoration: none; }
+    .hero-cue:hover { color: var(--clr-glow); }
+    .hero-cue::after { content: ""; width: 1px; height: 64px; background: linear-gradient(rgba(255,255,255,0.85), rgba(255,255,255,0)); transform-origin: top; }
+    @media (max-width: 760px) { .hero-cue { display: none; } }
+
+    /* Ticker of event types under the hero */
+    .ticker { background: var(--clr-night-deep); color: var(--clr-on-night); overflow: hidden; padding: 18px 0; border-top: 1px solid var(--clr-night-line); }
+    .ticker-track { display: flex; width: max-content; }
+    .ticker-list { display: flex; flex: none; margin: 0; padding: 0; list-style: none; }
+    .ticker-list li { display: flex; align-items: center; gap: 28px; padding-right: 28px; font-family: var(--font-display); font-size: clamp(1.25rem, 2vw, 1.6rem); font-style: italic; white-space: nowrap; }
+    .ticker-list li::after { content: ""; width: 6px; height: 6px; border-radius: 50%; background: var(--clr-glow); flex: none; }
+
+    /* Parallax photos: a little larger than their frame so they can drift */
+    .photo-strip img, .night-band > img { transform: translate3d(0, var(--py, 0px), 0) scale(var(--ps, 1.12)); }
+    .photo-strip figure:hover img { --ps: 1.17; transform: translate3d(0, var(--py, 0px), 0) scale(var(--ps)); }
+
+    @media (prefers-reduced-motion: no-preference) {
+      /* Hero entrance: video eases in from a slow zoom, words rise one after another */
+      .hero-half video { animation: heroZoom 14s var(--ease-soft) both; }
+      .hero-copy .eyebrow, .hero-copy h1, .hero-copy .hero-subtitle, .hero-copy .hero-actions { animation: heroRise 1.1s var(--ease-soft) both; }
+      .hero-copy h1 { animation-delay: 0.15s; }
+      .hero-copy .hero-subtitle { animation-delay: 0.35s; }
+      .hero-copy .hero-actions { animation-delay: 0.55s; }
+      .hero-cue { animation: heroFade 1.2s ease 1.2s both; }
+      .hero-cue::after { animation: cueLine 2.4s ease-in-out 2s infinite; }
+      @keyframes heroZoom { from { transform: scale(1.12); } to { transform: scale(1); } }
+      @keyframes heroRise { from { opacity: 0; transform: translateY(28px); } to { opacity: 1; transform: none; } }
+      @keyframes heroFade { from { opacity: 0; } to { opacity: 1; } }
+      @keyframes cueLine { 0% { transform: scaleY(0); opacity: 1; } 60% { transform: scaleY(1); opacity: 1; } 100% { transform: scaleY(1); opacity: 0; } }
+
+      .ticker-track { animation: tick 48s linear infinite; }
+      .ticker:hover .ticker-track { animation-play-state: paused; }
+      @keyframes tick { to { transform: translateX(-50%); } }
+
+      /* Day-in-the-life panels: the one you point at opens wider */
+      @media (min-width: 1001px) {
+        .hours { display: flex; }
+        .hour-card { flex: 1 1 0; transition: flex-grow 0.7s var(--ease-soft); }
+        .hours:hover .hour-card { flex-grow: 0.85; }
+        .hours .hour-card:hover, .hours .hour-card:focus-visible { flex-grow: 1.6; }
+      }
+
+      /* Slower, softer reveals on this page */
+      [data-animate] { transition-duration: 0.9s; transition-timing-function: var(--ease-soft); }
+      [data-animate-stagger] > * { transition: opacity 0.9s var(--ease-soft), transform 0.9s var(--ease-soft); transform: translateY(28px); }
+      .photo-strip[data-animate-stagger] > * { transform: none; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      .photo-strip img, .night-band > img { --ps: 1; --py: 0px; }
+      .ticker-track { flex-wrap: wrap; width: auto; justify-content: center; }
+      .ticker-list[aria-hidden="true"] { display: none; }
+      .ticker-list { flex-wrap: wrap; justify-content: center; }
+    }
   </style>
 
   <meta property="og:title" content="Sane Living — Downtown Ojai&#39;s Premiere Event Space">
@@ -273,7 +329,20 @@
         </div>
       </div>
     </div>
+    <a href="#why-here" class="hero-cue">Explore</a>
   </section>
+
+  <!-- Ticker: everything the space is booked for -->
+  <div class="ticker" role="region" aria-label="Kinds of events we host">
+    <div class="ticker-track">
+      <ul class="ticker-list">
+        <li>Meetings</li><li>Workshops</li><li>Film Screenings</li><li>Receptions</li><li>Concerts</li><li>Weddings</li><li>Retreats</li><li>Launch Parties</li><li>After-Parties</li>
+      </ul>
+      <ul class="ticker-list" aria-hidden="true">
+        <li>Meetings</li><li>Workshops</li><li>Film Screenings</li><li>Receptions</li><li>Concerts</li><li>Weddings</li><li>Retreats</li><li>Launch Parties</li><li>After-Parties</li>
+      </ul>
+    </div>
+  </div>
 
   <!-- 2. Upcoming Public Events (auto-hidden when empty) -->
   <section class="section events-section" id="eventsSection">
@@ -298,7 +367,7 @@
         <span class="eyebrow">Why here</span>
         <h2 class="home-h2">The One Space in Ojai That Works from Coffee to Last Call</h2>
       </div>
-      <div class="pillars" data-animate>
+      <div class="pillars" data-animate-stagger>
         <div class="pillar">
           <p class="pillar-num">01</p>
           <h3>Heart of Town</h3>
@@ -319,7 +388,7 @@
   </section>
 
   <!-- Photo strip: the building and its moods -->
-  <div class="photo-strip" role="group" aria-label="Photos of the venue">
+  <div class="photo-strip" data-animate-stagger role="group" aria-label="Photos of the venue">
     <figure><img src="/images/venue-auditorium-open-doors.jpg" alt="The Auditorium with its folding glass doors open to the lobby" loading="lazy"><figcaption>The Auditorium</figcaption></figure>
     <figure><img src="/images/venue-lobby-art.jpg" alt="The lobby, with a wooden ceiling and large colorful paintings" loading="lazy"><figcaption>The Lobby</figcaption></figure>
     <figure><img src="/IMG_0197.jpg" alt="A candlelit wedding ceremony aisle with fairy lights" loading="lazy"><figcaption>Ceremonies</figcaption></figure>
@@ -460,7 +529,7 @@
   </section>
 
   <!-- Photo strip: the rest of the venue -->
-  <div class="photo-strip photo-strip-night" role="group" aria-label="More photos of the venue">
+  <div class="photo-strip photo-strip-night" data-animate-stagger role="group" aria-label="More photos of the venue">
     <figure><img src="/images/venue-patio-dusk.jpg" alt="The patio at dusk, with umbrellas, a heater and the EVO3 sculpture" loading="lazy"><figcaption>The Patio at Dusk</figcaption></figure>
     <figure><img src="/images/center-office.jpg" alt="The Conference Room, with a long wooden table and natural light" loading="lazy"><figcaption>Conference Room</figcaption></figure>
     <figure><img src="/images/evo3-sculpture.jpg" alt="The EVO3 sculpture outside the Sane Living Center" loading="lazy"><figcaption>EVO3 Sculpture</figcaption></figure>
@@ -522,6 +591,28 @@
   <footer id="site-footer"></footer>
 
   <script src="/script.js"></script>
+  <script>
+  // Gentle parallax: photos in the strips and the closing band drift a little as you scroll.
+  (function() {
+    if (!window.matchMedia || window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    var imgs = Array.prototype.slice.call(document.querySelectorAll('.photo-strip img, .night-band > img'));
+    var ticking = false;
+    function update() {
+      ticking = false;
+      var vh = window.innerHeight;
+      imgs.forEach(function(img) {
+        var r = img.parentNode.getBoundingClientRect();
+        if (r.bottom < -100 || r.top > vh + 100) return;
+        var progress = (r.top + r.height / 2 - vh / 2) / (vh / 2 + r.height / 2); // -1 .. 1
+        img.style.setProperty('--py', (progress * -5).toFixed(2) + '%');
+      });
+    }
+    function onScroll() { if (!ticking) { ticking = true; requestAnimationFrame(update); } }
+    window.addEventListener('scroll', onScroll, { passive: true });
+    window.addEventListener('resize', onScroll);
+    update();
+  })();
+  </script>
   <script>
   // The calendar's legend uses the same wording as the Rates & Availability page (edited in the dashboard's Pricing section).
   fetch('/content/pricing.json').then(function(r) { return r.ok ? r.json() : null; }).then(function(d) {
