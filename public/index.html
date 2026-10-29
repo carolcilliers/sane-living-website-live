@@ -255,18 +255,6 @@
     .included-links { grid-column: 1 / -1; display: flex; flex-wrap: wrap; gap: var(--space-sm) var(--space-xl); margin: var(--space-sm) 0 0; font-size: 0.95rem; }
     @media (max-width: 760px) { .included { grid-template-columns: 1fr; } }
 
-    /* ---- Recently at the Center: a moving wall of real event flyers ---- */
-    .recent-home { padding-top: 0; overflow: hidden; }
-    .recent-head { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) auto; gap: var(--space-lg) var(--space-xl); align-items: end; padding-top: clamp(3rem, 6vw, 4.5rem); border-top: 1px solid var(--clr-night-line); margin-bottom: clamp(2rem, 4vw, 3rem); }
-    .recent-head .home-h2 { margin: 0; }
-    .recent-head p { margin: 0; font-size: 1.02rem; }
-    @media (max-width: 860px) { .recent-head { grid-template-columns: 1fr; align-items: start; } }
-    .flyer-marquee { overflow: hidden; }
-    .flyer-track { display: flex; width: max-content; }
-    .flyer-list { display: flex; gap: 18px; margin: 0; padding: 0 18px 0 0; list-style: none; flex: none; }
-    .flyer-list a { display: block; height: clamp(240px, 26vw, 340px); border-radius: 4px; overflow: hidden; box-shadow: 0 18px 40px rgba(0, 0, 0, 0.35); transition: transform 0.4s var(--ease-soft); }
-    .flyer-list a:hover, .flyer-list a:focus-visible { transform: translateY(-6px) rotate(-1deg); }
-    .flyer-list img { height: 100%; width: auto; display: block; border-radius: 0; }
     .ticker { background-image: var(--grain); }
     .night-band { background-image: var(--grain); }
 
@@ -304,8 +292,6 @@
 
       .ticker-track { animation: tick 48s linear infinite; }
       .ticker:hover .ticker-track { animation-play-state: paused; }
-      .flyer-track { animation: tick 70s linear infinite; }
-      .flyer-marquee:hover .flyer-track, .flyer-marquee:focus-within .flyer-track { animation-play-state: paused; }
       @keyframes tick { to { transform: translateX(-50%); } }
 
       /* Day-in-the-life panels: the one you point at opens wider */
@@ -326,8 +312,6 @@
       .ticker-track { flex-wrap: wrap; width: auto; justify-content: center; }
       .ticker-list[aria-hidden="true"] { display: none; }
       .ticker-list { flex-wrap: wrap; justify-content: center; }
-      .flyer-marquee { overflow-x: auto; }
-      .flyer-list[aria-hidden="true"] { display: none; }
     }
   </style>
 
@@ -564,22 +548,15 @@
     </div>
   </section>
 
-  <!-- Recently at the Center: real past-event flyers (same images as the Events page) -->
-  <section class="section section-night recent-home" id="recently">
+  <!-- Night band: "Ojai goes quiet at 9" -->
+  <section class="night-band section-night" id="late">
+    <img src="/images/venue-auditorium-glass-doors.jpg" alt="" aria-hidden="true" loading="lazy">
     <div class="home-wrap">
-      <div class="recent-head" data-animate>
-        <div>
-          <span class="eyebrow">Lately</span>
-          <h2 class="home-h2">Recently at the Center</h2>
-        </div>
-        <p>Concerts, workshops, gatherings and film nights from the past few months.</p>
-        <a href="/events/#recent" class="btn btn-ghost-light">See Past Events</a>
-      </div>
-    </div>
-    <div class="flyer-marquee" data-animate>
-      <div class="flyer-track">
-        <ul class="flyer-list"><li><a href="/events/#recent"><img src="/images/events-past/Amma-2026-Ojai-Flyer-web-2.jpg" alt="Flyer: Amma Ojai" loading="lazy"></a></li><li><a href="/events/#recent"><img src="/images/events-past/Leland-1-31-26.jpg" alt="Flyer: Leland" loading="lazy"></a></li><li><a href="/events/#recent"><img src="/images/events-past/Kalbeliya-1-30-26.jpg" alt="Flyer: Kalbeliya" loading="lazy"></a></li><li><a href="/events/#recent"><img src="/images/events-past/Chamber-1-28-26.jpg" alt="Flyer: Chamber" loading="lazy"></a></li><li><a href="/events/#recent"><img src="/images/events-past/WORLD-WITHOUT-COWS.jpg" alt="Flyer: World Without Cows" loading="lazy"></a></li><li><a href="/events/#recent"><img src="/images/events-past/Tahi-1000082920.jpg" alt="Flyer: Tahi" loading="lazy"></a></li><li><a href="/events/#recent"><img src="/images/events-past/CLOWN-WORKSHOP-NEW-FLYER.jpg" alt="Flyer: Clown Workshop" loading="lazy"></a></li><li><a href="/events/#recent"><img src="/images/events-past/Paranadyn.jpg" alt="Flyer: Paranadyn" loading="lazy"></a></li><li><a href="/events/#recent"><img src="/images/events-past/St-Nam-Rasayan_2025.jpg" alt="Flyer: Sat Nam Rasayan" loading="lazy"></a></li><li><a href="/events/#recent"><img src="/images/events-past/Ojai-Community-event.jpg" alt="Flyer: Ojai Community Event" loading="lazy"></a></li><li><a href="/events/#recent"><img src="/images/events-past/Grof-Breathwork-flyer.jpg" alt="Flyer: Grof Breathwork" loading="lazy"></a></li><li><a href="/events/#recent"><img src="/images/events-past/Donna-August-2025.jpg" alt="Flyer: Donna" loading="lazy"></a></li></ul>
-        <ul class="flyer-list" aria-hidden="true"><li><a href="/events/#recent" tabindex="-1"><img src="/images/events-past/Amma-2026-Ojai-Flyer-web-2.jpg" alt="" loading="lazy"></a></li><li><a href="/events/#recent" tabindex="-1"><img src="/images/events-past/Leland-1-31-26.jpg" alt="" loading="lazy"></a></li><li><a href="/events/#recent" tabindex="-1"><img src="/images/events-past/Kalbeliya-1-30-26.jpg" alt="" loading="lazy"></a></li><li><a href="/events/#recent" tabindex="-1"><img src="/images/events-past/Chamber-1-28-26.jpg" alt="" loading="lazy"></a></li><li><a href="/events/#recent" tabindex="-1"><img src="/images/events-past/WORLD-WITHOUT-COWS.jpg" alt="" loading="lazy"></a></li><li><a href="/events/#recent" tabindex="-1"><img src="/images/events-past/Tahi-1000082920.jpg" alt="" loading="lazy"></a></li><li><a href="/events/#recent" tabindex="-1"><img src="/images/events-past/CLOWN-WORKSHOP-NEW-FLYER.jpg" alt="" loading="lazy"></a></li><li><a href="/events/#recent" tabindex="-1"><img src="/images/events-past/Paranadyn.jpg" alt="" loading="lazy"></a></li><li><a href="/events/#recent" tabindex="-1"><img src="/images/events-past/St-Nam-Rasayan_2025.jpg" alt="" loading="lazy"></a></li><li><a href="/events/#recent" tabindex="-1"><img src="/images/events-past/Ojai-Community-event.jpg" alt="" loading="lazy"></a></li><li><a href="/events/#recent" tabindex="-1"><img src="/images/events-past/Grof-Breathwork-flyer.jpg" alt="" loading="lazy"></a></li><li><a href="/events/#recent" tabindex="-1"><img src="/images/events-past/Donna-August-2025.jpg" alt="" loading="lazy"></a></li></ul>
+      <h2>Ojai goes quiet at 9.<br><em class="glow">We don&rsquo;t have to.</em></h2>
+      <p>Tell us your date and what you're planning. We'll take it from there.</p>
+      <div class="hero-actions">
+        <a href="#availability" class="btn btn-glow">Check a Date</a>
+        <a href="/contact/" class="btn btn-ghost-light">Book a Walk-Through</a>
       </div>
     </div>
   </section>
@@ -661,19 +638,6 @@
             referrerpolicy="no-referrer-when-downgrade"
           ></iframe>
         </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- 8. Closing night band -->
-  <section class="night-band section-night" id="late">
-    <img src="/images/venue-auditorium-glass-doors.jpg" alt="" aria-hidden="true" loading="lazy">
-    <div class="home-wrap">
-      <h2>Ojai goes quiet at 9.<br><em class="glow">We don&rsquo;t have to.</em></h2>
-      <p>Tell us your date and what you're planning. We'll take it from there.</p>
-      <div class="hero-actions">
-        <a href="#availability" class="btn btn-glow">Check a Date</a>
-        <a href="/contact/" class="btn btn-ghost-light">Book a Walk-Through</a>
       </div>
     </div>
   </section>
