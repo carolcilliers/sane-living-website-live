@@ -128,17 +128,18 @@
     .book-head .home-lede { margin: var(--space-md) 0 0; }
     /* Ways to book as an editorial list: big titles on lines, no boxes */
     .book-grid { display: flex; flex-direction: column; border-bottom: 1px solid var(--clr-night-line); }
-    .book-card { display: grid; grid-template-columns: minmax(0, 4fr) minmax(0, 6fr) 13rem; align-items: baseline; gap: var(--space-lg) clamp(1.5rem, 4vw, 3rem); padding: clamp(1.4rem, 2.6vw, 2rem) 0; border-top: 1px solid var(--clr-night-line); text-decoration: none; transition: padding 0.35s var(--ease-soft); }
+    .book-card { display: grid; grid-template-columns: minmax(0, 4fr) minmax(0, 6fr) 3rem; align-items: baseline; gap: var(--space-lg) clamp(1.5rem, 4vw, 3rem); padding: clamp(1.4rem, 2.6vw, 2rem) 0; border-top: 1px solid var(--clr-night-line); text-decoration: none; transition: padding 0.35s var(--ease-soft); }
     .section-night a.book-card { color: var(--clr-on-night); }
     .book-card h3 { font-size: clamp(2rem, 4vw, 3.2rem); font-weight: 500; line-height: 1.05; margin: 0; transition: color 0.3s ease; }
     .book-card p { margin: 0; font-size: 1.02rem; line-height: 1.6; }
-    .book-card-more { font-size: 12px; font-weight: 800; letter-spacing: 0.14em; text-transform: uppercase; color: var(--clr-glow); white-space: nowrap; text-align: right; }
+    .book-card-more { font-size: 1.5rem; line-height: 1; color: var(--clr-glow); text-align: right; transition: transform 0.3s var(--ease-soft); }
+    .book-card:hover .book-card-more, .book-card:focus-visible .book-card-more { transform: translateX(6px); }
     .book-card:hover, .book-card:focus-visible { padding-left: 14px; }
     .section-night .book-card:hover h3, .section-night .book-card:focus-visible h3 { color: var(--clr-glow); }
     .section-night .book-card-feature h3 { color: var(--clr-glow); font-style: italic; }
     @media (max-width: 760px) {
       .book-card { grid-template-columns: 1fr; gap: 8px; }
-      .book-card-more { text-align: left; }
+      .book-card-more { display: none; }
       .book-card:hover, .book-card:focus-visible { padding-left: 0; }
     }
 
@@ -150,6 +151,8 @@
     .wedding-band p { margin: 0 0 var(--space-lg); font-size: 1.05rem; line-height: 1.7; }
     @media (max-width: 800px) { .wedding-band { grid-template-columns: 1fr; } }
 
+    .text-link { font-weight: 700; font-size: 0.98rem; border-bottom: 1px solid currentColor; padding-bottom: 3px; }
+    .night-band .home-wrap p { margin-bottom: 0; }
     /* ---- 6. Availability: a short "how booking works" guide beside the live calendar ---- */
     .avail-layout {
       display: grid;
@@ -352,7 +355,6 @@
         <p class="hero-subtitle" data-site-text="homeIntro">Ojai is known for its vortexes. This one just happens to be right downtown, with morning meetings, afternoon workshops, evening parties and the celebration after the celebration.</p>
         <div class="hero-actions">
           <a href="/#availability" class="btn btn-glow" data-site-href="homePrimaryUrl" data-site-text="homePrimaryLabel">Check a Date</a>
-          <a href="#rent-the-space" class="btn btn-ghost-light">See Ways to Book</a>
         </div>
       </div>
     </div>
@@ -504,27 +506,27 @@
         <a href="/rent/" class="book-card">
           <div><h3>Meetings</h3><span class="book-cap">Up to 110 seated</span></div>
           <p>Offsites and team days for groups staying in town. The conference room seats a smaller team.</p>
-          <span class="book-card-more">Plan a meeting &rarr;</span>
+          <span class="book-card-more" aria-hidden="true">&rarr;</span>
         </a>
         <a href="/rent/" class="book-card">
           <div><h3>Workshops</h3><span class="book-cap">Up to 110 seated</span></div>
           <p>Classes, talks, screenings and retreats.</p>
-          <span class="book-card-more">Host a workshop &rarr;</span>
+          <span class="book-card-more" aria-hidden="true">&rarr;</span>
         </a>
         <a href="/rent/" class="book-card">
           <div><h3>Celebrations</h3><span class="book-cap">Up to 225 standing</span></div>
           <p>Birthdays, launches, film screenings, dinners and shows.</p>
-          <span class="book-card-more">Plan a party &rarr;</span>
+          <span class="book-card-more" aria-hidden="true">&rarr;</span>
         </a>
         <a href="/rent/weddings/" class="book-card">
           <div><h3>Weddings</h3><span class="book-cap">Up to 110 seated</span></div>
           <p>An intimate Ojai wedding without the estate price.</p>
-          <span class="book-card-more">Plan your wedding &rarr;</span>
+          <span class="book-card-more" aria-hidden="true">&rarr;</span>
         </a>
         <a href="/rent/" class="book-card book-card-feature">
           <div><h3>After-Parties</h3><span class="book-cap">Up to 225 standing</span></div>
           <p>The party after the wedding, the show or the dinner, a short walk away.</p>
-          <span class="book-card-more">Keep it going &rarr;</span>
+          <span class="book-card-more" aria-hidden="true">&rarr;</span>
         </a>
       </div>
 
@@ -533,7 +535,7 @@
         <ul class="included-list">
           <li>A stage</li><li>Projector &amp; screen</li><li>Sound system</li><li>Theatre lighting</li><li>Soundproof walls</li>
         </ul>
-        <p class="included-links"><a href="/contact/">Ask for the floor plan &amp; tech specs &rarr;</a><a href="/rent/pricing/">See all rates &amp; availability &rarr;</a></p>
+        <p class="included-links"><a href="/contact/">Ask for the floor plan &amp; tech specs &rarr;</a></p>
       </div>
 
       <div class="wedding-band" data-animate>
@@ -542,7 +544,7 @@
           <span class="eyebrow">For couples</span>
           <h3>Say &ldquo;I do&rdquo; in the afternoon. Dance into the night. Walk home.</h3>
           <p>Ceremony in the Auditorium, dinner under the lights, and your guests' hotels just down the street.</p>
-          <a href="/rent/weddings/" class="btn btn-glow">Explore Weddings</a>
+          <a href="/rent/weddings/" class="text-link">Explore weddings &rarr;</a>
         </div>
       </div>
     </div>
@@ -553,11 +555,7 @@
     <img src="/images/venue-auditorium-glass-doors.jpg" alt="" aria-hidden="true" loading="lazy">
     <div class="home-wrap">
       <h2>Ojai goes quiet at 9.<br><em class="glow">We don&rsquo;t have to.</em></h2>
-      <p>Tell us your date and what you're planning. We'll take it from there.</p>
-      <div class="hero-actions">
-        <a href="#availability" class="btn btn-glow">Check a Date</a>
-        <a href="/contact/" class="btn btn-ghost-light">Book a Walk-Through</a>
-      </div>
+      <p>Pick a date below and tell us what you're planning. We'll take it from there.</p>
     </div>
   </section>
 
