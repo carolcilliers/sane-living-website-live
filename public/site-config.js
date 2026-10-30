@@ -9,6 +9,7 @@
     { route: '/events/', label: 'Events', visible: true },
     { route: '/rent/', label: 'Rent', visible: true },
     { route: '/rent/weddings/', label: 'Weddings', visible: true },
+    { route: '/gallery/', label: 'Gallery', visible: true },
     { route: '/sculpture/', label: 'Sculpture', visible: true },
     { route: '/about/', label: 'About', visible: true },
     { route: '/contact/', label: 'Contact', visible: true }

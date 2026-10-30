@@ -35,15 +35,16 @@ function injectNav() {
         <li><a href="/"${isActive(currentPath, '/')}>Home</a></li>
         <li><a href="/events/"${isActive(currentPath, '/events/')}>Events</a></li>
         <li class="nav-dropdown">
-          <a href="/rent/"${isActive(currentPath, '/rent/')}>Rent</a>
+          <a href="/rent/"${isActive(currentPath, '/rent/')}>Rent the Space</a>
           <div class="nav-dropdown-menu">
-            <a href="/rent/">Rent the Space</a>
+            <a href="/rent/#spaces">The Spaces</a>
+            <a href="/rent/#occasions">Occasions</a>
             <a href="/rent/pricing/">Rates &amp; Availability</a>
-            <a href="/gallery/">Photo Gallery</a>
             <a href="/partners/">Our Partners</a>
           </div>
         </li>
         <li><a href="/rent/weddings/"${isActive(currentPath, '/rent/weddings/')}>Weddings</a></li>
+        <li><a href="/gallery/"${isActive(currentPath, '/gallery/')}>Gallery</a></li>
         <li><a href="/sculpture/"${isActive(currentPath, '/sculpture/')}>Sculpture</a></li>
         <li class="nav-dropdown">
           <a href="/about/"${isActive(currentPath, '/about/')}>About</a>

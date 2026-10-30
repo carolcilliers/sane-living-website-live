@@ -43,12 +43,17 @@
     },
     {
       "route": "/rent/",
-      "label": "Rent",
+      "label": "Rent the Space",
       "visible": true
     },
     {
       "route": "/rent/weddings/",
       "label": "Weddings",
+      "visible": true
+    },
+    {
+      "route": "/gallery/",
+      "label": "Gallery",
       "visible": true
     },
     {

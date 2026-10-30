@@ -80,6 +80,7 @@ const MENU = [
   "/events/",
   "/rent/",
   "/rent/weddings/",
+  "/gallery/",
   "/sculpture/",
   "/about/",
   "/contact/",
