@@ -9,7 +9,9 @@
   <style>
     /* ---- Gallery as a guided story: intro → ways to use the Auditorium → other spaces → invitation ---- */
     .gallery-intro { max-width: 760px; margin: 0 auto; text-align: center; }
-    .gallery-intro h2 { margin-bottom: var(--space-md); }
+    #gallery-intro { padding-top: calc(var(--nav-height) + clamp(3rem, 7vw, 5rem)); }
+    .gallery-intro h1 { font-size: clamp(2.6rem, 5.5vw, 4.2rem); font-weight: 600; line-height: 1.05; color: var(--clr-plum); margin-bottom: var(--space-md); }
+    .gallery-intro .gallery-lede { font-variant-numeric: lining-nums; font-family: var(--font-display); font-style: italic; font-size: clamp(1.35rem, 2.2vw, 1.7rem); line-height: 1.4; color: var(--clr-plum); margin-bottom: var(--space-md); }
     .gallery-intro p { font-size: 1.05rem; line-height: 1.75; }
 
     .gallery-jump { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; margin-top: var(--space-xl); }
@@ -91,19 +93,12 @@
 
   <nav id="site-nav"></nav>
 
-  <section class="page-hero">
-    <div class="container">
-      <span class="label">Sane Living Center</span>
-      <h1>Photo Gallery</h1>
-      <p>See how people gather at 316 E. Matilija St, Ojai — then picture your own event here.</p>
-    </div>
-  </section>
 
   <section class="section" id="gallery-intro">
     <div class="container">
       <div class="gallery-intro" data-animate>
-        <span class="chapter-eyebrow">The Auditorium</span>
-        <h2>One room, many ways to gather</h2>
+        <h1>One Room, Many Ways to Gather</h1>
+        <p class="gallery-lede">See how people gather at 316 E Matilija St, Ojai, then picture your own event here.</p>
         <p>The Auditorium has hosted conferences, film screenings, concerts, lectures and workshops, meditation circles, community events and private celebrations. Scroll through how others have made it their own.</p>
         <nav class="gallery-jump" id="gallery-jump" aria-label="Jump to a part of the gallery"></nav>
       </div>
@@ -116,7 +111,7 @@
 
   <section class="section gallery-closing" id="gallery-closing">
     <div class="container" data-animate>
-      <h2>Picture your event here</h2>
+      <h2>Picture Your Event Here</h2>
       <p>Tell us what you have in mind and we’ll help you find the right setup, date and rate.</p>
       <div class="btn-row">
         <a data-site-booking href="/rent/pricing/" class="btn btn-primary">See Rates &amp; Availability</a>
@@ -144,28 +139,28 @@
     // which decides which Auditorium story below they appear in. Photos without a group still appear,
     // under "Around the venue", so nothing uploaded is ever hidden.
     var CHAPTERS = [
-      { id: 'talks', section: 'venue', group: 'talks', eyebrow: 'Auditorium', title: 'Talks & workshops',
+      { id: 'talks', section: 'venue', group: 'talks', eyebrow: 'Auditorium', title: 'Talks & Workshops',
         text: 'Rows of seating face the stage, with the projector, sound system and stage lighting ready for speakers, screenings and teachers.',
         cta: 'Plan a talk or workshop', href: '/rent/pricing/' },
-      { id: 'wellness', section: 'venue', group: 'wellness', eyebrow: 'Auditorium', title: 'Wellness & circles',
+      { id: 'wellness', section: 'venue', group: 'wellness', eyebrow: 'Auditorium', title: 'Wellness & Circles',
         text: 'Clear the chairs and the open floor becomes a calm space for meditation, breathwork, sound baths and sharing circles, lit by the stained-glass window.',
         cta: 'Host a retreat or circle', href: '/rent/pricing/' },
-      { id: 'receptions', section: 'venue', group: 'receptions', eyebrow: 'Auditorium', title: 'Receptions & gatherings',
+      { id: 'receptions', section: 'venue', group: 'receptions', eyebrow: 'Auditorium', title: 'Receptions & Gatherings',
         text: 'Round tables, cocktail tables and a long buffet fit comfortably, with the big screen for slideshows and speeches.',
         cta: 'Plan a reception', href: '/rent/pricing/' },
-      { id: 'performances', section: 'venue', group: 'performances', eyebrow: 'Auditorium', title: 'Concerts & performances',
-        text: 'Modular stage risers, house speakers and theatre lighting make room for anything from a full band to an intimate acoustic set.',
+      { id: 'performances', section: 'venue', group: 'performances', eyebrow: 'Auditorium', title: 'Concerts & Performances',
+        text: 'Modular stage risers, house speakers and theater lighting make room for anything from a full band to an intimate acoustic set.',
         cta: 'Book a performance', href: '/rent/pricing/' },
-      { id: 'meetings', section: 'venue', group: 'meetings', eyebrow: 'Auditorium', title: 'Meetings & classes',
-        text: 'Tables can be set in a U-shape, classroom rows or small groups, with screens for presentations.',
+      { id: 'meetings', section: 'venue', group: 'meetings', eyebrow: 'Auditorium · Conference Room · Annex Flex Space', title: 'Meetings & Classes',
+        text: 'Tables can be set in a U-shape, classroom rows or small groups, with screens for presentations, in the Auditorium, the Conference Room or the Annex.',
         cta: 'Book a meeting space', href: '/rent/pricing/' },
-      { id: 'venue', section: 'venue', group: null, eyebrow: 'The Venue', title: 'Around the venue',
-        text: 'More views of the Sane Living Center and its spaces.',
-        cta: 'See rates & availability', href: '/rent/pricing/' },
       { id: 'weddings', section: 'weddings', eyebrow: 'Weddings', title: 'Weddings',
         text: 'Ceremonies, receptions and celebrations at Sane Living.',
         cta: 'Explore weddings', href: '/rent/#weddings' },
-      { id: 'outdoor', section: 'outdoor', eyebrow: 'Outdoors', title: 'Outdoor spaces',
+      { id: 'venue', section: 'venue', group: null, eyebrow: 'The Venue', title: 'Around the Venue',
+        text: 'More views of the Sane Living Center and its spaces.',
+        cta: 'See rates & availability', href: '/rent/pricing/' },
+      { id: 'outdoor', section: 'outdoor', eyebrow: 'Outdoors', title: 'Outdoor Spaces',
         text: 'The stone patio by the entrance with the EVO3 sculpture, and the Secret Garden with its olive tree and string lights.',
         cta: 'Ask about outdoor space', href: '/contact/' }
     ];

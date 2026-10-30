@@ -143,6 +143,20 @@
       "group": "meetings"
     },
     {
+      "image": "/images/annex-meeting-table.jpg",
+      "caption": "The Annex — Meeting table",
+      "alt": "The Annex set up with a long walnut table and wishbone chairs on gray carpet, bamboo hardwood floor, track lighting, plants and a pull-up projector screen",
+      "section": "venue",
+      "group": "meetings"
+    },
+    {
+      "image": "/images/annex-work-tables.jpg",
+      "caption": "The Annex — Work tables",
+      "alt": "The Annex with a glass work table and a wooden desk with wishbone chairs on gray carpet, track lighting and windows",
+      "section": "venue",
+      "group": "meetings"
+    },
+    {
       "image": "/images/evo3-sculpture.jpg",
       "caption": "EVO3 Sculpture and outdoor gathering area",
       "alt": "EVO3 Sculpture at Sane Living Center",
@@ -188,18 +202,6 @@
       "image": "/images/wedding-ceremony-benches.jpg",
       "caption": "Ceremony with wooden benches and greenery",
       "alt": "Wedding ceremony set in the Auditorium, with wooden benches, a woven aisle rug, olive trees, hanging lanterns and greenery around the stained-glass window",
-      "section": "weddings"
-    },
-    {
-      "image": "/IMG_0216.jpg",
-      "caption": "Garden ceremony setup",
-      "alt": "Outdoor wedding ceremony setup in the garden, with chairs facing an arch and string lights overhead",
-      "section": "weddings"
-    },
-    {
-      "image": "/IMG_0217.jpg",
-      "caption": "Lawn lounge and bar",
-      "alt": "Outdoor wedding lounge on the lawn, with sofas, umbrellas and a bar",
       "section": "weddings"
     }
   ]
