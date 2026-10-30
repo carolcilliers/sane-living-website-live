@@ -46,6 +46,53 @@
     #spaces, #occasions { scroll-margin-top: calc(var(--nav-height) + 24px); }
     .rent-anchor { display: block; }
 
+    /* ---- Weddings (moved here from the old Weddings page; content still edited in the dashboard's Weddings section) ---- */
+    .occasion-weddings { margin-top: var(--space-2xl); padding-top: var(--space-2xl); border-top: 1px solid var(--clr-border); scroll-margin-top: calc(var(--nav-height) + 24px); }
+    .occasion-weddings .rent-photos-head h2 { margin-bottom: 0; }
+    .wedding-pricing { max-width: 800px; margin: var(--space-2xl) auto 0; padding: var(--space-xl); background: var(--clr-bg-card); border-radius: 12px; text-align: center; }
+    .wedding-pricing h3 { margin-bottom: var(--space-sm); }
+    .wedding-pricing p { color: var(--clr-text-muted); margin: 0; }
+    /* ---- Wedding photos: one large photo plus smaller ones, each opening the Gallery's Weddings section ---- */
+    .wedding-photos { margin-top: var(--space-2xl); }
+    .wedding-photos-head { text-align: center; max-width: 640px; margin: 0 auto var(--space-xl); }
+    .wedding-photos-eyebrow { display: block; font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.15em; color: var(--clr-accent); margin-bottom: var(--space-sm); }
+    .wedding-photo-grid { display: grid; grid-template-columns: repeat(4, 1fr); grid-auto-rows: 170px; gap: 14px; }
+    .wedding-photo { position: relative; display: block; overflow: hidden; border-radius: 16px; box-shadow: 0 10px 30px rgba(42,26,51,.12); }
+    .wedding-photo:first-child { grid-column: span 2; grid-row: span 2; }
+    .wedding-photo img { width: 100%; height: 100%; object-fit: cover; display: block; transition: transform 0.4s ease; }
+    .wedding-photo:hover img, .wedding-photo:focus-visible img { transform: scale(1.04); }
+    .wedding-photo:focus-visible { outline: 3px solid var(--clr-accent); outline-offset: 3px; }
+    @media (max-width: 768px) {
+      .wedding-photo-grid { grid-template-columns: repeat(2, 1fr); grid-auto-rows: 140px; gap: 10px; }
+      .wedding-photo:first-child { grid-column: 1 / -1; }
+    }
+    @media (prefers-reduced-motion: reduce) { .wedding-photo img { transition: none; } }
+    /* ---- Highlights and policies in rows under the photo ---- */
+    .wedding-facts { margin-top: var(--space-2xl); }
+    #wedding-highlights {
+      list-style: none; margin: 0; padding: 0;
+      display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px;
+    }
+    #wedding-highlights:empty { display: none; }
+    @media (max-width: 600px) { #wedding-highlights { grid-template-columns: 1fr; } }
+    #wedding-highlights li {
+      position: relative; margin: 0; padding: 18px 18px 18px 52px;
+      background: var(--clr-bg-card); border: 1px solid var(--clr-border); border-bottom: 1px solid var(--clr-border);
+      border-radius: 14px; font-size: 0.98rem; line-height: 1.55; color: var(--clr-text);
+    }
+    #wedding-highlights li:last-child { border-bottom: 1px solid var(--clr-border); }
+    #wedding-highlights li::before { left: 18px; top: 18px; }
+    #wedding-details {
+      margin-top: 14px; padding: 0; border: 0; background: transparent; box-shadow: none;
+      display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 14px;
+    }
+    #wedding-details:empty { display: none; }
+    #wedding-details p {
+      margin: 0; padding: 22px 24px; background: var(--clr-bg-card); border: 1px solid var(--clr-border);
+      border-radius: 14px; line-height: 1.7;
+    }
+    #wedding-details strong { display: block; margin-bottom: 6px; font-family: var(--font-display); font-size: 1.35rem; font-weight: 600; color: var(--clr-plum); }
+
     /* ---- Availability calendar ---- */
     .rent-availability-embed { width: 100%; height: 550px; border: 1px solid var(--clr-border); border-radius: 16px; background: #fff; display: block; }
     .rent-availability-legend { text-align: center; font-size: 0.85rem; color: var(--clr-text-muted); margin-top: var(--space-md); }
@@ -77,20 +124,59 @@
           <p>The Sane Living Center is a beautiful auditorium and gathering venue located at 316 E. Matilija St, Ojai, CA 93023.</p>
           <p>Available for rent, this high technology space has hosted a wide variety of events including conferences, film screenings, music festivals, artistic performances, lectures and workshops, business functions, community events, special occasions, private celebrations, and more.</p>
           <a data-site-booking href="/rent/pricing/" class="btn btn-primary" style="margin-top: var(--space-lg);">See Rates and Availability</a>
-          <a href="/rent/weddings/" class="btn btn-outline" style="margin-top: var(--space-lg); margin-left: var(--space-md);">Weddings</a>
+          <a href="#weddings" class="btn btn-outline" style="margin-top: var(--space-lg); margin-left: var(--space-md);">Weddings</a>
         </div>
       </div>
 
       <span id="occasions" class="rent-anchor" aria-hidden="true"></span>
       <div class="rent-photos" id="rent-photos" hidden>
         <div class="rent-photos-head">
-          <span class="rent-photos-eyebrow">Photo Gallery</span>
-          <h2>A look inside the Auditorium</h2>
-          <p>One room, set up for many kinds of events. Tap a photo to see more of each.</p>
+          <span class="rent-photos-eyebrow">Occasions</span>
+          <h2>What we host</h2>
+          <p>One space, set up for many kinds of events. Tap a photo to see more of each.</p>
         </div>
         <div class="rent-photo-grid" id="rent-photo-grid"></div>
         <div style="text-align: center; margin-top: var(--space-xl);">
           <a href="/gallery/" class="btn btn-primary">View the Full Gallery</a>
+        </div>
+      </div>
+
+
+      <!-- Weddings: moved here from the old Weddings page. Text, highlights, policies and pricing come from the
+           dashboard's Weddings section (/content/weddings.json); photos from Photo Gallery → Weddings. -->
+      <div class="occasion-weddings" id="weddings">
+        <div class="rent-photos-head" data-animate>
+          <span class="rent-photos-eyebrow">Occasions</span>
+          <h2 id="wedding-heading">Weddings at Sane Living</h2>
+        </div>
+        <div data-animate class="split-grid-large-img">
+          <div>
+            <img id="wedding-hero" src="/IMG_0197.jpg" alt="Wedding ceremony in the Auditorium at Sane Living, with a floral arch and a candlelit aisle" style="width:100%; border-radius: 8px;">
+          </div>
+          <div>
+            <div id="wedding-intro"><p>The Sane Living Center is a beautiful auditorium and gathering venue located at 316 E. Matilija St, Ojai, CA 93023.</p>
+            <p>This high technology space has hosted a wide variety of events including special occasions and private celebrations, and is available for weddings and receptions.</p></div>
+            <a data-site-href="phoneLink" href="tel:+18056466000" class="btn btn-primary wedding-call" style="margin-top: var(--space-md);">Call (805) 646-6000</a>
+          </div>
+        </div>
+        <div class="wedding-facts" data-animate>
+          <ul id="wedding-highlights"></ul>
+          <div id="wedding-details"></div>
+        </div>
+        <div class="wedding-photos" id="wedding-photos" hidden>
+          <div class="wedding-photos-head">
+            <span class="wedding-photos-eyebrow">Photo Gallery</span>
+            <h3>Ceremonies &amp; celebrations</h3>
+            <p>Ceremonies in the Auditorium and receptions in the Secret Garden.</p>
+          </div>
+          <div class="wedding-photo-grid" id="wedding-photo-grid"></div>
+          <div style="text-align: center; margin-top: var(--space-xl);">
+            <a href="/gallery/#gallery-weddings" class="btn btn-outline">See All Wedding Photos</a>
+          </div>
+        </div>
+        <div class="wedding-pricing" data-animate>
+          <h3>Wedding pricing</h3>
+          <p id="wedding-pricing-text">Wedding packages from $1,500, quoted separately based on guest count and needs. Call <a data-site-href="phoneLink" href="tel:+18056466000">(805) 646-6000</a> for a custom quote.</p>
         </div>
       </div>
 
@@ -176,6 +262,57 @@
         document.getElementById('rent-photos').hidden = false;
       })
       .catch(function() { /* keep the section hidden */ });
+  })();
+  </script>
+  <!-- Wedding content is edited in the team dashboard (/admin) and stored in
+       /content/weddings.json. The text above stays as a fallback. -->
+  <script>
+  (function() {
+    function esc(s) { return String(s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+    fetch('/content/weddings.json')
+      .then(function(r) { return r.ok ? r.json() : null; })
+      .then(function(d) {
+        if (!d) return;
+        if (typeof d.heading === 'string') document.getElementById('wedding-heading').textContent=d.heading;
+        if (d.heroImage) document.getElementById('wedding-hero').src = d.heroImage;
+        if (typeof d.intro === 'string') {
+          document.getElementById('wedding-intro').innerHTML =
+            d.intro.split(/\n\s*\n/).map(function(p) { return '<p>' + esc(p) + '</p>'; }).join('');
+        }
+        if (Array.isArray(d.highlights)) {
+          document.getElementById('wedding-highlights').innerHTML =
+            d.highlights.map(function(h) { return '<li>' + esc(h) + '</li>'; }).join('');
+        }
+        if(window.SaneSite) window.SaneSite.ready.then(function(s){ document.querySelectorAll('.wedding-call').forEach(function(a){a.textContent='Call '+(d.phoneDisplay||s.phoneDisplay);}); });
+        var details = '';
+        if (d.includesText) details += '<p><strong>What\'s included</strong> ' + esc(d.includesText) + '</p>';
+        if (d.cateringPolicy) details += '<p><strong>Catering</strong> ' + esc(d.cateringPolicy) + '</p>';
+        if (d.alcoholPolicy) details += '<p><strong>Alcohol</strong> ' + esc(d.alcoholPolicy) + '</p>';
+        if (d.parkingNote) details += '<p><strong>Parking</strong> ' + esc(d.parkingNote) + '</p>';
+        document.getElementById('wedding-details').innerHTML = details;
+        if (typeof d.pricingText === 'string') document.getElementById('wedding-pricing-text').textContent = d.pricingText;
+      })
+      .catch(function() {});
+  })();
+  </script>
+  <script>
+  (function() {
+    // Up to five photos from the gallery's Weddings collection, skipping whichever one is the main photo above.
+    function esc(s) { return String(s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+    Promise.all([
+      fetch('/content/gallery.json').then(function(r) { return r.ok ? r.json() : null; }),
+      fetch('/content/weddings.json').then(function(r) { return r.ok ? r.json() : null; }).catch(function() { return null; })
+    ]).then(function(res) {
+      var hero = (res[1] && res[1].heroImage) || document.getElementById('wedding-hero').getAttribute('src');
+      var photos = ((res[0] && res[0].photos) || []).filter(function(p) {
+        return !p.draft && p.image && p.section === 'weddings' && p.image !== hero;
+      }).slice(0, 5);
+      if (!photos.length) return;
+      document.getElementById('wedding-photo-grid').innerHTML = photos.map(function(p) {
+        return '<a class="wedding-photo" href="/gallery/#gallery-weddings"><img src="' + esc(p.image) + '" alt="' + esc(p.alt || p.caption) + '" loading="lazy"></a>';
+      }).join('');
+      document.getElementById('wedding-photos').hidden = false;
+    }).catch(function() { /* keep the section hidden */ });
   })();
   </script>
 </body>

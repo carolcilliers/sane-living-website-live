@@ -188,6 +188,8 @@
   "redirects": [
     { "source": "/events/past/", "destination": "/events/#recent", "statusCode": 302 },
     { "source": "/events/past", "destination": "/events/#recent", "statusCode": 302 },
+    { "source": "/rent/weddings/", "destination": "/rent/#weddings", "statusCode": 302 },
+    { "source": "/rent/weddings", "destination": "/rent/#weddings", "statusCode": 302 },
     {
       "source": "/book/rent/",
       "destination": "/rent/",

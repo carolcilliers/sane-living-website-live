@@ -49,7 +49,7 @@
     {
       "route": "/rent/weddings/",
       "label": "Weddings",
-      "visible": true
+      "visible": false
     },
     {
       "route": "/gallery/",

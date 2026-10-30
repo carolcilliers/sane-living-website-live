@@ -32,7 +32,7 @@
           (s.hours?'<p class="footer-hours">'+esc(s.hours)+'</p>':'')+(directions?'<a class="footer-more" href="'+esc(directions)+'" target="_blank" rel="noopener">Get directions</a>':'')+'</div>'+
         '<div class="footer-col"><h2 class="footer-heading">Contact</h2><p class="footer-contact">'+(phone?'<a href="'+esc(phone)+'">'+esc(s.phoneDisplay)+'</a>':esc(s.phoneDisplay))+(email?'<br><a href="mailto:'+esc(email)+'">'+esc(email)+'</a>':'')+'</p>'+
           (social?'<div class="footer-social">'+social+'</div>':'')+'</div>'+
-        '<div class="footer-col"><h2 class="footer-heading">Explore</h2><nav class="footer-links" aria-label="Footer navigation"><a href="/rent/">Rent the Space</a><a href="/rent/pricing/">Rates &amp; Availability</a><a href="/rent/weddings/">Weddings</a><a href="/events/">Events</a><a href="/gallery/">Photo Gallery</a><a href="/contact/">Contact</a></nav></div>'+
+        '<div class="footer-col"><h2 class="footer-heading">Explore</h2><nav class="footer-links" aria-label="Footer navigation"><a href="/rent/">Rent the Space</a><a href="/rent/pricing/">Rates &amp; Availability</a><a href="/rent/#weddings">Weddings</a><a href="/events/">Events</a><a href="/gallery/">Photo Gallery</a><a href="/contact/">Contact</a></nav></div>'+
       '</div>'+
       '<div class="footer-bottom"><p class="footer-copy">© '+new Date().getFullYear()+' '+esc(s.businessName)+'</p><a class="footer-team" href="/dash/">Team Login</a></div></div>';
   }
