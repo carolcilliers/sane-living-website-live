@@ -22,7 +22,7 @@ Design: V4 "day into night" (see DESIGN.md). Sections: opening photo, The Spaces
 
 ## Image placements
 
-`/images/main-hall.jpg`, `/images/center-office.jpg`, `/images/annex-placeholder.jpg` (temporary), `/images/venue-secret-garden.jpg`, `/IMG_0197.jpg` (wedding fallback)
+`/images/main-hall.jpg`, `/images/center-office.jpg`, `/images/venue-annex.jpg`, `/images/venue-secret-garden.jpg`, `/IMG_0197.jpg` (wedding fallback)
 
 ## Editing rules
 
