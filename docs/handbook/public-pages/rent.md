@@ -16,11 +16,13 @@ Scripts:
 - `data-site-booking=`
 - `data-site-rental-inquiry=`
 
-Source IDs: `site-nav`, `open-gallery-btn`, `rent-photos`, `rent-photo-grid`, `calendar`, `rent-availability-note`, `availability`, `gallery-modal`, `gallery-close-btn`, `gallery-prev-btn`, `gallery-main-img`, `gallery-next-btn`, `site-footer`.
+Source IDs: `site-nav`, `spaces`, `open-gallery-btn`, `occasions`, `rent-photos`, `rent-photo-grid`, `weddings`, `wedding-heading`, `wedding-hero`, `wedding-intro`, `wedding-highlights`, `wedding-details`, `wedding-photos`, `wedding-photo-grid`, `wedding-pricing-text`, `calendar`, `rent-availability-note`, `availability`, `extras`, `gallery-modal`, `gallery-close-btn`, `gallery-prev-btn`, `gallery-main-img`, `gallery-next-btn`, `site-footer`.
+
+Design: V4 "day into night" (see DESIGN.md). Sections: opening photo, The Spaces (four spaces), Occasions (gallery tiles), Weddings (from /content/weddings.json — the old /rent/weddings/ page redirects here), Check a Date (calendar + request form), Partners & nearby stays.
 
 ## Image placements
 
-`/images/main-hall.jpg`
+`/images/main-hall.jpg`, `/images/center-office.jpg`, `/images/annex-placeholder.jpg` (temporary), `/images/venue-secret-garden.jpg`, `/IMG_0197.jpg` (wedding fallback)
 
 ## Editing rules
 
