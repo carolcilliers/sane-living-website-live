@@ -7,6 +7,15 @@
   <meta name="description" content="Local Ojai partners who help hosts put on great events at the Sane Living Center — caterers, planners, florists, photographers and more.">
   <link rel="stylesheet" href="/style.css">
   <style>
+    /* ---- Featured partner: Cielo Farm ---- */
+    .featured-partner { display: grid; grid-template-columns: minmax(0, 6fr) minmax(0, 5fr); gap: clamp(2rem, 5vw, 4rem); align-items: center; margin: 0 auto var(--space-2xl); padding-bottom: var(--space-2xl); border-bottom: 1px solid var(--clr-border); }
+    .featured-partner img { width: 100%; aspect-ratio: 16 / 10; object-fit: cover; border-radius: 4px; display: block; }
+    .featured-partner .eyebrow { margin-bottom: var(--space-sm); }
+    .featured-partner h2 { font-size: clamp(2.2rem, 4vw, 3.2rem); font-weight: 600; margin: 0 0 var(--space-md); }
+    .featured-partner p { font-size: 1.05rem; line-height: 1.75; color: var(--clr-text-muted); margin: 0 0 var(--space-md); }
+    .featured-partner .chips { display: flex; flex-wrap: wrap; gap: 8px; margin: 0 0 var(--space-lg); padding: 0; list-style: none; }
+    .featured-partner .chips li { padding: 7px 14px; border: 1px solid var(--clr-border); border-radius: 999px; font-size: 0.88rem; background: var(--clr-bg-card); }
+    @media (max-width: 860px) { .featured-partner { grid-template-columns: 1fr; } }
     .partner-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: var(--space-lg); }
     .partner-card { background: var(--clr-bg-card); border: none; border-radius: 16px; overflow: hidden; box-shadow: 0 10px 30px rgba(42,26,51,.10); transition: transform 0.25s ease, box-shadow 0.25s ease; }
     .partner-card:hover { transform: translateY(-4px); box-shadow: 0 18px 44px rgba(42,26,51,.16); }
@@ -43,6 +52,17 @@
 
   <section class="section">
     <div class="content-block">
+      <!-- Featured partner: Cielo Farm (details from the Cielo Farm page, /rent/farm/) -->
+      <article class="featured-partner" id="cielo-farm" data-animate>
+        <img src="/images/cielo-farm.jpg" alt="Cielo Farm: a farmhouse surrounded by trees and a white fence in the hills above Ojai" loading="lazy">
+        <div>
+          <span class="eyebrow">Featured Partner · Stay</span>
+          <h2>Cielo Farm</h2>
+          <p>A quiet and serene 20+ acre avocado, citrus and vegetable permaculture orchard in the hills along the Los Padres National Forest. Guests can relax with nature and walk the trails on the property and into the forest.</p>
+          <ul class="chips"><li>Retreats &amp; Getaways</li><li>2 to 15 Guests</li><li>Farmhouse &amp; Zen Studio</li></ul>
+          <a href="/rent/farm/" class="btn btn-primary">Explore Cielo Farm</a>
+        </div>
+      </article>
       <p id="partners-intro" data-animate style="text-align:center; max-width: 720px; margin: 0 auto var(--space-2xl);"></p>
       <div class="partner-grid" id="partner-grid" data-animate>
         <p style="text-align:center; color: var(--clr-text-muted);">Loading partners...</p>
