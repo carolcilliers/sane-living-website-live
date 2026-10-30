@@ -174,8 +174,8 @@
     <div class="rent-wrap">
       <div class="rent-head" data-animate>
         <span class="eyebrow">The Spaces</span>
-        <h2 class="rent-h2">Choose your space</h2>
-        <p class="rent-lede">Four rooms with four different moods, all at 316 E Matilija St. Use one, or put them together for the whole day.</p>
+        <h2 class="rent-h2">Choose Your Space</h2>
+        <p class="rent-lede">Four rooms with four different moods. Use one, or put them together for the whole day.</p>
       </div>
       <div class="space-list">
         <article class="space" data-animate>
@@ -185,8 +185,8 @@
             <h3>The Auditorium</h3>
             <span class="space-cap">Seats 110 · 225 standing</span>
             <p>The heart of the building: a soundproof room with stained glass, a real stage and a full sound and projection system. Set it in rows for a talk, in a circle for a workshop, with tables for a reception or wide open for a dance floor.</p>
-            <ul class="chips"><li>Stage</li><li>Projector &amp; screen</li><li>Sound system</li><li>Theater lighting</li><li>Soundproof walls</li></ul>
-            <button type="button" id="open-gallery-btn" class="space-more">See more photos</button>
+            <ul class="chips"><li>Stage</li><li>Projector &amp; Screen</li><li>Sound System</li><li>Theater Lighting</li><li>Soundproof Walls</li></ul>
+            <button type="button" id="open-gallery-btn" class="space-more">See More Photos</button>
           </div>
         </article>
         <article class="space" data-animate>
@@ -196,7 +196,7 @@
             <h3>The Conference Room</h3>
             <span class="space-cap">Meetings · Breakouts · Getting ready</span>
             <p>A calm, separate room with a long wooden table, a whiteboard and natural light. Use it for meetings and breakout sessions, or as a private room to get ready on a wedding day.</p>
-            <ul class="chips"><li>Long table</li><li>Whiteboard</li><li>Natural light</li></ul>
+            <ul class="chips"><li>Long Table</li><li>Whiteboard</li><li>Natural Light</li></ul>
           </div>
         </article>
         <article class="space" data-animate>
@@ -207,7 +207,7 @@
             <h3>The Annex</h3>
             <span class="space-cap">Multi-use flex space</span>
             <p>A bright, flexible room with white walls, part hardwood floor and part carpet, right next to the Secret Garden. Set it up for a class, a breakout, a quiet lounge or a staging area for your event.</p>
-            <ul class="chips"><li>Hardwood &amp; carpet</li><li>White walls</li><li>Next to the Secret Garden</li></ul>
+            <ul class="chips"><li>Hardwood &amp; Carpet</li><li>White Walls</li><li>Next to the Secret Garden</li></ul>
           </div>
         </article>
         <article class="space" data-animate>
@@ -217,7 +217,7 @@
             <h3>The Secret Garden</h3>
             <span class="space-cap">Outdoors · Ceremonies · Dinners</span>
             <p>A hidden garden with an olive tree, warm gravel, a white fence and string lights overhead. Set long tables for a dinner, an arch for a ceremony, or keep it open for a cocktail hour under the lights.</p>
-            <ul class="chips"><li>Olive tree</li><li>String lights</li><li>Open air</li></ul>
+            <ul class="chips"><li>Olive Tree</li><li>String Lights</li><li>Open Air</li></ul>
           </div>
         </article>
       </div>
@@ -229,8 +229,8 @@
     <div class="rent-wrap">
       <div class="rent-head" data-animate>
         <span class="eyebrow">Occasions</span>
-        <h2 class="rent-h2">What we host</h2>
-        <p class="rent-lede">One space, set up for many kinds of events. Tap a photo to see more of each.</p>
+        <h2 class="rent-h2">What We Host</h2>
+        <p class="rent-lede">One space, set up for many kinds of events.</p>
       </div>
       <div class="rent-photos" id="rent-photos" hidden>
         <div class="rent-photo-grid" id="rent-photo-grid"></div>
@@ -262,10 +262,10 @@
       </div>
       <div class="wedding-foot" data-animate>
         <div>
-          <h3>Wedding pricing</h3>
-          <p id="wedding-pricing-text">Wedding packages from $1,500, quoted separately based on guest count and needs. Call <a data-site-href="phoneLink" href="tel:+18056466000">(805) 646-6000</a> for a custom quote.</p>
+          <h3>Wedding Pricing</h3>
+          <p id="wedding-pricing-text">Wedding packages starting at $1,500. Each quote is based on your guest count and needs. Call <a data-site-href="phoneLink" href="tel:+18056466000">(805) 646-6000</a> for a custom quote.</p>
         </div>
-        <a href="/gallery/#gallery-weddings" class="text-link">See all wedding photos &rarr;</a>
+        <a href="/gallery/#gallery-weddings" class="text-link">See All Wedding Photos &rarr;</a>
       </div>
     </div>
   </section>
@@ -351,11 +351,11 @@
     // Photos come from the team dashboard's gallery (/content/gallery.json). One tile per Auditorium
     // group, in the same order and with the same names as the Gallery page; each links to that group there.
     var GROUPS = [
-      { id: 'talks', title: 'Talks & workshops' },
-      { id: 'wellness', title: 'Wellness & circles' },
-      { id: 'receptions', title: 'Receptions & gatherings' },
-      { id: 'performances', title: 'Concerts & performances' },
-      { id: 'meetings', title: 'Meetings & classes' }
+      { id: 'talks', title: 'Talks & Workshops' },
+      { id: 'wellness', title: 'Wellness & Circles' },
+      { id: 'receptions', title: 'Receptions & Gatherings' },
+      { id: 'performances', title: 'Concerts & Performances' },
+      { id: 'meetings', title: 'Meetings & Classes' }
     ];
     function esc(s) { return String(s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
     fetch('/content/gallery.json')
