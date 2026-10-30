@@ -8,10 +8,12 @@
   <link rel="stylesheet" href="/style.css">
   <style>
     /* ---- Gallery as a guided story: intro → ways to use the Auditorium → other spaces → invitation ---- */
-    .gallery-intro { max-width: 760px; margin: 0 auto; text-align: center; }
+    .gallery-intro { max-width: 1000px; margin: 0 auto; text-align: center; }
+    .gallery-intro > p:not(.gallery-lede) { max-width: 760px; margin-left: auto; margin-right: auto; }
     #gallery-intro { padding-top: calc(var(--nav-height) + clamp(3rem, 7vw, 5rem)); }
     .gallery-intro h1 { font-size: clamp(2.6rem, 5.5vw, 4.2rem); font-weight: 600; line-height: 1.05; color: var(--clr-plum); margin-bottom: var(--space-md); }
-    .gallery-intro .gallery-lede { font-variant-numeric: lining-nums; font-family: var(--font-display); font-style: italic; font-size: clamp(1.35rem, 2.2vw, 1.7rem); line-height: 1.4; color: var(--clr-plum); margin-bottom: var(--space-md); }
+    .gallery-intro .gallery-lede { font-variant-numeric: lining-nums; font-family: var(--font-display); font-style: italic; font-size: clamp(1.2rem, 1.9vw, 1.55rem); line-height: 1.4; color: var(--clr-plum); margin-bottom: var(--space-lg); }
+    @media (min-width: 900px) { .gallery-intro .gallery-lede, .gallery-intro h1 { white-space: nowrap; } }
     .gallery-intro p { font-size: 1.05rem; line-height: 1.75; }
 
     .gallery-jump { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; margin-top: var(--space-xl); }
@@ -97,7 +99,7 @@
   <section class="section" id="gallery-intro">
     <div class="container">
       <div class="gallery-intro" data-animate>
-        <h1>One Room, Many Ways to Gather</h1>
+        <h1>One Space, Many Ways to Gather</h1>
         <p class="gallery-lede">See how people gather at 316 E Matilija St, Ojai, then picture your own event here.</p>
         <p>The Auditorium has hosted conferences, film screenings, concerts, lectures and workshops, meditation circles, community events and private celebrations. Scroll through how others have made it their own.</p>
         <nav class="gallery-jump" id="gallery-jump" aria-label="Jump to a part of the gallery"></nav>
