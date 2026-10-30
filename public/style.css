@@ -1518,3 +1518,6 @@ p, li, dd, figcaption { text-wrap: pretty; }
 .site-footer .footer-links a { color: var(--clr-on-night); }
 .site-footer .footer-links a:hover, .site-footer .footer-team:hover { color: var(--clr-glow); }
 .site-footer .footer-more { border-color: var(--clr-glow); }
+
+/* ---- V4: modern (lining) numbers in the display font, so "1" never reads as "I" ---- */
+h1, h2, h3, h4, .fact-num, .pillar-num, .rate-label, .avail-steps li::before { font-variant-numeric: lining-nums; }
