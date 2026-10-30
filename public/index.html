@@ -243,6 +243,13 @@
     .fact-sub { display: block; margin-top: 4px; font-size: 0.9rem; color: var(--clr-text-muted); }
     @media (max-width: 760px) { .facts { grid-template-columns: 1fr 1fr; } .fact:nth-child(3) { border-left: 0; } .fact:nth-child(n+3) { border-top: 1px solid var(--clr-border); } }
 
+    /* Rolling numbers in the fact strip (odometer style) */
+    .roll-col, .roll-fix { display: inline-block; height: 1.3em; line-height: 1.3em; vertical-align: top; margin: -0.15em 0; }
+    .roll-col { overflow: hidden; padding: 0 0.03em; margin-left: -0.03em; margin-right: -0.03em; }
+    .roll-strip { display: block; transition: transform 2.2s cubic-bezier(0.16, 1, 0.3, 1); will-change: transform; }
+    .roll-strip > span { display: block; height: 1.3em; line-height: 1.3em; }
+    .fact-num.is-rolling { line-height: 1; }
+
     /* ---- Time markers + day progress line ---- */
     .hour-time { display: inline-flex !important; align-items: center; gap: 8px; }
     .hour-time svg { width: 18px; height: 18px; flex: none; }
@@ -643,6 +650,46 @@
   <footer id="site-footer"></footer>
 
   <script src="/script.js"></script>
+  <script>
+  // Fact strip: each digit spins like an odometer and lands on the real number when the strip scrolls into view.
+  (function() {
+    var nums = Array.prototype.slice.call(document.querySelectorAll('.fact-num'));
+    if (!nums.length || !('IntersectionObserver' in window)) return;
+    if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    var strips = [];
+    nums.forEach(function(el, n) {
+      var text = el.textContent;
+      el.setAttribute('aria-label', text.replace(/\u00a0/g, ' '));
+      var html = '<span aria-hidden="true">';
+      var di = 0;
+      for (var i = 0; i < text.length; i++) {
+        var ch = text[i];
+        if (/[0-9]/.test(ch)) {
+          var d = +ch, cells = '';
+          for (var k = 0; k < 21 + d; k++) cells += '<span>' + (k % 10) + '</span>';
+          html += '<span class="roll-col"><span class="roll-strip" data-to="' + ((20 + d) * 1.3).toFixed(2) + '" data-delay="' + (n * 0.15 + di * 0.12) + '">' + cells + '</span></span>';
+          di++;
+        } else {
+          html += '<span class="roll-fix">' + (ch === ' ' || ch === '\u00a0' ? '&nbsp;' : ch) + '</span>';
+        }
+      }
+      el.innerHTML = html + '</span>';
+      el.classList.add('is-rolling');
+    });
+    var wrap = document.querySelector('.facts');
+    var io = new IntersectionObserver(function(entries) {
+      entries.forEach(function(e) {
+        if (!e.isIntersecting) return;
+        wrap.querySelectorAll('.roll-strip').forEach(function(s) {
+          s.style.transitionDelay = s.getAttribute('data-delay') + 's';
+          s.style.transform = 'translateY(-' + s.getAttribute('data-to') + 'em)';
+        });
+        io.disconnect();
+      });
+    }, { threshold: 0.4 });
+    io.observe(wrap);
+  })();
+  </script>
   <script>
   // The thin line above "A day in the life" fills from morning to night as you scroll past the panels.
   (function() {
