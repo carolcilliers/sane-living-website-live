@@ -23,7 +23,7 @@ Scripts:
 - `data-site-text=homeHeading`
 - `data-site-text=homeIntro`
 - `data-site-text=homePrimaryLabel`
-- `data-site-text=hours` (also in the hero eyebrow)
+- `data-site-text=hours`
 - `data-site-text=hours`
 - `data-site-text=phoneDisplay`
 

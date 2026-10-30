@@ -44,10 +44,10 @@
       font-weight: 600;
       line-height: 1.0;
       color: var(--clr-on-night);
-      max-width: 15ch;
+      max-width: 20ch;
       margin: 0 0 var(--space-lg);
     }
-    .hero-copy h1 em { font-weight: 500; color: var(--clr-glow); }
+    .hero-copy h1 em { display: block; font-weight: 500; color: var(--clr-glow); }
     .hero-copy .hero-subtitle { font-size: clamp(1.05rem, 1.5vw, 1.2rem); line-height: 1.65; color: #e6dcea; max-width: 38rem; margin: 0 0 var(--space-xl); }
     .hero-actions { display: flex; flex-wrap: wrap; gap: var(--space-md); }
 
@@ -227,12 +227,12 @@
     /* ---- Story: hiding in plain sight ---- */
     .story-grid { display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 6fr); gap: clamp(2rem, 6vw, 5.5rem); align-items: center; }
     .story-photo { margin: 0; position: relative; }
-    .story-photo img { width: 100%; aspect-ratio: 4 / 5; object-fit: cover; border-radius: 4px; display: block; }
+    .story-photo img { width: 100%; height: auto; border-radius: 4px; display: block; }
     .story-photo figcaption { position: absolute; left: -14px; bottom: 28px; background: var(--clr-night); color: var(--clr-glow); font-size: 11.5px; font-weight: 800; letter-spacing: 0.18em; text-transform: uppercase; padding: 10px 16px; }
     .story-copy .home-h2 { margin-bottom: var(--space-lg); }
     .story-copy .story-lede { font-family: var(--font-display); font-style: italic; font-size: clamp(1.45rem, 2.3vw, 1.85rem); line-height: 1.4; color: var(--clr-plum); margin: 0 0 var(--space-lg); }
     .story-copy p { font-size: 1.05rem; line-height: 1.8; }
-    @media (max-width: 860px) { .story-grid { grid-template-columns: 1fr; } .story-photo img { aspect-ratio: 4 / 3; } .story-photo figcaption { left: 12px; } }
+    @media (max-width: 860px) { .story-grid { grid-template-columns: 1fr; } .story-photo img { max-width: 520px; margin: 0 auto; } .story-photo figcaption { left: 12px; } }
 
     /* ---- Fact strip ---- */
     .facts { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 0; margin-top: clamp(3.5rem, 7vw, 5rem); border-top: 1px solid var(--clr-border); border-bottom: 1px solid var(--clr-border); }
@@ -350,9 +350,8 @@
     <div class="hero-scrim" aria-hidden="true"></div>
     <div class="hero-copy">
       <div class="home-wrap">
-        <span class="eyebrow">Downtown Ojai · <span data-site-text="hours">8 am – 1 am</span></span>
-        <h1 data-site-text="homeHeading">Ojai's gathering place, <em>right in the center of town.</em></h1>
-        <p class="hero-subtitle" data-site-text="homeIntro">Ojai is known for its vortexes. This one just happens to be right downtown, with morning meetings, afternoon workshops, evening parties and the celebration after the celebration.</p>
+        <h1 data-site-text="homeHeading">Ojai's Gathering Place, <em>in the Heart of Town</em></h1>
+        <p class="hero-subtitle" data-site-text="homeIntro">Ojai is known for its Pink Moment. Ours lasts until 1 AM, right in the heart of town, with morning meetings, afternoon workshops, evening parties and the celebration after the celebration.</p>
         <div class="hero-actions">
           <a href="/#availability" class="btn btn-glow" data-site-href="homePrimaryUrl" data-site-text="homePrimaryLabel">Check a Date</a>
         </div>
@@ -417,7 +416,7 @@
         <div class="fact"><span class="fact-num">110</span><span class="fact-label">Seated</span><span class="fact-sub">in the Auditorium</span></div>
         <div class="fact"><span class="fact-num">225</span><span class="fact-label">Standing</span><span class="fact-sub">for parties &amp; shows</span></div>
         <div class="fact"><span class="fact-num">1&nbsp;AM</span><span class="fact-label">Last song</span><span class="fact-sub">behind soundproof walls</span></div>
-        <div class="fact"><span class="fact-num">4</span><span class="fact-label">Spaces</span><span class="fact-sub">auditorium, lobby, conference room &amp; patio</span></div>
+        <div class="fact"><span class="fact-num">4</span><span class="fact-label">Spaces</span><span class="fact-sub">auditorium, conference room, the Annex &amp; the Stone Courtyard</span></div>
       </div>
     </div>
   </section>
@@ -474,7 +473,7 @@
   <section class="section section-alt" id="story">
     <div class="home-wrap story-grid">
       <figure class="story-photo" data-animate>
-        <img src="/images/venue-purple-doors.jpg" alt="The purple front doors under the Sane Living sign on Matilija Street" loading="lazy">
+        <img src="/images/venue-entrance.jpg" alt="The entrance on Matilija Street: purple doors under the Sane Living sign, a stone wall and a flagstone path" loading="lazy">
         <figcaption>316 E. Matilija St</figcaption>
       </figure>
       <div class="story-copy" data-animate>
@@ -500,7 +499,7 @@
       <div class="book-head" data-animate>
         <span class="eyebrow">Ways to book</span>
         <h2 class="home-h2">Pick your hour. We'll set the space.</h2>
-        <p class="home-lede">The Auditorium seats 110, or 225 standing, with a stage, projector, sound system and theatre lighting. Add the conference room or the patio as you need them.</p>
+        <p class="home-lede">The Auditorium seats 110, or 225 standing, with a stage, projector, sound system and theatre lighting. Add the conference room, the Annex or the Stone Courtyard as you need them.</p>
       </div>
       <div class="book-grid" data-animate>
         <a href="/rent/" class="book-card">
