@@ -33,7 +33,7 @@ function injectNav() {
       <a href="/" class="nav-logo"><img src="/images/logo.png" alt="Sane Living" height="72"></a>
       <ul class="nav-links" id="nav-links">
         <li><a href="/"${isActive(currentPath, '/')}>Home</a></li>
-        <li><a href="/events/"${isActive(currentPath, '/events/')}>Events</a></li>
+        <li><a href="/events/"${isActive(currentPath, '/events/')}>Community Events</a></li>
         <li class="nav-dropdown">
           <a href="/rent/"${isActive(currentPath, '/rent/')}>Rent the Space</a>
           <div class="nav-dropdown-menu">

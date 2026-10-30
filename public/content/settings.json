@@ -58,7 +58,7 @@
     },
     {
       "route": "/events/",
-      "label": "Events",
+      "label": "Community Events",
       "visible": true
     },
     {
