@@ -14,7 +14,9 @@ Scripts:
 
 No explicit data-site hook in this authored file; navigation/footer still use shared settings.
 
-Source IDs: `site-nav`, `recent`, `recentGrid`, `recentMoreWrap`, `recentMore`, `upcoming`, `fliersViewBtn`, `listViewBtn`, `gridViewBtn`, `prevBtn`, `monthLabel`, `nextBtn`, `calFliers`, `calList`, `gridWrap`, `calGrid`, `modalOverlay`, `modal`, `modalTitle`, `modalClose`, `modalBody`, `flyerViewer`, `flyerClose`, `flyerImg`, `site-footer`.
+Source IDs: `site-nav`, `upcoming` (now first, "Upcoming Community Events"), `updates` (email signup band), `recent`, `recentGrid`, `recentMoreWrap`, `recentMore`, `upcoming`, `fliersViewBtn`, `listViewBtn`, `gridViewBtn`, `prevBtn`, `monthLabel`, `nextBtn`, `calFliers`, `calList`, `gridWrap`, `calGrid`, `modalOverlay`, `modal`, `modalTitle`, `modalClose`, `modalBody`, `flyerViewer`, `flyerClose`, `flyerImg`, `site-footer`.
+
+Design: V4 "day into night" (see DESIGN.md). Order: opening photo (main-hall-01), Upcoming Community Events + calendar, Get Event Updates, Recent Events + Ojai Health Intensive.
 
 ## Image placements
 

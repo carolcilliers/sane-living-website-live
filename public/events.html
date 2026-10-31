@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Events — Sane Living</title>
+  <title>Community Events — Sane Living</title>
   <meta name="description" content="Upcoming public events and recent events at the Sane Living Center in Ojai, California. Film screenings, workshops, performances, and community gatherings.">
   <link rel="stylesheet" href="/style.css">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -546,6 +546,48 @@
     .flyer-close { position: fixed; top: 16px; right: 16px; width: 46px; height: 46px; border: 0; border-radius: 999px; background: rgba(255,255,255,0.15); color: #fff; font-size: 1.7rem; line-height: 1; cursor: pointer; }
     .flyer-close:hover, .flyer-close:focus-visible { background: rgba(255,255,255,0.3); outline: none; }
     @media (prefers-reduced-motion: reduce) { .recent-card { transition: none; } }
+
+    /* ============ COMMUNITY EVENTS — V4 "day into night" (Oct 30, 2026) ============ */
+    .ev-wrap { max-width: var(--max-width); margin: 0 auto; padding: 0 var(--space-lg); }
+    #upcoming, #recent, #updates { scroll-margin-top: calc(var(--nav-height) + 16px); }
+    /* Opening photo */
+    .video-hero.events-hero { position: relative; min-height: max(560px, 70vh); background: var(--clr-night); color: var(--clr-on-night); overflow: hidden; display: flex; align-items: flex-end; }
+    .events-hero > img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; border-radius: 0; }
+    .events-hero-scrim { position: absolute; inset: 0; background:
+        linear-gradient(90deg, rgba(31, 19, 40, 0.72) 0%, rgba(31, 19, 40, 0.3) 55%, rgba(31, 19, 40, 0.1) 100%),
+        linear-gradient(180deg, rgba(31, 19, 40, 0.6) 0%, rgba(31, 19, 40, 0) 26%),
+        linear-gradient(0deg, rgba(31, 19, 40, 0.95) 0%, rgba(31, 19, 40, 0.55) 34%, rgba(31, 19, 40, 0) 64%); }
+    .events-hero-copy { position: relative; width: 100%; padding: calc(var(--nav-height) + 56px) 0 clamp(3.5rem, 9vh, 5.5rem); }
+    .events-hero h1 { font-size: clamp(2.8rem, 6vw, 5.2rem); font-weight: 600; line-height: 1.02; color: var(--clr-on-night); margin: 0 0 var(--space-lg); }
+    .events-hero h1 em { display: block; font-weight: 500; color: var(--clr-glow); }
+    .events-hero p { font-size: clamp(1.05rem, 1.5vw, 1.2rem); line-height: 1.65; color: #e6dcea; max-width: 36rem; margin: 0 0 var(--space-xl); }
+    .events-jumps { display: flex; flex-wrap: wrap; gap: 10px 22px; font-size: 12px; font-weight: 800; letter-spacing: 0.16em; text-transform: uppercase; }
+    .events-jumps a { color: var(--clr-on-night); border-bottom: 1px solid rgba(243, 236, 226, 0.4); padding-bottom: 4px; }
+    .events-jumps a:hover { color: var(--clr-glow); border-color: var(--clr-glow); }
+    @media (max-width: 760px) { .events-hero-scrim { background: linear-gradient(180deg, rgba(31, 19, 40, 0.7) 0%, rgba(31, 19, 40, 0.6) 40%, rgba(31, 19, 40, 0.95) 100%); } }
+    /* Section heads */
+    .ev-head { text-align: center; max-width: 46rem; margin: 0 auto clamp(2.25rem, 5vw, 3.25rem); }
+    .ev-head h2 { font-size: clamp(2.3rem, 4.2vw, 3.4rem); font-weight: 600; line-height: 1.08; margin: 0 0 var(--space-md); }
+    .ev-head p { font-size: 1.08rem; line-height: 1.7; margin: 0 auto; }
+    /* Calendar: flat card in the new style */
+    .cal-wrap { border-radius: 4px; box-shadow: none; border-top: 3px solid var(--clr-accent); max-width: var(--max-width); }
+    .cal-view-toggle { background: var(--clr-bg); border-color: var(--clr-border); border-radius: 999px; padding: 3px; }
+    .cal-view-toggle button { font-weight: 700; letter-spacing: 0.04em; padding: 7px 16px; color: var(--clr-text-muted); }
+    .cal-view-toggle button.active { background: var(--clr-plum); color: #fff; }
+    /* Event updates signup (evening band) */
+    .ev-updates { text-align: center; }
+    .ev-updates .mc-signup { margin: 0 auto; background: transparent; border: 0; box-shadow: none; padding: 0; max-width: 560px; }
+    .ev-updates .mc-signup h4 { display: none; }
+    .ev-updates .mc-signup form { display: flex; gap: 10px; }
+    .ev-updates .mc-signup input[type="email"] { flex: 1; min-width: 0; background: rgba(255, 255, 255, 0.06); border: 1px solid var(--clr-night-line); border-radius: 999px; color: var(--clr-on-night); padding: 14px 22px; font-size: 15px; }
+    .ev-updates .mc-signup input[type="email"]::placeholder { color: #a596ad; }
+    .ev-updates .mc-signup button { background: var(--clr-glow); color: var(--clr-night); border: 0; border-radius: 999px; padding: 14px 26px; font-weight: 800; font-size: 12.5px; letter-spacing: 0.14em; text-transform: uppercase; cursor: pointer; }
+    .ev-updates .mc-signup button:hover { background: var(--clr-glow-hover); }
+    @media (max-width: 520px) { .ev-updates .mc-signup form { flex-direction: column; } }
+    /* Recent events: flyer wall */
+    .recent-card { border-radius: 4px; box-shadow: 0 14px 34px rgba(42, 26, 51, 0.14); }
+    .intensive-feature { border-top-color: var(--clr-border); }
+    .intensive-feature img { border-radius: 4px; }
   </style>
 
   <meta property="og:title" content="Events — Sane Living">
@@ -568,19 +610,90 @@
 <body>
   <nav id="site-nav"></nav>
 
-  <section class="page-hero">
-    <div class="container">
-      <h1>Events</h1>
-      <p>A look back at recent gatherings at the Sane Living Center, and what&rsquo;s coming up next.</p>
+  <!-- Opening photo (class video-hero keeps the menu transparent over it) -->
+  <section class="video-hero events-hero">
+    <img src="/images/main-hall-01.jpg" alt="A full audience in the Auditorium facing a flower-decorated stage during an evening talk">
+    <div class="events-hero-scrim" aria-hidden="true"></div>
+    <div class="events-hero-copy">
+      <div class="ev-wrap">
+        <span class="eyebrow glow">Community Events</span>
+        <h1>Gather with Ojai, <em>right downtown</em></h1>
+        <p>Film screenings, workshops, performances and community gatherings, open to everyone at 316 E Matilija St.</p>
+        <nav class="events-jumps" aria-label="On this page"><a href="#upcoming">Upcoming Events</a><a href="#updates">Event Updates</a><a href="#recent">Recent Events</a></nav>
+      </div>
+    </div>
+  </section>
+
+
+  <section class="section" id="upcoming">
+    <div class="ev-wrap ev-head">
+      <span class="eyebrow">Coming Up</span>
+      <h2>Upcoming Community Events</h2>
+      <p>Film screenings, workshops, performances and community gatherings open to everyone.</p>
+    </div>
+    <div class="cal-wrap">
+
+      <div class="cal-header">
+        <div class="cal-view-toggle">
+          <button id="fliersViewBtn" class="active">Fliers</button>
+          <button id="listViewBtn">List</button>
+          <button id="gridViewBtn">Month</button>
+        </div>
+        <div class="cal-nav">
+          <button id="prevBtn" aria-label="Previous month" style="display:none">Prev</button>
+          <span class="cal-month-label" id="monthLabel" style="display:none"></span>
+          <button id="nextBtn" aria-label="Next month" style="display:none">Next</button>
+        </div>
+      </div>
+
+      <div class="cal-fliers active" id="calFliers"></div>
+      <div class="cal-list" id="calList"></div>
+      <div class="cal-grid-wrap" id="gridWrap">
+        <div class="cal-grid" id="calGrid"></div>
+      </div>
+
+      <!-- Event Detail Modal -->
+      <div class="cal-modal-overlay" id="modalOverlay">
+        <div class="cal-modal" id="modal">
+          <div class="cal-modal-header">
+            <div class="cal-modal-title" id="modalTitle"></div>
+            <button class="cal-modal-close" id="modalClose" aria-label="Close">X</button>
+          </div>
+          <div class="cal-modal-body" id="modalBody"></div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- Event updates signup -->
+  <section class="section section-night ev-updates" id="updates">
+    <div class="ev-wrap">
+      <div class="ev-head">
+        <span class="eyebrow">Stay in the Loop</span>
+        <h2>Get Event Updates</h2>
+        <p>New screenings, workshops and gatherings, straight to your inbox.</p>
+      </div>
+      <div class="mc-signup">
+        <h4>Subscribe for Event Updates</h4>
+        <form action="https://saneliving.us19.list-manage.com/subscribe/post?u=b3bc47585c00a4e19f7c3841d&amp;id=590b76d0aa" method="post" target="_blank" novalidate>
+          <input type="email" name="EMAIL" placeholder="Email address" required>
+          <div style="position: absolute; left: -5000px;" aria-hidden="true">
+            <input type="text" name="b_b3bc47585c00a4e19f7c3841d_590b76d0aa" tabindex="-1" value="">
+          </div>
+          <button type="submit">Subscribe</button>
+        </form>
+      </div>
     </div>
   </section>
 
   <!-- Recent Events: flyers from past events (moved here from /events/past) -->
-  <section class="section" id="recent">
+  <section class="section section-alt" id="recent">
     <div class="container">
-      <div class="events-head">
-        <h2 class="section-eyebrow recent-label">Recent Events</h2>
-        <a href="#upcoming" class="events-jump">See upcoming events <span aria-hidden="true">&darr;</span></a>
+      <div class="ev-head">
+        <span class="eyebrow">Looking Back</span>
+        <h2>Recent Events</h2>
+        <p>A look back at recent gatherings at the Sane Living Center. Tap a flyer to see it full size.</p>
       </div>
       <div class="recent-grid" id="recentGrid">
         <a class="recent-card" href="/images/events-past/Amma-2026-Ojai-Flyer-web-2.jpg" data-flyer><img src="/images/events-past/Amma-2026-Ojai-Flyer-web-2.jpg" alt="Flyer: Amma Ojai" loading="lazy"></a>
@@ -634,66 +747,12 @@
         <a class="recent-card" href="/images/events-past/Viz-Med-Small_2_cropped-scaled.jpg" data-flyer><img src="/images/events-past/Viz-Med-Small_2_cropped-scaled.jpg" alt="Flyer: Viz Med" loading="lazy"></a>
       </div>
       <div class="recent-more" id="recentMoreWrap">
-        <button type="button" class="btn btn-outline" id="recentMore">Show all recent events</button>
+        <button type="button" class="btn btn-outline" id="recentMore">Show All Recent Events</button>
       </div>
       <div class="intensive-feature">
         <img src="/images/events-past/unnamed-5.jpg" alt="Ojai Health Intensive" loading="lazy">
         <a href="/events/ojai-health-intensive" class="btn btn-primary">Videos from the Ojai Health Intensive</a>
       </div>
-    </div>
-  </section>
-
-  <section class="section section-alt" id="upcoming">
-    <div class="container events-head">
-      <span class="section-eyebrow">Coming up</span>
-      <h2>Upcoming Public Events</h2>
-      <p>Film screenings, workshops, performances and community gatherings open to everyone.</p>
-    </div>
-    <div class="container" style="margin-bottom: var(--space-xl);">
-      <div class="mc-signup">
-        <h4>Subscribe for Event Updates</h4>
-        <form action="https://saneliving.us19.list-manage.com/subscribe/post?u=b3bc47585c00a4e19f7c3841d&amp;id=590b76d0aa" method="post" target="_blank" novalidate>
-          <input type="email" name="EMAIL" placeholder="Email address" required>
-          <div style="position: absolute; left: -5000px;" aria-hidden="true">
-            <input type="text" name="b_b3bc47585c00a4e19f7c3841d_590b76d0aa" tabindex="-1" value="">
-          </div>
-          <button type="submit">Subscribe</button>
-        </form>
-      </div>
-    </div>
-    
-    <div class="cal-wrap">
-
-      <div class="cal-header">
-        <div class="cal-view-toggle">
-          <button id="fliersViewBtn" class="active">Fliers</button>
-          <button id="listViewBtn">List</button>
-          <button id="gridViewBtn">Month</button>
-        </div>
-        <div class="cal-nav">
-          <button id="prevBtn" aria-label="Previous month" style="display:none">Prev</button>
-          <span class="cal-month-label" id="monthLabel" style="display:none"></span>
-          <button id="nextBtn" aria-label="Next month" style="display:none">Next</button>
-        </div>
-      </div>
-
-      <div class="cal-fliers active" id="calFliers"></div>
-      <div class="cal-list" id="calList"></div>
-      <div class="cal-grid-wrap" id="gridWrap">
-        <div class="cal-grid" id="calGrid"></div>
-      </div>
-
-      <!-- Event Detail Modal -->
-      <div class="cal-modal-overlay" id="modalOverlay">
-        <div class="cal-modal" id="modal">
-          <div class="cal-modal-header">
-            <div class="cal-modal-title" id="modalTitle"></div>
-            <button class="cal-modal-close" id="modalClose" aria-label="Close">X</button>
-          </div>
-          <div class="cal-modal-body" id="modalBody"></div>
-        </div>
-      </div>
-
     </div>
   </section>
 
@@ -808,7 +867,7 @@
         return;
       }
 
-      var html = '<div class="cal-list-month">Upcoming Public Events</div>';
+      var html = '<div class="cal-list-month">Upcoming Community Events</div>';
       allEvents.forEach(function(e) {
         var dt = new Date(e.date + 'T12:00:00');
         var dayName = DAYS[dt.getDay()];
