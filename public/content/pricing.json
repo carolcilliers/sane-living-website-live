@@ -1,7 +1,7 @@
 {
   "noteDate": "As of January 1, 2026",
   "noteText": "Please contact us for details.",
-  "hoursHeader": "SANE Hours of Operation: 8 am – 1 am",
+  "hoursHeader": "SANE Hours of Operation: 8 am – 12 am",
   "rows": [
     {
       "label": "Day",
@@ -13,7 +13,7 @@
     },
     {
       "label": "Night",
-      "sublabel": "5 pm – 1 am",
+      "sublabel": "5 pm – 12 am",
       "monThu": "$400",
       "friday": "$600",
       "saturday": "$600",
@@ -21,7 +21,7 @@
     },
     {
       "label": "Day & Night",
-      "sublabel": "8 am – 1 am",
+      "sublabel": "8 am – 12 am",
       "monThu": "$500",
       "friday": "$800",
       "saturday": "$875",
