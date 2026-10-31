@@ -22,11 +22,13 @@ Scripts:
 - `data-site-text=hours`
 - `data-site-text=phoneDisplay`
 
-Source IDs: `site-nav`, `site-footer`.
+Source IDs: `site-nav`, `contact`, `find-us`, `site-footer`.
+
+Design: V4 "day into night" (see DESIGN.md). Sections: opening photo (lobby), contact details + inquiry form, Find Us map, closing band.
 
 ## Image placements
 
-`/images/main-hall.jpg`
+`/images/venue-lobby-art.jpg` (opening), `/images/main-hall.jpg` (closing band)
 
 ## Editing rules
 
