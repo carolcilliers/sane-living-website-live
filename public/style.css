@@ -1527,3 +1527,12 @@ h1, h2, h3, h4, .fact-num, .pillar-num, .rate-label, .avail-steps li::before { f
 .page-hero .label { background: transparent; color: var(--clr-glow); padding: 0; font-weight: 800; letter-spacing: 0.22em; }
 .page-hero h1 { font-weight: 600; font-size: clamp(2.6rem, 5.5vw, 4rem); line-height: 1.05; }
 .page-hero p { color: #e6dcea; }
+
+/* ---- V4: the yin-yang stays purple on dark backgrounds ----
+   Over dark opening photos and in the night footer, show logo-on-dark.png (purple symbol, light
+   lettering) instead of turning the whole logo white. The <img> keeps its size and alt text. */
+.nav-logo, .footer-logo { display: inline-flex; background: no-repeat left center / contain; }
+body:has(.video-hero) .site-nav:not(.scrolled):not(:has(.nav-toggle.active)) .nav-logo { background-image: url('/images/logo-on-dark.png'); }
+body:has(.video-hero) .site-nav:not(.scrolled):not(:has(.nav-toggle.active)) .nav-logo img { filter: none; opacity: 0; }
+.site-footer .footer-logo { background-image: url('/images/logo-on-dark.png'); }
+.site-footer .footer-logo img { filter: none; opacity: 0; }

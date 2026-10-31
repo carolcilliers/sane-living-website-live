@@ -150,3 +150,8 @@ Home page personality pieces: the "Behind the purple doors" story, a fact strip 
 numbers, and sun → moon time markers with a filling day line. Past-event flyers stay on
 the Events page. Use only real facts and real event material;
 never invented reviews or numbers.
+
+Logo on dark backgrounds (Oct 30): over dark opening photos and in the night footer the site shows
+`/images/logo-on-dark.png` (purple yin-yang, light lettering) instead of whitening the logo, so the
+symbol is always purple. If the logo is replaced in the dashboard, make a matching logo-on-dark.png.
+The browser-tab icon (favicon.svg) is the purple yin-yang symbol.
