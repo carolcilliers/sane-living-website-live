@@ -142,7 +142,7 @@ Rules of thumb:
 - Pair day and night photos of the same place where possible.
 - Voice: warm, confident, a little insider ("Ojai goes quiet at 9. We don't have to.").
   Daytime use is as important as nighttime; never pitch the venue as only after-hours.
-- The home headline's text after the first comma renders in the glow italic.
+- The home headline's second half (after the first comma, or from " in the ") renders in the glow italic.
 
 V4 additions (Oct 29): a faint film-grain texture (`--grain`) sits on every `.section-night`,
 and the shared footer is now a night footer (deep plum, glow headings, white logo).

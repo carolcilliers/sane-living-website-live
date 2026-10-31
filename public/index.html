@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Sane Living Center — Ojai&#39;s Gathering Place, in the Heart of Town</title>
+  <title>Sane Living Center — Host Your Event in the Heart of Ojai</title>
   <meta name="description" content="Sane Living Center — a beautiful auditorium and gathering venue in the heart of Ojai, California. Events, workshops, film screenings, and more.">
   <link rel="stylesheet" href="/style.css">
   <style>
@@ -325,7 +325,7 @@
     }
   </style>
 
-  <meta property="og:title" content="Sane Living Center — Ojai&#39;s Gathering Place, in the Heart of Town">
+  <meta property="og:title" content="Sane Living Center — Host Your Event in the Heart of Ojai">
   <meta property="og:description" content="Sane Living Center — a beautiful auditorium and gathering venue in the heart of Ojai, California. Events, workshops, film screenings, and more.">
   <meta property="og:image" content="https://saneliving.com/images/share-auditorium.jpg">
   <meta property="og:image:width" content="1200">
@@ -334,7 +334,7 @@
   <meta property="og:type" content="website">
   <meta property="og:url" content="https://saneliving.com/">
   <meta name="twitter:card" content="summary_large_image">
-  <meta name="twitter:title" content="Sane Living Center — Ojai&#39;s Gathering Place, in the Heart of Town">
+  <meta name="twitter:title" content="Sane Living Center — Host Your Event in the Heart of Ojai">
   <meta name="twitter:description" content="Sane Living Center — a beautiful auditorium and gathering venue in the heart of Ojai, California. Events, workshops, film screenings, and more.">
   <meta name="twitter:image" content="https://saneliving.com/images/share-auditorium.jpg">
   <meta name="twitter:image:alt" content="The Auditorium at the Sane Living Center in Ojai">
@@ -357,7 +357,7 @@
     <div class="hero-scrim" aria-hidden="true"></div>
     <div class="hero-copy">
       <div class="home-wrap">
-        <h1 data-site-text="homeHeading">Ojai’s Gathering Place, <em>in the Heart of Town</em></h1>
+        <h1 data-site-text="homeHeading">Host Your Event <em>in the Heart of Ojai</em></h1>
         <p class="hero-subtitle" data-site-text="homeIntro">Ojai is known for its hidden gems. This one is in the heart of town, and unlike anything else you’ll find nearby.</p>
         <div class="hero-actions">
           <a href="/#availability" class="btn btn-glow" data-site-href="homePrimaryUrl" data-site-text="homePrimaryLabel">Check a Date</a>
@@ -734,17 +734,19 @@
   }).catch(function() {});
   </script>
   <script>
-  // Headline: everything after the first comma is shown in the gold italic accent
+  // Headline: the second half is shown in the gold italic accent
   // (the words themselves are edited in the dashboard: Homepage → Main headline).
   (function() {
     function accent() {
       var h = document.querySelector('[data-site-text="homeHeading"]');
       if (!h || h.querySelector('em')) return;
-      var t = h.textContent, i = t.indexOf(',');
-      if (i < 1 || i >= t.trim().length - 1) return;
+      // Gold half starts after the first comma, or else at " in the " ("Host Your Event / in the Heart of Ojai").
+      var t = h.textContent, i = t.indexOf(','), cut = i + 1;
+      if (i < 1) { i = t.indexOf(' in the '); cut = i; }
+      if (i < 1 || cut >= t.trim().length - 1) return;
       var em = document.createElement('em');
-      em.textContent = t.slice(i + 1).trim();
-      h.textContent = t.slice(0, i + 1) + ' ';
+      em.textContent = t.slice(cut).trim();
+      h.textContent = t.slice(0, cut).trim() + ' ';
       h.appendChild(em);
     }
     document.addEventListener('sane:settings-ready', accent);
