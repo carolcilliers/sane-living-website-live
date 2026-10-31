@@ -1521,3 +1521,9 @@ p, li, dd, figcaption { text-wrap: pretty; }
 
 /* ---- V4: modern (lining) numbers in the display font, so "1" never reads as "I" ---- */
 h1, h2, h3, h4, .fact-num, .pillar-num, .rate-label, .avail-steps li::before { font-variant-numeric: lining-nums; }
+
+/* ---- V4: older title banners (Rates, Partners, Cielo Farm, Ojai Health Intensive) in the evening style ---- */
+.page-hero { background-color: var(--clr-night); background-image: var(--grain), linear-gradient(135deg, var(--clr-night-deep) 0%, var(--clr-night) 55%, var(--clr-dusk) 100%); }
+.page-hero .label { background: transparent; color: var(--clr-glow); padding: 0; font-weight: 800; letter-spacing: 0.22em; }
+.page-hero h1 { font-weight: 600; font-size: clamp(2.6rem, 5.5vw, 4rem); line-height: 1.05; }
+.page-hero p { color: #e6dcea; }

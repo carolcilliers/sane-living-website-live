@@ -58,7 +58,7 @@ function injectNav() {
         <li><a href="/contact/"${isActive(currentPath, '/contact/')}>Contact</a></li>
       </ul>
       <div class="nav-end">
-        <a href="/rent/#calendar" class="btn btn-primary nav-cta" aria-label="Check availability"><span class="nav-cta-full">Check Availability</span><span class="nav-cta-short">Availability</span></a>
+        <a href="/rent/#calendar" class="btn btn-primary nav-cta" aria-label="Check a date"><span class="nav-cta-full">Check a Date</span><span class="nav-cta-short">Check a Date</span></a>
         <button class="nav-toggle" id="nav-toggle" aria-label="Toggle menu">
           <span></span><span></span><span></span>
         </button>
@@ -135,8 +135,8 @@ function injectFooter() {
             <a href="/rent/">Rent the Space</a>
             <a href="/rent/pricing/">Rates &amp; Availability</a>
             <a href="/rent/#weddings">Weddings</a>
-            <a href="/events/">Events</a>
-            <a href="/gallery/">Photo Gallery</a>
+            <a href="/events/">Community Events</a>
+            <a href="/gallery/">Gallery</a>
             <a href="/contact/">Contact</a>
           </nav>
         </div>

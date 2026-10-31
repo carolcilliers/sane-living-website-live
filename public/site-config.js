@@ -24,7 +24,7 @@
     homeHeading: "Downtown Ojai's Premiere Event Space", homeIntro: 'A beautiful auditorium and gathering venue in the heart of Ojai, California',
     homePrimaryLabel: 'Rent the Space', homePrimaryUrl: '/rent/', homeVideoUrl: '/hero-video.mp4', homePosterUrl: '/images/homepage-hero.jpg',
     announcementEnabled: false, announcementText: '', announcementLinkLabel: '', announcementLinkUrl: '',
-    newsletterEnabled: true, newsletterTitle: 'Subscribe for updates', newsletterDescription: '', newsletterButton: 'Subscribe',
+    newsletterEnabled: true, newsletterTitle: 'Subscribe for Updates', newsletterDescription: '', newsletterButton: 'Subscribe',
     newsletterUrl: 'https://saneliving.us19.list-manage.com/subscribe/post?u=b3bc47585c00a4e19f7c3841d&id=590b76d0aa',
     rentalFormUrl: 'https://airtable.com/embed/shr45BrcrP6gderXF?backgroundColor=cyan',
     contactFormUrl: 'https://airtable.com/embed/appQOArJhzGuz5qBY/pag6FRmZdGDyHkrc4/form',

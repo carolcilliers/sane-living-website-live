@@ -5,12 +5,12 @@
     "image": "https://saneliving.com/images/share-auditorium.jpg"
   },
   "/contact/": {
-    "title": "Contact — Sane Living",
-    "description": "Contact Sane Living Center in Ojai, California. Register by email or contact us for more details about our programs.",
+    "title": "Contact — Sane Living Center",
+    "description": "Contact the Sane Living Center in downtown Ojai: ask about a date, plan a walk-through or send us a message.",
     "image": "https://saneliving.com/images/share-auditorium.jpg"
   },
   "/events/ojai-health-intensive/": {
-    "title": "Ojai Health Intensive — Sane Living",
+    "title": "Ojai Health Intensive — Sane Living Center",
     "description": "Videos and resources from the Ojai Health Intensive at the Sane Living Center.",
     "image": ""
   },
@@ -20,8 +20,8 @@
     "image": ""
   },
   "/events/": {
-    "title": "Events — Sane Living",
-    "description": "Upcoming public events and recent events at the Sane Living Center in Ojai, California. Film screenings, workshops, performances, and community gatherings.",
+    "title": "Community Events — Sane Living Center",
+    "description": "Upcoming community events and past events at the Sane Living Center in downtown Ojai: film screenings, workshops, performances and gatherings open to everyone.",
     "image": "https://saneliving.com/images/share-auditorium.jpg"
   },
   "/evo3/": {
@@ -30,13 +30,13 @@
     "image": "https://saneliving.com/images/share-auditorium.jpg"
   },
   "/gallery/": {
-    "title": "Photo Gallery — Sane Living",
-    "description": "Photos of the Sane Living Center in downtown Ojai, California — the soundproof auditorium, weddings, conference room, and outdoor space.",
+    "title": "Gallery — Sane Living Center",
+    "description": "Photos of the Sane Living Center in downtown Ojai: the Auditorium, Conference Room, the Annex, the Secret Garden, weddings and events.",
     "image": "https://saneliving.com/images/share-auditorium.jpg"
   },
   "/": {
-    "title": "Sane Living — Downtown Ojai's Premiere Event Space",
-    "description": "Sane Living Center — a beautiful auditorium and gathering venue in the heart of Ojai, California. Events, workshops, film screenings, and more.",
+    "title": "Sane Living Center — Ojai's Gathering Place, in the Heart of Town",
+    "description": "Ojai's gathering place, right downtown: a soundproof auditorium, conference room, flex space and secret garden for meetings, workshops, weddings, screenings and parties, open 8 am to 1 am.",
     "image": "https://saneliving.com/images/share-auditorium.jpg"
   },
   "/inspiration/": {
@@ -70,12 +70,12 @@
     "image": "https://saneliving.com/images/share-auditorium.jpg"
   },
   "/partners/": {
-    "title": "Our Partners — Sane Living",
+    "title": "Our Partners — Sane Living Center",
     "description": "Local Ojai partners who help hosts put on great events at the Sane Living Center — caterers, planners, florists, photographers and more.",
     "image": "https://saneliving.com/images/share-auditorium.jpg"
   },
   "/rent/farm/": {
-    "title": "Cielo Farm — Sane Living",
+    "title": "Cielo Farm — Sane Living Center",
     "description": "Rent Cielo Farm — a quiet 20+ acre permaculture orchard in Ojai, California. Perfect for retreats and getaways.",
     "image": "https://saneliving.com/images/share-auditorium.jpg"
   },
@@ -90,8 +90,8 @@
     "image": "https://saneliving.com/images/share-auditorium.jpg"
   },
   "/rent/": {
-    "title": "Rent the Sane Living Center — Sane Living",
-    "description": "Rent the Sane Living Center — a beautiful high-tech auditorium in downtown Ojai, CA for events, conferences, celebrations, and more.",
+    "title": "Rent the Space — Sane Living Center",
+    "description": "Four spaces at one downtown Ojai address: the Auditorium, Conference Room, the Annex and the Secret Garden. Meetings, workshops, celebrations and weddings.",
     "image": "https://saneliving.com/images/share-auditorium.jpg"
   },
   "/sculpture/": {
