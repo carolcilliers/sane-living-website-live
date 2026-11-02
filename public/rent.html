@@ -184,7 +184,7 @@
             <span class="space-num">01</span>
             <h3>The Auditorium</h3>
             <span class="space-cap">Seats 110 · 200 standing</span>
-            <p>The heart of the building: a soundproof room with stained glass, a real stage and a full sound and projection system. Set it in rows for a talk, in a circle for a workshop, with tables for a reception or wide open for a dance floor.</p>
+            <p>The heart of the building: a soundproof room with stained glass, a real stage and a full sound and projection system. Set it in rows for a talk, in a circle for a workshop, with tables for a screening or wide open for a dance floor. Made for making noise: the walls keep the music, laughter, cheers and happy tears inside, long after dark.</p>
             <ul class="chips"><li>Stage</li><li>Projector &amp; Screen</li><li>Sound System</li><li>Theater Lighting</li><li>Soundproof Walls</li><li>Restrooms</li></ul>
             <button type="button" id="open-gallery-btn" class="space-more">See More Photos</button>
           </div>
@@ -206,7 +206,7 @@
             <h3>The Annex</h3>
             <span class="space-cap">Multi-use flex space</span>
             <p>A bright, flexible room with white walls, part hardwood floor and part carpet, right next to the Secret Garden. Set it up for a class, a breakout, a quiet lounge or a staging area for your event.</p>
-            <ul class="chips"><li>Hardwood &amp; Carpet</li><li>White Walls</li><li>Next to the Secret Garden</li><li>Restrooms</li></ul>
+            <ul class="chips"><li>Hardwood &amp; Carpet</li><li>White Walls</li><li>Next to the Secret Garden</li><li>Restroom</li></ul>
           </div>
         </article>
         <article class="space" data-animate>
@@ -246,8 +246,8 @@
         <div>
           <span class="eyebrow">Occasions · Weddings</span>
           <h2 class="rent-h2" id="wedding-heading">Weddings at Sane Living</h2>
-          <div id="wedding-intro"><p>The Sane Living Center is a beautiful auditorium and gathering venue located at 316 E. Matilija St, Ojai, CA 93023.</p>
-          <p>This high technology space has hosted a wide variety of events including special occasions and private celebrations, and is available for weddings and receptions.</p></div>
+          <div id="wedding-intro"><p>Say your vows beneath the stained glass, toast under the olive tree and string lights in the Secret Garden, then dim the lights and dance until midnight in the soundproof Auditorium. No neighbors to wake, and no last call at ten.</p>
+          <p>Your guests walk from their hotels to the ceremony and on to downtown dinner, and the wedding party gets ready in a private room down the hall. Bring the caterer you love and make the whole day yours, at one address in the heart of Ojai.</p></div>
           <a data-site-href="phoneLink" href="tel:+18056466000" class="btn btn-primary wedding-call">Call (805) 646-6000</a>
         </div>
         <img id="wedding-hero" src="/IMG_0197.jpg" alt="Wedding ceremony in the Auditorium at Sane Living, with a floral arch and a candlelit aisle">
@@ -338,6 +338,21 @@
   </div>
 
   <footer id="site-footer"></footer>
+  <script>
+  // Photos and wedding details load after the page opens and push later sections down.
+  // When the link pointed at a section (e.g. /rent/#calendar), jump back to it after each load,
+  // unless the visitor has already started scrolling on their own.
+  (function() {
+    var moved = false;
+    ['wheel', 'touchstart', 'keydown', 'mousedown'].forEach(function(t) { window.addEventListener(t, function() { moved = true; }, { passive: true, once: true }); });
+    window.rentRescroll = function() {
+      if (moved || !location.hash) return;
+      var el = document.getElementById(decodeURIComponent(location.hash.slice(1)));
+      if (el) el.scrollIntoView({ behavior: 'auto', block: 'start' });
+    };
+    window.addEventListener('load', function() { window.rentRescroll(); setTimeout(window.rentRescroll, 400); });
+  })();
+  </script>
   <script src="/script.js"></script>
   <script>
   // The calendar's legend uses the same wording as the Rates & Availability page (dashboard → Pricing).
@@ -352,7 +367,7 @@
     var GROUPS = [
       { id: 'talks', title: 'Talks & Workshops' },
       { id: 'wellness', title: 'Wellness & Circles' },
-      { id: 'receptions', title: 'Receptions & Gatherings' },
+      { id: 'receptions', title: 'Gatherings & Screenings' },
       { id: 'performances', title: 'Concerts & Performances' },
       { id: 'meetings', title: 'Meetings & Classes' }
     ];
@@ -368,6 +383,7 @@
         if (!tiles) return;
         document.getElementById('rent-photo-grid').innerHTML = tiles;
         document.getElementById('rent-photos').hidden = false;
+        window.rentRescroll();
       })
       .catch(function() { /* keep the section hidden */ });
   })();
@@ -399,6 +415,7 @@
         if (d.parkingNote) details += '<p><strong>Parking</strong> ' + esc(d.parkingNote) + '</p>';
         document.getElementById('wedding-details').innerHTML = details;
         if (typeof d.pricingText === 'string') document.getElementById('wedding-pricing-text').textContent = d.pricingText;
+        window.rentRescroll();
       })
       .catch(function() {});
   })();
@@ -420,6 +437,7 @@
         return '<a class="wedding-photo" href="/gallery/#gallery-weddings"><img src="' + esc(p.image) + '" alt="' + esc(p.alt || p.caption) + '" loading="lazy"></a>';
       }).join('');
       document.getElementById('wedding-photos').hidden = false;
+      window.rentRescroll();
     }).catch(function() { /* keep the section hidden */ });
   })();
   </script>
