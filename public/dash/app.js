@@ -692,7 +692,7 @@
     { id: '', title: 'Around the venue (general)' },
     { id: 'talks', title: 'Talks & workshops' },
     { id: 'wellness', title: 'Wellness & circles' },
-    { id: 'receptions', title: 'Gatherings & screenings' },
+    { id: 'receptions', title: 'Receptions & screenings' },
     { id: 'performances', title: 'Concerts & performances' },
     { id: 'meetings', title: 'Meetings & classes' },
   ];
