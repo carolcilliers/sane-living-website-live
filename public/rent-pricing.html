@@ -241,7 +241,7 @@
       <!-- Weddings -->
       <div class="wedding-pricing" id="weddings" data-animate>
         <h2>Weddings</h2>
-        <p id="pricing-weddings-note">Weddings are quoted separately from venue rental. See <a href="/rent/#weddings">wedding packages and availability</a>.</p>
+        <p id="pricing-weddings-note">Weddings are quoted separately from standard venue rental rates. See <a href="/rent/#weddings">wedding packages and availability</a>, and let’s co-create the wedding of your dreams together.</p>
         <a href="/rent/#weddings" class="btn btn-primary wedding-pricing-btn">Explore Weddings</a>
       </div>
 
@@ -300,7 +300,11 @@
               '<td>' + esc(row.monThu) + '</td><td>' + esc(row.friday) + '</td><td>' + esc(row.saturday) + '</td><td>' + esc(row.sunday) + '</td></tr>';
           }).join('');
         }
-        if (typeof d.weddingsNote === 'string') document.getElementById('pricing-weddings-note').textContent = d.weddingsNote;
+        if (typeof d.weddingsNote === 'string') {
+          // Keep the words "wedding packages and availability" as a link to the Weddings section.
+          var wn = esc(d.weddingsNote).replace(/wedding packages and availability/i, function(m) { return '<a href="/rent/#weddings">' + m + '</a>'; });
+          document.getElementById('pricing-weddings-note').innerHTML = wn;
+        }
         if (typeof d.availabilityNote === 'string') document.getElementById('pricing-availability-note').textContent = d.availabilityNote;
       })
       .catch(function() {});

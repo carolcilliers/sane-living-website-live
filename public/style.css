@@ -1536,3 +1536,6 @@ body:has(.video-hero) .site-nav:not(.scrolled):not(:has(.nav-toggle.active)) .na
 body:has(.video-hero) .site-nav:not(.scrolled):not(:has(.nav-toggle.active)) .nav-logo img { filter: none; opacity: 0; }
 .site-footer .footer-logo { background-image: url('/images/logo-on-dark.png'); }
 .site-footer .footer-logo img { filter: none; opacity: 0; }
+
+/* Keep a short closing phrase together on one line */
+.nowrap { white-space: nowrap; }
