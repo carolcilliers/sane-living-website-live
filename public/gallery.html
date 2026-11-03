@@ -35,6 +35,7 @@
     .space-browse a:hover, .space-browse a:focus-visible { color: var(--clr-accent); border-color: var(--clr-accent); }
     .space-browse a[aria-current="page"] { color: var(--clr-accent); border-color: var(--clr-accent); }
     .gallery-intro.is-space .gallery-jump { display: none; }
+    .gallery-intro.is-space .space-browse { margin-top: var(--space-xl); font-size: 13px; }
     .space-actions { display: flex; flex-wrap: wrap; gap: 12px; justify-content: center; margin-top: clamp(2.5rem, 5vw, 3.5rem); }
 
     #gallery-chapters > section { scroll-margin-top: var(--nav-height, 72px); }
@@ -199,10 +200,11 @@
     var activeSpace = SPACES.filter(function(s) { return s.id === spaceParam; })[0] || null;
     function browseRow() {
       var links = SPACES.map(function(s) {
-        return '<a href="/gallery/?space=' + s.id + '"' + (activeSpace === s ? ' aria-current="page"' : '') + '>' + esc(s.title.replace(/^The /, '')) + '</a>';
+        var href = activeSpace ? '#space-' + s.id : '/gallery/?space=' + s.id;
+        return '<a href="' + href + '">' + esc(s.title.replace(/^The /, '')) + '</a>';
       });
-      if (activeSpace) links.push('<a href="/gallery/">All Photos</a>');
-      document.getElementById('space-browse').innerHTML = '<span class="space-browse-label">Browse by Space</span>' + links.join('');
+      if (activeSpace) links.push('<a href="/gallery/">Browse by Event</a>');
+      document.getElementById('space-browse').innerHTML = '<span class="space-browse-label">' + (activeSpace ? 'Jump To' : 'Browse by Space') + '</span>' + links.join('');
     }
 
     function esc(s) { return String(s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
@@ -294,22 +296,32 @@
       openViewer(+a.getAttribute('data-lb'));
     });
 
-    function renderSpace(photos, s) {
+    function renderSpaces(photos, target) {
       viewer = [];
-      document.title = s.title + ' — Photos — Sane Living Center';
+      document.title = 'Browse by Space — Photos — Sane Living Center';
       document.querySelector('.gallery-intro').classList.add('is-space');
-      document.getElementById('gallery-title').textContent = s.title;
-      document.getElementById('gallery-lede').textContent = s.lede;
-      document.getElementById('gallery-text').textContent = s.text;
-      var seen = {}, list = photos.filter(function(p) {
-        if (p.space !== s.id || seen[p.image]) return false;
-        seen[p.image] = true; return true;
-      });
-      document.getElementById('gallery-chapters').innerHTML =
-        '<section class="section section-alt" id="space-' + s.id + '" aria-label="' + esc(s.title) + ' photos"><div class="container">' +
-        (list.length ? mosaic(list, false) : '<p style="text-align:center;">Photos of this space are coming soon.</p>') +
-        '<div class="space-actions"><a href="/rent/#calendar" class="btn btn-primary">Check a Date</a>' +
-        '<a href="/rent/#space-' + s.id + '" class="btn btn-outline">About This Space</a></div></div></section>';
+      document.getElementById('gallery-title').textContent = 'Browse by Space';
+      document.getElementById('gallery-lede').textContent = 'Four spaces at 316 E Matilija St., Ojai.';
+      document.getElementById('gallery-text').textContent = 'Every photo of each space, whatever the occasion. Jump to a space below, then picture your own event there.';
+      var html = SPACES.map(function(s, i) {
+        var seen = {}, list = photos.filter(function(p) {
+          if (p.space !== s.id || seen[p.image]) return false;
+          seen[p.image] = true; return true;
+        });
+        var alt = i % 2 === 0;
+        return '<section class="section' + (alt ? ' section-alt' : '') + '" id="space-' + s.id + '" aria-labelledby="space-' + s.id + '-title"><div class="container">' +
+          '<div class="chapter-head"><div class="chapter-text"><span class="chapter-eyebrow">' + esc(s.lede) + '</span>' +
+          '<h2 id="space-' + s.id + '-title">' + esc(s.title) + '</h2><p>' + esc(s.text) + '</p></div>' +
+          '<a class="btn btn-outline chapter-cta" href="/rent/#space-' + s.id + '">About This Space</a></div>' +
+          (list.length ? mosaic(list, !alt) : '<p style="text-align:center;">Photos of this space are coming soon.</p>') +
+          '</div></section>';
+      }).join('');
+      document.getElementById('gallery-chapters').innerHTML = html +
+        '<section class="section"><div class="container"><div class="space-actions" style="margin-top:0;"><a href="/rent/#calendar" class="btn btn-primary">Check a Date</a><a href="/gallery/" class="btn btn-outline">Browse by Event</a></div></div></section>';
+      // Opened from a link to one space (e.g. the home page photo strip): scroll to that space.
+      var el = target && target !== SPACES[0] && document.getElementById('space-' + target.id);
+      if (location.hash) el = document.getElementById(decodeURIComponent(location.hash.slice(1))) || el;
+      if (el) requestAnimationFrame(function() { el.scrollIntoView(); });
     }
 
     browseRow();
@@ -317,7 +329,7 @@
       .then(function(r) { return r.ok ? r.json() : null; })
       .then(function(d) {
         var photos = ((d && d.photos) || []).filter(function(p) { return !p.draft && p.image; });
-        if (activeSpace) renderSpace(photos, activeSpace); else render(photos);
+        if (activeSpace) renderSpaces(photos, activeSpace); else render(photos);
       })
       .catch(function() {
         document.getElementById('gallery-chapters').innerHTML = '<section class="section section-alt"><div class="container"><p style="text-align:center;">Could not load photos.</p></div></section>';
