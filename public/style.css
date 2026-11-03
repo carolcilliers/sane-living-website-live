@@ -1544,3 +1544,4 @@ body:has(.video-hero) .site-nav:not(.scrolled):not(:has(.nav-toggle.active)) .na
 /* Keep-sentences-together helper (see initSentenceLines in script.js) */
 .sentence-whole { white-space: nowrap; }
 .sentence-measure { white-space: nowrap !important; display: inline-block; }
+.page-hero .page-hero-sub { margin: var(--space-sm) auto 0; max-width: 40rem; font-family: var(--font-display); font-style: italic; font-size: clamp(1.15rem, 1.8vw, 1.4rem); color: var(--clr-glow); }
