@@ -222,7 +222,7 @@
     function tile(p, cls) {
       var i = viewer.push(p) - 1;
       return '<a class="tile ' + cls + '" href="' + esc(p.image) + '" data-lb="' + i + '">' +
-        '<img src="' + esc(p.image) + '" alt="' + esc(p.alt || p.caption) + '" loading="lazy">' +
+        '<img src="' + esc(p.image) + '" alt="' + esc(p.alt || p.caption) + '" loading="lazy"' + (p.focus ? ' style="object-position:' + esc(p.focus) + '"' : '') + '>' +
         (p.caption ? '<span class="tile-caption" aria-hidden="true">' + esc(p.caption) + '</span>' : '') + '</a>';
     }
     function mosaic(list, flipStart) {

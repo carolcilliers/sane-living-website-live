@@ -177,30 +177,6 @@
       "space": "conference"
     },
     {
-      "image": "/images/venue-annex.jpg",
-      "caption": "The Annex",
-      "alt": "The Annex: a bright, open flex room with gray carpet and a section of hardwood floor, a wooden table with wishbone chairs, track lighting and white walls",
-      "section": "venue",
-      "group": "meetings",
-      "space": "annex"
-    },
-    {
-      "image": "/images/annex-meeting-table.jpg",
-      "caption": "The Annex — Meeting table",
-      "alt": "The Annex set up with a long walnut table and wishbone chairs on gray carpet, bamboo hardwood floor, track lighting, plants and a pull-up projector screen",
-      "section": "venue",
-      "group": "meetings",
-      "space": "annex"
-    },
-    {
-      "image": "/images/annex-work-tables.jpg",
-      "caption": "The Annex — Work tables",
-      "alt": "The Annex with a glass work table and a wooden desk with wishbone chairs on gray carpet, track lighting and windows",
-      "section": "venue",
-      "group": "meetings",
-      "space": "annex"
-    },
-    {
       "image": "/images/evo3-sculpture.jpg",
       "caption": "EVO3 Sculpture and outdoor gathering area",
       "alt": "EVO3 Sculpture at Sane Living Center",
@@ -240,6 +216,30 @@
       "alt": "Wedding ceremony in the Auditorium, with dark chairs, a white floral arch under the stained-glass window and flowers lining a rug aisle",
       "section": "weddings",
       "space": "auditorium"
+    },
+    {
+      "image": "/images/annex-bridal-room.jpg",
+      "caption": "The Annex — Bridal room",
+      "alt": "The Annex set as a bridal room: a wedding dress hanging from the ceiling, tall arched mirrors, a round mirror over a wooden console, velvet armchairs and white roses",
+      "section": "weddings",
+      "space": "annex"
+    },
+    {
+      "image": "/images/annex-meditation.jpg",
+      "caption": "The Annex — Meditation space",
+      "alt": "The Annex set for meditation: floor cushions around a low table with a singing bowl and a bell, on part carpet and part hardwood floor, with sheer curtains and track lighting",
+      "section": "venue",
+      "group": "wellness",
+      "space": "annex",
+      "focus": "center 72%"
+    },
+    {
+      "image": "/images/venue-annex.jpg",
+      "caption": "The Annex",
+      "alt": "The Annex: a bright, open flex room with gray carpet and a section of hardwood floor, a wooden table with wishbone chairs, track lighting and white walls",
+      "section": "venue",
+      "group": "meetings",
+      "space": "annex"
     },
     {
       "image": "/IMG_0207.jpg",
