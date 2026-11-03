@@ -53,7 +53,7 @@
     },
     {
       "route": "/gallery/",
-      "label": "Gallery",
+      "label": "Photos",
       "visible": true
     },
     {

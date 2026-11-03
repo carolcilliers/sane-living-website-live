@@ -44,7 +44,7 @@ function injectNav() {
           </div>
         </li>
         <li><a href="/rent/weddings/"${isActive(currentPath, '/rent/weddings/')}>Weddings</a></li>
-        <li><a href="/gallery/"${isActive(currentPath, '/gallery/')}>Gallery</a></li>
+        <li><a href="/gallery/"${isActive(currentPath, '/gallery/')}>Photos</a></li>
         <li><a href="/sculpture/"${isActive(currentPath, '/sculpture/')}>Sculpture</a></li>
         <li class="nav-dropdown">
           <a href="/about/"${isActive(currentPath, '/about/')}>About</a>
@@ -136,7 +136,7 @@ function injectFooter() {
             <a href="/rent/pricing/">Rates &amp; Availability</a>
             <a href="/rent/#weddings">Weddings</a>
             <a href="/events/">Community Events</a>
-            <a href="/gallery/">Gallery</a>
+            <a href="/gallery/">Photos</a>
             <a href="/contact/">Contact</a>
           </nav>
         </div>
