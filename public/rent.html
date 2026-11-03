@@ -143,6 +143,10 @@
     .rent-extra .text-link { font-weight: 700; color: var(--clr-accent); border-bottom: 1px solid currentColor; padding-bottom: 3px; }
     .rent-extra:hover h3 { color: var(--clr-accent); }
     @media (max-width: 760px) { .rent-extras { grid-template-columns: 1fr; } }
+    .rent-extras:has(> .rent-extra-feature:only-child) { grid-template-columns: 1fr; }
+    .rent-extra-feature { border-top: 0; padding-top: 0; display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 6fr); gap: clamp(1.5rem, 4vw, 3.5rem); align-items: center; }
+    .rent-extra-feature img { width: 100%; aspect-ratio: 3 / 2; object-fit: cover; border-radius: 4px; display: block; }
+    @media (max-width: 760px) { .rent-extra-feature { grid-template-columns: 1fr; } }
   </style>
 <link rel="icon" href="/favicon.svg">
 <script src="/site-config.js" defer></script>
@@ -311,17 +315,14 @@
   <section class="section section-alt" id="extras">
     <div class="rent-wrap">
       <div class="rent-extras" data-animate>
-        <a href="/partners/" class="rent-extra">
-          <span class="eyebrow">Our Partners</span>
-          <h3>Local Vendors We Trust</h3>
-          <p data-sentences>Caterers, planners, florists, photographers and musicians who help hosts put on great events.</p>
-          <span class="text-link">Meet Our Partners &rarr;</span>
-        </a>
-        <a href="/rent/farm/" class="rent-extra">
-          <span class="eyebrow">Staying overnight?</span>
-          <h3>Nearby Stays</h3>
-          <p data-sentences>Need accommodation in Ojai? See properties near the Center for you and your guests.</p>
-          <span class="text-link">See Nearby Stays &rarr;</span>
+        <a href="/partners/#cielo-farm" class="rent-extra rent-extra-feature">
+          <img src="/images/cielo-farm.jpg" alt="Cielo Farm: a farmhouse surrounded by trees and a white fence in the hills above Ojai" loading="lazy">
+          <div>
+            <span class="eyebrow">Our Partners</span>
+            <h3>Stay Nearby at Cielo Farm</h3>
+            <p data-sentences>A 20+ acre orchard retreat in the hills along the Los Padres National Forest, for you and your guests. It’s also a beautiful spot for wedding photos.</p>
+            <span class="text-link">Meet Our Partners &rarr;</span>
+          </div>
         </a>
       </div>
     </div>
