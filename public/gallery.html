@@ -192,7 +192,7 @@
       { id: 'conference', title: 'Conference Room', lede: 'Meetings · Breakouts · Getting ready',
         text: 'A calm, separate room with a long wooden table, a big wall-mounted flatscreen TV, a whiteboard and natural light.' },
       { id: 'annex', title: 'The Annex', lede: 'Flex space · Classes · Bridal room',
-        text: 'A bright, flexible room with white walls, part hardwood floor and part carpet, right next to the Secret Garden.' },
+        text: 'A bright, flexible room with white walls, part hardwood floor and part carpet, right next to the Secret Garden.', bigRight: true },
       { id: 'garden', title: 'The Secret Garden', lede: 'Outdoors · Ceremonies · Dinners',
         text: 'A hidden garden with an olive tree, warm gravel, a white fence and string lights overhead.' }
     ];
@@ -313,7 +313,7 @@
           '<div class="chapter-head"><div class="chapter-text"><span class="chapter-eyebrow">' + esc(s.lede) + '</span>' +
           '<h2 id="space-' + s.id + '-title">' + esc(s.title) + '</h2><p>' + esc(s.text) + '</p></div>' +
           '<a class="btn btn-outline chapter-cta" href="/rent/#space-' + s.id + '">About This Space</a></div>' +
-          (list.length ? mosaic(list, !alt) : '<p style="text-align:center;">Photos of this space are coming soon.</p>') +
+          (list.length ? mosaic(list, s.bigRight !== undefined ? s.bigRight : !alt) : '<p style="text-align:center;">Photos of this space are coming soon.</p>') +
           '</div></section>';
       }).join('');
       document.getElementById('gallery-chapters').innerHTML = html +

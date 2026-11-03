@@ -218,11 +218,20 @@
       "space": "auditorium"
     },
     {
+      "image": "/images/venue-annex.jpg",
+      "caption": "The Annex",
+      "alt": "The Annex: a bright, open flex room with gray carpet and a section of hardwood floor, a wooden table with wishbone chairs, track lighting and white walls",
+      "section": "venue",
+      "group": "meetings",
+      "space": "annex"
+    },
+    {
       "image": "/images/annex-bridal-room.jpg",
       "caption": "The Annex — Bridal room",
       "alt": "The Annex set as a bridal room: a wedding dress hanging from the ceiling, tall arched mirrors, a round mirror over a wooden console, velvet armchairs and white roses",
       "section": "weddings",
-      "space": "annex"
+      "space": "annex",
+      "focus": "center 35%"
     },
     {
       "image": "/images/annex-meditation.jpg",
@@ -232,14 +241,6 @@
       "group": "wellness",
       "space": "annex",
       "focus": "center 72%"
-    },
-    {
-      "image": "/images/venue-annex.jpg",
-      "caption": "The Annex",
-      "alt": "The Annex: a bright, open flex room with gray carpet and a section of hardwood floor, a wooden table with wishbone chairs, track lighting and white walls",
-      "section": "venue",
-      "group": "meetings",
-      "space": "annex"
     },
     {
       "image": "/IMG_0207.jpg",
