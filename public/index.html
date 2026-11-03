@@ -90,15 +90,16 @@
 
     /* ---- Photo strips between sections ---- */
     .photo-strip { display: grid; grid-template-columns: 2fr 1fr 1fr 1.4fr; gap: 6px; height: clamp(240px, 30vw, 420px); background: var(--clr-bg); }
-    .photo-strip figure { position: relative; margin: 0; overflow: hidden; }
+    .photo-strip > * { position: relative; display: block; margin: 0; overflow: hidden; }
     .photo-strip img { width: 100%; height: 100%; object-fit: cover; display: block; border-radius: 0; transition: transform 0.8s var(--ease-soft); }
-    .photo-strip figure:hover img { transform: scale(1.04); }
-    .photo-strip figcaption { position: absolute; left: 0; right: 0; bottom: 0; padding: 32px 16px 12px; color: #fff; font-size: 12px; font-weight: 800; letter-spacing: 0.16em; text-transform: uppercase; background: linear-gradient(to top, rgba(31, 19, 40, 0.75), rgba(31, 19, 40, 0)); }
+    .photo-strip > *:hover img, .photo-strip > a:focus-visible img { transform: scale(1.04); }
+    .photo-strip > a:focus-visible { outline: 3px solid var(--clr-glow); outline-offset: -3px; }
+    .photo-strip figcaption, .photo-strip .strip-cap { position: absolute; left: 0; right: 0; bottom: 0; padding: 32px 16px 12px; color: #fff; font-size: 12px; font-weight: 800; letter-spacing: 0.16em; text-transform: uppercase; background: linear-gradient(to top, rgba(31, 19, 40, 0.75), rgba(31, 19, 40, 0)); }
     .photo-strip-night { background: var(--clr-night); }
     @media (max-width: 760px) {
       .photo-strip { grid-template-columns: 1fr 1fr; grid-auto-rows: 180px; height: auto; }
-      .photo-strip figure:first-child { grid-column: 1 / -1; }
-      .photo-strip figure:nth-child(4) { grid-column: 1 / -1; }
+      .photo-strip > *:first-child { grid-column: 1 / -1; }
+      .photo-strip > *:nth-child(4) { grid-column: 1 / -1; }
     }
     @media (prefers-reduced-motion: reduce) { .photo-strip img { transition: none; } }
 
@@ -496,10 +497,10 @@
 
   <!-- Photo strip: the spaces -->
   <div class="photo-strip" data-animate-stagger role="group" aria-label="Photos of the venue">
-    <figure><img src="/images/main-hall.jpg" alt="The Auditorium in afternoon light, with rows of chairs facing the stage and stained-glass window" loading="lazy"><figcaption>The Auditorium</figcaption></figure>
-    <figure><img src="/images/center-office.jpg" alt="The Conference Room, with a long wooden table, whiteboard and natural light" loading="lazy"><figcaption>Conference Room</figcaption></figure>
-    <figure><img src="/images/venue-secret-garden.jpg" alt="The Secret Garden set for a wedding reception, with long wooden tables under an olive tree and string lights" loading="lazy"><figcaption>The Secret Garden</figcaption></figure>
-    <figure><img src="/images/venue-annex.jpg" alt="The Annex: a bright, open flex room with gray carpet and a section of hardwood floor, a wooden table with wishbone chairs, track lighting and white walls" loading="lazy"><figcaption>The Annex</figcaption></figure>
+    <a href="/gallery/#gallery-talks" aria-label="See photos: The Auditorium"><img src="/images/main-hall.jpg" alt="The Auditorium in afternoon light, with rows of chairs facing the stage and stained-glass window" loading="lazy"><span class="strip-cap">The Auditorium</span></a>
+    <a href="/gallery/#gallery-meetings" aria-label="See photos: Conference Room"><img src="/images/center-office.jpg" alt="The Conference Room, with a long wooden table, whiteboard and natural light" loading="lazy"><span class="strip-cap">Conference Room</span></a>
+    <a href="/gallery/#gallery-outdoor" aria-label="See photos: The Secret Garden"><img src="/images/venue-secret-garden.jpg" alt="The Secret Garden set for a wedding reception, with long wooden tables under an olive tree and string lights" loading="lazy"><span class="strip-cap">The Secret Garden</span></a>
+    <a href="/gallery/#gallery-meetings" aria-label="See photos: The Annex"><img src="/images/venue-annex.jpg" alt="The Annex: a bright, open flex room with gray carpet and a section of hardwood floor, a wooden table with wishbone chairs, track lighting and white walls" loading="lazy"><span class="strip-cap">The Annex</span></a>
   </div>
 
   <!-- 5. Ways to book (evening) -->
