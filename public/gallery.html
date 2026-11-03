@@ -179,7 +179,7 @@
         text: 'More views of the Sane Living Center and its spaces.',
         cta: 'See rates & availability', href: '/rent/pricing/' },
       { id: 'outdoor', section: 'outdoor', eyebrow: 'Outdoors', title: 'Outdoor Spaces', noJump: true,
-        text: 'The stone patio by the entrance with the EVO3 sculpture, and the Secret Garden with its olive tree and string lights.',
+        text: 'The stone patio by the entrance with the EVO3 sculpture, and the Secret Garden with its olive trees and string lights.',
         cta: 'Ask about outdoor space', href: '/contact/' }
     ];
     var KNOWN_GROUPS = CHAPTERS.map(function(c) { return c.group; }).filter(Boolean);
@@ -194,7 +194,7 @@
       { id: 'annex', title: 'The Annex', lede: 'Flex space · Classes · Bridal room',
         text: 'A bright, flexible room with white walls, part hardwood floor and part carpet, right next to the Secret Garden.', bigRight: true },
       { id: 'garden', title: 'The Secret Garden', lede: 'Outdoors · Ceremonies · Dinners',
-        text: 'A hidden garden with an olive tree, warm gravel, a white fence and string lights overhead.' }
+        text: 'A hidden garden with olive trees, a shady mulberry tree, a white fence and string lights overhead, just steps from the Auditorium.' }
     ];
     var spaceParam = new URLSearchParams(location.search).get('space');
     var activeSpace = SPACES.filter(function(s) { return s.id === spaceParam; })[0] || null;

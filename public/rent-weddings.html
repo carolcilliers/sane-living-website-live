@@ -56,6 +56,9 @@
     .wedding-cta .hero-actions { display: flex; flex-wrap: wrap; gap: 12px; justify-content: center; }
     .wedding-intro-grid { display: grid; grid-template-columns: minmax(0, 6fr) minmax(0, 5fr); gap: clamp(2rem, 5vw, 4.5rem); align-items: center; }
     .wedding-intro-grid img { width: 100%; aspect-ratio: 4 / 3; object-fit: cover; border-radius: 4px; display: block; }
+    .wedding-story-photos { display: grid; grid-template-columns: 1fr; gap: 10px; }
+    .wedding-story-photos img { aspect-ratio: 16 / 10; }
+    .wedding-story-photos img + img { width: 72%; margin: -12% 0 0 auto; aspect-ratio: 4 / 3; box-shadow: 0 18px 40px rgba(31, 19, 40, 0.28); border: 6px solid var(--clr-bg); }
     #wedding-heading { margin-bottom: var(--space-lg); }
     #wedding-intro p { font-size: 1.05rem; line-height: 1.75; color: var(--clr-text-muted); }
     .wedding-facts { margin-top: clamp(2.5rem, 5vw, 3.5rem); }
@@ -128,11 +131,14 @@
         <div>
           <span class="eyebrow">Your Day, Your Way</span>
           <h2 class="rent-h2" style="margin-bottom: var(--space-lg);">One Address for the Whole Day</h2>
-          <div id="wedding-intro"><p>Say your vows beneath the stained glass, toast under the olive tree and string lights in the Secret Garden, then dim the lights and dance until midnight in the soundproof Auditorium. No neighbors to wake, and no last call at ten.</p>
+          <div id="wedding-intro"><p>Say your vows beneath the stained glass, toast under the olive trees and string lights in the Secret Garden, then dim the lights and dance until midnight in the soundproof Auditorium. No neighbors to wake, and no last call at ten.</p>
           <p>Your guests walk from their hotels to the ceremony and on to downtown dinner, and the wedding party gets ready in a private room down the hall. Bring in the vendors you love and make the whole day yours, at one address in the heart of Ojai.</p></div>
           <a data-site-href="phoneLink" href="tel:+18056466000" class="btn btn-primary wedding-call">Call (805) 646-6000</a>
         </div>
-        <img src="/IMG_0207.jpg" alt="Evening wedding reception outdoors, with green-draped round tables, lanterns and fairy lights in a tree" loading="lazy">
+        <div class="wedding-story-photos">
+          <img src="/IMG_0201.jpg" alt="Wedding ceremony in the Auditorium, with a white floral arch under the stained-glass window and flowers along a rug aisle" loading="lazy">
+          <img src="/IMG_0207.jpg" alt="Evening wedding reception in the Secret Garden, with green-draped round tables, lanterns and fairy lights in the trees" loading="lazy">
+        </div>
       </div>
     </div>
   </section>
