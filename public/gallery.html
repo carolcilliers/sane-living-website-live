@@ -28,6 +28,15 @@
     }
     .gallery-jump a:hover, .gallery-jump a:focus-visible { background: var(--clr-accent); color: #fff; }
 
+    /* Browse by space: /gallery/?space=auditorium | conference | annex | garden */
+    .space-browse { display: flex; flex-wrap: wrap; justify-content: center; align-items: center; gap: 6px 22px; margin-top: var(--space-lg); font-size: 12px; font-weight: 800; letter-spacing: 0.16em; text-transform: uppercase; }
+    .space-browse .space-browse-label { color: var(--clr-text-muted); }
+    .space-browse a { color: var(--clr-plum); border-bottom: 1px solid var(--clr-border); padding-bottom: 4px; }
+    .space-browse a:hover, .space-browse a:focus-visible { color: var(--clr-accent); border-color: var(--clr-accent); }
+    .space-browse a[aria-current="page"] { color: var(--clr-accent); border-color: var(--clr-accent); }
+    .gallery-intro.is-space .gallery-jump { display: none; }
+    .space-actions { display: flex; flex-wrap: wrap; gap: 12px; justify-content: center; margin-top: clamp(2.5rem, 5vw, 3.5rem); }
+
     #gallery-chapters > section { scroll-margin-top: var(--nav-height, 72px); }
     .chapter-head { display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between; gap: var(--space-md) var(--space-xl); margin-bottom: var(--space-xl); }
     .chapter-head .chapter-text { max-width: 620px; }
@@ -104,10 +113,11 @@
   <section class="section" id="gallery-intro">
     <div class="container">
       <div class="gallery-intro" data-animate>
-        <h1>One Space, Many Ways to Gather</h1>
-        <p class="gallery-lede">See how people gather at 316 E Matilija St., Ojai.</p>
-        <p>The Auditorium has hosted conferences, film screenings, concerts, lectures and workshops, meditation circles, community events and private celebrations. Scroll through how others have made it their own, and then envision your own event here.</p>
+        <h1 id="gallery-title">One Space, Many Ways to Gather</h1>
+        <p class="gallery-lede" id="gallery-lede">See how people gather at 316 E Matilija St., Ojai.</p>
+        <p id="gallery-text">The Auditorium has hosted conferences, film screenings, concerts, lectures and workshops, meditation circles, community events and private celebrations. Scroll through how others have made it their own, and then envision your own event here.</p>
         <nav class="gallery-jump" id="gallery-jump" aria-label="Jump to a part of the gallery"></nav>
+        <nav class="space-browse" id="space-browse" aria-label="Browse photos by space"></nav>
       </div>
     </div>
   </section>
@@ -172,6 +182,28 @@
         cta: 'Ask about outdoor space', href: '/contact/' }
     ];
     var KNOWN_GROUPS = CHAPTERS.map(function(c) { return c.group; }).filter(Boolean);
+
+    // Browse by space: every photo tagged with a space (dashboard → Photo Gallery → "Space shown in photo"),
+    // whatever kind of event it shows. Linked from the home page photo strip and the Rent the Space page.
+    var SPACES = [
+      { id: 'auditorium', title: 'The Auditorium', lede: 'Seats 110 · 200 standing',
+        text: 'A soundproof room with stained glass, a real stage and full sound, lighting and projection, shown here set for talks, circles, screenings, concerts, meetings and weddings.' },
+      { id: 'conference', title: 'Conference Room', lede: 'Meetings · Breakouts · Getting ready',
+        text: 'A calm, separate room with a long wooden table, a big wall-mounted flatscreen TV, a whiteboard and natural light.' },
+      { id: 'annex', title: 'The Annex', lede: 'Flex space · Classes · Bridal room',
+        text: 'A bright, flexible room with white walls, part hardwood floor and part carpet, right next to the Secret Garden.' },
+      { id: 'garden', title: 'The Secret Garden', lede: 'Outdoors · Ceremonies · Dinners',
+        text: 'A hidden garden with an olive tree, warm gravel, a white fence and string lights overhead.' }
+    ];
+    var spaceParam = new URLSearchParams(location.search).get('space');
+    var activeSpace = SPACES.filter(function(s) { return s.id === spaceParam; })[0] || null;
+    function browseRow() {
+      var links = SPACES.map(function(s) {
+        return '<a href="/gallery/?space=' + s.id + '"' + (activeSpace === s ? ' aria-current="page"' : '') + '>' + esc(s.title.replace(/^The /, '')) + '</a>';
+      });
+      if (activeSpace) links.push('<a href="/gallery/">All Photos</a>');
+      document.getElementById('space-browse').innerHTML = '<span class="space-browse-label">Browse by Space</span>' + links.join('');
+    }
 
     function esc(s) { return String(s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
     function sectionOf(p) { return p.section || 'venue'; }
@@ -262,9 +294,31 @@
       openViewer(+a.getAttribute('data-lb'));
     });
 
+    function renderSpace(photos, s) {
+      viewer = [];
+      document.title = s.title + ' — Photos — Sane Living Center';
+      document.querySelector('.gallery-intro').classList.add('is-space');
+      document.getElementById('gallery-title').textContent = s.title;
+      document.getElementById('gallery-lede').textContent = s.lede;
+      document.getElementById('gallery-text').textContent = s.text;
+      var seen = {}, list = photos.filter(function(p) {
+        if (p.space !== s.id || seen[p.image]) return false;
+        seen[p.image] = true; return true;
+      });
+      document.getElementById('gallery-chapters').innerHTML =
+        '<section class="section section-alt" id="space-' + s.id + '" aria-label="' + esc(s.title) + ' photos"><div class="container">' +
+        (list.length ? mosaic(list, false) : '<p style="text-align:center;">Photos of this space are coming soon.</p>') +
+        '<div class="space-actions"><a href="/rent/#calendar" class="btn btn-primary">Check a Date</a>' +
+        '<a href="/rent/#space-' + s.id + '" class="btn btn-outline">About This Space</a></div></div></section>';
+    }
+
+    browseRow();
     fetch('/content/gallery.json')
       .then(function(r) { return r.ok ? r.json() : null; })
-      .then(function(d) { render(((d && d.photos) || []).filter(function(p) { return !p.draft && p.image; })); })
+      .then(function(d) {
+        var photos = ((d && d.photos) || []).filter(function(p) { return !p.draft && p.image; });
+        if (activeSpace) renderSpace(photos, activeSpace); else render(photos);
+      })
       .catch(function() {
         document.getElementById('gallery-chapters').innerHTML = '<section class="section section-alt"><div class="container"><p style="text-align:center;">Could not load photos.</p></div></section>';
       });

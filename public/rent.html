@@ -27,7 +27,7 @@
     .rent-lede { font-size: 1.1rem; line-height: 1.7; max-width: 40rem; }
     .rent-head { max-width: 46rem; margin: 0 auto clamp(2.75rem, 6vw, 4rem); text-align: center; }
     .rent-head .rent-lede { margin: var(--space-md) auto 0; }
-    #spaces, #occasions, #calendar, #availability { scroll-margin-top: calc(var(--nav-height) + 16px); }
+    #spaces, #occasions, #calendar, #availability, .space { scroll-margin-top: calc(var(--nav-height) + 16px); }
 
     /* ---- 1. Opening: full-width photo ---- */
     .video-hero.rent-hero { position: relative; min-height: max(660px, 88vh); height: auto; max-height: none; background: var(--clr-night); color: var(--clr-on-night); overflow: hidden; display: flex; align-items: flex-end; }
@@ -64,7 +64,7 @@
     .space p { font-size: 1.05rem; line-height: 1.75; color: var(--clr-text-muted); margin: 0 0 var(--space-lg); }
     .chips { display: flex; flex-wrap: wrap; gap: 8px; margin: 0; padding: 0; list-style: none; }
     .chips li { padding: 7px 14px; border: 1px solid var(--clr-border); border-radius: 999px; font-size: 0.88rem; color: var(--clr-text); background: var(--clr-bg-card); }
-    .space-more { margin-top: var(--space-lg); background: none; border: 0; padding: 0 0 3px; font: inherit; font-weight: 700; font-size: 0.98rem; color: var(--clr-accent); border-bottom: 1px solid currentColor; cursor: pointer; }
+    .space-more { display: inline-block; margin-top: var(--space-lg); background: none; border: 0; padding: 0 0 3px; font: inherit; font-weight: 700; font-size: 0.98rem; color: var(--clr-accent); border-bottom: 1px solid currentColor; cursor: pointer; }
     .space-more:hover { color: var(--clr-accent-hover); }
     @media (max-width: 860px) {
       .space, .space:nth-child(even) { grid-template-columns: 1fr; }
@@ -163,7 +163,7 @@
         <p class="rent-lede">Four rooms with four different moods.<br><span class="nowrap-md">Use one, or put them together for the whole day.</span></p>
       </div>
       <div class="space-list">
-        <article class="space" data-animate>
+        <article class="space" id="space-auditorium" data-animate>
           <figure class="space-photo"><img src="/images/auditorium-rows-glass-doors.jpg" alt="The Auditorium set theater-style with rows of chairs facing the folding glass doors, under wood beams with stage lights, pendant lamps and a ceiling projector" loading="lazy"></figure>
           <div>
             <span class="space-num">01</span>
@@ -171,10 +171,10 @@
             <span class="space-cap">Seats 110 · 200 standing</span>
             <p>The heart of the building: a soundproof room with stained glass, a real stage and a full sound and projection system. Set it in rows for a talk, in a circle for a workshop, with tables for a screening or wide open for a dance floor. Made for making noise: the walls keep the music, laughter, cheers and happy tears inside, long after dark.</p>
             <ul class="chips"><li>Stage</li><li>Projector &amp; Screen</li><li>Sound System</li><li>Theater Lighting</li><li>Soundproof Walls</li><li>Restrooms</li><li>Chair &amp; Table Rentals</li><li>Parking &amp; Valet Available</li></ul>
-            <button type="button" id="open-gallery-btn" class="space-more">See More Photos</button>
+            <a href="/gallery/?space=auditorium" class="space-more">See More Photos</a>
           </div>
         </article>
-        <article class="space" data-animate>
+        <article class="space" id="space-conference" data-animate>
           <figure class="space-photo"><img src="/images/center-office.jpg" alt="The Conference Room, with a long wooden table, whiteboard and natural light" loading="lazy"></figure>
           <div>
             <span class="space-num">02</span>
@@ -182,9 +182,10 @@
             <span class="space-cap">Meetings · Breakouts · Getting ready</span>
             <p>A calm, separate room with a long wooden table, a big wall-mounted flatscreen TV, a whiteboard and natural light. Plug in for meetings, presentations and breakout sessions, or use it as a private room to get ready on a wedding day.</p>
             <ul class="chips"><li>Long Table</li><li>Flatscreen TV</li><li>Whiteboard</li><li>Natural Light</li><li>Restrooms</li></ul>
+            <a href="/gallery/?space=conference" class="space-more">See More Photos</a>
           </div>
         </article>
-        <article class="space" data-animate>
+        <article class="space" id="space-annex" data-animate>
           <figure class="space-photo"><img src="/images/venue-annex.jpg" alt="The Annex: a bright, open flex room with gray carpet and a section of hardwood floor, a wooden table with wishbone chairs, track lighting and white walls" loading="lazy"></figure>
           <div>
             <span class="space-num">03</span>
@@ -192,9 +193,10 @@
             <span class="space-cap">Flex space · Classes · Bridal room</span>
             <p>A bright, flexible room with white walls, part hardwood floor and part carpet, right next to the Secret Garden. Set it up for a class, a breakout, a quiet lounge, a bridal room or a staging area for your event.</p>
             <ul class="chips"><li>Hardwood &amp; Carpet</li><li>White Walls</li><li>Next to the Secret Garden</li><li>Restroom</li></ul>
+            <a href="/gallery/?space=annex" class="space-more">See More Photos</a>
           </div>
         </article>
-        <article class="space" data-animate>
+        <article class="space" id="space-garden" data-animate>
           <figure class="space-photo"><img src="/images/venue-secret-garden.jpg" alt="The Secret Garden set for a wedding reception, with long wooden tables under an olive tree and string lights" loading="lazy"></figure>
           <div>
             <span class="space-num">04</span>
@@ -202,6 +204,7 @@
             <span class="space-cap">Outdoors · Ceremonies · Dinners</span>
             <p>A hidden garden with an olive tree, warm gravel, a white fence and string lights overhead. Set long tables for a dinner, an arch for a ceremony, or keep it open for a cocktail hour under the lights.</p>
             <ul class="chips"><li>Olive Tree</li><li>String Lights</li><li>Open Air</li><li>Restroom</li></ul>
+            <a href="/gallery/?space=garden" class="space-more">See More Photos</a>
           </div>
         </article>
       </div>
