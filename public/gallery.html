@@ -321,7 +321,13 @@
       // Opened from a link to one space (e.g. the home page photo strip): scroll to that space.
       var el = target && target !== SPACES[0] && document.getElementById('space-' + target.id);
       if (location.hash) el = document.getElementById(decodeURIComponent(location.hash.slice(1))) || el;
-      if (el) requestAnimationFrame(function() { el.scrollIntoView(); });
+      if (el) {
+        var moved = false;
+        ['wheel', 'touchstart', 'keydown', 'mousedown'].forEach(function(t) { window.addEventListener(t, function() { moved = true; }, { passive: true, once: true }); });
+        var go = function() { if (!moved) el.scrollIntoView({ behavior: 'auto', block: 'start' }); };
+        go(); setTimeout(go, 250);
+        window.addEventListener('load', function() { go(); setTimeout(go, 400); });
+      }
     }
 
     browseRow();
