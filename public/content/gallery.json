@@ -45,8 +45,7 @@
       "caption": "Auditorium — Rows facing the stained glass",
       "alt": "The Auditorium set with rows of chairs facing the stained-glass window, under a wood-beamed ceiling with skylights, pendant lights and a ceiling projector",
       "section": "venue",
-      "group": "talks",
-      "space": "auditorium"
+      "group": "talks"
     },
     {
       "image": "/images/main-hall-01.jpg",
@@ -214,8 +213,7 @@
       "image": "/images/wedding-ceremony-floral-aisle.jpg",
       "caption": "Ceremony with dark chairs",
       "alt": "Wedding ceremony in the Auditorium, with dark chairs, a white floral arch under the stained-glass window and flowers lining a rug aisle",
-      "section": "weddings",
-      "space": "auditorium"
+      "section": "weddings"
     },
     {
       "image": "/images/venue-annex.jpg",
