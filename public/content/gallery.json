@@ -91,14 +91,14 @@
       "caption": "Auditorium — Workshop presentation",
       "alt": "The Auditorium at Sane Living: an audience listening to a speaker at a workshop",
       "section": "venue",
-      "group": "talks"
+      "group": "receptions"
     },
     {
       "image": "/images/main-hall-10.jpg",
       "caption": "Auditorium — Ceremony setting",
       "alt": "The Auditorium at Sane Living: two draped chairs, plants and flowers set up in front of the stained-glass window",
       "section": "venue",
-      "group": "wellness"
+      "group": "talks"
     },
     {
       "image": "/images/about-center.jpg",
@@ -169,9 +169,15 @@
       "section": "outdoor"
     },
     {
-      "image": "/IMG_0197.jpg",
-      "caption": "Candlelit ceremony aisle",
-      "alt": "Wedding ceremony in the Auditorium, with a floral arch, draped walls with fairy lights and a candlelit white aisle",
+      "image": "/images/wedding-first-dance.jpg",
+      "caption": "First dance in the Auditorium",
+      "alt": "A bride and groom share their first dance on a wooden dance floor in the Auditorium, with a live band on stage, floral garlands and the stained-glass window behind",
+      "section": "weddings"
+    },
+    {
+      "image": "/images/auditorium-dance-party.jpg",
+      "caption": "Dance floor after dark",
+      "alt": "Guests dancing in the Auditorium at night under colorful party lights, with a DJ booth and LED screens on stage beneath the stained-glass window",
       "section": "weddings"
     },
     {
@@ -196,12 +202,6 @@
       "image": "/IMG_0208.jpg",
       "caption": "Garden reception tables",
       "alt": "Outdoor wedding reception in the sun, with long wooden tables, greenery runners and string lights",
-      "section": "weddings"
-    },
-    {
-      "image": "/images/wedding-ceremony-benches.jpg",
-      "caption": "Ceremony with wooden benches and greenery",
-      "alt": "Wedding ceremony set in the Auditorium, with wooden benches, a woven aisle rug, olive trees, hanging lanterns and greenery around the stained-glass window",
       "section": "weddings"
     }
   ]

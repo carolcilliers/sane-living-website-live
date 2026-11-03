@@ -17,6 +17,11 @@
     .gallery-intro p { font-size: 1.05rem; line-height: 1.75; }
 
     .gallery-jump { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; margin-top: var(--space-xl); }
+    @media (min-width: 1100px) {
+      /* All categories on one line: let the menu run a little wider than the text column */
+      .gallery-jump { flex-wrap: nowrap; gap: 8px; width: max-content; max-width: calc(100vw - 48px); margin-left: 50%; transform: translateX(-50%); }
+      .gallery-jump a { white-space: nowrap; padding: 8px 14px; }
+    }
     .gallery-jump a {
       display: inline-block; padding: 8px 16px; border-radius: 999px; background: #f3ecf9; color: var(--clr-accent);
       font-size: 0.82rem; font-weight: 700; letter-spacing: 0.04em; transition: background 0.2s ease, color 0.2s ease;
@@ -100,8 +105,8 @@
     <div class="container">
       <div class="gallery-intro" data-animate>
         <h1>One Space, Many Ways to Gather</h1>
-        <p class="gallery-lede">See how people gather at 316 E Matilija St, Ojai, then picture your own event here.</p>
-        <p>The Auditorium has hosted conferences, film screenings, concerts, lectures and workshops, meditation circles, community events and private celebrations. Scroll through how others have made it their own.</p>
+        <p class="gallery-lede">See how people gather at 316 E Matilija St., Ojai.</p>
+        <p>The Auditorium has hosted conferences, film screenings, concerts, lectures and workshops, meditation circles, community events and private celebrations. Scroll through how others have made it their own, and then envision your own event here.</p>
         <nav class="gallery-jump" id="gallery-jump" aria-label="Jump to a part of the gallery"></nav>
       </div>
     </div>
@@ -159,10 +164,10 @@
       { id: 'weddings', section: 'weddings', eyebrow: 'Weddings', title: 'Weddings',
         text: 'Ceremonies, receptions and celebrations at Sane Living.',
         cta: 'Explore weddings', href: '/rent/#weddings' },
-      { id: 'venue', section: 'venue', group: null, eyebrow: 'The Venue', title: 'Around the Venue',
+      { id: 'venue', section: 'venue', group: null, eyebrow: 'The Venue', title: 'Around the Venue', noJump: true,
         text: 'More views of the Sane Living Center and its spaces.',
         cta: 'See rates & availability', href: '/rent/pricing/' },
-      { id: 'outdoor', section: 'outdoor', eyebrow: 'Outdoors', title: 'Outdoor Spaces',
+      { id: 'outdoor', section: 'outdoor', eyebrow: 'Outdoors', title: 'Outdoor Spaces', noJump: true,
         text: 'The stone patio by the entrance with the EVO3 sculpture, and the Secret Garden with its olive tree and string lights.',
         cta: 'Ask about outdoor space', href: '/contact/' }
     ];
@@ -208,7 +213,7 @@
         if (!list.length) return '';
         var alt = shown % 2 === 0;
         shown++;
-        jump.push('<a href="#gallery-' + c.id + '">' + esc(c.title) + '</a>');
+        if (!c.noJump) jump.push('<a href="#gallery-' + c.id + '">' + esc(c.title) + '</a>');
         return '<section class="section' + (alt ? ' section-alt' : '') + '" id="gallery-' + c.id + '" aria-labelledby="gallery-' + c.id + '-title">' +
           '<div class="container"><div class="chapter-head"><div class="chapter-text">' +
           '<span class="chapter-eyebrow">' + esc(c.eyebrow) + '</span>' +
