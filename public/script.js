@@ -16,6 +16,7 @@ document.addEventListener('DOMContentLoaded', () => {
   initSmoothScroll();
   initContactForm();
   initGalleryModal();
+  initSentenceLines();
 });
 
 /* ---- Shared Navigation ---- */
@@ -395,4 +396,44 @@ if (/^\/events(?:\/|$)/.test(location.pathname)) {
   eventStoriesScript.src = '/event-stories-public.js';
   eventStoriesScript.defer = true;
   document.head.appendChild(eventStoriesScript);
+}
+
+/* ---- Keep sentences together ----
+ * Short intro lines marked data-sentences: each sentence stays on one line when it fits,
+ * instead of breaking in the middle and leaving a few words dangling. If a sentence is too
+ * long for the screen (e.g. on phones), it wraps normally. Re-runs when the dashboard text loads in.
+ */
+function initSentenceLines() {
+  const els = Array.from(document.querySelectorAll('[data-sentences]'));
+  if (!els.length) return;
+  const split = (html) => html.split(/(?<=[.!?][”’")]?)\s+(?=[A-Z“"(<])/);
+  const wrap = (el) => {
+    if (el.querySelector(':scope > .sentence')) return;
+    const parts = split(el.innerHTML.trim());
+    el.innerHTML = parts.map((p) => '<span class="sentence">' + p + '</span>').join(' ');
+  };
+  const fit = (el) => {
+    const spans = el.querySelectorAll(':scope > .sentence');
+    el.style.maxWidth = '';
+    const parent = el.parentElement, cs = getComputedStyle(parent);
+    const room = parent.clientWidth - parseFloat(cs.paddingLeft) - parseFloat(cs.paddingRight);
+    let widen = false;
+    spans.forEach((s) => {
+      s.classList.add('sentence-measure');
+      const w = Math.ceil(s.getBoundingClientRect().width);
+      s.classList.remove('sentence-measure');
+      const fits = w <= room;
+      s.classList.toggle('sentence-whole', fits);
+      if (fits && w > el.clientWidth) widen = true;
+    });
+    if (widen) el.style.maxWidth = 'none';
+  };
+  const run = () => els.forEach((el) => { wrap(el); fit(el); });
+  els.forEach((el) => new MutationObserver(() => {
+    if (!el.querySelector(':scope > .sentence')) { wrap(el); fit(el); }
+  }).observe(el, { childList: true }));
+  run();
+  window.addEventListener('load', run);
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(run);
+  let t; window.addEventListener('resize', () => { clearTimeout(t); t = setTimeout(run, 150); });
 }

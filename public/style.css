@@ -1540,3 +1540,7 @@ body:has(.video-hero) .site-nav:not(.scrolled):not(:has(.nav-toggle.active)) .na
 /* Keep a short closing phrase together on one line */
 .nowrap { white-space: nowrap; }
 @media (min-width: 640px) { .nowrap-md { white-space: nowrap; } }
+
+/* Keep-sentences-together helper (see initSentenceLines in script.js) */
+.sentence-whole { white-space: nowrap; }
+.sentence-measure { white-space: nowrap !important; display: inline-block; }
