@@ -40,6 +40,7 @@ function injectNav() {
           <div class="nav-dropdown-menu">
             <a href="/rent/#spaces">The Spaces</a>
             <a href="/rent/#occasions">Occasions</a>
+            <a href="/rent/weddings/">Weddings</a>
             <a href="/rent/pricing/">Rates &amp; Availability</a>
             <a href="/partners/">Our Partners</a>
           </div>
@@ -135,7 +136,7 @@ function injectFooter() {
           <nav class="footer-links" aria-label="Footer navigation">
             <a href="/rent/">Rent the Space</a>
             <a href="/rent/pricing/">Rates &amp; Availability</a>
-            <a href="/rent/#weddings">Weddings</a>
+            <a href="/rent/weddings/">Weddings</a>
             <a href="/events/">Community Events</a>
             <a href="/gallery/">Photos</a>
             <a href="/contact/">Contact</a>

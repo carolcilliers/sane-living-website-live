@@ -27,7 +27,7 @@
     .rent-lede { font-size: 1.1rem; line-height: 1.7; max-width: 40rem; }
     .rent-head { max-width: 46rem; margin: 0 auto clamp(2.75rem, 6vw, 4rem); text-align: center; }
     .rent-head .rent-lede { margin: var(--space-md) auto 0; }
-    #spaces, #occasions, #weddings, #calendar, #availability { scroll-margin-top: calc(var(--nav-height) + 16px); }
+    #spaces, #occasions, #calendar, #availability { scroll-margin-top: calc(var(--nav-height) + 16px); }
 
     /* ---- 1. Opening: full-width photo ---- */
     .video-hero.rent-hero { position: relative; min-height: max(660px, 88vh); height: auto; max-height: none; background: var(--clr-night); color: var(--clr-on-night); overflow: hidden; display: flex; align-items: flex-end; }
@@ -89,32 +89,13 @@
     }
     @media (prefers-reduced-motion: reduce) { .rent-photo img, .space-photo img { transition: none; } }
 
-    /* ---- Weddings (content still edited in the dashboard's Weddings section) ---- */
-    .wedding-intro-grid { display: grid; grid-template-columns: minmax(0, 6fr) minmax(0, 5fr); gap: clamp(2rem, 5vw, 4.5rem); align-items: center; }
-    .wedding-intro-grid img { width: 100%; aspect-ratio: 4 / 3; object-fit: cover; border-radius: 4px; display: block; }
-    #wedding-heading { margin-bottom: var(--space-lg); }
-    #wedding-intro p { font-size: 1.05rem; line-height: 1.75; color: var(--clr-text-muted); }
-    .wedding-facts { margin-top: clamp(2.5rem, 5vw, 3.5rem); }
-    #wedding-highlights { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0 clamp(1.5rem, 4vw, 3rem); }
-    #wedding-highlights:empty { display: none; }
-    #wedding-highlights li { position: relative; margin: 0; padding: 16px 0 16px 34px; border-top: 1px solid var(--clr-border); border-bottom: 0; font-size: 1rem; line-height: 1.55; color: var(--clr-text); }
-    #wedding-highlights li::before { left: 0; top: 18px; }
-    #wedding-details { margin-top: clamp(2rem, 4vw, 2.75rem); padding: 0; border: 0; background: transparent; box-shadow: none; display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: clamp(1.5rem, 4vw, 3rem); }
-    #wedding-details:empty { display: none; }
-    #wedding-details p { margin: 0; padding: var(--space-lg) 0 0; border-top: 1px solid var(--clr-plum); line-height: 1.7; color: var(--clr-text-muted); }
-    #wedding-details strong { display: block; margin-bottom: 6px; font-family: var(--font-display); font-size: 1.5rem; font-weight: 600; color: var(--clr-plum); }
-    @media (max-width: 860px) { .wedding-intro-grid, #wedding-highlights { grid-template-columns: 1fr; } }
-    .wedding-photos { margin-top: clamp(3rem, 6vw, 4.5rem); }
-    .wedding-photos[hidden] { display: none; }
-    .wedding-photo-grid { display: grid; grid-template-columns: repeat(4, 1fr); grid-auto-rows: clamp(150px, 15vw, 210px); gap: 6px; }
-    .wedding-photo { position: relative; display: block; overflow: hidden; }
-    .wedding-photo:first-child { grid-column: span 2; grid-row: span 2; }
-    .wedding-photo img { width: 100%; height: 100%; object-fit: cover; display: block; border-radius: 0; transition: transform 0.8s var(--ease-soft); }
-    .wedding-photo:hover img, .wedding-photo:focus-visible img { transform: scale(1.05); }
-    @media (max-width: 768px) { .wedding-photo-grid { grid-template-columns: repeat(2, 1fr); grid-auto-rows: 140px; } .wedding-photo:first-child { grid-column: 1 / -1; } }
-    .wedding-foot { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: var(--space-lg); margin-top: clamp(2.5rem, 5vw, 3.5rem); padding-top: var(--space-xl); border-top: 1px solid var(--clr-border); }
-    .wedding-foot h3 { margin: 0 0 4px; }
-    #wedding-pricing-text { margin: 0; color: var(--clr-text-muted); max-width: 38rem; }
+    /* ---- Weddings teaser (full page at /rent/weddings/) ---- */
+    .wedding-teaser { display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 6fr); gap: clamp(1.5rem, 4vw, 3.5rem); align-items: center; margin-top: clamp(3rem, 6vw, 4.5rem); color: inherit; }
+    .wedding-teaser img { width: 100%; aspect-ratio: 3 / 2; object-fit: cover; border-radius: 4px; display: block; }
+    .wedding-teaser h3 { font-size: clamp(2rem, 3.2vw, 2.6rem); font-weight: 600; margin: 0 0 var(--space-sm); color: var(--clr-on-night); }
+    .wedding-teaser p { color: #e2d6e8; line-height: 1.7; margin: 0 0 var(--space-lg); }
+    .wedding-teaser .eyebrow { color: var(--clr-glow); }
+    @media (max-width: 760px) { .wedding-teaser { grid-template-columns: 1fr; } }
 
     /* ---- 4. Check a Date ---- */
     .avail-layout { display: grid; grid-template-columns: minmax(0, 4fr) minmax(0, 7fr); gap: var(--space-xl) clamp(2rem, 5vw, 4.5rem); align-items: start; }
@@ -167,7 +148,7 @@
         <p data-sentences>Start with the Auditorium, then add the Conference Room, the Annex or the Secret Garden as you need them. Book the morning, the evening or the whole day.</p>
         <a href="#calendar" class="btn btn-glow">Check a Date</a>
         <nav class="rent-jump" aria-label="On this page">
-          <a href="#spaces">The Spaces</a><a href="#occasions">Occasions</a><a href="#weddings">Weddings</a><a href="/rent/pricing/" data-site-booking>Rates &amp; Availability</a>
+          <a href="#spaces">The Spaces</a><a href="#occasions">Occasions</a><a href="/rent/weddings/">Weddings</a><a href="/rent/pricing/" data-site-booking>Rates &amp; Availability</a>
         </nav>
       </div>
     </div>
@@ -239,36 +220,14 @@
         <div class="rent-photo-grid" id="rent-photo-grid"></div>
         <div class="rent-photos-foot"><a href="/gallery/" class="btn btn-ghost-light">View All Photos</a></div>
       </div>
-    </div>
-  </section>
-
-  <!-- Weddings: text, highlights, policies and pricing come from the dashboard's Weddings section
-       (/content/weddings.json); photos from Photo Gallery → Weddings. -->
-  <section class="section section-alt" id="weddings">
-    <div class="rent-wrap">
-      <div class="wedding-intro-grid" data-animate>
+      <div class="wedding-teaser" data-animate>
+        <img src="/images/wedding-reception-dance-floor.jpg" alt="The Auditorium set for a wedding reception, with a dance floor, a stage and a floral arch beneath the stained-glass window" loading="lazy">
         <div>
           <span class="eyebrow">Occasions · Weddings</span>
-          <h2 class="rent-h2" id="wedding-heading">Weddings at Sane Living</h2>
-          <div id="wedding-intro"><p>Say your vows beneath the stained glass, toast under the olive tree and string lights in the Secret Garden, then dim the lights and dance until midnight in the soundproof Auditorium. No neighbors to wake, and no last call at ten.</p>
-          <p>Your guests walk from their hotels to the ceremony and on to downtown dinner, and the wedding party gets ready in a private room down the hall. Bring in the vendors you love and make the whole day yours, at one address in the heart of Ojai.</p></div>
-          <a data-site-href="phoneLink" href="tel:+18056466000" class="btn btn-primary wedding-call">Call (805) 646-6000</a>
+          <h3>Planning a Wedding?</h3>
+          <p data-sentences>Ceremony beneath the stained glass, dinner in the Secret Garden and dancing in the soundproof Auditorium, all at one address. See highlights, photos and wedding pricing.</p>
+          <a href="/rent/weddings/" class="btn btn-glow">Explore Weddings</a>
         </div>
-        <img id="wedding-hero" src="/images/wedding-reception-dance-floor.jpg" alt="The Auditorium set for a wedding reception: a parquet dance floor in front of a stage with a band setup, a floral arch and draped curtains beneath the stained-glass window, and round tables on either side">
-      </div>
-      <div class="wedding-facts" data-animate>
-        <ul id="wedding-highlights"></ul>
-        <div id="wedding-details"></div>
-      </div>
-      <div class="wedding-photos" id="wedding-photos" hidden>
-        <div class="wedding-photo-grid" id="wedding-photo-grid"></div>
-      </div>
-      <div class="wedding-foot" data-animate>
-        <div>
-          <h3>Wedding Pricing</h3>
-          <p id="wedding-pricing-text" data-sentences>Wedding packages starting at $1,500. Each quote is based on your guest count and needs. Call <a data-site-href="phoneLink" href="tel:+18056466000">(805) 646-6000</a> for a custom quote.</p>
-        </div>
-        <a href="/gallery/#gallery-weddings" class="text-link">See All Wedding Photos &rarr;</a>
       </div>
     </div>
   </section>
@@ -387,59 +346,6 @@
         window.rentRescroll();
       })
       .catch(function() { /* keep the section hidden */ });
-  })();
-  </script>
-  <!-- Wedding content is edited in the team dashboard (/admin) and stored in
-       /content/weddings.json. The text above stays as a fallback. -->
-  <script>
-  (function() {
-    function esc(s) { return String(s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
-    fetch('/content/weddings.json')
-      .then(function(r) { return r.ok ? r.json() : null; })
-      .then(function(d) {
-        if (!d) return;
-        if (typeof d.heading === 'string') document.getElementById('wedding-heading').textContent=d.heading;
-        if (d.heroImage) document.getElementById('wedding-hero').src = d.heroImage;
-        if (typeof d.intro === 'string') {
-          document.getElementById('wedding-intro').innerHTML =
-            d.intro.split(/\n\s*\n/).map(function(p) { return '<p>' + esc(p) + '</p>'; }).join('');
-        }
-        if (Array.isArray(d.highlights)) {
-          document.getElementById('wedding-highlights').innerHTML =
-            d.highlights.map(function(h) { return '<li>' + esc(h) + '</li>'; }).join('');
-        }
-        if(window.SaneSite) window.SaneSite.ready.then(function(s){ document.querySelectorAll('.wedding-call').forEach(function(a){a.textContent='Call '+(d.phoneDisplay||s.phoneDisplay);}); });
-        var details = '';
-        if (d.includesText) details += '<p><strong>What\'s included</strong> ' + esc(d.includesText) + '</p>';
-        if (d.cateringPolicy) details += '<p><strong>Catering</strong> ' + esc(d.cateringPolicy) + '</p>';
-        if (d.alcoholPolicy) details += '<p><strong>Alcohol</strong> ' + esc(d.alcoholPolicy) + '</p>';
-        if (d.parkingNote) details += '<p><strong>Parking</strong> ' + esc(d.parkingNote) + '</p>';
-        document.getElementById('wedding-details').innerHTML = details;
-        if (typeof d.pricingText === 'string') document.getElementById('wedding-pricing-text').textContent = d.pricingText;
-        window.rentRescroll();
-      })
-      .catch(function() {});
-  })();
-  </script>
-  <script>
-  (function() {
-    // Up to five photos from the gallery's Weddings collection, skipping whichever one is the main photo above.
-    function esc(s) { return String(s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
-    Promise.all([
-      fetch('/content/gallery.json').then(function(r) { return r.ok ? r.json() : null; }),
-      fetch('/content/weddings.json').then(function(r) { return r.ok ? r.json() : null; }).catch(function() { return null; })
-    ]).then(function(res) {
-      var hero = (res[1] && res[1].heroImage) || document.getElementById('wedding-hero').getAttribute('src');
-      var photos = ((res[0] && res[0].photos) || []).filter(function(p) {
-        return !p.draft && p.image && p.section === 'weddings' && p.image !== hero;
-      }).slice(0, 5);
-      if (!photos.length) return;
-      document.getElementById('wedding-photo-grid').innerHTML = photos.map(function(p) {
-        return '<a class="wedding-photo" href="/gallery/#gallery-weddings"><img src="' + esc(p.image) + '" alt="' + esc(p.alt || p.caption) + '" loading="lazy"></a>';
-      }).join('');
-      document.getElementById('wedding-photos').hidden = false;
-      window.rentRescroll();
-    }).catch(function() { /* keep the section hidden */ });
   })();
   </script>
 </body>
