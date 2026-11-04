@@ -163,7 +163,11 @@
         font-size: 0.8rem;
       }
     }
-  </style>
+      .rate-table-head { text-align: center; margin-bottom: var(--space-lg); }
+    .rate-table-head h2 { margin-bottom: var(--space-sm); }
+    .rate-table-head p { max-width: 40rem; margin: 0 auto; color: var(--clr-text-muted); line-height: 1.65; }
+    .wedding-price-summary { font-family: var(--font-display); font-size: clamp(1.3rem, 2.2vw, 1.6rem); color: var(--clr-plum); margin-bottom: var(--space-sm); }
+</style>
 
   <meta property="og:title" content="Rates &amp; Availability — Sane Living Center">
   <meta property="og:description" content="Sane Living Center rates and availability. View pricing and book the space for your next event in Ojai, California.">
@@ -196,12 +200,16 @@
   <section class="section">
     <div class="content-block">
 
+      <!-- Rate Table: these rates are for the Auditorium -->
+      <div class="rate-table-head" data-animate>
+        <h2>Auditorium Rates</h2>
+        <p data-sentences>Rates below are for the Auditorium. For the Secret Garden, the Annex or the Conference Room, please <a href="/contact/">contact us</a> or call <a data-site-href="phoneLink" href="tel:+18056466000">(805) 646-6000</a> for rates.</p>
+      </div>
       <div class="pricing-note" data-animate>
         <strong id="pricing-note-date">As of January 1, 2026</strong><br>
         <span id="pricing-note-text">Rates subject to change in 2027.</span>
       </div>
 
-      <!-- Rate Table -->
       <div class="rate-table-wrap" data-animate>
         <table class="rate-table">
           <thead>
@@ -242,6 +250,7 @@
       <!-- Weddings -->
       <div class="wedding-pricing" id="weddings" data-animate>
         <h2>Weddings</h2>
+        <p class="wedding-price-summary" id="pricing-wedding-summary" data-sentences>Wedding packages starting at $1,500. Each quote is based on your guest count and needs.</p>
         <p id="pricing-weddings-note" data-sentences>Weddings are quoted separately from standard venue rental rates. See <a href="/rent/weddings/">wedding packages and availability</a>, and let’s co-create the wedding of your dreams together.</p>
         <a href="/rent/weddings/" class="btn btn-primary wedding-pricing-btn">Explore Weddings</a>
       </div>
@@ -310,6 +319,14 @@
       })
       .catch(function() {});
   })();
+  </script>
+  <script>
+    // Wedding price summary comes from the dashboard: Weddings → pricing text (first two sentences, without the phone line).
+    fetch('/content/weddings.json').then(function(r) { return r.ok ? r.json() : null; }).then(function(d) {
+      if (!d || typeof d.pricingText !== 'string' || !d.pricingText.trim()) return;
+      var parts = d.pricingText.split(/(?<=[.!?])\s+/).filter(function(x) { return !/\(\d{3}\)|call/i.test(x); });
+      if (parts.length) document.getElementById('pricing-wedding-summary').textContent = parts.join(' ');
+    }).catch(function() {});
   </script>
 </body>
 </html>
