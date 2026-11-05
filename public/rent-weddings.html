@@ -111,7 +111,7 @@
 
   <!-- 1. Opening: the main wedding photo (set in the dashboard: Weddings → main photo) -->
   <section class="video-hero rent-hero">
-    <img id="wedding-hero" src="/images/wedding-reception-auditorium.jpg" alt="The Auditorium set for a wedding reception: a parquet dance floor in front of a stage with a band setup, a floral arch and draped curtains beneath the stained-glass window, and round tables on either side">
+    <img title="The Auditorium" id="wedding-hero" src="/images/wedding-reception-auditorium.jpg" alt="The Auditorium set for a wedding reception: a parquet dance floor in front of a stage with a band setup, a floral arch and draped curtains beneath the stained-glass window, and round tables on either side">
     <div class="rent-hero-scrim" aria-hidden="true"></div>
     <div class="rent-hero-copy">
       <div class="rent-wrap">
@@ -138,8 +138,8 @@
           <a data-site-href="phoneLink" href="tel:+18056466000" class="btn btn-primary wedding-call">Call (805) 646-6000</a>
         </div>
         <div class="wedding-story-photos">
-          <img src="/IMG_0201.jpg" alt="Wedding ceremony in the Auditorium, with a white floral arch under the stained-glass window and flowers along a rug aisle" loading="lazy">
-          <img src="/IMG_0207.jpg" alt="Evening wedding reception in the Secret Garden, with green-draped round tables, lanterns and fairy lights in the trees" loading="lazy">
+          <img title="The Auditorium" src="/IMG_0201.jpg" alt="Wedding ceremony in the Auditorium, with a white floral arch under the stained-glass window and flowers along a rug aisle" loading="lazy">
+          <img title="The Secret Garden" src="/IMG_0207.jpg" alt="Evening wedding reception in the Secret Garden, with green-draped round tables, lanterns and fairy lights in the trees" loading="lazy">
         </div>
       </div>
     </div>
@@ -279,7 +279,7 @@
       document.getElementById('wedding-photo-grid').className = 'wedding-photo-grid' + (photos.length < 5 ? ' is-row' : '');
       document.getElementById('wedding-photo-grid').style.setProperty('--n', photos.length);
       document.getElementById('wedding-photo-grid').innerHTML = photos.map(function(p) {
-        return '<a class="wedding-photo" href="/gallery/#gallery-weddings"><img src="' + esc(p.image) + '" alt="' + esc(p.alt || p.caption) + '" loading="lazy"></a>';
+        return '<a class="wedding-photo" href="/gallery/#gallery-weddings"><img src="' + esc(p.image) + '" alt="' + esc(p.alt || p.caption) + '"' + (p.caption ? ' title="' + esc(p.caption) + '"' : '') + ' loading="lazy"></a>';
       }).join('');
       document.getElementById('wedding-photos').hidden = false;
       window.rentRescroll();

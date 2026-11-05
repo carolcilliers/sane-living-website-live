@@ -139,7 +139,7 @@
 
   <!-- 1. Opening: full-width photo (class video-hero keeps the menu transparent over it) -->
   <section class="video-hero rent-hero">
-    <img src="/images/main-hall.jpg" alt="The Auditorium in afternoon light, with rows of chairs facing the stage and stained-glass window">
+    <img title="The Auditorium" src="/images/main-hall.jpg" alt="The Auditorium in afternoon light, with rows of chairs facing the stage and stained-glass window">
     <div class="rent-hero-scrim" aria-hidden="true"></div>
     <div class="rent-hero-copy">
       <div class="rent-wrap">
@@ -164,7 +164,7 @@
       </div>
       <div class="space-list">
         <article class="space" id="space-auditorium" data-animate>
-          <figure class="space-photo"><img src="/images/auditorium-rows-glass-doors.jpg" alt="The Auditorium set theater-style with rows of chairs facing the folding glass doors, under wood beams with stage lights, pendant lamps and a ceiling projector" loading="lazy"></figure>
+          <figure class="space-photo"><img title="The Auditorium" src="/images/auditorium-rows-glass-doors.jpg" alt="The Auditorium set theater-style with rows of chairs facing the folding glass doors, under wood beams with stage lights, pendant lamps and a ceiling projector" loading="lazy"></figure>
           <div>
             <span class="space-num">01</span>
             <h3>The Auditorium</h3>
@@ -175,7 +175,7 @@
           </div>
         </article>
         <article class="space" id="space-conference" data-animate>
-          <figure class="space-photo"><img src="/images/center-office.jpg" alt="The Conference Room, with a long wooden table, whiteboard and natural light" loading="lazy"></figure>
+          <figure class="space-photo"><img title="The Conference Room" src="/images/center-office.jpg" alt="The Conference Room, with a long wooden table, whiteboard and natural light" loading="lazy"></figure>
           <div>
             <span class="space-num">02</span>
             <h3>The Conference Room</h3>
@@ -186,7 +186,7 @@
           </div>
         </article>
         <article class="space" id="space-annex" data-animate>
-          <figure class="space-photo"><img src="/images/venue-annex.jpg" alt="The Annex: a bright, open flex room with gray carpet and a section of hardwood floor, a wooden table with wishbone chairs, track lighting and white walls" loading="lazy"></figure>
+          <figure class="space-photo"><img title="The Annex" src="/images/venue-annex.jpg" alt="The Annex: a bright, open flex room with gray carpet and a section of hardwood floor, a wooden table with wishbone chairs, track lighting and white walls" loading="lazy"></figure>
           <div>
             <span class="space-num">03</span>
             <h3>The Annex</h3>
@@ -197,7 +197,7 @@
           </div>
         </article>
         <article class="space" id="space-garden" data-animate>
-          <figure class="space-photo"><img src="/images/venue-secret-garden.jpg" alt="The Secret Garden set for a wedding reception, with long wooden tables under an olive tree and string lights" loading="lazy"></figure>
+          <figure class="space-photo"><img title="The Secret Garden" src="/images/venue-secret-garden.jpg" alt="The Secret Garden set for a wedding reception, with long wooden tables under an olive tree and string lights" loading="lazy"></figure>
           <div>
             <span class="space-num">04</span>
             <h3>The Secret Garden</h3>
@@ -224,7 +224,7 @@
         <div class="rent-photos-foot"><a href="/gallery/" class="btn btn-ghost-light">View All Photos</a></div>
       </div>
       <div class="wedding-teaser" data-animate>
-        <img src="/images/wedding-reception-auditorium.jpg" alt="The Auditorium set for a wedding reception, with a dance floor, a stage and a floral arch beneath the stained-glass window" loading="lazy">
+        <img title="The Auditorium" src="/images/wedding-reception-auditorium.jpg" alt="The Auditorium set for a wedding reception, with a dance floor, a stage and a floral arch beneath the stained-glass window" loading="lazy">
         <div>
           <span class="eyebrow">Occasions · Weddings</span>
           <h3>Planning a Wedding?</h3>
@@ -341,7 +341,7 @@
         var photos = ((d && d.photos) || []).filter(function(p) { return !p.draft && p.image && (p.section || 'venue') === 'venue'; });
         var tiles = GROUPS.map(function(g) {
           var p = photos.filter(function(x) { return x.group === g.id; })[0];
-          return p ? '<a class="rent-photo" href="/gallery/#gallery-' + g.id + '"><img src="' + esc(p.image) + '" alt="' + esc(p.alt || p.caption) + '" loading="lazy"><span>' + esc(g.title) + '</span></a>' : '';
+          return p ? '<a class="rent-photo" href="/gallery/#gallery-' + g.id + '"><img src="' + esc(p.image) + '" alt="' + esc(p.alt || p.caption) + '"' + (p.caption ? ' title="' + esc(p.caption) + '"' : '') + ' loading="lazy"><span>' + esc(g.title) + '</span></a>' : '';
         }).join('');
         if (!tiles) return;
         document.getElementById('rent-photo-grid').innerHTML = tiles;

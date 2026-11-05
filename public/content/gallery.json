@@ -2,54 +2,54 @@
   "photos": [
     {
       "image": "/images/venue-lobby-art.jpg",
-      "caption": "Lobby",
+      "caption": "The Lobby",
       "alt": "The lobby, with a wooden ceiling, large colorful paintings and glass doors into the Auditorium",
       "section": "venue"
     },
     {
       "image": "/images/main-hall.jpg",
-      "caption": "Auditorium",
+      "caption": "The Auditorium",
       "alt": "The Auditorium at Sane Living in afternoon light, with rows of chairs facing the stage and stained-glass window",
       "section": "venue",
       "space": "auditorium"
     },
     {
       "image": "/images/venue-auditorium-open-doors.jpg",
-      "caption": "Auditorium opening to the lobby",
+      "caption": "The Auditorium",
       "alt": "The Auditorium with its folding glass doors fully open to the lobby and entrance",
       "section": "venue",
       "space": "auditorium"
     },
     {
       "image": "/images/venue-purple-doors.jpg",
-      "caption": "Front doors",
+      "caption": "The Entrance",
       "alt": "The purple front doors under the Sane Living sign, with a film premiere poster",
       "section": "venue"
     },
     {
       "image": "/images/venue-auditorium-glass-doors.jpg",
-      "caption": "Auditorium glass doors",
+      "caption": "The Auditorium",
       "alt": "The Auditorium floor in front of its frosted folding glass doors and sound system",
       "section": "venue",
       "space": "auditorium"
     },
     {
       "image": "/images/auditorium-rows-glass-doors.jpg",
-      "caption": "Auditorium — Theater seating",
+      "caption": "The Auditorium",
       "alt": "The Auditorium set theater-style with rows of chairs facing the folding glass doors, under wood beams with stage lights, pendant lamps and a ceiling projector",
       "section": "venue",
       "space": "auditorium"
     },
     {
       "image": "/images/auditorium-rows-stained-glass.jpg",
-      "caption": "Auditorium — Rows facing the stained glass",
+      "caption": "The Auditorium",
       "alt": "The Auditorium set with rows of chairs facing the stained-glass window, under a wood-beamed ceiling with skylights, pendant lights and a ceiling projector",
       "section": "venue",
       "group": "talks"
     },
     {
       "image": "/images/main-hall-01.jpg",
-      "caption": "Auditorium — Evening talk",
+      "caption": "The Auditorium",
       "alt": "The Auditorium at Sane Living: a full audience facing a flower-decorated stage during an evening talk",
       "section": "venue",
       "group": "talks",
@@ -57,7 +57,7 @@
     },
     {
       "image": "/images/main-hall-02.jpg",
-      "caption": "Auditorium — Floor-seating circle",
+      "caption": "The Auditorium",
       "alt": "The Auditorium at Sane Living: floor seats, cushions and blankets arranged in a large circle",
       "section": "venue",
       "group": "wellness",
@@ -65,7 +65,7 @@
     },
     {
       "image": "/images/main-hall-03.jpg",
-      "caption": "Auditorium — Sharing circle",
+      "caption": "The Auditorium",
       "alt": "The Auditorium at Sane Living: a group sitting together on the floor in a circle in daylight",
       "section": "venue",
       "group": "wellness",
@@ -73,7 +73,7 @@
     },
     {
       "image": "/images/main-hall-04.jpg",
-      "caption": "Auditorium — Meditation circle",
+      "caption": "The Auditorium",
       "alt": "The Auditorium at Sane Living: a woman in a floral robe walking past a circle of meditation cushions",
       "section": "venue",
       "group": "wellness",
@@ -81,7 +81,7 @@
     },
     {
       "image": "/images/main-hall-05.jpg",
-      "caption": "Auditorium — Catered reception",
+      "caption": "The Auditorium",
       "alt": "The Auditorium at Sane Living: a catered buffet with cocktail tables and a projection screen",
       "section": "venue",
       "group": "receptions",
@@ -89,7 +89,7 @@
     },
     {
       "image": "/images/main-hall-06.jpg",
-      "caption": "Auditorium — Meditation circle with plants",
+      "caption": "The Auditorium",
       "alt": "The Auditorium at Sane Living: a circle of meditation cushions with plants beneath the stained-glass window",
       "section": "venue",
       "group": "wellness",
@@ -97,7 +97,7 @@
     },
     {
       "image": "/images/main-hall-07.jpg",
-      "caption": "Auditorium — Workshop seating",
+      "caption": "The Auditorium",
       "alt": "The Auditorium at Sane Living: folding chairs and floor seats set up for a workshop",
       "section": "venue",
       "group": "talks",
@@ -105,7 +105,7 @@
     },
     {
       "image": "/images/main-hall-08.jpg",
-      "caption": "Auditorium — U-shaped meeting tables",
+      "caption": "The Auditorium",
       "alt": "The Auditorium at Sane Living: tables arranged in a U-shape for a meeting",
       "section": "venue",
       "group": "meetings",
@@ -113,7 +113,7 @@
     },
     {
       "image": "/images/main-hall-09.jpg",
-      "caption": "Auditorium — Workshop presentation",
+      "caption": "The Auditorium",
       "alt": "The Auditorium at Sane Living: an audience listening to a speaker at a workshop",
       "section": "venue",
       "group": "receptions",
@@ -121,7 +121,7 @@
     },
     {
       "image": "/images/main-hall-10.jpg",
-      "caption": "Auditorium — Ceremony setting",
+      "caption": "The Auditorium",
       "alt": "The Auditorium at Sane Living: two draped chairs, plants and flowers set up in front of the stained-glass window",
       "section": "venue",
       "group": "talks",
@@ -129,7 +129,7 @@
     },
     {
       "image": "/images/about-center.jpg",
-      "caption": "Auditorium — Movement practice",
+      "caption": "The Auditorium",
       "alt": "A woman in a deep lunge stretch on the Auditorium floor in soft natural light",
       "section": "venue",
       "group": "wellness",
@@ -137,7 +137,7 @@
     },
     {
       "image": "/images/main-hall-11.jpg",
-      "caption": "Auditorium — Reception and buffet",
+      "caption": "The Auditorium",
       "alt": "The Auditorium at Sane Living: a catered reception with round tables and a projection screen",
       "section": "venue",
       "group": "receptions",
@@ -145,7 +145,7 @@
     },
     {
       "image": "/images/main-hall-12.jpg",
-      "caption": "Auditorium — Concert stage",
+      "caption": "The Auditorium",
       "alt": "The Auditorium at Sane Living: a stage set up with a drum kit, guitars and keyboard for a concert",
       "section": "venue",
       "group": "performances",
@@ -153,7 +153,7 @@
     },
     {
       "image": "/images/main-hall-13.jpg",
-      "caption": "Auditorium — Acoustic music set",
+      "caption": "The Auditorium",
       "alt": "The Auditorium at Sane Living: a stage set up with tabla drums, guitar and keyboard for a music performance",
       "section": "venue",
       "group": "performances",
@@ -161,7 +161,7 @@
     },
     {
       "image": "/images/main-hall-14.jpg",
-      "caption": "Auditorium — Class tables facing the screen",
+      "caption": "The Auditorium",
       "alt": "The Auditorium at Sane Living: long tables and chairs set up facing a projection screen",
       "section": "venue",
       "group": "meetings",
@@ -169,7 +169,7 @@
     },
     {
       "image": "/images/center-office.jpg",
-      "caption": "Conference Room",
+      "caption": "The Conference Room",
       "alt": "The Conference Room at Sane Living, with a long wooden table, whiteboard and natural light",
       "section": "venue",
       "group": "meetings",
@@ -177,7 +177,7 @@
     },
     {
       "image": "/images/evo3-sculpture.jpg",
-      "caption": "EVO3 Sculpture and outdoor gathering area",
+      "caption": "The Entrance",
       "alt": "EVO3 Sculpture at Sane Living Center",
       "section": "outdoor"
     },
@@ -190,28 +190,28 @@
     },
     {
       "image": "/images/wedding-reception-auditorium.jpg",
-      "caption": "Reception dance floor and stage",
+      "caption": "The Auditorium",
       "alt": "The Auditorium set for a wedding reception: a parquet dance floor in front of a stage with a band setup, a floral arch and draped curtains beneath the stained-glass window, and round tables on either side",
       "section": "weddings",
       "space": "auditorium"
     },
     {
       "image": "/images/auditorium-dance-floor-stage.jpg",
-      "caption": "Dance floor and DJ stage",
+      "caption": "The Auditorium",
       "alt": "The Auditorium set for a dance night: an open floor under string lights and pendant lamps, with a DJ booth on stage between tall speakers beneath the stained-glass window, and lounge seating along the walls",
       "section": "weddings",
       "space": "auditorium"
     },
     {
       "image": "/IMG_0201.jpg",
-      "caption": "Ceremony with floral arch",
+      "caption": "The Auditorium",
       "alt": "Wedding ceremony in the Auditorium, with a white floral arch under the stained-glass window and flowers along a rug aisle",
       "section": "weddings",
       "space": "auditorium"
     },
     {
       "image": "/images/wedding-ceremony-floral-aisle.jpg",
-      "caption": "Ceremony with dark chairs",
+      "caption": "The Auditorium",
       "alt": "Wedding ceremony in the Auditorium, with dark chairs, a white floral arch under the stained-glass window and flowers lining a rug aisle",
       "section": "weddings"
     },
@@ -225,7 +225,7 @@
     },
     {
       "image": "/images/annex-bridal-room.jpg",
-      "caption": "The Annex — Bridal room",
+      "caption": "The Annex",
       "alt": "The Annex set as a bridal room: a wedding dress hanging from the ceiling, tall arched mirrors, a round mirror over a wooden console, velvet armchairs and white roses",
       "section": "weddings",
       "space": "annex",
@@ -233,7 +233,7 @@
     },
     {
       "image": "/images/annex-meditation.jpg",
-      "caption": "The Annex — Meditation space",
+      "caption": "The Annex",
       "alt": "The Annex set for meditation: floor cushions around a low table with a singing bowl and a bell, on part carpet and part hardwood floor, with sheer curtains and track lighting",
       "section": "venue",
       "group": "wellness",
@@ -242,14 +242,14 @@
     },
     {
       "image": "/IMG_0207.jpg",
-      "caption": "Evening reception under the tree",
+      "caption": "The Secret Garden",
       "alt": "Evening wedding reception outdoors, with green-draped round tables, lanterns and fairy lights in a tree, and a bar",
       "section": "weddings",
       "space": "garden"
     },
     {
       "image": "/IMG_0208.jpg",
-      "caption": "Garden reception tables",
+      "caption": "The Secret Garden",
       "alt": "Outdoor wedding reception in the sun, with long wooden tables, greenery runners and string lights",
       "section": "weddings"
     }
