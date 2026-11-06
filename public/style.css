@@ -1568,3 +1568,6 @@ html body .events-hero h1, html body .events-hero p { text-shadow: 0 2px 18px rg
     background: linear-gradient(180deg, rgba(31, 19, 40, 0.55) 0%, rgba(31, 19, 40, 0.4) 40%, rgba(31, 19, 40, 0.9) 100%);
   }
 }
+/* Keep a short phrase in a heading together on one line */
+.keep-line { white-space: nowrap; }
+@media (max-width: 374px) { .home-h2 { font-size: min(2.3rem, 9.9vw) !important; } }

@@ -48,6 +48,7 @@
       margin: 0 0 var(--space-lg);
     }
     .hero-copy h1 em { display: block; font-weight: 500; color: var(--clr-glow); }
+    .hero-copy h1 + .hero-actions { margin-top: var(--space-xl); }
     .hero-copy .hero-subtitle { font-size: clamp(1.05rem, 1.5vw, 1.2rem); line-height: 1.65; color: #e6dcea; max-width: 38rem; margin: 0 0 var(--space-xl); }
     .hero-actions { display: flex; flex-wrap: wrap; gap: var(--space-md); }
 
@@ -361,7 +362,6 @@
     <div class="hero-copy">
       <div class="home-wrap">
         <h1 data-site-text="homeHeading">Host Your Event <em>in the Heart of Ojai</em></h1>
-        <p class="hero-subtitle" data-site-text="homeIntro" data-sentences>Ojai is known for its hidden gems. This one-of-a-kind venue is located in the center of town.</p>
         <div class="hero-actions">
           <a href="/#availability" class="btn btn-glow" data-site-href="homePrimaryUrl" data-site-text="homePrimaryLabel">Check a Date</a>
         </div>
@@ -402,7 +402,7 @@
     <div class="home-wrap">
       <div class="pillars-head" data-animate>
         <span class="eyebrow">Why here</span>
-        <h2 class="home-h2">Daylight Gatherings, Evening Celebrations</h2>
+        <h2 class="home-h2">Daylight Gatherings, <span class="keep-line">Evening Celebrations</span></h2>
       </div>
       <div class="pillars" data-animate-stagger>
         <div class="pillar">
@@ -507,7 +507,7 @@
     <div class="home-wrap">
       <div class="book-head" data-animate>
         <span class="eyebrow">Ways to book</span>
-        <h2 class="home-h2">Pick your hour. We’ll set the space.</h2>
+        <h2 class="home-h2">Pick your hour. <span class="keep-line">We’ll set the space.</span></h2>
         <p class="home-lede" data-sentences>The Auditorium seats 110, or 150 standing, with a projector, sound system, theater lighting and a portable stage on request. Set it theater-style, in a circle or with tables for screenings and dinners. Add the Conference Room, the Annex or the Secret Garden as you need them.</p>
       </div>
       <div class="book-grid" data-animate>
