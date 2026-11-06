@@ -180,6 +180,30 @@
       "section": "outdoor"
     },
     {
+      "image": "/images/auditorium-graduation-party.jpg",
+      "caption": "The Auditorium",
+      "alt": "The Auditorium set for a graduation party: gold and black sequined cocktail tables, a dessert table, framed graduate portraits, blue and gold balloons and drapes framing the stained-glass window",
+      "section": "venue",
+      "group": "celebrations",
+      "space": "auditorium"
+    },
+    {
+      "image": "/images/auditorium-celebration-of-life.jpg",
+      "caption": "The Auditorium",
+      "alt": "The Auditorium set for a celebration of life: upholstered chairs on rugs facing a memorial table with white flowers, candles and framed photos, cream drapes and the stained-glass window",
+      "section": "venue",
+      "group": "celebrations",
+      "space": "auditorium"
+    },
+    {
+      "image": "/images/auditorium-dance-party-lights.jpg",
+      "caption": "The Auditorium",
+      "alt": "The Auditorium set for a dance party: an open wooden dance floor, a DJ booth on truss staging, tall speakers, moving lights and colorful projections around the stained-glass window",
+      "section": "venue",
+      "group": "celebrations",
+      "space": "auditorium"
+    },
+    {
       "image": "/images/secret-garden-party.jpg",
       "caption": "The Secret Garden",
       "alt": "The Secret Garden set for an evening celebration: string lights and colorful bunting under the mulberry canopy, a white fence, a dessert table, cocktail tables, a vintage rug with chairs, and a DJ under a lit arch",
