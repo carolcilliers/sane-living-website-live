@@ -216,7 +216,7 @@
         <h2>Auditorium Rates</h2>
         <p data-sentences>Rates below are for the Auditorium. For the Secret Garden, the Annex or the Conference Room, please <a href="/contact/">contact us</a> or call <a data-site-href="phoneLink" href="tel:+18056466000">(805) 646-6000</a> for rates.</p>
       </div>
-      <p class="pricing-note" data-animate><strong id="pricing-note-date">As of January 1, 2026</strong> <span class="pricing-note-sep" aria-hidden="true">·</span> <span id="pricing-note-text">Rates subject to change January 2027.</span></p>
+      <p class="pricing-note" data-animate><span id="pricing-note-text">Rates subject to change January 2027.</span></p>
       <p class="holiday-note" data-animate>Holiday rates apply. Ask us about pricing for holiday dates.</p>
 
       <div class="rate-table-wrap" data-animate>
@@ -310,7 +310,7 @@
         if (!d) return;
         if(typeof d.ctaHeading==='string') document.querySelector('.pricing-cta h2').textContent=d.ctaHeading;
         if(typeof d.ctaText==='string') document.querySelector('.pricing-cta p').textContent=d.ctaText;
-        if (typeof d.noteDate === 'string') document.getElementById('pricing-note-date').textContent = d.noteDate;
+        if (typeof d.noteDate === 'string' && document.getElementById('pricing-note-date')) document.getElementById('pricing-note-date').textContent = d.noteDate;
         if (typeof d.noteText === 'string') document.getElementById('pricing-note-text').textContent = d.noteText;
         if (typeof d.hoursHeader === 'string') document.getElementById('pricing-hours').textContent = d.hoursHeader;
         if (Array.isArray(d.rows)) {
