@@ -96,7 +96,10 @@
     }
     @media (prefers-reduced-motion: reduce) { .tile img, .tile .tile-caption, .gallery-jump a { transition: none; } }
     .space-see-all { text-align: center; margin-top: clamp(1.5rem, 3vw, 2.25rem); }
-  </style>
+      .chapter-chips { display: flex; flex-wrap: wrap; gap: 8px; margin: var(--space-md) 0 0; padding: 0; list-style: none; }
+    .chapter-chips li { padding: 7px 14px; border: 1px solid var(--clr-border); border-radius: 999px; font-size: 0.88rem; color: var(--clr-text); background: var(--clr-bg-card, #fff); }
+    .chapter-chips li:nth-child(-n+3) { border-color: var(--clr-accent); background: var(--clr-accent); color: #fff; font-weight: 700; }
+</style>
   <meta property="og:title" content="Photos — Sane Living Center">
   <meta property="og:description" content="Photos of the Sane Living Center in downtown Ojai, California — the auditorium, weddings, conference room, and outdoor space.">
   <meta property="og:image" content="https://saneliving.com/images/share-auditorium.jpg">
@@ -170,7 +173,8 @@
         text: 'Film nights on the big screen with full projection and sound, or round tables, cocktail tables and a long buffet for dinners, slideshows and toasts.',
         cta: 'Plan a reception or screening', href: '/rent/pricing/' },
       { id: 'celebrations', section: 'any', group: 'celebrations', eyebrow: 'Auditorium · Secret Garden', title: 'Celebrations',
-        text: 'Birthdays, anniversaries, milestone parties and celebrations of life, with room to dance in the Auditorium and an evening under the lights in the Secret Garden.',
+        text: 'Honor a life, mark a milestone or throw the party of the year, with room to dance in the Auditorium and an evening under the lights in the Secret Garden.',
+        chips: ['Celebrations of Life', 'Birthday Parties', 'Anniversary Parties', 'Engagement Parties', 'Baby & Bridal Showers', 'Graduation Parties', 'Retirement Parties', 'Holiday Parties', 'Family Reunions'],
         cta: 'Plan a celebration', href: '/rent/pricing/' },
       { id: 'performances', section: 'venue', group: 'performances', eyebrow: 'Auditorium', title: 'Concerts & Performances',
         text: 'Modular stage risers, house speakers and theater lighting make room for anything from a full band to an intimate acoustic set.',
@@ -259,7 +263,8 @@
         return '<section class="section' + (alt ? ' section-alt' : '') + '" id="gallery-' + c.id + '" aria-labelledby="gallery-' + c.id + '-title">' +
           '<div class="container"><div class="chapter-head"><div class="chapter-text">' +
           '<span class="chapter-eyebrow">' + esc(c.eyebrow) + '</span>' +
-          '<h2 id="gallery-' + c.id + '-title">' + esc(c.title) + '</h2><p>' + esc(c.text) + '</p></div>' +
+          '<h2 id="gallery-' + c.id + '-title">' + esc(c.title) + '</h2><p>' + esc(c.text) + '</p>' +
+          (c.chips ? '<ul class="chapter-chips">' + c.chips.map(function(x) { return '<li>' + esc(x) + '</li>'; }).join('') + '</ul>' : '') + '</div>' +
           '<a class="btn btn-outline chapter-cta" href="' + esc(c.href) + '">' + esc(c.cta) + '</a></div>' +
           mosaic(list, !alt) + '</div></section>';
       }).join('');
