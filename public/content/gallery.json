@@ -15,10 +15,9 @@
     },
     {
       "image": "/images/venue-auditorium-open-doors.jpg",
-      "caption": "The Auditorium",
+      "caption": "The Lobby",
       "alt": "The Auditorium with its folding glass doors fully open to the lobby and entrance",
-      "section": "venue",
-      "space": "auditorium"
+      "section": "venue"
     },
     {
       "image": "/images/venue-purple-doors.jpg",
@@ -28,10 +27,9 @@
     },
     {
       "image": "/images/venue-auditorium-glass-doors.jpg",
-      "caption": "The Auditorium",
+      "caption": "The Lobby",
       "alt": "The Auditorium floor in front of its frosted folding glass doors and sound system",
-      "section": "venue",
-      "space": "auditorium"
+      "section": "venue"
     },
     {
       "image": "/images/auditorium-rows-glass-doors.jpg",

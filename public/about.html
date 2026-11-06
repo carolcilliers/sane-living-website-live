@@ -3,12 +3,12 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>About — Sane Living</title>
-  <meta name="description" content="About Sane Living — the Center, founder Aubrey Balkind, the Farm, and HIP VGN restaurant in Ojai, California.">
+  <title>About — Sane Living Center</title>
+  <meta name="description" content="About the Sane Living Center in Ojai: founder Aubrey Balkind, his philosophy, our partner HIP VGN and the EVO 3 Sculpture on East Matilija Street.">
   <link rel="stylesheet" href="/style.css">
 
-  <meta property="og:title" content="About — Sane Living">
-  <meta property="og:description" content="About Sane Living — the Center, founder Aubrey Balkind, the Farm, and HIP VGN restaurant in Ojai, California.">
+  <meta property="og:title" content="About — Sane Living Center">
+  <meta property="og:description" content="About the Sane Living Center in Ojai: founder Aubrey Balkind, his philosophy, our partner HIP VGN and the EVO 3 Sculpture on East Matilija Street.">
   <meta property="og:image" content="https://saneliving.com/images/share-auditorium.jpg">
   <meta property="og:image:width" content="1200">
   <meta property="og:image:height" content="630">
@@ -16,28 +16,55 @@
   <meta property="og:type" content="website">
   <meta property="og:url" content="https://saneliving.com/about">
   <meta name="twitter:card" content="summary_large_image">
-  <meta name="twitter:title" content="About — Sane Living">
-  <meta name="twitter:description" content="About Sane Living — the Center, founder Aubrey Balkind, the Farm, and HIP VGN restaurant in Ojai, California.">
+  <meta name="twitter:title" content="About — Sane Living Center">
+  <meta name="twitter:description" content="About the Sane Living Center in Ojai: founder Aubrey Balkind, his philosophy, our partner HIP VGN and the EVO 3 Sculpture on East Matilija Street.">
   <meta name="twitter:image" content="https://saneliving.com/images/share-auditorium.jpg">
   <meta name="twitter:image:alt" content="The Auditorium at the Sane Living Center in Ojai">
 <link rel="icon" href="/favicon.svg">
 <script src="/site-config.js" defer></script>
 <script src="/site-content.js" defer></script>
+  <style>
+    /* ---- ABOUT — V4 (Nov 5, 2026). Founder, philosophy and HIP VGN come from the dashboard (Settings → About). ---- */
+    .about-hero { background: var(--clr-night); color: var(--clr-on-night); text-align: center; padding: calc(var(--nav-height, 80px) + 64px) 24px 72px; }
+    .about-hero .eyebrow { color: var(--clr-glow); }
+    .about-hero h1 { font-size: clamp(2.6rem, 5.5vw, 4.4rem); font-weight: 600; line-height: 1.05; color: var(--clr-on-night); margin: 0 0 var(--space-md); }
+    .about-hero p { max-width: 40rem; margin: 0 auto; color: #e2d6e8; font-size: clamp(1.05rem, 1.5vw, 1.2rem); line-height: 1.65; }
+    .about-body .content-block { max-width: 1080px; }
+    .about-managed-section.split-grid { gap: clamp(2rem, 5vw, 4rem); align-items: center; margin-bottom: clamp(3rem, 7vw, 5rem); }
+    .about-managed-section img { aspect-ratio: 4 / 3; object-fit: cover; border-radius: 4px !important; box-shadow: 0 20px 44px rgba(31, 19, 40, 0.16); }
+    .about-managed-section h2 { font-size: clamp(2rem, 3.4vw, 2.8rem); font-weight: 600; line-height: 1.1; margin-bottom: var(--space-md); }
+    .about-managed-section p { line-height: 1.75; margin-bottom: var(--space-lg); }
+    .about-body .card-grid { margin-bottom: clamp(3rem, 7vw, 5rem); }
+    @media (min-width: 640px) { .about-body .card-grid { grid-template-columns: repeat(2, 1fr); } }
+    @media (min-width: 1000px) { .about-body .card-grid { grid-template-columns: repeat(4, 1fr); } }
+    /* EVO 3 Sculpture */
+    .sculpture-section .split-grid { gap: clamp(2rem, 5vw, 4rem); align-items: center; }
+    .sculpture-section img { width: 100%; aspect-ratio: 4 / 3; object-fit: cover; border-radius: 4px; display: block; }
+    .sculpture-section h2 { font-size: clamp(2.2rem, 4vw, 3.2rem); font-weight: 600; line-height: 1.05; margin: 0 0 var(--space-md); }
+    .sculpture-section p { line-height: 1.75; }
+    .sculpture-film { margin-top: clamp(3rem, 6vw, 4.5rem); text-align: center; }
+    .sculpture-film h3 { font-size: clamp(1.7rem, 2.8vw, 2.2rem); font-weight: 600; margin: 0 0 var(--space-lg); }
+    .video-frame { position: relative; width: 100%; max-width: 900px; margin: 0 auto; aspect-ratio: 16 / 9; border-radius: 4px; overflow: hidden; background: #000; }
+    .video-frame iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; }
+    .sculpture-film p { margin-top: var(--space-lg); }
+    #sculpture { scroll-margin-top: 90px; }
+  </style>
 </head>
 <body>
 
   <nav id="site-nav"></nav>
 
-  <section class="page-hero">
+  <section class="page-hero about-hero">
     <div class="container">
+      <span class="eyebrow">About</span>
       <h1>About Sane Living</h1>
+      <p data-sentences>A beautiful sacred space in the heart of Ojai, providing experiences that invite you to explore, heal and discover what’s possible.</p>
     </div>
   </section>
 
-  <section class="section">
+  <section class="section about-body">
     <div class="content-block">
 <!-- about-managed:start -->
-<div data-animate class="about-managed-section split-grid"><div><h2>Sane Living Center</h2><p>The Sane Living Center is a beautiful auditorium and gathering venue, ideally situated in the heart of Ojai, California. Available for rent, this high technology space hosts a wide variety of events including conferences, film screenings, music festivals, artistic performances, lectures and workshops, business functions, community events, special occasions, private celebrations, and more.</p><a class="btn btn-outline" href="/rent/">Rent Sane Living Center →</a></div><img src="/images/about-center-exterior.jpg" alt="Sane Living Center" style="width:100%;border-radius:8px;"></div>
 <div data-animate class="about-managed-section split-grid"><img src="/images/about-aubrey.jpg" alt="Founder — Aubrey Balkind" style="width:100%;border-radius:8px;"><div><h2>Founder — Aubrey Balkind</h2><p>As the founder of Ojai&#39;s Sane Living Center, Aubrey Balkind envisions a future where humans live in harmony with both nature and artificial intelligence.</p><a class="btn btn-outline" href="https://youmeandojai.com/ojai-profiles/aubrey-balkind" target="_blank" rel="noopener noreferrer">Read More →</a></div></div><!-- philosophy:start -->      <!-- United Founder & Philosophy Sections -->
       <div data-animate>
         <h3 style="text-align: center; margin-bottom: var(--space-lg); margin-top: var(--space-xl); color: var(--clr-accent); text-transform: uppercase; font-size: 1rem; letter-spacing: 0.1em;">His Philosophy</h3>
@@ -71,8 +98,29 @@
     </div>
   </section>
 
+  <!-- EVO 3 Sculpture (from the former /sculpture/ page) -->
+  <section class="section section-alt sculpture-section" id="sculpture">
+    <div class="container">
+      <div class="split-grid" data-animate>
+        <img title="The Entrance" src="/images/evo3-sculpture.jpg" alt="The EVO 3 Sculpture, a tall metallic question mark with a drum at its base, outside the Sane Living Center on East Matilija Street in Ojai" loading="lazy">
+        <div>
+          <span class="eyebrow">Public Art</span>
+          <h2>The EVO 3 Sculpture</h2>
+          <p>Standing over 8 feet tall on East Matilija Street in Ojai, California, the EVO3 Sculpture offers viewers the story of humanity — from its biological root through its egocentric development to its algorithmically-defined future — in the form of a giant metallic question mark with a drum integrated into its base.</p>
+          <p>Created by Sane Living founder Aubrey Balkind and built by artist Ray Cerino, the EVO 3 sculpture was welcomed by the Ojai City Council in 2018.</p>
+        </div>
+      </div>
+      <div class="sculpture-film" data-animate>
+        <h3>The Film</h3>
+        <div class="video-frame">
+          <iframe src="https://player.vimeo.com/video/493467266?badge=0&amp;autopause=0&amp;player_id=0&amp;app_id=58479" title="EVO 3 Sculpture film" allow="autoplay; fullscreen; picture-in-picture" allowfullscreen loading="lazy"></iframe>
+        </div>
+        <p>Read more about <a href="/evo3/">the philosophy that inspired EVO3</a>.</p>
+      </div>
+    </div>
+  </section>
+
   <footer id="site-footer"></footer>
   <script src="/script.js"></script>
 </body>
 </html>
-

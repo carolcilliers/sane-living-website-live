@@ -55,6 +55,7 @@ function injectNav() {
             <a href="/lifestyle/"${isActive(currentPath, '/lifestyle/')}>Lifestyle</a>
             <a href="/self-heal/"${isActive(currentPath, '/self-heal/')}>Self 2 Heal</a>
             <a href="/inspiration/"${isActive(currentPath, '/inspiration/')}>Inspiration</a>
+            <a href="/about/#sculpture">EVO 3 Sculpture</a>
           </div>
         </li>
         <li><a href="/contact/"${isActive(currentPath, '/contact/')}>Contact</a></li>
