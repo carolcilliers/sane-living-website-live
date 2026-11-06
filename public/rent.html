@@ -128,7 +128,10 @@
     .rent-extra-feature { border-top: 0; padding-top: 0; display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 6fr); gap: clamp(1.5rem, 4vw, 3.5rem); align-items: center; }
     .rent-extra-feature img { width: 100%; aspect-ratio: 3 / 2; object-fit: cover; border-radius: 4px; display: block; }
     @media (max-width: 760px) { .rent-extra-feature { grid-template-columns: 1fr; } }
-  </style>
+      /* Six occasion tiles: one large + five, filling a 3-column grid evenly */
+    .rent-photo-grid.is-six { grid-template-columns: repeat(3, 1fr); }
+    @media (max-width: 768px) { .rent-photo-grid.is-six { grid-template-columns: repeat(2, 1fr); } .rent-photo-grid.is-six .rent-photo:last-child { grid-column: 1 / -1; } }
+</style>
 <link rel="icon" href="/favicon.svg">
 <script src="/site-config.js" defer></script>
 <script src="/site-content.js" defer></script>
@@ -331,6 +334,7 @@
       { id: 'talks', title: 'Talks & Workshops' },
       { id: 'wellness', title: 'Wellness & Circles' },
       { id: 'receptions', title: 'Receptions & Screenings' },
+      { id: 'celebrations', title: 'Celebrations' },
       { id: 'performances', title: 'Concerts & Performances' },
       { id: 'meetings', title: 'Meetings & Classes' }
     ];
@@ -338,13 +342,15 @@
     fetch('/content/gallery.json')
       .then(function(r) { return r.ok ? r.json() : null; })
       .then(function(d) {
-        var photos = ((d && d.photos) || []).filter(function(p) { return !p.draft && p.image && (p.section || 'venue') === 'venue'; });
+        var photos = ((d && d.photos) || []).filter(function(p) { return !p.draft && p.image && ((p.section || 'venue') === 'venue' || (p.alsoIn || []).length); });
         var tiles = GROUPS.map(function(g) {
-          var p = photos.filter(function(x) { return x.group === g.id; })[0];
+          var p = photos.filter(function(x) { return x.group === g.id || (x.alsoIn || []).indexOf(g.id) !== -1; })[0];
           return p ? '<a class="rent-photo" href="/gallery/#gallery-' + g.id + '"><img src="' + esc(p.image) + '" alt="' + esc(p.alt || p.caption) + '"' + (p.caption ? ' title="' + esc(p.caption) + '"' : '') + ' loading="lazy"><span>' + esc(g.title) + '</span></a>' : '';
         }).join('');
         if (!tiles) return;
-        document.getElementById('rent-photo-grid').innerHTML = tiles;
+        var grid = document.getElementById('rent-photo-grid');
+        grid.innerHTML = tiles;
+        grid.classList.toggle('is-six', grid.children.length === 6);
         document.getElementById('rent-photos').hidden = false;
         window.rentRescroll();
       })

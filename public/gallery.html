@@ -169,6 +169,9 @@
       { id: 'receptions', section: 'venue', group: 'receptions', eyebrow: 'Auditorium', title: 'Receptions & Screenings',
         text: 'Film nights on the big screen with full projection and sound, or round tables, cocktail tables and a long buffet for dinners, slideshows and toasts.',
         cta: 'Plan a reception or screening', href: '/rent/pricing/' },
+      { id: 'celebrations', section: 'any', group: 'celebrations', eyebrow: 'Auditorium · Secret Garden', title: 'Celebrations',
+        text: 'Birthdays, anniversaries, milestone parties and celebrations of life, with room to dance in the Auditorium and an evening under the lights in the Secret Garden.',
+        cta: 'Plan a celebration', href: '/rent/pricing/' },
       { id: 'performances', section: 'venue', group: 'performances', eyebrow: 'Auditorium', title: 'Concerts & Performances',
         text: 'Modular stage risers, house speakers and theater lighting make room for anything from a full band to an intimate acoustic set.',
         cta: 'Book a performance', href: '/rent/pricing/' },
@@ -213,6 +216,8 @@
     function esc(s) { return String(s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
     function sectionOf(p) { return p.section || 'venue'; }
     function inChapter(p, c) {
+      // Some chapters (e.g. Celebrations) gather tagged photos from any section.
+      if (c.section === 'any') return p.group === c.group || (p.alsoIn || []).indexOf(c.group) !== -1;
       if (sectionOf(p) !== c.section) return false;
       if (c.section !== 'venue') return true;
       var g = KNOWN_GROUPS.indexOf(p.group) !== -1 ? p.group : null;

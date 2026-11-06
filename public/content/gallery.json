@@ -184,7 +184,10 @@
       "caption": "The Secret Garden",
       "alt": "The Secret Garden set for an evening celebration: string lights and colorful bunting under the mulberry canopy, a white fence, a dessert table, cocktail tables, a vintage rug with chairs, and a DJ under a lit arch",
       "section": "outdoor",
-      "space": "garden"
+      "space": "garden",
+      "alsoIn": [
+        "celebrations"
+      ]
     },
     {
       "image": "/images/wedding-reception-auditorium.jpg",
@@ -198,7 +201,10 @@
       "caption": "The Auditorium",
       "alt": "The Auditorium set for a dance night: an open floor under string lights and pendant lamps, with a DJ booth on stage between tall speakers beneath the stained-glass window, and lounge seating along the walls",
       "section": "weddings",
-      "space": "auditorium"
+      "space": "auditorium",
+      "alsoIn": [
+        "celebrations"
+      ]
     },
     {
       "image": "/images/wedding-ceremony-auditorium.jpg",
