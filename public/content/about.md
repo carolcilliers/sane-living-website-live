@@ -1,5 +1,5 @@
 ---
-title: About Sane Living
+title: About Sane Living Center
 sections:
   - heading: Sane Living Center
     body: >-
