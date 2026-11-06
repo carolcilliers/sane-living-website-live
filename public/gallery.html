@@ -34,7 +34,9 @@
     .space-browse a { color: var(--clr-plum); border-bottom: 1px solid var(--clr-border); padding-bottom: 4px; }
     .space-browse a:hover, .space-browse a:focus-visible { color: var(--clr-accent); border-color: var(--clr-accent); }
     .space-browse a[aria-current="page"] { color: var(--clr-accent); border-color: var(--clr-accent); }
-    .gallery-intro.is-space .gallery-jump { display: none; }
+    .gallery-jump { display: none !important; }
+    #gallery-intro:has(.gallery-intro:not(.is-space)) { padding-bottom: clamp(1.5rem, 3vw, 2.25rem); }
+    .gallery-intro:not(.is-space) .space-browse { display: none; }
     .gallery-intro.is-space .space-browse { margin-top: var(--space-xl); font-size: 13px; }
     .space-actions { display: flex; flex-wrap: wrap; gap: 12px; justify-content: center; margin-top: clamp(2.5rem, 5vw, 3.5rem); }
 
@@ -115,8 +117,8 @@
     <div class="container">
       <div class="gallery-intro" data-animate>
         <h1 id="gallery-title">One Space, Many Ways to Gather</h1>
-        <p class="gallery-lede" id="gallery-lede">See how people gather at 316 E Matilija St., Ojai.</p>
-        <p id="gallery-text">The Auditorium has hosted conferences, film screenings, concerts, lectures and workshops, meditation circles, community events and private celebrations. Scroll through how others have made it their own, and then envision your own event here.</p>
+        <p class="gallery-lede" id="gallery-lede">See how community gathers at 316 E. Matilija St., Ojai.</p>
+        <p id="gallery-text" hidden></p>
         <nav class="gallery-jump" id="gallery-jump" aria-label="Jump to a part of the gallery"></nav>
         <nav class="space-browse" id="space-browse" aria-label="Browse photos by space"></nav>
       </div>
@@ -306,6 +308,7 @@
       document.querySelector('.gallery-intro').classList.add('is-space');
       document.getElementById('gallery-title').textContent = 'Browse by Space';
       document.getElementById('gallery-lede').textContent = 'Four spaces at 316 E Matilija St., Ojai.';
+      document.getElementById('gallery-text').hidden = false;
       document.getElementById('gallery-text').textContent = 'Every photo of each space, whatever the occasion. Jump to a space below, then picture your own event there.';
       var html = SPACES.map(function(s, i) {
         var seen = {}, list = photos.filter(function(p) {
