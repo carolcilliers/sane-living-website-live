@@ -70,14 +70,6 @@
       "space": "auditorium"
     },
     {
-      "image": "/images/main-hall-04.jpg",
-      "caption": "The Auditorium",
-      "alt": "The Auditorium at Sane Living: a woman in a floral robe walking past a circle of meditation cushions",
-      "section": "venue",
-      "group": "wellness",
-      "space": "auditorium"
-    },
-    {
       "image": "/images/main-hall-05.jpg",
       "caption": "The Auditorium",
       "alt": "The Auditorium at Sane Living: a catered buffet with cocktail tables and a projection screen",
@@ -123,14 +115,6 @@
       "alt": "The Auditorium at Sane Living: two draped chairs, plants and flowers set up in front of the stained-glass window",
       "section": "venue",
       "group": "talks",
-      "space": "auditorium"
-    },
-    {
-      "image": "/images/about-center.jpg",
-      "caption": "The Auditorium",
-      "alt": "A woman in a deep lunge stretch on the Auditorium floor in soft natural light",
-      "section": "venue",
-      "group": "wellness",
       "space": "auditorium"
     },
     {
@@ -235,27 +219,11 @@
       "space": "auditorium"
     },
     {
-      "image": "/images/auditorium-dance-floor-stage.jpg",
-      "caption": "The Auditorium",
-      "alt": "The Auditorium set for a dance night: an open floor under string lights and pendant lamps, with a DJ booth on stage between tall speakers beneath the stained-glass window, and lounge seating along the walls",
-      "section": "weddings",
-      "space": "auditorium",
-      "alsoIn": [
-        "celebrations"
-      ]
-    },
-    {
       "image": "/images/wedding-ceremony-auditorium.jpg",
       "caption": "The Auditorium",
       "alt": "Wedding ceremony in the Auditorium, with a white floral arch under the stained-glass window and flowers along a rug aisle",
       "section": "weddings",
       "space": "auditorium"
-    },
-    {
-      "image": "/images/wedding-ceremony-dark-chairs.jpg",
-      "caption": "The Auditorium",
-      "alt": "Wedding ceremony in the Auditorium, with dark chairs, a white floral arch under the stained-glass window and flowers lining a rug aisle",
-      "section": "weddings"
     },
     {
       "image": "/images/venue-annex.jpg",
