@@ -1571,3 +1571,14 @@ html body .events-hero h1, html body .events-hero p { text-shadow: 0 2px 18px rg
 /* Keep a short phrase in a heading together on one line */
 .keep-line { white-space: nowrap; }
 @media (max-width: 374px) { .home-h2 { font-size: min(2.3rem, 9.9vw) !important; } }
+
+/* ---- Tighter section rhythm (Nov 5, 2026) ----
+ * Sections were 112px top + bottom (225–270px between neighbors). Now ~76px on desktop
+ * and ~52px on phones, so pages flow without feeling cramped. */
+html body .section { padding-top: clamp(3.25rem, 5.5vw, 4.75rem); padding-bottom: clamp(3.25rem, 5.5vw, 4.75rem); }
+/* A content block inside a section shouldn't add a second layer of padding on top. */
+html body .section > .content-block { padding-top: 0; padding-bottom: 0; }
+/* Last thing in a section never adds extra space before the next one. */
+html body .section .container > :last-child,
+html body .section .rent-wrap > :last-child,
+html body .section .content-block > :last-child { margin-bottom: 0; }

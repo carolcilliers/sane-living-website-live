@@ -48,16 +48,7 @@ function injectNav() {
         <li><a href="/rent/weddings/"${isActive(currentPath, '/rent/weddings/')}>Weddings</a></li>
         <li><a href="/gallery/"${isActive(currentPath, '/gallery/')}>Photos</a></li>
         <li><a href="/sculpture/"${isActive(currentPath, '/sculpture/')}>Sculpture</a></li>
-        <li class="nav-dropdown">
-          <a href="/about/"${isActive(currentPath, '/about/')}>About</a>
-          <div class="nav-dropdown-menu">
-            <a href="/evo3/"${isActive(currentPath, '/evo3/')}>EVO 3: Bio Ego Algo</a>
-            <a href="/lifestyle/"${isActive(currentPath, '/lifestyle/')}>Lifestyle</a>
-            <a href="/self-heal/"${isActive(currentPath, '/self-heal/')}>Self 2 Heal</a>
-            <a href="/inspiration/"${isActive(currentPath, '/inspiration/')}>Inspiration</a>
-            <a href="/about/#sculpture">EVO 3 Sculpture</a>
-          </div>
-        </li>
+        <li><a href="/about/"${isActive(currentPath, '/about/')}>About</a></li>
         <li><a href="/contact/"${isActive(currentPath, '/contact/')}>Contact</a></li>
       </ul>
       <div class="nav-end">
