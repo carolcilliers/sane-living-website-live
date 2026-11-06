@@ -1582,3 +1582,14 @@ html body .section > .content-block { padding-top: 0; padding-bottom: 0; }
 html body .section .container > :last-child,
 html body .section .rent-wrap > :last-child,
 html body .section .content-block > :last-child { margin-bottom: 0; }
+
+/* ---- Home video: much lighter overlay (Nov 5, 2026) ----
+ * The video itself isn't dark; the purple shade over it was. Now only a soft shade sits
+ * low behind the headline (plus a text shadow), so the room shows in its true light. */
+html body .hero-half .hero-scrim {
+  background:
+    linear-gradient(0deg, rgba(31, 19, 40, 0.62) 0%, rgba(31, 19, 40, 0.28) 24%, rgba(31, 19, 40, 0) 46%),
+    linear-gradient(180deg, rgba(31, 19, 40, 0.28) 0%, rgba(31, 19, 40, 0) 14%) !important;
+}
+html body .hero-half video { filter: none; }
+html body .hero-copy h1 { text-shadow: 0 2px 24px rgba(21, 12, 27, 0.6), 0 1px 3px rgba(21, 12, 27, 0.35); }
