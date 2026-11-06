@@ -168,6 +168,15 @@
     .rate-table-head p { max-width: 40rem; margin: 0 auto; color: var(--clr-text-muted); line-height: 1.65; }
     .wedding-price-summary { font-family: var(--font-display); font-size: clamp(1.3rem, 2.2vw, 1.6rem); color: var(--clr-plum); margin-bottom: var(--space-sm); }
     .rate-table-head .holiday-note, .holiday-note { display: inline-block; margin: 0 0 var(--space-lg); padding: 10px 22px; border-radius: 999px; background: var(--clr-night, #1f1328); color: var(--clr-glow, #e9b872) !important; font-weight: 700; font-size: 0.95rem; letter-spacing: 0.02em; }
+    /* Tighter, flowing top (Nov 5, 2026) */
+    .rates-hero { padding-top: calc(var(--nav-height, 80px) + 48px) !important; padding-bottom: 48px !important; }
+    .rates-hero h1 { margin-bottom: var(--space-sm); }
+    .rates-body { padding-top: clamp(2.5rem, 5vw, 3.5rem) !important; }
+    .rates-body > .content-block { padding-top: 0 !important; }
+    .rates-body .rate-table-head { margin-bottom: var(--space-md); }
+    .rates-body .pricing-note { text-align: center; margin: 0 0 var(--space-md); font-size: 0.92rem; color: var(--clr-text-muted); }
+    .rates-body .pricing-note strong { color: var(--clr-text); }
+    .pricing-note-sep { margin: 0 6px; }
 </style>
 
   <meta property="og:title" content="Rates &amp; Availability — Sane Living Center">
@@ -191,25 +200,22 @@
 
   <nav id="site-nav"></nav>
 
-  <section class="page-hero">
+  <section class="page-hero rates-hero">
     <div class="container">
       <h1>Rates &amp; Availability</h1>
+      <p class="page-hero-sub">Holiday rates apply. Ask us about pricing for holiday dates.</p>
     </div>
   </section>
 
-  <section class="section">
+  <section class="section rates-body">
     <div class="content-block">
 
       <!-- Rate Table: these rates are for the Auditorium -->
       <div class="rate-table-head" data-animate>
-        <p class="holiday-note">Holiday rates apply. Ask us about pricing for holiday dates.</p>
         <h2>Auditorium Rates</h2>
         <p data-sentences>Rates below are for the Auditorium. For the Secret Garden, the Annex or the Conference Room, please <a href="/contact/">contact us</a> or call <a data-site-href="phoneLink" href="tel:+18056466000">(805) 646-6000</a> for rates.</p>
       </div>
-      <div class="pricing-note" data-animate>
-        <strong id="pricing-note-date">As of January 1, 2026</strong><br>
-        <span id="pricing-note-text">Rates subject to change in 2027.</span>
-      </div>
+      <p class="pricing-note" data-animate><strong id="pricing-note-date">As of January 1, 2026</strong> <span class="pricing-note-sep" aria-hidden="true">·</span> <span id="pricing-note-text">Rates subject to change in 2027.</span></p>
 
       <div class="rate-table-wrap" data-animate>
         <table class="rate-table">
