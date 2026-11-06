@@ -214,6 +214,20 @@
       ]
     },
     {
+      "image": "/images/secret-garden-cocktail-hour.jpg",
+      "caption": "The Secret Garden",
+      "alt": "The Secret Garden set for an evening gathering: string lights over gravel, floor cushions and a low table on a rug, candle lanterns, and a long wooden table with appetizers and drinks under the olive and mulberry trees, bordered by a white fence",
+      "section": "outdoor",
+      "space": "garden"
+    },
+    {
+      "image": "/images/secret-garden-lounge.jpg",
+      "caption": "The Secret Garden",
+      "alt": "The Secret Garden set as a relaxed lounge: colorful paper lanterns and string lights in the mulberry tree, bunting, rugs with leather poufs and low tables, a white fence and a chalkboard sign reading Welcome to the secret garden",
+      "section": "outdoor",
+      "space": "garden"
+    },
+    {
       "image": "/images/wedding-reception-auditorium.jpg",
       "caption": "The Auditorium",
       "alt": "The Auditorium set for a wedding reception: a parquet dance floor in front of a stage with a band setup, a floral arch and draped curtains beneath the stained-glass window, and round tables on either side",
