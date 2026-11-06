@@ -126,6 +126,14 @@
       "space": "auditorium"
     },
     {
+      "image": "/images/auditorium-band-stage.jpg",
+      "caption": "The Auditorium",
+      "alt": "The Auditorium set for a live band: portable stage risers with a drum kit, keyboard, guitars, microphones and speakers in front of the stained-glass window, with a rug and pampas grass on stage",
+      "section": "venue",
+      "group": "performances",
+      "space": "auditorium"
+    },
+    {
       "image": "/images/main-hall-12.jpg",
       "caption": "The Auditorium",
       "alt": "The Auditorium at Sane Living: a stage set up with a drum kit, guitars and keyboard for a concert",
