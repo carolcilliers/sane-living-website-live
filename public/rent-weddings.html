@@ -100,6 +100,22 @@
     .rent-extra-feature { border-top: 0; padding-top: 0; display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 6fr); gap: clamp(1.5rem, 4vw, 3.5rem); align-items: center; }
     .rent-extra-feature img { width: 100%; aspect-ratio: 3 / 2; object-fit: cover; border-radius: 4px; display: block; }
     @media (max-width: 760px) { .rent-extra-feature { grid-template-columns: 1fr; } }
+    .lightbox { border: 0; padding: 0; max-width: none; max-height: none; width: 100%; height: 100%; background: rgba(20,16,22,.94); color: #fff; }
+    .lightbox::backdrop { background: rgba(20,16,22,.94); }
+    .lightbox-inner { position: relative; width: 100%; height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 56px 72px 24px; box-sizing: border-box; }
+    .lightbox img { max-width: 100%; max-height: calc(100% - 64px); object-fit: contain; border-radius: 8px; }
+    .lightbox-caption { margin-top: 14px; text-align: center; font-size: 0.95rem; color: rgba(255,255,255,.85); }
+    .lightbox-count { display: block; font-size: 0.78rem; color: rgba(255,255,255,.55); margin-top: 4px; letter-spacing: .06em; }
+    .lb-btn { position: absolute; background: rgba(255,255,255,.12); color: #fff; border: 0; border-radius: 999px; width: 48px; height: 48px; font-size: 1.6rem; line-height: 1; cursor: pointer; transition: background 0.2s ease; }
+    .lb-btn:hover, .lb-btn:focus-visible { background: rgba(255,255,255,.28); outline: none; }
+    .lb-close { top: 14px; right: 14px; }
+    .lb-prev { left: 14px; top: 50%; transform: translateY(-50%); }
+    .lb-next { right: 14px; top: 50%; transform: translateY(-50%); }
+      .lightbox-inner { padding: 64px 12px 24px; }
+      .lb-prev, .lb-next { top: auto; bottom: 14px; transform: none; }
+    @media (max-width: 600px) { .lightbox-inner { padding: 64px 12px 24px; } }
+    .wedding-photo { cursor: zoom-in; }
+    [data-wlb-img] { cursor: zoom-in; }
   </style>
 <link rel="icon" href="/favicon.svg">
 <script src="/site-config.js" defer></script>
@@ -138,8 +154,8 @@
           <a data-site-href="phoneLink" href="tel:+18056466000" class="btn btn-primary wedding-call">Call (805) 646-6000</a>
         </div>
         <div class="wedding-story-photos">
-          <img title="The Auditorium" src="/IMG_0201.jpg" alt="Wedding ceremony in the Auditorium, with a white floral arch under the stained-glass window and flowers along a rug aisle" loading="lazy">
-          <img title="The Secret Garden" src="/IMG_0207.jpg" alt="Evening wedding reception in the Secret Garden, with green-draped round tables, lanterns and fairy lights in the trees" loading="lazy">
+          <img data-wlb-img title="The Auditorium" src="/IMG_0201.jpg" alt="Wedding ceremony in the Auditorium, with a white floral arch under the stained-glass window and flowers along a rug aisle" loading="lazy">
+          <img data-wlb-img title="The Secret Garden" src="/IMG_0207.jpg" alt="Evening wedding reception in the Secret Garden, with green-draped round tables, lanterns and fairy lights in the trees" loading="lazy">
         </div>
       </div>
     </div>
@@ -209,6 +225,17 @@
     </div>
   </section>
 
+  <!-- Photo viewer: wedding photos only, stays on this page -->
+  <dialog class="lightbox" id="lightbox" aria-label="Wedding photo viewer">
+    <div class="lightbox-inner">
+      <button type="button" class="lb-btn lb-close" id="lb-close" aria-label="Close photo viewer">&times;</button>
+      <button type="button" class="lb-btn lb-prev" id="lb-prev" aria-label="Previous photo">&#8249;</button>
+      <img id="lb-img" alt="">
+      <div class="lightbox-caption"><span id="lb-caption"></span><span class="lightbox-count" id="lb-count"></span></div>
+      <button type="button" class="lb-btn lb-next" id="lb-next" aria-label="Next photo">&#8250;</button>
+    </div>
+  </dialog>
+
   <footer id="site-footer"></footer>
   <script>
   // Photos and wedding details load after the page opens and push later sections down.
@@ -272,6 +299,7 @@
       var hero = (res[1] && res[1].heroImage) || document.getElementById('wedding-hero').getAttribute('src');
       // Skip photos already shown elsewhere on this page (e.g. next to the intro).
       var onPage = Array.prototype.map.call(document.querySelectorAll('main img, section img'), function(i) { return i.getAttribute('src'); });
+      window.weddingAll = ((res[0] && res[0].photos) || []).filter(function(p) { return !p.draft && p.image && p.section === 'weddings'; });
       var photos = ((res[0] && res[0].photos) || []).filter(function(p) {
         return !p.draft && p.image && p.section === 'weddings' && p.image !== hero && onPage.indexOf(p.image) === -1;
       }).slice(0, 5);
@@ -279,12 +307,44 @@
       document.getElementById('wedding-photo-grid').className = 'wedding-photo-grid' + (photos.length < 5 ? ' is-row' : '');
       document.getElementById('wedding-photo-grid').style.setProperty('--n', photos.length);
       document.getElementById('wedding-photo-grid').innerHTML = photos.map(function(p) {
-        return '<a class="wedding-photo" href="/gallery/#gallery-weddings"><img src="' + esc(p.image) + '" alt="' + esc(p.alt || p.caption) + '"' + (p.caption ? ' title="' + esc(p.caption) + '"' : '') + ' loading="lazy"></a>';
+        return '<a class="wedding-photo" href="' + esc(p.image) + '" data-wlb><img src="' + esc(p.image) + '" alt="' + esc(p.alt || p.caption) + '"' + (p.caption ? ' title="' + esc(p.caption) + '"' : '') + ' loading="lazy"></a>';
       }).join('');
       document.getElementById('wedding-photos').hidden = false;
       window.rentRescroll();
     }).catch(function() { /* keep the section hidden */ });
   })();
+  </script>
+  <script>
+    // Wedding photo viewer: clicking a photo opens it here, and the arrows move through the wedding photos only.
+    (function() {
+      var dlg = document.getElementById('lightbox'), img = document.getElementById('lb-img'),
+          cap = document.getElementById('lb-caption'), count = document.getElementById('lb-count'), list = [], cur = 0;
+      function show(n) {
+        if (!list.length) return;
+        cur = (n + list.length) % list.length;
+        var p = list[cur];
+        img.src = p.image; img.alt = p.alt || p.caption || '';
+        cap.textContent = p.caption || '';
+        count.textContent = (cur + 1) + ' of ' + list.length;
+      }
+      // Every wedding photo (dashboard: Photo Gallery → Weddings), starting from the one clicked.
+      document.addEventListener('click', function(e) {
+        var el = e.target.closest('[data-wlb], [data-wlb-img]');
+        if (!el || typeof dlg.showModal !== 'function') return;
+        var src = el.getAttribute('href') || el.getAttribute('src');
+        list = (window.weddingAll && window.weddingAll.length) ? window.weddingAll.slice() : [];
+        var at = list.map(function(p) { return p.image; }).indexOf(src);
+        if (at === -1) { var im = el.tagName === 'IMG' ? el : el.querySelector('img'); list.unshift({ image: src, alt: im ? im.alt : '', caption: im ? im.title : '' }); at = 0; }
+        e.preventDefault();
+        show(at); dlg.showModal(); document.body.style.overflow = 'hidden';
+      });
+      dlg.addEventListener('close', function() { document.body.style.overflow = ''; });
+      document.getElementById('lb-close').addEventListener('click', function() { dlg.close(); });
+      document.getElementById('lb-prev').addEventListener('click', function() { show(cur - 1); });
+      document.getElementById('lb-next').addEventListener('click', function() { show(cur + 1); });
+      dlg.addEventListener('click', function(e) { if (e.target === dlg || e.target.classList.contains('lightbox-inner')) dlg.close(); });
+      dlg.addEventListener('keydown', function(e) { if (e.key === 'ArrowLeft') show(cur - 1); if (e.key === 'ArrowRight') show(cur + 1); });
+    })();
   </script>
 </body>
 </html>

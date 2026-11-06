@@ -264,19 +264,23 @@
       if (target) requestAnimationFrame(function() { target.scrollIntoView(); });
     }
 
-    // Photo viewer (opens on click; arrow keys and swipe-free buttons to move through every photo on the page)
+    // Photo viewer: opens on click; the arrows move only through the photos in the same section
+    // (e.g. open a Weddings photo and you only see wedding photos).
     var dlg = document.getElementById('lightbox'), lbImg = document.getElementById('lb-img'),
-        lbCap = document.getElementById('lb-caption'), lbCount = document.getElementById('lb-count'), current = 0;
-    function show(i) {
-      if (!viewer.length) return;
-      current = (i + viewer.length) % viewer.length;
-      var p = viewer[current];
+        lbCap = document.getElementById('lb-caption'), lbCount = document.getElementById('lb-count'), current = 0, scope = [];
+    function show(pos) {
+      if (!scope.length) return;
+      current = (pos + scope.length) % scope.length;
+      var p = viewer[scope[current]];
       lbImg.src = p.image; lbImg.alt = p.alt || p.caption || '';
       lbCap.textContent = p.caption || '';
-      lbCount.textContent = (current + 1) + ' of ' + viewer.length;
+      lbCount.textContent = (current + 1) + ' of ' + scope.length;
     }
-    function openViewer(i) {
-      show(i);
+    function openViewer(i, section) {
+      // Only the photos in the clicked section, in page order.
+      scope = Array.prototype.map.call((section || document).querySelectorAll('[data-lb]'), function(a) { return +a.getAttribute('data-lb'); });
+      if (scope.indexOf(i) === -1) scope = [i];
+      show(scope.indexOf(i));
       if (typeof dlg.showModal === 'function') { dlg.showModal(); document.body.style.overflow = 'hidden'; }
       else window.open(viewer[i].image, '_blank');
     }
@@ -293,7 +297,7 @@
       var a = e.target.closest('[data-lb]');
       if (!a) return;
       e.preventDefault();
-      openViewer(+a.getAttribute('data-lb'));
+      openViewer(+a.getAttribute('data-lb'), a.closest('section'));
     });
 
     function renderSpaces(photos, target) {
