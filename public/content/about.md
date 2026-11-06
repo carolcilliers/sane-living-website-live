@@ -37,5 +37,6 @@ sections:
     linkText: Visit HIP VGN →
     linkUrl: https://hipvgn.square.site
     external: true
+    visible: false
 ---
 
