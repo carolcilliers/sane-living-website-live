@@ -95,6 +95,7 @@
       .lb-prev, .lb-next { top: auto; bottom: 14px; transform: none; }
     }
     @media (prefers-reduced-motion: reduce) { .tile img, .tile .tile-caption, .gallery-jump a { transition: none; } }
+    .space-see-all { text-align: center; margin-top: clamp(1.5rem, 3vw, 2.25rem); }
   </style>
   <meta property="og:title" content="Photos — Sane Living Center">
   <meta property="og:description" content="Photos of the Sane Living Center in downtown Ojai, California — the auditorium, weddings, conference room, and outdoor space.">
@@ -189,7 +190,7 @@
     // Browse by space: every photo tagged with a space (dashboard → Photo Gallery → "Space shown in photo"),
     // whatever kind of event it shows. Linked from the home page photo strip and the Rent the Space page.
     var SPACES = [
-      { id: 'auditorium', title: 'The Auditorium', lede: 'Seats 110 · 150 standing',
+      { id: 'auditorium', title: 'The Auditorium', featured: ['/images/auditorium-rows-glass-doors.jpg', '/images/wedding-reception-auditorium.jpg', '/images/main-hall-01.jpg', '/images/auditorium-dance-floor-stage.jpg', '/images/main-hall-04.jpg'], lede: 'Seats 110 · 150 standing',
         text: 'A beautiful sacred space with stained glass, full sound, lighting and projection, and a portable stage on request. Set it theater-style, in a circle or with tables for screenings and dinners; shown here set for talks, circles, screenings, concerts, meetings and weddings.' },
       { id: 'conference', title: 'Conference Room', lede: 'Meetings · Presentations · Breakouts',
         text: 'A quiet, separate room with a large 9 × 5½ ft wooden table, a 56″ wall-mounted monitor, a whiteboard and natural light.' },
@@ -296,11 +297,29 @@
       if (e.key === 'ArrowRight') show(current + 1);
     });
     document.getElementById('gallery-chapters').addEventListener('click', function(e) {
+      var more = e.target.closest('[data-see-all]');
+      if (more) {
+        var first = more.closest('section').querySelector('[data-lb]');
+        if (first) openViewer(+first.getAttribute('data-lb'), more.closest('section'));
+        return;
+      }
       var a = e.target.closest('[data-lb]');
       if (!a) return;
       e.preventDefault();
       openViewer(+a.getAttribute('data-lb'), a.closest('section'));
     });
+
+    // Spaces with many photos show five hand-picked ones; "See all" opens the viewer with every photo of that space.
+    var SHOW_MAX = 5;
+    function spaceGallery(s, list, flip) {
+      if (list.length <= SHOW_MAX) return mosaic(list, flip);
+      var picks = (s.featured || []).map(function(src) { return list.filter(function(p) { return p.image === src; })[0]; }).filter(Boolean);
+      list.forEach(function(p) { if (picks.length < SHOW_MAX && picks.indexOf(p) === -1) picks.push(p); });
+      var rest = list.filter(function(p) { return picks.indexOf(p) === -1; });
+      return mosaic(picks, flip) +
+        '<div class="space-more-tiles" hidden>' + rest.map(function(p) { return tile(p, ''); }).join('') + '</div>' +
+        '<div class="space-see-all"><button type="button" class="btn btn-outline" data-see-all>See All ' + list.length + ' Photos</button></div>';
+    }
 
     function renderSpaces(photos, target) {
       viewer = [];
@@ -320,7 +339,7 @@
           '<div class="chapter-head"><div class="chapter-text"><span class="chapter-eyebrow">' + esc(s.lede) + '</span>' +
           '<h2 id="space-' + s.id + '-title">' + esc(s.title) + '</h2><p>' + esc(s.text) + '</p></div>' +
           '<a class="btn btn-outline chapter-cta" href="/rent/#space-' + s.id + '">About This Space</a></div>' +
-          (list.length ? mosaic(list, s.bigRight !== undefined ? s.bigRight : !alt) : '<p style="text-align:center;">Photos of this space are coming soon.</p>') +
+          (list.length ? spaceGallery(s, list, s.bigRight !== undefined ? s.bigRight : !alt) : '<p style="text-align:center;">Photos of this space are coming soon.</p>') +
           '</div></section>';
       }).join('');
       document.getElementById('gallery-chapters').innerHTML = html +
