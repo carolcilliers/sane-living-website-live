@@ -126,11 +126,11 @@ function injectFooter() {
         <div class="footer-col"><h2 class="footer-heading">Contact</h2><p class="footer-contact"><a href="tel:+18056466000">+1 (805) 646-6000</a><br><a href="mailto:info@saneliving.com">info@saneliving.com</a></p></div>
         <div class="footer-col"><h2 class="footer-heading">Explore</h2>
           <nav class="footer-links" aria-label="Footer navigation">
+            <a href="/">Home</a>
             <a href="/rent/">Rent the Space</a>
-            <a href="/rent/pricing/">Rates &amp; Availability</a>
-            <a href="/rent/weddings/">Weddings</a>
-            <a href="/events/">Community Events</a>
             <a href="/gallery/">Photos</a>
+            <a href="/events/">Community Events</a>
+            <a href="/about/">About</a>
             <a href="/contact/">Contact</a>
           </nav>
         </div>
