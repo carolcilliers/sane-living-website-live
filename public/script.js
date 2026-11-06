@@ -42,7 +42,7 @@ function injectNav() {
             <a href="/rent/#occasions">Occasions</a>
             <a href="/rent/weddings/">Weddings</a>
             <a href="/rent/pricing/">Rates &amp; Availability</a>
-            <a href="/partners/">Our Partners</a>
+            <!-- Our Partners: temporarily hidden from the menu (page still live at /partners/) -->
           </div>
         </li>
         <li><a href="/rent/weddings/"${isActive(currentPath, '/rent/weddings/')}>Weddings</a></li>
