@@ -32,19 +32,19 @@
       "space": "auditorium"
     },
     {
-      "image": "/images/auditorium-rows-stained-glass.jpg",
-      "caption": "The Auditorium",
-      "alt": "The Auditorium set with rows of chairs facing the stained-glass window, under a wood-beamed ceiling with skylights, pendant lights and a ceiling projector",
-      "section": "venue",
-      "group": "talks"
-    },
-    {
       "image": "/images/main-hall-01.jpg",
       "caption": "The Auditorium",
       "alt": "The Auditorium at Sane Living: a full audience facing a flower-decorated stage during an evening talk",
       "section": "venue",
       "group": "talks",
       "space": "auditorium"
+    },
+    {
+      "image": "/images/auditorium-rows-stained-glass.jpg",
+      "caption": "The Auditorium",
+      "alt": "The Auditorium set with rows of chairs facing the stained-glass window, under a wood-beamed ceiling with skylights, pendant lights and a ceiling projector",
+      "section": "venue",
+      "group": "talks"
     },
     {
       "image": "/images/main-hall-02.jpg",
