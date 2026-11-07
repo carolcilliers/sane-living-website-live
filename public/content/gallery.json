@@ -221,16 +221,16 @@
       "space": "garden"
     },
     {
-      "image": "/images/wedding-reception-auditorium.jpg",
+      "image": "/images/wedding-ceremony-auditorium.jpg",
       "caption": "The Auditorium",
-      "alt": "The Auditorium set for a wedding reception: a parquet dance floor in front of a stage with a band setup, a floral arch and draped curtains beneath the stained-glass window, and round tables on either side",
+      "alt": "Wedding ceremony in the Auditorium, with a white floral arch under the stained-glass window and flowers along a rug aisle",
       "section": "weddings",
       "space": "auditorium"
     },
     {
-      "image": "/images/wedding-ceremony-auditorium.jpg",
+      "image": "/images/wedding-reception-auditorium.jpg",
       "caption": "The Auditorium",
-      "alt": "Wedding ceremony in the Auditorium, with a white floral arch under the stained-glass window and flowers along a rug aisle",
+      "alt": "The Auditorium set for a wedding reception: a parquet dance floor in front of a stage with a band setup, a floral arch and draped curtains beneath the stained-glass window, and round tables on either side",
       "section": "weddings",
       "space": "auditorium"
     },
