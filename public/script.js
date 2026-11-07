@@ -122,8 +122,8 @@ function injectFooter() {
       </div>
       <div class="footer-grid">
         <div class="footer-brand"><a href="/" class="footer-logo" aria-label="Sane Living home"><img src="/images/logo.png" alt="Sane Living" width="200" height="63" loading="lazy"></a></div>
-        <div class="footer-col"><h2 class="footer-heading">Visit</h2><p class="footer-address">Sane Living Center<br>316 E Matilija St, Ojai, CA 93023</p><p class="footer-hours">8am – 12am event hours<br>9am – 5pm office hours</p></div>
-        <div class="footer-col"><h2 class="footer-heading">Contact</h2><p class="footer-contact"><a href="tel:+18056466000">+1 (805) 646-6000</a><br><a href="mailto:info@saneliving.com">info@saneliving.com</a></p></div>
+        <div class="footer-col"><h2 class="footer-heading">Visit</h2><p class="footer-address">Sane Living Center<br>316 E Matilija St, Ojai, CA 93023</p></div>
+        <div class="footer-col"><h2 class="footer-heading">Contact</h2><p class="footer-contact"><a href="tel:+18056466000">+1 (805) 646-6000</a><br><a href="mailto:info@saneliving.com">info@saneliving.com</a></p><p class="footer-hours">8am – 12am event hours<br>9am – 5pm office hours</p></div>
         <div class="footer-col"><h2 class="footer-heading">Explore</h2>
           <nav class="footer-links" aria-label="Footer navigation">
             <a href="/">Home</a>
