@@ -127,17 +127,17 @@
       "space": "auditorium"
     },
     {
-      "image": "/images/auditorium-acoustic-stage.jpg",
+      "image": "/images/auditorium-live-performance.jpg",
       "caption": "The Auditorium",
-      "alt": "The Auditorium set for an acoustic performance: portable stage risers with a rug, an armchair, an acoustic guitar, a stool and microphone, pampas grass and speakers in front of the stained-glass window",
+      "alt": "A live music performance in the Auditorium: a musician in a black hat performs from behind a keyboard and guitar setup to an audience seated and standing around the room",
       "section": "venue",
       "group": "performances",
       "space": "auditorium"
     },
     {
-      "image": "/images/auditorium-live-performance.jpg",
+      "image": "/images/auditorium-acoustic-stage.jpg",
       "caption": "The Auditorium",
-      "alt": "A live music performance in the Auditorium: a musician in a black hat performs from behind a keyboard and guitar setup to an audience seated and standing around the room",
+      "alt": "The Auditorium set for an acoustic performance: portable stage risers with a rug, an armchair, an acoustic guitar, a stool and microphone, pampas grass and speakers in front of the stained-glass window",
       "section": "venue",
       "group": "performances",
       "space": "auditorium"
