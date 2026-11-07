@@ -63,6 +63,14 @@
     .team-card h3 { font-size: 1.5rem; font-weight: 600; margin: 0 0 4px; }
     .team-role { display: block; font-size: 12px; font-weight: 800; letter-spacing: 0.14em; text-transform: uppercase; color: var(--clr-accent); margin-bottom: var(--space-sm); }
     .team-card p { color: var(--clr-text-muted); line-height: 1.65; font-size: 0.98rem; margin: 0; }
+    .team-card p + p { margin-top: var(--space-sm); }
+    .team-feature { grid-column: 1 / -1; display: grid; grid-template-columns: minmax(0, 4fr) minmax(0, 6fr); gap: clamp(1.75rem, 4vw, 3.5rem); align-items: center; text-align: left; max-width: 960px; margin: 0 auto; }
+    .team-feature img { margin-bottom: 0; aspect-ratio: 4 / 5; }
+    .team-feature h3 { font-size: clamp(2rem, 3.4vw, 2.6rem); }
+    .team-feature .team-role { margin-bottom: var(--space-md); }
+    .team-feature p { font-size: 1.04rem; line-height: 1.75; }
+    .team-grid:has(.team-feature) { grid-template-columns: 1fr; }
+    @media (max-width: 760px) { .team-feature { grid-template-columns: 1fr; text-align: center; } .team-feature img { max-width: 360px; margin: 0 auto; } }
   </style>
 </head>
 <body>
@@ -162,11 +170,14 @@
         if (!people.length) return;
         if (d.heading) document.getElementById('team-heading').textContent = d.heading;
         document.getElementById('team-intro').textContent = d.intro || '';
+        // Featured members (or a team of one) get a side-by-side profile; everyone else gets a card.
+        var single = people.length === 1;
         document.getElementById('team-grid').innerHTML = people.map(function(m) {
-          return '<article class="team-card" data-animate>' +
-            (m.photo ? '<img src="' + esc(m.photo) + '" alt="' + esc(m.name) + '" title="' + esc(m.name) + '" loading="lazy">' : '') +
-            '<h3>' + esc(m.name) + '</h3>' + (m.role ? '<span class="team-role">' + esc(m.role) + '</span>' : '') +
-            (m.bio ? '<p>' + esc(m.bio) + '</p>' : '') + '</article>';
+          var paras = String(m.bio || '').split(/\n\s*\n/).filter(Boolean).map(function(t) { return '<p>' + esc(t) + '</p>'; }).join('');
+          var img = m.photo ? '<img src="' + esc(m.photo) + '" alt="' + esc(m.name) + '" title="' + esc(m.name) + '" loading="lazy"' + (m.photoFocus ? ' style="object-position:' + esc(m.photoFocus) + '"' : '') + '>' : '';
+          var cls = (m.featured || single) ? 'team-card team-feature' : 'team-card';
+          return '<article class="' + cls + '" data-animate>' + img + '<div class="team-text">' +
+            '<h3>' + esc(m.name) + '</h3>' + (m.role ? '<span class="team-role">' + esc(m.role) + '</span>' : '') + paras + '</div></article>';
         }).join('');
         document.getElementById('team').hidden = false;
       }).catch(function() {});
