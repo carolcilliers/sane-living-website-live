@@ -119,6 +119,14 @@
       "space": "auditorium"
     },
     {
+      "image": "/images/main-hall-12.jpg",
+      "caption": "The Auditorium",
+      "alt": "The Auditorium at Sane Living: a stage set up with a drum kit, guitars and keyboard for a concert",
+      "section": "venue",
+      "group": "performances",
+      "space": "auditorium"
+    },
+    {
       "image": "/images/auditorium-acoustic-stage.jpg",
       "caption": "The Auditorium",
       "alt": "The Auditorium set for an acoustic performance: portable stage risers with a rug, an armchair, an acoustic guitar, a stool and microphone, pampas grass and speakers in front of the stained-glass window",
@@ -130,14 +138,6 @@
       "image": "/images/auditorium-live-performance.jpg",
       "caption": "The Auditorium",
       "alt": "A live music performance in the Auditorium: a musician in a black hat performs from behind a keyboard and guitar setup to an audience seated and standing around the room",
-      "section": "venue",
-      "group": "performances",
-      "space": "auditorium"
-    },
-    {
-      "image": "/images/main-hall-12.jpg",
-      "caption": "The Auditorium",
-      "alt": "The Auditorium at Sane Living: a stage set up with a drum kit, guitars and keyboard for a concert",
       "section": "venue",
       "group": "performances",
       "space": "auditorium"
