@@ -63,6 +63,14 @@
       "space": "auditorium"
     },
     {
+      "image": "/images/main-hall-09.jpg",
+      "caption": "The Auditorium",
+      "alt": "The Auditorium at Sane Living: an audience listening to a speaker at a workshop",
+      "section": "venue",
+      "group": "receptions",
+      "space": "auditorium"
+    },
+    {
       "image": "/images/main-hall-05.jpg",
       "caption": "The Auditorium",
       "alt": "The Auditorium at Sane Living: a catered buffet with cocktail tables and a projection screen",
@@ -92,14 +100,6 @@
       "alt": "The Auditorium at Sane Living: tables arranged in a U-shape for a meeting",
       "section": "venue",
       "group": "meetings",
-      "space": "auditorium"
-    },
-    {
-      "image": "/images/main-hall-09.jpg",
-      "caption": "The Auditorium",
-      "alt": "The Auditorium at Sane Living: an audience listening to a speaker at a workshop",
-      "section": "venue",
-      "group": "receptions",
       "space": "auditorium"
     },
     {
