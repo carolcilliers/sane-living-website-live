@@ -169,7 +169,8 @@
         var people = ((d && d.members) || []).filter(function(m) { return m && m.name && !m.hidden; });
         if (!people.length) return;
         if (d.heading) document.getElementById('team-heading').textContent = d.heading;
-        document.getElementById('team-intro').textContent = d.intro || '';
+        // Keep the closing phrase (e.g. "from the first walk-through to the last song") together on one line.
+        document.getElementById('team-intro').innerHTML = esc(d.intro || '').replace(/, (from [^,]+)$/, ', <span class="nowrap-md">$1</span>');
         // Featured members (or a team of one) get a side-by-side profile; everyone else gets a card.
         var single = people.length === 1;
         document.getElementById('team-grid').innerHTML = people.map(function(m) {
