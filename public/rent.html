@@ -129,8 +129,10 @@
     .rent-extra-feature img { width: 100%; aspect-ratio: 3 / 2; object-fit: cover; border-radius: 4px; display: block; }
     @media (max-width: 760px) { .rent-extra-feature { grid-template-columns: 1fr; } }
       /* Six occasion tiles: one large + five, filling a 3-column grid evenly */
-    .rent-photo-grid.is-six { grid-template-columns: repeat(3, 1fr); }
-    @media (max-width: 768px) { .rent-photo-grid.is-six { grid-template-columns: repeat(2, 1fr); } .rent-photo-grid.is-six .rent-photo:last-child { grid-column: 1 / -1; } }
+    /* All occasion tiles the same size: 3 across on desktop, 2 across on phones */
+    .rent-photo-grid.is-six { grid-template-columns: repeat(3, 1fr); grid-auto-rows: clamp(200px, 20vw, 290px); }
+    .rent-photo-grid.is-six .rent-photo:first-child { grid-column: auto; grid-row: auto; }
+    @media (max-width: 768px) { .rent-photo-grid.is-six { grid-template-columns: repeat(2, 1fr); grid-auto-rows: 160px; } .rent-photo-grid.is-six .rent-photo:last-child { grid-column: auto; } }
 </style>
 <link rel="icon" href="/favicon.svg">
 <script src="/site-config.js" defer></script>
