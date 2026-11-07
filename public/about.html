@@ -176,7 +176,7 @@
           var paras = String(m.bio || '').split(/\n\s*\n/).filter(Boolean).map(function(t) { return '<p>' + esc(t) + '</p>'; }).join('');
           var img = m.photo ? '<img src="' + esc(m.photo) + '" alt="' + esc(m.name) + '" title="' + esc(m.name) + '" loading="lazy"' + (m.photoFocus ? ' style="object-position:' + esc(m.photoFocus) + '"' : '') + '>' : '';
           var cls = (m.featured || single) ? 'team-card team-feature' : 'team-card';
-          return '<article class="' + cls + '" data-animate>' + img + '<div class="team-text">' +
+          return '<article class="' + cls + '">' + img + '<div class="team-text">' +
             '<h3>' + esc(m.name) + '</h3>' + (m.role ? '<span class="team-role">' + esc(m.role) + '</span>' : '') + paras + '</div></article>';
         }).join('');
         document.getElementById('team').hidden = false;
