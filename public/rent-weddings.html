@@ -122,6 +122,9 @@
     @media (max-width: 600px) { .lightbox-inner { padding: 64px 12px 24px; } }
     .wedding-photo { cursor: zoom-in; }
     [data-wlb-img] { cursor: zoom-in; }
+    .one-line-h2 { white-space: nowrap; }
+    @media (max-width: 760px) { .one-line-h2 { font-size: min(2.3rem, calc((100vw - 52px) / 15)); } }
+    #photos .rent-head { max-width: none; }
   </style>
 <link rel="icon" href="/favicon.svg">
 <script src="/site-config.js" defer></script>
@@ -186,7 +189,7 @@
     <div class="rent-wrap">
       <div class="rent-head" data-animate>
         <span class="eyebrow">Photos</span>
-        <h2 class="rent-h2">Let’s Co-create Your Dream Wedding</h2>
+        <h2 class="rent-h2 one-line-h2">Let’s Co&#8209;Create Your Dream Wedding</h2>
       </div>
       <div class="wedding-photos" id="wedding-photos" hidden style="margin-top: 0;">
         <div class="wedding-photo-grid" id="wedding-photo-grid"></div>
