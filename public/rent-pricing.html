@@ -223,7 +223,7 @@
         <table class="rate-table">
           <thead>
             <tr>
-              <th id="pricing-hours">SANE Hours of Operation:<br>8 am – 12 am</th>
+              <th id="pricing-hours">Event Space Hours: 8 am – 12 am<br>Hours of Operation: 9 am – 5 pm</th>
               <th>Monday – Thursday</th>
               <th>Friday</th>
               <th>Saturday</th>
@@ -312,7 +312,7 @@
         if(typeof d.ctaText==='string') document.querySelector('.pricing-cta p').textContent=d.ctaText;
         if (typeof d.noteDate === 'string' && document.getElementById('pricing-note-date')) document.getElementById('pricing-note-date').textContent = d.noteDate;
         if (typeof d.noteText === 'string') document.getElementById('pricing-note-text').textContent = d.noteText;
-        if (typeof d.hoursHeader === 'string') document.getElementById('pricing-hours').textContent = d.hoursHeader;
+        if (typeof d.hoursHeader === 'string') document.getElementById('pricing-hours').innerHTML = esc(d.hoursHeader).replace(/\n/g, '<br>');
         if (Array.isArray(d.rows)) {
           document.getElementById('pricing-rows').innerHTML = d.rows.map(function(row) {
             return '<tr><td>' + esc(row.label) + (row.sublabel ? '<span>' + esc(row.sublabel) + '</span>' : '') + '</td>' +
