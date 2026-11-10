@@ -1,11 +1,11 @@
 {
   "noteDate": "As of January 1, 2026",
   "noteText": "Rates subject to change January 2027.",
-  "hoursHeader": "Event Space Hours: 8 am – 12 am\nHours of Operation: 9 am – 5 pm",
+  "hoursHeader": "Event Space Hours: 8am – 12am\nHours of Operation: 9am – 5pm",
   "rows": [
     {
       "label": "Day",
-      "sublabel": "8 am – 5 pm",
+      "sublabel": "8am – 5pm",
       "monThu": "$400",
       "friday": "$400",
       "saturday": "$500",
@@ -13,7 +13,7 @@
     },
     {
       "label": "Night",
-      "sublabel": "5 pm – 12 am",
+      "sublabel": "5pm – 12am",
       "monThu": "$400",
       "friday": "$600",
       "saturday": "$600",
@@ -21,7 +21,7 @@
     },
     {
       "label": "Day & Night",
-      "sublabel": "8 am – 12 am",
+      "sublabel": "8am – 12am",
       "monThu": "$500",
       "friday": "$800",
       "saturday": "$875",
