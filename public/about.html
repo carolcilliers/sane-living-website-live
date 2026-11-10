@@ -70,6 +70,14 @@
     .team-feature .team-role { margin-bottom: var(--space-md); }
     .team-feature p { font-size: 1.04rem; line-height: 1.75; }
     .team-grid:has(.team-feature) { grid-template-columns: 1fr; }
+    .np-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: clamp(1rem, 2.5vw, 1.75rem); max-width: 1040px; margin: 0 auto; }
+    .np-card { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: var(--space-md); padding: clamp(1.5rem, 3vw, 2.25rem) 1.25rem; background: #fff; border: 1px solid rgba(31, 19, 40, 0.1); border-radius: 6px; text-align: center; color: inherit; text-decoration: none; transition: transform .25s ease, box-shadow .25s ease; }
+    a.np-card:hover, a.np-card:focus-visible { transform: translateY(-3px); box-shadow: 0 14px 32px rgba(31, 19, 40, 0.12); }
+    .np-logo { height: 112px; display: flex; align-items: center; justify-content: center; }
+    .np-logo img { max-height: 112px; max-width: 150px; width: auto; height: auto; object-fit: contain; }
+    .np-name { font-weight: 600; line-height: 1.35; font-size: 1rem; }
+    @media (max-width: 900px) { .np-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+    @media (max-width: 420px) { .np-logo { height: 88px; } .np-logo img { max-height: 88px; max-width: 120px; } .np-name { font-size: 0.92rem; } }
     @media (max-width: 760px) { .team-feature { grid-template-columns: 1fr; text-align: center; } .team-feature img { max-width: 360px; margin: 0 auto; } }
   </style>
 </head>
@@ -147,8 +155,37 @@
     </div>
   </section>
 
+  <!-- Non-Profits We Support (same groups as sanecommunity.org "Groups We Support") -->
+  <section class="section section-alt about-nonprofits" id="nonprofits">
+    <div class="container">
+      <div class="team-head" data-animate>
+        <span class="eyebrow">Rooted in Community</span>
+        <h2>Non-Profits We Support</h2>
+        <p>Organizations bringing meaningful programming to the Sane Living Center.</p>
+      </div>
+      <div class="np-grid">
+        <div class="np-card">
+          <div class="np-logo"><img src="/images/partner-jewish-community-ojai.webp" alt="Jewish Community of Ojai logo" width="164" height="164" loading="lazy"></div>
+          <span class="np-name">Jewish Community of&nbsp;Ojai</span>
+        </div>
+        <div class="np-card">
+          <div class="np-logo"><img src="/images/partner-ojai-chamber.webp" alt="Ojai Valley Chamber of Commerce logo" width="240" height="240" loading="lazy"></div>
+          <span class="np-name">Ojai Valley Chamber of Commerce</span>
+        </div>
+        <div class="np-card">
+          <div class="np-logo"><img src="/images/partner-alliance-generative-communities.webp" alt="Alliance for Generative Communities logo" width="240" height="206" loading="lazy"></div>
+          <span class="np-name">Alliance for Generative Communities</span>
+        </div>
+        <a class="np-card" href="https://www.sierraclub.org/santa-barbara-ventura" target="_blank" rel="noopener noreferrer">
+          <div class="np-logo"><img src="/images/partner-sierra-club.webp" alt="Sierra Club of Santa Barbara – Ventura logo" width="115" height="112" loading="lazy"></div>
+          <span class="np-name">Sierra Club of Santa Barbara – Ventura</span>
+        </a>
+      </div>
+    </div>
+  </section>
+
   <!-- Meet the Team: people come from /content/team.json; the section stays hidden until someone is added -->
-  <section class="section section-alt about-team" id="team" hidden>
+  <section class="section about-team" id="team" hidden>
     <div class="container">
       <div class="team-head" data-animate>
         <span class="eyebrow">Our People</span>
