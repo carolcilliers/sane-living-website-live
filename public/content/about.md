@@ -14,7 +14,7 @@ sections:
     visible: false
   - heading: Founder — Aubrey Balkind
     body: >-
-      As the founder of Ojai's Sane Living Center, Aubrey Balkind envisions a future where humans
+      As the founder of Ojai’s Sane Living Center, Aubrey Balkind envisions a future where humans
       live in harmony with both nature and artificial intelligence.
     linkText: Read More →
     linkUrl: https://youmeandojai.com/ojai-profiles/aubrey-balkind

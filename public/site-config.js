@@ -16,7 +16,7 @@
   ];
   var defaults = {
     schemaVersion: 1, businessName: 'Sane Living Center',
-    phoneDisplay: '+1 (805) 646-6000', phoneLink: 'tel:+18056466000', email: 'info@saneliving.com',
+    phoneDisplay: '(805) 646-6000', phoneLink: 'tel:+18056466000', email: 'info@saneliving.com',
     address: '316 E Matilija St, Ojai, CA 93023', hours: '7 am – 12 midnight',
     logoUrl: '/images/logo.png', logoAlt: 'Sane Living', faviconUrl: '/favicon.svg', footerText: '',
     bookingPageUrl: '/rent/pricing/', availabilityEmbedUrl: 'https://airtable.com/embed/appQOArJhzGuz5qBY/shr0WP23ZzLYTGw7E',

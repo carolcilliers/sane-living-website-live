@@ -217,7 +217,7 @@
         <p data-sentences>Rates below are for the Auditorium. For the Secret Garden, the Annex or the Conference Room, please <a href="/contact/">contact us</a> or call <a data-site-href="phoneLink" href="tel:+18056466000">(805) 646-6000</a> for rates.</p>
       </div>
       <p class="pricing-note" data-animate><span id="pricing-note-text">Rates subject to change January 2027.</span></p>
-      <p class="holiday-note" data-animate>Holiday rates apply. Ask us about pricing for holiday dates.</p>
+      <p class="holiday-note" data-animate data-sentences>Holiday rates apply. Ask us about pricing for holiday dates.</p>
 
       <div class="rate-table-wrap" data-animate>
         <table class="rate-table">
@@ -260,7 +260,7 @@
       <div class="wedding-pricing" id="weddings" data-animate>
         <h2>Weddings</h2>
         <p class="wedding-price-summary" id="pricing-wedding-summary" data-sentences>Every wedding is one of a kind, so each quote is tailored to your guest count, timeline and vision. Tell us about your day and we’d love to help bring it to life.</p>
-        <p id="pricing-weddings-note" data-sentences>Weddings are quoted separately from standard venue rental rates. See <a href="/rent/weddings/">wedding packages and availability</a>, and let’s co-create the wedding of your dreams together.</p>
+        <p id="pricing-weddings-note" data-sentences>Weddings are quoted separately from our standard rental rates. Visit the <a href="/rent/weddings/">Weddings page</a> for highlights and photos, and let’s co-create the wedding of your dreams.</p>
         <a href="/rent/weddings/" class="btn btn-primary wedding-pricing-btn">Explore Weddings</a>
       </div>
 
@@ -290,7 +290,7 @@
       <div class="pricing-cta" data-animate>
         <h2>Ready to Book?</h2>
         <p>Get in touch to reserve the Sane Living Center for your event.</p>
-        <a href="/rent/#availability" data-site-booking class="btn btn-primary">Request to Rent</a>
+        <a href="/rent/#availability" class="btn btn-primary">Request to Rent</a>
       </div>
 
     </div>
@@ -320,8 +320,8 @@
           }).join('');
         }
         if (typeof d.weddingsNote === 'string') {
-          // Keep the words "wedding packages and availability" as a link to the Weddings section.
-          var wn = esc(d.weddingsNote).replace(/wedding packages and availability/i, function(m) { return '<a href="/rent/weddings/">' + m + '</a>'; });
+          // Keep the words "Weddings page" as a link to the Weddings section.
+          var wn = esc(d.weddingsNote).replace(/Weddings page/i, function(m) { return '<a href="/rent/weddings/">' + m + '</a>'; });
           document.getElementById('pricing-weddings-note').innerHTML = wn;
         }
         if (typeof d.availabilityNote === 'string') document.getElementById('pricing-availability-note').textContent = d.availabilityNote;

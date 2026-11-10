@@ -65,14 +65,6 @@
       "destination": "/rent-weddings.html"
     },
     {
-      "source": "/sculpture/",
-      "destination": "/sculpture.html"
-    },
-    {
-      "source": "/sculpture",
-      "destination": "/sculpture.html"
-    },
-    {
       "source": "/about/",
       "destination": "/about.html"
     },
@@ -186,8 +178,26 @@
     }
   ],
   "redirects": [
-    { "source": "/events/past/", "destination": "/events/#recent", "statusCode": 302 },
-    { "source": "/events/past", "destination": "/events/#recent", "statusCode": 302 },
+    {
+      "source": "/sculpture",
+      "destination": "/about/#sculpture",
+      "permanent": false
+    },
+    {
+      "source": "/sculpture/",
+      "destination": "/about/#sculpture",
+      "permanent": false
+    },
+    {
+      "source": "/events/past/",
+      "destination": "/events/#recent",
+      "statusCode": 302
+    },
+    {
+      "source": "/events/past",
+      "destination": "/events/#recent",
+      "statusCode": 302
+    },
     {
       "source": "/book/rent/",
       "destination": "/rent/",
@@ -220,12 +230,12 @@
     },
     {
       "source": "/evo3-sculpture/",
-      "destination": "/sculpture/",
+      "destination": "/about/#sculpture",
       "statusCode": 301
     },
     {
       "source": "/evo3-sculpture",
-      "destination": "/sculpture/",
+      "destination": "/about/#sculpture",
       "statusCode": 301
     },
     {
