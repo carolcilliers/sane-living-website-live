@@ -51,6 +51,7 @@
     /* Organizations */
     .np-orgs { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: clamp(1.25rem, 3vw, 2rem); max-width: 1080px; margin: 0 auto; }
     .np-org { display: grid; grid-template-columns: 132px 1fr; gap: clamp(1.25rem, 3vw, 1.75rem); align-items: center; background: #fff; border: 1.5px solid rgba(138, 86, 160, 0.45); border-radius: 16px; padding: clamp(1.5rem, 3vw, 2rem); color: inherit; text-decoration: none; box-shadow: 0 6px 18px rgba(31, 19, 40, 0.06); transition: transform .25s ease, box-shadow .25s ease, border-color .25s ease; }
+    .np-orgs > .np-org:last-child:nth-child(odd) { grid-column: 1 / -1; justify-self: center; width: calc((100% - clamp(1.25rem, 3vw, 2rem)) / 2); }
     .np-org:hover, .np-org:focus-visible { transform: translateY(-3px); box-shadow: 0 14px 32px rgba(31, 19, 40, 0.12); border-color: rgba(138, 86, 160, 0.75); }
     .np-org-logo { width: 132px; height: 132px; display: flex; align-items: center; justify-content: center; }
     .np-org-logo img { max-width: 132px; max-height: 132px; width: auto; height: auto; object-fit: contain; border-radius: 0; }
@@ -68,6 +69,7 @@
     @media (max-width: 860px) {
       .np-purpose { grid-template-columns: 1fr; }
       .np-orgs { grid-template-columns: 1fr; }
+      .np-orgs > .np-org:last-child:nth-child(odd) { width: 100%; }
       .np-pillars { grid-template-columns: 1fr; }
     }
     @media (max-width: 560px) {
@@ -128,6 +130,14 @@
           <div>
             <h3>Sierra Club of Santa Barbara – Ventura</h3>
             <p>The local chapter of the Sierra Club, leading outdoor outings and conservation work across Santa Barbara and Ventura counties, from public lands to clean energy.</p>
+            <span class="np-org-link">Visit website →</span>
+          </div>
+        </a>
+        <a class="np-org" href="https://ovlc.org" target="_blank" rel="noopener noreferrer">
+          <div class="np-org-logo"><img src="/images/partner-ovlc.webp" alt="Ojai Valley Land Conservancy logo" width="206" height="206" loading="lazy"></div>
+          <div>
+            <h3>Ojai Valley Land Conservancy</h3>
+            <p>The Ojai Valley’s land trust, protecting and restoring the natural landscapes that make the valley special, with public preserves, trails and creek restoration for everyone to enjoy.</p>
             <span class="np-org-link">Visit website →</span>
           </div>
         </a>
