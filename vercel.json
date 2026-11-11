@@ -25,6 +25,14 @@
       "destination": "/events.html"
     },
     {
+      "source": "/events/nonprofits/",
+      "destination": "/events/nonprofits.html"
+    },
+    {
+      "source": "/events/nonprofits",
+      "destination": "/events/nonprofits.html"
+    },
+    {
       "source": "/events/ojai-health-intensive/",
       "destination": "/events/ojai-health-intensive.html"
     },
