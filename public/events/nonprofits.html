@@ -55,6 +55,12 @@
     .np-org p { margin: 0 0 var(--space-sm); line-height: 1.7; color: var(--clr-text-muted); font-size: 0.98rem; }
     .np-org-link { font-weight: 700; font-size: 0.85rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--clr-plum); }
 
+    .np-donate { max-width: 440px; margin: clamp(2rem, 5vw, 3rem) auto 0; text-align: center; background: #fff; border: 1.5px solid rgba(138, 86, 160, 0.45); border-radius: 22px; padding: clamp(2rem, 4vw, 2.75rem) clamp(1.5rem, 4vw, 2.5rem); box-shadow: 0 6px 18px rgba(31, 19, 40, 0.06); }
+    .np-donate h3 { font-size: 1.9rem; margin: 0 0 var(--space-sm); }
+    .np-donate p { margin: 0 0 var(--space-md); line-height: 1.7; color: var(--clr-text-muted); font-size: 1.05rem; }
+    .np-donate-link { display: inline-block; font-weight: 700; font-size: 1.05rem; color: var(--clr-accent); text-decoration: none; padding: 0.45rem 0.9rem; border: 2px solid transparent; border-radius: 10px; transition: border-color .2s ease, background .2s ease; }
+    .np-donate-link:hover, .np-donate-link:focus-visible { border-color: var(--clr-accent); background: rgba(138, 86, 160, 0.06); outline: none; }
+
     /* Quote */
     .np-quote { background: var(--clr-night); color: var(--clr-on-night); text-align: center; }
     .np-quote blockquote { max-width: 46rem; margin: 0 auto; }
@@ -136,6 +142,11 @@
             <span class="np-org-link">Visit website →</span>
           </div>
         </a>
+      </div>
+      <div class="np-donate" data-animate>
+        <h3>Donate</h3>
+        <p>Your tax-deductible contributions help us keep events free and accessible.</p>
+        <a href="https://buy.stripe.com/9B66oG2MNc639qZg4UcZa0a" target="_blank" rel="noopener noreferrer" class="np-donate-link">Donate Now →</a>
       </div>
     </div>
   </section>
