@@ -71,6 +71,8 @@
     .team-feature p { font-size: 1.04rem; line-height: 1.75; }
     .team-grid:has(.team-feature) { grid-template-columns: 1fr; }
     @media (max-width: 760px) { .team-feature { grid-template-columns: 1fr; text-align: center; } .team-feature img { max-width: 360px; margin: 0 auto; } }
+    /* Founder dates line (from the About editor: an italic line right under the heading) */
+    .about-managed-section h2 + p:has(> em:only-child) { margin: -0.35rem 0 1rem; font-family: var(--font-display); font-size: 1.35rem; color: var(--clr-text-muted); letter-spacing: 0.02em; }
   </style>
 </head>
 <body>
@@ -88,7 +90,7 @@
   <section class="section about-body">
     <div class="content-block">
 <!-- about-managed:start -->
-<div data-animate class="about-managed-section split-grid"><img src="/images/about-aubrey.jpg" alt="Founder — Aubrey Balkind" style="width:100%;border-radius:8px;"><div><h2>Founder — Aubrey Balkind</h2><p>As the founder of Ojai’s Sane Living Center, Aubrey Balkind envisions a future where humans live in harmony with both nature and artificial intelligence.</p><a class="btn btn-outline" href="https://youmeandojai.com/ojai-profiles/aubrey-balkind" target="_blank" rel="noopener noreferrer">Read More →</a></div></div><!-- philosophy:start --><!-- philosophy:end -->
+<div data-animate class="about-managed-section split-grid"><div><h2>Founder — Aubrey Balkind</h2><p><em>1944 – 2025</em></p><p>As the founder of Ojai’s Sane Living Center, Aubrey Balkind envisions a future where humans live in harmony with both nature and artificial intelligence.</p><a class="btn btn-outline" href="https://youmeandojai.com/ojai-profiles/aubrey-balkind" target="_blank" rel="noopener noreferrer">Read More →</a></div><img src="/images/about-aubrey.jpg" alt="Founder — Aubrey Balkind" style="width:100%;border-radius:8px;"></div><!-- philosophy:start --><!-- philosophy:end -->
 <!-- about-managed:end -->
     </div>
   </section>
