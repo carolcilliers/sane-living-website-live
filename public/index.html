@@ -652,6 +652,46 @@
 
   <script src="/script.js"></script>
   <script>
+  // Fact strip: each digit spins like an odometer and lands on the real number when the strip scrolls into view.
+  (function() {
+    var nums = Array.prototype.slice.call(document.querySelectorAll('.fact-num'));
+    if (!nums.length || !('IntersectionObserver' in window)) return;
+    if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    var strips = [];
+    nums.forEach(function(el, n) {
+      var text = el.textContent;
+      el.setAttribute('aria-label', text.replace(/\u00a0/g, ' '));
+      var html = '<span aria-hidden="true">';
+      var di = 0;
+      for (var i = 0; i < text.length; i++) {
+        var ch = text[i];
+        if (/[0-9]/.test(ch)) {
+          var d = +ch, cells = '';
+          for (var k = 0; k < 21 + d; k++) cells += '<span>' + (k % 10) + '</span>';
+          html += '<span class="roll-col"><span class="roll-strip" data-to="' + ((20 + d) * 1.3).toFixed(2) + '" data-delay="' + (n * 0.15 + di * 0.12) + '">' + cells + '</span></span>';
+          di++;
+        } else {
+          html += '<span class="roll-fix">' + (ch === ' ' || ch === '\u00a0' ? '&nbsp;' : ch) + '</span>';
+        }
+      }
+      el.innerHTML = html + '</span>';
+      el.classList.add('is-rolling');
+    });
+    var wrap = document.querySelector('.facts');
+    var io = new IntersectionObserver(function(entries) {
+      entries.forEach(function(e) {
+        if (!e.isIntersecting) return;
+        wrap.querySelectorAll('.roll-strip').forEach(function(s) {
+          s.style.transitionDelay = s.getAttribute('data-delay') + 's';
+          s.style.transform = 'translateY(-' + s.getAttribute('data-to') + 'em)';
+        });
+        io.disconnect();
+      });
+    }, { threshold: 0.4 });
+    io.observe(wrap);
+  })();
+  </script>
+  <script>
   // The thin line above "A day in the life" fills from morning to night as you scroll past the panels.
   (function() {
     var bar = document.querySelector('.hours-progress span'), panels = document.querySelector('.hours');
