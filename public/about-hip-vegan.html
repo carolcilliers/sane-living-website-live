@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Hip Vegan Next Door — Sane Living Center</title>
+  <meta name="description" content="Hip Vegan, a popular organic, plant-based café, sits right next door to the Sane Living Center in downtown Ojai. Perfect for a lunch break, an early dinner or a bite before your event.">
+  <link rel="stylesheet" href="/style.css">
+
+  <meta property="og:title" content="Hip Vegan Next Door — Sane Living Center">
+  <meta property="og:description" content="A popular organic, plant-based café right next door to the Sane Living Center in downtown Ojai.">
+  <meta property="og:image" content="https://saneliving.com/images/share-auditorium.jpg">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:alt" content="The Auditorium at the Sane Living Center in Ojai">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://saneliving.com/about/hip-vegan/">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Hip Vegan Next Door — Sane Living Center">
+  <meta name="twitter:description" content="A popular organic, plant-based café right next door to the Sane Living Center in downtown Ojai.">
+  <meta name="twitter:image" content="https://saneliving.com/images/share-auditorium.jpg">
+  <meta name="twitter:image:alt" content="The Auditorium at the Sane Living Center in Ojai">
+<link rel="icon" href="/favicon.svg">
+<script src="/site-config.js" defer></script>
+<script src="/site-content.js" defer></script>
+  <style>
+    /* ---- HIP VEGAN NEXT DOOR (Nov 13, 2026). Facts from hipvgn.square.site ---- */
+    .hv-hero { position: relative; min-height: max(420px, 52vh); background-image: radial-gradient(circle at 80% 20%, rgba(166, 120, 196, 0.28), transparent 55%); display: flex; align-items: flex-end; background: var(--clr-night); color: var(--clr-on-night); overflow: hidden; }
+    .hv-hero > img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: center 62%; border-radius: 0; }
+    .hv-hero-scrim { position: absolute; inset: 0; background: linear-gradient(180deg, rgba(31, 19, 40, 0.5) 0%, rgba(31, 19, 40, 0.25) 35%, rgba(31, 19, 40, 0.86) 100%); }
+    .hv-hero-copy { position: relative; width: 100%; padding-top: calc(var(--nav-height, 80px) + 56px); padding-bottom: clamp(3rem, 8vh, 5rem); }
+    .hv-hero .eyebrow { color: var(--clr-glow); }
+    .hv-hero h1 { font-size: clamp(2.8rem, 6vw, 5rem); font-weight: 600; line-height: 1.02; color: var(--clr-on-night); margin: 0 0 var(--space-md); }
+    .hv-hero p { max-width: 36rem; margin: 0; color: #eadff0; font-size: clamp(1.05rem, 1.5vw, 1.2rem); line-height: 1.65; }
+
+    .hv-intro { display: grid; grid-template-columns: 1fr 1.15fr; gap: clamp(2rem, 5vw, 4.5rem); align-items: center; max-width: 1120px; margin: 0 auto; }
+    .hv-logo-card { background: #fff; border: 1.5px solid rgba(138, 86, 160, 0.45); border-radius: 22px; aspect-ratio: 1 / 1; max-width: 420px; width: 100%; margin: 0 auto; display: flex; align-items: center; justify-content: center; box-shadow: 0 18px 44px rgba(31, 19, 40, 0.1); }
+    .hv-logo-card img { width: 52%; height: auto; border-radius: 0; }
+    .hv-intro h2 { margin: 0 0 var(--space-md); }
+    .hv-intro p { line-height: 1.8; margin: 0 0 var(--space-md); }
+    .hv-intro .lede { font-family: var(--font-display); font-style: italic; font-size: clamp(1.3rem, 2vw, 1.55rem); line-height: 1.5; color: var(--clr-plum); }
+
+    .hv-section-head { text-align: center; max-width: 42rem; margin: 0 auto clamp(2rem, 5vw, 3rem); }
+    .hv-section-head h2 { margin: 0 0 var(--space-sm); }
+    .hv-section-head p { color: var(--clr-text-muted); line-height: 1.75; margin: 0; }
+    .hv-uses { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: clamp(1rem, 2.5vw, 1.75rem); max-width: 1120px; margin: 0 auto; }
+    .hv-use { background: #fff; border: 1.5px solid rgba(138, 86, 160, 0.3); border-radius: 16px; padding: clamp(1.5rem, 3vw, 2rem); }
+    .hv-use .hv-time { display: block; font-size: 0.8rem; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; color: var(--clr-accent); margin-bottom: var(--space-sm); }
+    .hv-use h3 { font-size: 1.55rem; margin: 0 0 var(--space-sm); }
+    .hv-use p { margin: 0; line-height: 1.7; color: var(--clr-text-muted); }
+
+    .hv-visit { display: grid; grid-template-columns: 1.1fr 1fr; gap: clamp(2rem, 5vw, 4rem); align-items: center; max-width: 1120px; margin: 0 auto; }
+    .hv-intro-photo { width: 100%; aspect-ratio: 478 / 700; max-width: 440px; margin: 0 auto; object-fit: cover; border-radius: 16px; box-shadow: 0 18px 44px rgba(31, 19, 40, 0.14); }
+    .hv-details { list-style: none; padding: 0; margin: var(--space-md) 0; display: grid; gap: 0.9rem; }
+    .hv-details li { display: grid; grid-template-columns: 7.5rem 1fr; gap: var(--space-sm); line-height: 1.55; }
+    .hv-details strong { font-size: 0.78rem; letter-spacing: 0.14em; text-transform: uppercase; color: var(--clr-text-muted); padding-top: 0.15rem; }
+    .hv-details a { color: inherit; }
+    .hv-chips { display: flex; flex-wrap: wrap; gap: 0.5rem; margin: var(--space-md) 0 var(--space-lg); padding: 0; list-style: none; }
+    .hv-chips li { border: 1.5px solid rgba(138, 86, 160, 0.4); border-radius: 999px; padding: 0.4rem 0.9rem; font-size: 0.9rem; background: #fff; }
+    .hv-actions { display: flex; flex-wrap: wrap; gap: var(--space-sm); }
+
+    .hv-cta { background: var(--clr-night); color: var(--clr-on-night); text-align: center; }
+    .hv-cta h2 { color: var(--clr-on-night); margin: 0 0 var(--space-sm); }
+    .hv-cta p { color: #eadff0; max-width: 36rem; margin: 0 auto var(--space-lg); line-height: 1.7; }
+
+    @media (max-width: 900px) {
+      .hv-intro, .hv-visit { grid-template-columns: 1fr; }
+      .hv-uses { grid-template-columns: 1fr; }
+      .hv-logo-card { max-width: 300px; }
+    }
+    @media (max-width: 480px) {
+      .hv-details li { grid-template-columns: 1fr; gap: 0.1rem; }
+      .hv-actions .btn { flex: 1 1 100%; text-align: center; }
+    }
+  </style>
+</head>
+<body>
+
+  <nav id="site-nav"></nav>
+
+  <section class="hv-hero">
+    <div class="container hv-hero-copy">
+      <span class="eyebrow">Right Next Door</span>
+      <h1>Hip Vegan</h1>
+      <p data-sentences>Organic, plant-based food at the corner of Matilija &amp; Montgomery. Just steps from our purple doors.</p>
+    </div>
+  </section>
+
+  <section class="section" id="next-door">
+    <div class="container">
+      <div class="hv-intro">
+        <img class="hv-intro-photo" src="/images/hip-vegan-patio.webp" alt="Hip Vegan’s shady outdoor patio with umbrellas and picnic tables" title="Hip Vegan" width="478" height="700">
+        <div data-animate>
+          <span class="eyebrow">Dining Next Door</span>
+          <h2>A Favorite Ojai Café, <span class="keep-line">Steps From Our Door</span></h2>
+          <p class="lede">Your guests don’t have to go far for a great meal.</p>
+          <p>Hip Vegan shares our corner of downtown Ojai. Its all-organic, plant-based menu draws on flavors from the owners’ travels, from Japanese-inspired bowls to tempeh burgers.</p>
+          <p>Inside, there’s a bright, airy dining room. Outside, a shady, dog-friendly patio makes it easy to linger between sessions or after an event.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section section-alt" id="for-events">
+    <div class="container">
+      <div class="hv-section-head" data-animate>
+        <span class="eyebrow">For Your Event</span>
+        <h2>Good Food, No Driving</h2>
+        <p data-sentences>Having a popular restaurant right next door makes planning easier. Here’s how hosts and guests make the most of it.</p>
+      </div>
+      <div class="hv-uses">
+        <div class="hv-use">
+          <span class="hv-time">Midday</span>
+          <h3>The Lunch Break</h3>
+          <p>Send workshop and meeting guests next door for lunch, then everyone is back in their seats in minutes.</p>
+        </div>
+        <div class="hv-use">
+          <span class="hv-time">Early Evening</span>
+          <h3>Dinner Before the Show</h3>
+          <p>Meet for an early dinner before a screening, talk or concert, then walk straight into the Auditorium.</p>
+        </div>
+        <div class="hv-use">
+          <span class="hv-time">On the Go</span>
+          <h3>Easy for Every Guest</h3>
+          <p>A fully plant-based menu, takeout and curbside pickup make it simple for out-of-town guests to eat well nearby.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" id="visit">
+    <div class="container">
+      <div class="hv-visit">
+        <div class="hv-logo-card"><img src="/images/hip-vegan-logo.webp" alt="Hip Vegan logo" width="311" height="320" loading="lazy"></div>
+        <div data-animate>
+          <span class="eyebrow">Visit Hip Vegan</span>
+          <h2>Plan Your Visit</h2>
+          <ul class="hv-details">
+            <li><strong>Address</strong><span>201 N Montgomery St, Ojai, CA 93023</span></li>
+            <li><strong>Hours</strong><span>Open daily, 11am – 8pm</span></li>
+            <li><strong>Phone</strong><a href="tel:+18056696363">(805) 669-6363</a></li>
+            <li><strong>Email</strong><a href="mailto:info@hipvgn.com">info@hipvgn.com</a></li>
+          </ul>
+          <ul class="hv-chips" aria-label="Amenities">
+            <li>Indoor Seating</li>
+            <li>Dog-Friendly Patio</li>
+            <li>Takeout</li>
+            <li>Curbside Pickup</li>
+          </ul>
+          <div class="hv-actions">
+            <a href="https://hipvgn.square.site/shop/mains/13" target="_blank" rel="noopener noreferrer" class="btn btn-primary">Order Online</a>
+            <a href="https://hipvgn.square.site" target="_blank" rel="noopener noreferrer" class="btn btn-outline">Visit Website</a>
+            <a href="https://www.google.com/maps/search/?api=1&amp;query=Hip+Vegan+201+N+Montgomery+St+Ojai+CA" target="_blank" rel="noopener noreferrer" class="btn btn-outline">Get Directions</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section hv-cta">
+    <div class="container" data-animate>
+      <h2>Host Your Event Next Door</h2>
+      <p>Talks, workshops, screenings and celebrations at 316 E Matilija St, with lunch and dinner just around the corner.</p>
+      <a href="/rent/#calendar" class="btn btn-primary">Check a Date</a>
+    </div>
+  </section>
+
+  <footer id="site-footer"></footer>
+  <script src="/script.js"></script>
+</body>
+</html>

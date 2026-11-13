@@ -73,6 +73,14 @@
       "destination": "/rent-weddings.html"
     },
     {
+      "source": "/about/hip-vegan",
+      "destination": "/about-hip-vegan.html"
+    },
+    {
+      "source": "/about/hip-vegan/",
+      "destination": "/about-hip-vegan.html"
+    },
+    {
       "source": "/about/",
       "destination": "/about.html"
     },
