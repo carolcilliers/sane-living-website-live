@@ -58,6 +58,7 @@ function injectNav() {
           <a href="/about/"${isActive(currentPath, '/about/')}>About</a>
           <div class="nav-dropdown-menu">
             <a href="/about/">About Sane Living</a>
+            <a href="/about/#founder">The Founder</a>
             <a href="/about/hip-vegan/">Hip Vegan Next Door</a>
           </div>
         </li>
