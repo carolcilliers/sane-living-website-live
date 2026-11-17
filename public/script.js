@@ -7,6 +7,38 @@
 
 
 
+/* ---- Logo preview (temporary, opt-in) ----
+   Visiting any page with ?logo=sage shows the proposed "Sage Ojai" logo in the menu bar and footer,
+   and keeps showing it while you click around (this browser tab only). ?logo=off switches it back.
+   Regular visitors never see it: without the link, nothing changes. */
+(function logoPreview() {
+  var q = new URLSearchParams(location.search).get('logo');
+  var on = false;
+  try {
+    if (q === 'sage') sessionStorage.setItem('logoPreview', 'sage');
+    if (q === 'off') sessionStorage.removeItem('logoPreview');
+    on = sessionStorage.getItem('logoPreview') === 'sage';
+  } catch (e) { on = q === 'sage'; }
+  if (!on) return;
+  document.documentElement.classList.add('logo-preview-sage');
+  function swap(root) {
+    (root.querySelectorAll ? root : document).querySelectorAll('.nav-logo img, .footer-logo img').forEach(function(img) {
+      if (img.getAttribute('src') === '/images/logo-sage-ojai.png') return;
+      img.src = '/images/logo-sage-ojai.png';
+      img.alt = 'Sage Ojai';
+      img.removeAttribute('width');
+    });
+  }
+  new MutationObserver(function() { swap(document); }).observe(document.documentElement, { childList: true, subtree: true, attributes: true, attributeFilter: ['src'] });
+  document.addEventListener('DOMContentLoaded', function() {
+    swap(document);
+    var badge = document.createElement('div');
+    badge.className = 'logo-preview-badge';
+    badge.innerHTML = 'Logo preview: <b>Sage Ojai</b> · <a href="?logo=off">Turn off</a>';
+    document.body.appendChild(badge);
+  });
+})();
+
 document.addEventListener('DOMContentLoaded', () => {
   injectNav();
   injectFooter();
