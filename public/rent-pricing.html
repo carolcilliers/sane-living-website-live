@@ -176,6 +176,8 @@
     .rates-body .rate-table-head { margin-bottom: var(--space-md); }
     .rates-body .pricing-note { text-align: center; margin: 0 0 var(--space-md); font-size: 0.92rem; color: var(--clr-text-muted); }
     .rates-body .pricing-note strong { color: var(--clr-text); }
+    .rate-table-wrap:has(+ .late-note) { margin-bottom: var(--space-md); }
+    .late-note { text-align: center; margin: 0 0 var(--space-2xl); font-size: 0.95rem; font-weight: 700; color: var(--clr-plum); }
     .pricing-note-sep { margin: 0 6px; }
     .rates-body .rate-table-head + .pricing-note + .holiday-note, .rates-body .holiday-note { display: block; width: fit-content; max-width: 100%; margin: 0 auto var(--space-md); padding: 8px 18px; font-size: 0.9rem; text-align: center; }
     .rates-hero h1 { margin-bottom: 0; }
@@ -223,7 +225,7 @@
         <table class="rate-table">
           <thead>
             <tr>
-              <th id="pricing-hours">Event Space Hours: 8am – 12am<br>Hours of Operation: 9am – 5pm</th>
+              <th id="pricing-hours">Event Space Hours: 8am – 2am<br>Hours of Operation: 9am – 5pm</th>
               <th>Monday – Thursday</th>
               <th>Friday</th>
               <th>Saturday</th>
@@ -255,6 +257,7 @@
           </tbody>
         </table>
       </div>
+      <p class="late-note" data-animate>Extended hours until 2am available on request.</p>
 
       <!-- Weddings -->
       <div class="wedding-pricing" id="weddings" data-animate>
