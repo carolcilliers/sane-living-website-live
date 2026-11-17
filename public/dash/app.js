@@ -693,7 +693,8 @@
     { id: 'talks', title: 'Talks & workshops' },
     { id: 'wellness', title: 'Wellness & circles' },
     { id: 'receptions', title: 'Receptions & screenings' },
-    { id: 'celebrations', title: 'Celebrations' },
+    { id: 'celebrations', title: 'Parties & milestones' },
+    { id: 'life', title: 'Celebrations of life' },
     { id: 'performances', title: 'Concerts & performances' },
     { id: 'meetings', title: 'Meetings & classes' },
   ];

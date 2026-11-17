@@ -87,7 +87,18 @@ function injectNav() {
           <a href="/rent/"${isActive(currentPath, '/rent/')}>Rent the Space</a>
           <div class="nav-dropdown-menu">
             <a href="/rent/#spaces">The Spaces</a>
-            <a href="/rent/#occasions">Occasions</a>
+            <div class="nav-sub">
+              <a href="/rent/#occasions" class="nav-sub-head">Occasions<span class="nav-sub-arrow" aria-hidden="true">›</span></a>
+              <div class="nav-submenu">
+                <a href="/gallery/#gallery-talks">Talks &amp; Workshops</a>
+                <a href="/gallery/#gallery-wellness">Wellness &amp; Circles</a>
+                <a href="/gallery/#gallery-receptions">Receptions &amp; Screenings</a>
+                <a href="/gallery/#gallery-celebrations">Parties &amp; Milestones</a>
+                <a href="/gallery/#gallery-celebrations-of-life">Celebrations of Life</a>
+                <a href="/gallery/#gallery-performances">Concerts &amp; Performances</a>
+                <a href="/gallery/#gallery-meetings">Meetings &amp; Classes</a>
+              </div>
+            </div>
             <a href="/rent/weddings/">Weddings</a>
             <a href="/rent/pricing/">Rates &amp; Availability</a>
             <!-- Our Partners: temporarily hidden from the menu (page still live at /partners/) -->

@@ -68,7 +68,10 @@
       "alt": "The Auditorium at Sane Living: an audience listening to a speaker at a workshop",
       "section": "venue",
       "group": "receptions",
-      "space": "auditorium"
+      "space": "auditorium",
+      "alsoIn": [
+        "life"
+      ]
     },
     {
       "image": "/images/main-hall-05.jpg",
@@ -76,7 +79,10 @@
       "alt": "The Auditorium at Sane Living: a catered buffet with cocktail tables and a projection screen",
       "section": "venue",
       "group": "receptions",
-      "space": "auditorium"
+      "space": "auditorium",
+      "alsoIn": [
+        "life"
+      ]
     },
     {
       "image": "/images/main-hall-06.jpg",
@@ -185,7 +191,7 @@
       "caption": "The Auditorium",
       "alt": "The Auditorium set for a celebration of life: upholstered chairs on rugs facing a memorial table with white flowers, candles and framed photos, cream drapes and the stained-glass window",
       "section": "venue",
-      "group": "celebrations",
+      "group": "life",
       "space": "auditorium"
     },
     {

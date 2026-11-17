@@ -132,6 +132,10 @@
     /* All occasion tiles the same size: 3 across on desktop, 2 across on phones */
     .rent-photo-grid.is-six { grid-template-columns: repeat(3, 1fr); grid-auto-rows: clamp(200px, 20vw, 290px); }
     .rent-photo-grid.is-six .rent-photo:first-child { grid-column: auto; grid-row: auto; }
+    /* Eight occasion tiles: 4 across, all the same size */
+    .rent-photo-grid.is-eight { grid-template-columns: repeat(4, 1fr); grid-auto-rows: clamp(170px, 16vw, 240px); }
+    .rent-photo-grid.is-eight .rent-photo:first-child { grid-column: auto; grid-row: auto; }
+    @media (max-width: 768px) { .rent-photo-grid.is-eight { grid-template-columns: repeat(2, 1fr); grid-auto-rows: 160px; } .rent-photo-grid.is-eight .rent-photo:first-child { grid-column: auto; } }
     @media (max-width: 768px) { .rent-photo-grid.is-six { grid-template-columns: repeat(2, 1fr); grid-auto-rows: 160px; } .rent-photo-grid.is-six .rent-photo:last-child { grid-column: auto; } }
 </style>
 <link rel="icon" href="/favicon.svg">
@@ -336,23 +340,28 @@
       { id: 'talks', title: 'Talks & Workshops' },
       { id: 'wellness', title: 'Wellness & Circles' },
       { id: 'receptions', title: 'Receptions & Screenings' },
-      { id: 'celebrations', title: 'Celebrations' },
+      { id: 'celebrations', title: 'Parties & Milestones' },
+      { id: 'celebrations-of-life', group: 'life', title: 'Celebrations of Life' },
       { id: 'performances', title: 'Concerts & Performances' },
-      { id: 'meetings', title: 'Meetings & Classes' }
+      { id: 'meetings', title: 'Meetings & Classes' },
+      { id: 'weddings', section: 'weddings', title: 'Weddings', href: '/rent/weddings/' }
     ];
     function esc(s) { return String(s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
     fetch('/content/gallery.json')
       .then(function(r) { return r.ok ? r.json() : null; })
       .then(function(d) {
-        var photos = ((d && d.photos) || []).filter(function(p) { return !p.draft && p.image && ((p.section || 'venue') === 'venue' || (p.alsoIn || []).length); });
+        var all = ((d && d.photos) || []).filter(function(p) { return !p.draft && p.image; });
+        var photos = all.filter(function(p) { return (p.section || 'venue') === 'venue' || (p.alsoIn || []).length; });
         var tiles = GROUPS.map(function(g) {
-          var p = photos.filter(function(x) { return x.group === g.id || (x.alsoIn || []).indexOf(g.id) !== -1; })[0];
-          return p ? '<a class="rent-photo" href="/gallery/#gallery-' + g.id + '"><img src="' + esc(p.image) + '" alt="' + esc(p.alt || p.caption) + '"' + (p.caption ? ' title="' + esc(p.caption) + '"' : '') + ' loading="lazy"><span>' + esc(g.title) + '</span></a>' : '';
+          var key = g.group || g.id;
+          var p = (g.section ? all.filter(function(x) { return x.section === g.section; }) : photos.filter(function(x) { return x.group === key; }).concat(photos.filter(function(x) { return (x.alsoIn || []).indexOf(key) !== -1; })))[0];
+          return p ? '<a class="rent-photo" href="' + (g.href || '/gallery/#gallery-' + g.id) + '"><img src="' + esc(p.image) + '" alt="' + esc(p.alt || p.caption) + '"' + (p.caption ? ' title="' + esc(p.caption) + '"' : '') + ' loading="lazy"><span>' + esc(g.title) + '</span></a>' : '';
         }).join('');
         if (!tiles) return;
         var grid = document.getElementById('rent-photo-grid');
         grid.innerHTML = tiles;
         grid.classList.toggle('is-six', grid.children.length === 6);
+        grid.classList.toggle('is-eight', grid.children.length === 8);
         document.getElementById('rent-photos').hidden = false;
         window.rentRescroll();
       })
