@@ -59,6 +59,7 @@ function injectNav() {
           <div class="nav-dropdown-menu">
             <a href="/about/">About Sane Living</a>
             <a href="/about/#founder">The Founder</a>
+            <a href="/about/#team">Meet the Team</a>
             <a href="/about/hip-vegan/">Hip Vegan Next Door</a>
           </div>
         </li>
