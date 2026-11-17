@@ -52,6 +52,12 @@
     @media (max-width: 420px) { .about-hero h1 { font-size: min(2.6rem, 10.4vw); } }
     @media (max-width: 639px) { .about-body .card-grid { grid-template-columns: minmax(0, 1fr); } }
     .about-philosophy .card-grid { margin-bottom: 0; }
+    .philosophy-split { display: grid; grid-template-columns: minmax(0, 300px) minmax(0, 1fr); gap: clamp(1.5rem, 4vw, 2.75rem); align-items: center; }
+    .philosophy-split .card-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .philosophy-figure { margin: 0; }
+    .philosophy-figure img { display: block; width: 100%; aspect-ratio: 1; object-fit: cover; border-radius: 10px; box-shadow: var(--shadow-soft); }
+    .philosophy-figure figcaption { margin-top: 10px; font-size: 0.85rem; line-height: 1.5; color: var(--clr-text-muted); text-align: center; }
+    @media (max-width: 760px) { .philosophy-split { grid-template-columns: 1fr; } .philosophy-figure { max-width: 260px; margin: 0 auto; } .philosophy-split .card-grid { grid-template-columns: 1fr; } }
     .about-philosophy .philosophy-card, .about-philosophy .philosophy-card:hover { transform: none; box-shadow: var(--shadow-soft); cursor: default; }
     .about-body .about-managed-section:last-child { margin-bottom: 0; }
     /* Meet the Team */
@@ -125,6 +131,11 @@
       <!-- United Founder & Philosophy Sections -->
       <div data-animate>
         <h3 style="text-align: center; margin-bottom: var(--space-lg); margin-top: 0; color: var(--clr-accent); text-transform: uppercase; font-size: 1rem; letter-spacing: 0.1em;">The Founding Philosophy</h3>
+        <div class="philosophy-split">
+        <figure class="philosophy-figure">
+          <img src="/images/self-heal-framework.jpg" alt="Aubrey Balkind’s Self Heal framework: Eat (addiction), Move (balance), Detox (fasting) and De-stress (breathe), around body and mind" loading="lazy">
+          <figcaption>Self Heal: eat, move, detox and de-stress for body and mind.</figcaption>
+        </figure>
         <div class="card-grid" data-animate-stagger>
           <div class="card philosophy-card">
             <h3>EVO 3: Bio Ego Algo</h3>
@@ -142,6 +153,7 @@
             <h3>Inspiration</h3>
             <p>Curated insights, profound stories and thought leadership that awaken mindfulness and inspire purposeful action.</p>
           </div>
+        </div>
         </div>
       </div>
     </div>
