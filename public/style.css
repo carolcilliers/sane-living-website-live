@@ -1600,6 +1600,6 @@ html.logo-preview-sage .footer-logo img { height: 50px; width: auto; }
 @media (max-width: 959px) { html.logo-preview-sage .nav-logo img { height: 40px; } }
 @media (max-width: 520px) { html.logo-preview-sage .nav-logo img { height: 32px; } }
 html.logo-preview-sage body:has(.video-hero) .site-nav:not(.scrolled):not(:has(.nav-toggle.active)) .nav-logo,
-html.logo-preview-sage .site-footer .footer-logo { background-image: url('/images/logo-sage-ojai-on-dark.png'); }
+html.logo-preview-sage .site-footer .footer-logo { background-image: url('/images/logo-sage-ojai-on-dark.png?v=2'); }
 .logo-preview-badge { position: fixed; left: 16px; bottom: 16px; z-index: 9999; padding: 8px 14px; border-radius: 999px; background: rgba(31, 19, 40, 0.88); color: #fff; font-size: 13px; box-shadow: 0 6px 20px rgba(0,0,0,0.25); }
 .logo-preview-badge a { color: #E9B872; font-weight: 700; margin-left: 2px; }
