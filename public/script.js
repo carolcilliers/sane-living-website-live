@@ -8,33 +8,42 @@
 
 
 /* ---- Logo preview (temporary, opt-in) ----
-   Visiting any page with ?logo=sage shows the proposed "Sage Ojai" logo in the menu bar and footer,
+   Visiting any page with ?logo=sage (or sage-plum / sage-violet for other purples) shows the proposed "Sage Ojai" logo in the menu bar and footer,
    and keeps showing it while you click around (this browser tab only). ?logo=off switches it back.
    Regular visitors never see it: without the link, nothing changes. */
 (function logoPreview() {
+  var VARIANTS = {
+    'sage':        { label: 'lilac on dark',       img: '/images/logo-sage-ojai.png' },
+    'sage-plum':   { label: 'original plum',       img: '/images/logo-sage-ojai.png' },
+    'sage-violet': { label: 'Sane Living violet',  img: '/images/logo-sage-ojai-violet.png' }
+  };
   var q = new URLSearchParams(location.search).get('logo');
-  var on = false;
+  var v = null;
   try {
-    if (q === 'sage') sessionStorage.setItem('logoPreview', 'sage');
+    if (VARIANTS[q]) sessionStorage.setItem('logoPreview', q);
     if (q === 'off') sessionStorage.removeItem('logoPreview');
-    on = sessionStorage.getItem('logoPreview') === 'sage';
-  } catch (e) { on = q === 'sage'; }
-  if (!on) return;
-  document.documentElement.classList.add('logo-preview-sage');
-  function swap(root) {
-    (root.querySelectorAll ? root : document).querySelectorAll('.nav-logo img, .footer-logo img').forEach(function(img) {
-      if (img.getAttribute('src') === '/images/logo-sage-ojai.png') return;
-      img.src = '/images/logo-sage-ojai.png';
+    v = sessionStorage.getItem('logoPreview');
+  } catch (e) { v = q; }
+  if (!VARIANTS[v]) return;
+  var src = VARIANTS[v].img;
+  document.documentElement.classList.add('logo-preview-sage', 'logo-preview-' + v);
+  function swap() {
+    document.querySelectorAll('.nav-logo img, .footer-logo img').forEach(function(img) {
+      if (img.getAttribute('src') === src) return;
+      img.src = src;
       img.alt = 'Sage Ojai';
       img.removeAttribute('width');
     });
   }
-  new MutationObserver(function() { swap(document); }).observe(document.documentElement, { childList: true, subtree: true, attributes: true, attributeFilter: ['src'] });
+  new MutationObserver(swap).observe(document.documentElement, { childList: true, subtree: true, attributes: true, attributeFilter: ['src'] });
   document.addEventListener('DOMContentLoaded', function() {
-    swap(document);
+    swap();
     var badge = document.createElement('div');
     badge.className = 'logo-preview-badge';
-    badge.innerHTML = 'Logo preview: <b>Sage Ojai</b> · <a href="?logo=off">Turn off</a>';
+    badge.innerHTML = 'Logo preview: <b>Sage Ojai</b> (' + VARIANTS[v].label + ') · ' +
+      Object.keys(VARIANTS).filter(function(k) { return k !== v; }).map(function(k) {
+        return '<a href="?logo=' + k + '">' + VARIANTS[k].label + '</a>';
+      }).join(' · ') + ' · <a href="?logo=off">Turn off</a>';
     document.body.appendChild(badge);
   });
 })();
