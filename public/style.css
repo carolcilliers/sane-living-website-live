@@ -1601,6 +1601,8 @@ html.logo-preview-sage .footer-logo img { height: 50px; width: auto; }
 @media (max-width: 520px) { html.logo-preview-sage .nav-logo img { height: 32px; } }
 html.logo-preview-sage body:has(.video-hero) .site-nav:not(.scrolled):not(:has(.nav-toggle.active)) .nav-logo,
 html.logo-preview-sage .site-footer .footer-logo { background-image: url('/images/logo-sage-ojai-on-dark.png?v=2'); }
+html.logo-preview-sage-3559 body:has(.video-hero) .site-nav:not(.scrolled):not(:has(.nav-toggle.active)) .nav-logo,
+html.logo-preview-sage-3559 .site-footer .footer-logo { background-image: url('/images/logo-sage-ojai-on-dark-3559.png'); }
 html.logo-preview-sage-plum body:has(.video-hero) .site-nav:not(.scrolled):not(:has(.nav-toggle.active)) .nav-logo,
 html.logo-preview-sage-plum .site-footer .footer-logo { background-image: url('/images/logo-sage-ojai-on-dark-plum.png'); }
 html.logo-preview-sage-violet body:has(.video-hero) .site-nav:not(.scrolled):not(:has(.nav-toggle.active)) .nav-logo,

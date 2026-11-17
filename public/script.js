@@ -13,7 +13,8 @@
    Regular visitors never see it: without the link, nothing changes. */
 (function logoPreview() {
   var VARIANTS = {
-    'sage':        { label: 'lilac on dark',       img: '/images/logo-sage-ojai.png' },
+    'sage':        { label: 'PMS 3559 C',          img: '/images/logo-sage-ojai-3559.png' },
+    'sage-lilac':  { label: 'lilac on dark',       img: '/images/logo-sage-ojai.png' },
     'sage-plum':   { label: 'original plum',       img: '/images/logo-sage-ojai.png' },
     'sage-violet': { label: 'Sane Living violet',  img: '/images/logo-sage-ojai-violet.png' }
   };
@@ -26,7 +27,7 @@
   } catch (e) { v = q; }
   if (!VARIANTS[v]) return;
   var src = VARIANTS[v].img;
-  document.documentElement.classList.add('logo-preview-sage', 'logo-preview-' + v);
+  document.documentElement.classList.add('logo-preview-sage', 'logo-preview-' + v.replace(/^sage$/, 'sage-3559'));
   function swap() {
     document.querySelectorAll('.nav-logo img, .footer-logo img').forEach(function(img) {
       if (img.getAttribute('src') === src) return;
