@@ -8,15 +8,15 @@
 
 
 /* ---- Logo preview (temporary, opt-in) ----
-   Visiting any page with ?logo=sage (or sage-glow / sage-disc / sage-plain for other treatments on dark) shows the proposed "Sage Ojai" logo in the menu bar and footer,
+   Visiting any page with ?logo=sage (or sage-outline / sage-glow / sage-disc for other treatments on dark) shows the proposed "Sage Ojai" logo in the menu bar and footer,
    and keeps showing it while you click around (this browser tab only). ?logo=off switches it back.
    Regular visitors never see it: without the link, nothing changes. */
 (function logoPreview() {
   var VARIANTS = {
-    'sage':       { label: 'thin outline',  img: '/images/logo-sage-ojai-3559-pad.png' },
-    'sage-glow':  { label: 'soft glow',     img: '/images/logo-sage-ojai-3559-pad.png' },
-    'sage-disc':  { label: 'light circle',  img: '/images/logo-sage-ojai-3559-pad.png' },
-    'sage-plain': { label: 'no effect',     img: '/images/logo-sage-ojai-3559-pad.png' }
+    'sage':         { label: 'no effect',     img: '/images/logo-sage-ojai-3559-pad.png' },
+    'sage-outline': { label: 'thin outline',  img: '/images/logo-sage-ojai-3559-pad.png' },
+    'sage-glow':    { label: 'soft glow',     img: '/images/logo-sage-ojai-3559-pad.png' },
+    'sage-disc':    { label: 'light circle',  img: '/images/logo-sage-ojai-3559-pad.png' }
   };
   var q = new URLSearchParams(location.search).get('logo');
   var v = null;
@@ -27,7 +27,7 @@
   } catch (e) { v = q; }
   if (!VARIANTS[v]) return;
   var src = VARIANTS[v].img;
-  document.documentElement.classList.add('logo-preview-sage', 'logo-preview-' + v.replace(/^sage$/, 'sage-outline'));
+  document.documentElement.classList.add('logo-preview-sage', 'logo-preview-' + v.replace(/^sage$/, 'sage-plain'));
   function swap() {
     document.querySelectorAll('.nav-logo img, .footer-logo img').forEach(function(img) {
       if (img.getAttribute('src') === src) return;
