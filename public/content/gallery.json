@@ -68,10 +68,7 @@
       "alt": "The Auditorium at Sane Living: an audience listening to a speaker at a workshop",
       "section": "venue",
       "group": "receptions",
-      "space": "auditorium",
-      "alsoIn": [
-        "life"
-      ]
+      "space": "auditorium"
     },
     {
       "image": "/images/main-hall-05.jpg",
@@ -184,6 +181,14 @@
       "alt": "The Auditorium set for a dance party: an open wooden dance floor, a DJ booth on truss staging, tall speakers, moving lights and colorful projections around the stained-glass window",
       "section": "venue",
       "group": "celebrations",
+      "space": "auditorium"
+    },
+    {
+      "image": "/images/auditorium-memorial-service.jpg",
+      "caption": "The Auditorium",
+      "alt": "The Auditorium set for a memorial service: rows of black chairs facing the stage, a casket draped with flowers, white floral wreaths and arrangements on stands, a framed portrait on an easel and a lectern beneath the stained-glass window",
+      "section": "venue",
+      "group": "life",
       "space": "auditorium"
     },
     {
