@@ -90,13 +90,13 @@ function injectNav() {
             <div class="nav-sub">
               <a href="/rent/#occasions" class="nav-sub-head">Occasions<span class="nav-sub-arrow" aria-hidden="true">›</span></a>
               <div class="nav-submenu">
+                <a href="/gallery/#gallery-celebrations-of-life">Celebrations of Life</a>
                 <a href="/gallery/#gallery-talks">Talks &amp; Workshops</a>
+                <a href="/gallery/#gallery-meetings">Meetings &amp; Classes</a>
                 <a href="/gallery/#gallery-wellness">Wellness &amp; Circles</a>
                 <a href="/gallery/#gallery-receptions">Receptions &amp; Screenings</a>
-                <a href="/gallery/#gallery-celebrations">Parties &amp; Milestones</a>
-                <a href="/gallery/#gallery-celebrations-of-life">Celebrations of Life</a>
                 <a href="/gallery/#gallery-performances">Concerts &amp; Performances</a>
-                <a href="/gallery/#gallery-meetings">Meetings &amp; Classes</a>
+                <a href="/gallery/#gallery-celebrations">Parties &amp; Milestones</a>
               </div>
             </div>
             <a href="/rent/weddings/">Weddings</a>
