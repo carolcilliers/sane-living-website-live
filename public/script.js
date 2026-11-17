@@ -8,15 +8,15 @@
 
 
 /* ---- Logo preview (temporary, opt-in) ----
-   Visiting any page with ?logo=sage (or sage-plum / sage-violet for other purples) shows the proposed "Sage Ojai" logo in the menu bar and footer,
+   Visiting any page with ?logo=sage (or sage-glow / sage-disc / sage-plain for other treatments on dark) shows the proposed "Sage Ojai" logo in the menu bar and footer,
    and keeps showing it while you click around (this browser tab only). ?logo=off switches it back.
    Regular visitors never see it: without the link, nothing changes. */
 (function logoPreview() {
   var VARIANTS = {
-    'sage':        { label: 'PMS 3559 C',          img: '/images/logo-sage-ojai-3559.png' },
-    'sage-lilac':  { label: 'lilac on dark',       img: '/images/logo-sage-ojai.png' },
-    'sage-plum':   { label: 'original plum',       img: '/images/logo-sage-ojai.png' },
-    'sage-violet': { label: 'Sane Living violet',  img: '/images/logo-sage-ojai-violet.png' }
+    'sage':       { label: 'thin outline',  img: '/images/logo-sage-ojai-3559-pad.png' },
+    'sage-glow':  { label: 'soft glow',     img: '/images/logo-sage-ojai-3559-pad.png' },
+    'sage-disc':  { label: 'light circle',  img: '/images/logo-sage-ojai-3559-pad.png' },
+    'sage-plain': { label: 'no effect',     img: '/images/logo-sage-ojai-3559-pad.png' }
   };
   var q = new URLSearchParams(location.search).get('logo');
   var v = null;
@@ -27,7 +27,7 @@
   } catch (e) { v = q; }
   if (!VARIANTS[v]) return;
   var src = VARIANTS[v].img;
-  document.documentElement.classList.add('logo-preview-sage', 'logo-preview-' + v.replace(/^sage$/, 'sage-3559'));
+  document.documentElement.classList.add('logo-preview-sage', 'logo-preview-' + v.replace(/^sage$/, 'sage-outline'));
   function swap() {
     document.querySelectorAll('.nav-logo img, .footer-logo img').forEach(function(img) {
       if (img.getAttribute('src') === src) return;
@@ -41,7 +41,7 @@
     swap();
     var badge = document.createElement('div');
     badge.className = 'logo-preview-badge';
-    badge.innerHTML = 'Logo preview: <b>Sage Ojai</b> (' + VARIANTS[v].label + ') · ' +
+    badge.innerHTML = 'Logo preview: <b>Sage Ojai</b>, PMS 3559 C (' + VARIANTS[v].label + ') · ' +
       Object.keys(VARIANTS).filter(function(k) { return k !== v; }).map(function(k) {
         return '<a href="?logo=' + k + '">' + VARIANTS[k].label + '</a>';
       }).join(' · ') + ' · <a href="?logo=off">Turn off</a>';
