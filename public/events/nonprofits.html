@@ -72,6 +72,12 @@
     .np-quote { background: var(--clr-night); color: var(--clr-on-night); text-align: center; }
     .np-quote blockquote { max-width: 46rem; margin: 0 auto; }
     .np-quote blockquote p { font-family: var(--font-display); font-style: italic; font-size: clamp(1.6rem, 3.2vw, 2.4rem); line-height: 1.35; color: var(--clr-on-night); margin: 0 0 var(--space-md); }
+    .np-quote blockquote:has(.np-ql) { max-width: none; }
+    .np-quote blockquote p:has(.np-ql) { text-wrap: balance; max-width: 46rem; margin-left: auto; margin-right: auto; }
+    @media (min-width: 600px) {
+      .np-quote blockquote p:has(.np-ql) { max-width: none; font-size: min(2.4rem, calc((100vw - 56px) / 21)); }
+      .np-ql { display: block; white-space: nowrap; }
+    }
     .np-quote cite { font-style: normal; font-size: 0.85rem; font-weight: 700; letter-spacing: 0.16em; text-transform: uppercase; color: var(--clr-glow); }
 
 
@@ -182,7 +188,7 @@
   <section class="section np-quote">
     <div class="container">
       <blockquote data-animate>
-        <p>“Reconnecting to nature can be our grounding touchstone to bring Bio, Ego and Algo into a healthier balance.”</p>
+        <p><span class="np-ql">“Reconnecting to nature can be our grounding touchstone</span> <span class="np-ql">to bring Bio, Ego and Algo into a healthier balance.”</span></p>
         <cite>Aubrey Balkind, Founder</cite>
       </blockquote>
     </div>
