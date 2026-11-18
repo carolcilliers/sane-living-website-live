@@ -64,6 +64,9 @@
     .t-full { grid-column: span 4; grid-row: span 2; }
     .mosaic.flip .t-big { grid-column: 3 / span 2; grid-row: 1 / span 2; }
     .mosaic.flip { grid-auto-flow: dense; }
+    .fit-row { display: flex; gap: 16px; }
+    .fit-row + .fit-row, .mosaic + .fit-row { margin-top: 16px; }
+    .fit-row .tile.fit { flex-basis: 0; min-width: 0; }
 
     .gallery-closing { background: var(--clr-text); text-align: center; }
     .gallery-closing h2 { color: #fff; }
@@ -89,6 +92,7 @@
       .mosaic { grid-template-columns: repeat(2, 1fr); grid-auto-rows: 150px; gap: 10px; }
       .t-big, .mosaic.flip .t-big, .t-full { grid-column: 1 / -1; grid-row: span 2; }
       .t-wide { grid-column: span 1; }
+      .fit-row { flex-direction: column; gap: 10px; } .fit-row + .fit-row { margin-top: 10px; } .fit-row .tile.fit { flex-basis: auto; width: 100%; }
       .chapter-cta { white-space: normal; }
       .tile .tile-caption { opacity: 1; font-size: 0.78rem; padding: 22px 10px 8px; }
       .lightbox-inner { padding: 64px 12px 24px; }
@@ -172,7 +176,7 @@
       { id: 'receptions', section: 'venue', group: 'receptions', eyebrow: 'Auditorium', title: 'Receptions & Screenings',
         text: 'Film nights on the big screen with full projection and sound, or round tables, cocktail tables and a long buffet for dinners, slideshows and toasts.',
         cta: 'Plan a reception or screening', href: '/rent/pricing/' },
-      { id: 'celebrations', section: 'any', group: 'celebrations', eyebrow: 'Auditorium · Secret Garden', title: 'Parties & Fundraisers',
+      { id: 'celebrations', section: 'any', group: 'celebrations', layout: 'rows', eyebrow: 'Auditorium · Secret Garden', title: 'Parties & Fundraisers',
         text: 'Fundraisers and galas, birthday and anniversary parties, showers, graduations and reunions, with room to dance in the Auditorium or gather under the lights in the Secret Garden.',
         cta: 'Plan a party or fundraiser', href: '/rent/pricing/' },
       { id: 'celebrations-of-life', section: 'any', group: 'life', eyebrow: 'Auditorium · Secret Garden', title: 'Celebrations of Life',
@@ -239,6 +243,21 @@
         '<img src="' + esc(p.image) + '" alt="' + esc(p.alt || p.caption) + '"' + (p.caption ? ' title="' + esc(p.caption) + '"' : '') + ' loading="lazy"' + (p.focus ? ' style="object-position:' + esc(p.focus) + '"' : '') + '>' +
         (p.caption ? '<span class="tile-caption" aria-hidden="true">' + esc(p.caption) + '</span>' : '') + '</a>';
     }
+    // Rows of up to three photos, each as wide as its shape needs, so nothing is cropped
+    // (used where a chapter mixes tall and wide photos). "ratio" = width / height, set per photo in gallery.json.
+    function fitRows(list) {
+      var sizes = [], left = list.length, at = 0, html = '';
+      while (left > 0) { sizes.push(Math.min(3, left)); left -= 3; }
+      if (sizes.length > 1 && sizes[sizes.length - 1] === 1) { sizes.splice(-2, 2, 2, 2); }
+      sizes.forEach(function(n) {
+        html += '<div class="fit-row">' + list.slice(at, at + n).map(function(p) {
+          var r = +p.ratio > 0 ? +p.ratio : 1.333;
+          return tile(p, 'fit').replace('<a class="tile fit"', '<a class="tile fit" style="flex-grow:' + r + ';aspect-ratio:' + r + '"');
+        }).join('') + '</div>';
+        at += n;
+      });
+      return html;
+    }
     function mosaic(list, flipStart) {
       var html = '', flip = flipStart, sizes = [], left = list.length, at = 0;
       // Blocks of up to five, but never leave a single photo alone in its own row: 6 -> 3+3, 11 -> 5+3+3.
@@ -270,7 +289,7 @@
           '<h2 id="gallery-' + c.id + '-title">' + esc(c.title) + '</h2><p>' + esc(c.text) + '</p>' +
           (c.chips ? '<ul class="chapter-chips">' + c.chips.map(function(x) { return '<li>' + esc(x) + '</li>'; }).join('') + '</ul>' : '') + '</div>' +
           '<a class="btn btn-outline chapter-cta" href="' + esc(c.href) + '">' + esc(c.cta) + '</a></div>' +
-          mosaic(list, !alt) + '</div></section>';
+          (c.layout === 'rows' ? fitRows(list) : mosaic(list, !alt)) + '</div></section>';
       }).join('');
       document.getElementById('gallery-chapters').innerHTML = html ||
         '<section class="section section-alt"><div class="container"><p style="text-align:center;">No photos here yet.</p></div></section>';

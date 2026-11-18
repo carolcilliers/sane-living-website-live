@@ -4,32 +4,37 @@
       "image": "/images/venue-lobby-art.jpg",
       "caption": "The Lobby",
       "alt": "The lobby, with a wooden ceiling, large colorful paintings and glass doors into the Auditorium",
-      "section": "venue"
+      "section": "venue",
+      "ratio": 1.497
     },
     {
       "image": "/images/venue-auditorium-open-doors.jpg",
       "caption": "The Lobby",
       "alt": "The Auditorium with its folding glass doors fully open to the lobby and entrance",
-      "section": "venue"
+      "section": "venue",
+      "ratio": 1.497
     },
     {
       "image": "/images/venue-purple-doors.jpg",
       "caption": "The Entrance",
       "alt": "The purple front doors under the Sane Living sign, with a film premiere poster",
-      "section": "venue"
+      "section": "venue",
+      "ratio": 1.283
     },
     {
       "image": "/images/venue-auditorium-glass-doors.jpg",
       "caption": "The Lobby",
       "alt": "The Auditorium floor in front of its frosted folding glass doors and sound system",
-      "section": "venue"
+      "section": "venue",
+      "ratio": 1.333
     },
     {
       "image": "/images/auditorium-rows-glass-doors.jpg",
       "caption": "The Auditorium",
       "alt": "The Auditorium set theater-style with rows of chairs facing the folding glass doors, under wood beams with stage lights, pendant lamps and a ceiling projector",
       "section": "venue",
-      "space": "auditorium"
+      "space": "auditorium",
+      "ratio": 1.778
     },
     {
       "image": "/images/main-hall-01.jpg",
@@ -37,14 +42,16 @@
       "alt": "The Auditorium at Sane Living: a full audience facing a flower-decorated stage during an evening talk",
       "section": "venue",
       "group": "talks",
-      "space": "auditorium"
+      "space": "auditorium",
+      "ratio": 1.333
     },
     {
       "image": "/images/auditorium-rows-stained-glass.jpg",
       "caption": "The Auditorium",
       "alt": "The Auditorium set with rows of chairs facing the stained-glass window, under a wood-beamed ceiling with skylights, pendant lights and a ceiling projector",
       "section": "venue",
-      "group": "talks"
+      "group": "talks",
+      "ratio": 1.497
     },
     {
       "image": "/images/main-hall-02.jpg",
@@ -52,7 +59,8 @@
       "alt": "The Auditorium at Sane Living: floor seats, cushions and blankets arranged in a large circle",
       "section": "venue",
       "group": "wellness",
-      "space": "auditorium"
+      "space": "auditorium",
+      "ratio": 1.333
     },
     {
       "image": "/images/main-hall-03.jpg",
@@ -60,7 +68,8 @@
       "alt": "The Auditorium at Sane Living: a group sitting together on the floor in a circle in daylight",
       "section": "venue",
       "group": "wellness",
-      "space": "auditorium"
+      "space": "auditorium",
+      "ratio": 1.333
     },
     {
       "image": "/images/main-hall-09.jpg",
@@ -68,7 +77,8 @@
       "alt": "The Auditorium at Sane Living: an audience listening to a speaker at a workshop",
       "section": "venue",
       "group": "receptions",
-      "space": "auditorium"
+      "space": "auditorium",
+      "ratio": 1.333
     },
     {
       "image": "/images/main-hall-05.jpg",
@@ -79,7 +89,8 @@
       "space": "auditorium",
       "alsoIn": [
         "life"
-      ]
+      ],
+      "ratio": 1.333
     },
     {
       "image": "/images/main-hall-06.jpg",
@@ -87,7 +98,8 @@
       "alt": "The Auditorium at Sane Living: a circle of meditation cushions with plants beneath the stained-glass window",
       "section": "venue",
       "group": "wellness",
-      "space": "auditorium"
+      "space": "auditorium",
+      "ratio": 0.75
     },
     {
       "image": "/images/main-hall-07.jpg",
@@ -95,7 +107,8 @@
       "alt": "The Auditorium at Sane Living: folding chairs and floor seats set up for a workshop",
       "section": "venue",
       "group": "talks",
-      "space": "auditorium"
+      "space": "auditorium",
+      "ratio": 1.333
     },
     {
       "image": "/images/main-hall-08.jpg",
@@ -103,7 +116,8 @@
       "alt": "The Auditorium at Sane Living: tables arranged in a U-shape for a meeting",
       "section": "venue",
       "group": "meetings",
-      "space": "auditorium"
+      "space": "auditorium",
+      "ratio": 1.333
     },
     {
       "image": "/images/main-hall-10.jpg",
@@ -111,7 +125,8 @@
       "alt": "The Auditorium at Sane Living: two draped chairs, plants and flowers set up in front of the stained-glass window",
       "section": "venue",
       "group": "talks",
-      "space": "auditorium"
+      "space": "auditorium",
+      "ratio": 1.333
     },
     {
       "image": "/images/auditorium-gala-reception.jpg",
@@ -119,7 +134,8 @@
       "alt": "The Auditorium set for an evening reception: round tables in gray linens with dark chairs, cocktail tables, an appetizer display in the center aisle, sculptures on pedestals, and green and gold drapes framing portraits at the stage",
       "section": "venue",
       "group": "receptions",
-      "space": "auditorium"
+      "space": "auditorium",
+      "ratio": 2.267
     },
     {
       "image": "/images/main-hall-12.jpg",
@@ -127,7 +143,8 @@
       "alt": "The Auditorium at Sane Living: a stage set up with a drum kit, guitars and keyboard for a concert",
       "section": "venue",
       "group": "performances",
-      "space": "auditorium"
+      "space": "auditorium",
+      "ratio": 1.333
     },
     {
       "image": "/images/auditorium-live-performance.jpg",
@@ -135,7 +152,8 @@
       "alt": "A live music performance in the Auditorium: a musician in a black hat performs from behind a keyboard and guitar setup to an audience seated and standing around the room",
       "section": "venue",
       "group": "performances",
-      "space": "auditorium"
+      "space": "auditorium",
+      "ratio": 1.333
     },
     {
       "image": "/images/auditorium-acoustic-stage.jpg",
@@ -143,7 +161,8 @@
       "alt": "The Auditorium set for an acoustic performance: portable stage risers with a rug, an armchair, an acoustic guitar, a stool and microphone, pampas grass and speakers in front of the stained-glass window",
       "section": "venue",
       "group": "performances",
-      "space": "auditorium"
+      "space": "auditorium",
+      "ratio": 1.396
     },
     {
       "image": "/images/main-hall-13.jpg",
@@ -151,7 +170,8 @@
       "alt": "The Auditorium at Sane Living: a stage set up with tabla drums, guitar and keyboard for a music performance",
       "section": "venue",
       "group": "performances",
-      "space": "auditorium"
+      "space": "auditorium",
+      "ratio": 1.333
     },
     {
       "image": "/images/main-hall-14.jpg",
@@ -159,7 +179,8 @@
       "alt": "The Auditorium at Sane Living: long tables and chairs set up facing a projection screen",
       "section": "venue",
       "group": "meetings",
-      "space": "auditorium"
+      "space": "auditorium",
+      "ratio": 1.333
     },
     {
       "image": "/images/center-office.jpg",
@@ -167,13 +188,15 @@
       "alt": "The Conference Room at Sane Living, with a long wooden table, whiteboard and natural light",
       "section": "venue",
       "group": "meetings",
-      "space": "conference"
+      "space": "conference",
+      "ratio": 1.5
     },
     {
       "image": "/images/evo3-sculpture.jpg",
       "caption": "The Entrance",
       "alt": "EVO 3 Sculpture at Sane Living Center",
-      "section": "outdoor"
+      "section": "outdoor",
+      "ratio": 1.497
     },
     {
       "image": "/images/auditorium-dance-party-lights.jpg",
@@ -181,7 +204,8 @@
       "alt": "The Auditorium set for a dance party: an open wooden dance floor, a DJ booth on truss staging, tall speakers, moving lights and colorful projections around the stained-glass window",
       "section": "venue",
       "group": "celebrations",
-      "space": "auditorium"
+      "space": "auditorium",
+      "ratio": 1.364
     },
     {
       "image": "/images/auditorium-memorial-service.jpg",
@@ -189,7 +213,8 @@
       "alt": "The Auditorium set for a memorial service: rows of black chairs facing the stage, a casket draped with flowers, white floral wreaths and arrangements on stands, a framed portrait on an easel and a lectern beneath the stained-glass window",
       "section": "venue",
       "group": "life",
-      "space": "auditorium"
+      "space": "auditorium",
+      "ratio": 1.688
     },
     {
       "image": "/images/auditorium-celebration-of-life.jpg",
@@ -197,7 +222,8 @@
       "alt": "The Auditorium set for a celebration of life: upholstered chairs on rugs facing a memorial table with white flowers, candles and framed photos, cream drapes and the stained-glass window",
       "section": "venue",
       "group": "life",
-      "space": "auditorium"
+      "space": "auditorium",
+      "ratio": 1.367
     },
     {
       "image": "/images/auditorium-graduation-party.jpg",
@@ -205,7 +231,8 @@
       "alt": "The Auditorium set for a graduation party: gold and black sequined cocktail tables, a dessert table, framed graduate portraits, blue and gold balloons and drapes framing the stained-glass window",
       "section": "venue",
       "group": "celebrations",
-      "space": "auditorium"
+      "space": "auditorium",
+      "ratio": 1.364
     },
     {
       "image": "/images/secret-garden-party.jpg",
@@ -213,7 +240,8 @@
       "alt": "The Secret Garden set for an evening celebration: string lights and colorful bunting under the mulberry canopy, a white fence, a dessert table, cocktail tables, a vintage rug with chairs, and a DJ under a lit arch",
       "section": "venue",
       "space": "garden",
-      "group": "celebrations"
+      "group": "celebrations",
+      "ratio": 0.764
     },
     {
       "image": "/images/auditorium-variety-show-stage.jpg",
@@ -221,7 +249,8 @@
       "alt": "A birthday variety show in the Auditorium: three performers in sparkly purple outfits and star sunglasses posing on the portable stage under pink lights, with a marquee letter, pink tinsel curtain and the show's title on the big screen",
       "section": "venue",
       "group": "celebrations",
-      "space": "auditorium"
+      "space": "auditorium",
+      "ratio": 0.75
     },
     {
       "image": "/images/auditorium-disco-party-grazing-table.jpg",
@@ -229,7 +258,8 @@
       "alt": "Guests in sequined jackets at a disco-themed party in the Auditorium, standing behind a large grazing table of cheeses, breads and fruit, with purple lighting, silver balloons and a disco ball on the screen",
       "section": "venue",
       "group": "celebrations",
-      "space": "auditorium"
+      "space": "auditorium",
+      "ratio": 1.333
     },
     {
       "image": "/images/auditorium-community-dinner.jpg",
@@ -237,35 +267,40 @@
       "alt": "A full seated dinner in the Auditorium: guests at round tables with black linens, glassware and small purple flowers, reading programs, with a buffet beneath the stained-glass window and stage lights overhead",
       "section": "venue",
       "group": "celebrations",
-      "space": "auditorium"
+      "space": "auditorium",
+      "ratio": 1.333
     },
     {
       "image": "/images/secret-garden-cocktail-hour.jpg",
       "caption": "The Secret Garden",
       "alt": "The Secret Garden set for an evening gathering: string lights over gravel, floor cushions and a low table on a rug, candle lanterns, and a long wooden table with appetizers and drinks under the olive and mulberry trees, bordered by a white fence",
       "section": "outdoor",
-      "space": "garden"
+      "space": "garden",
+      "ratio": 0.74
     },
     {
       "image": "/images/secret-garden-lounge.jpg",
       "caption": "The Secret Garden",
       "alt": "The Secret Garden set as a relaxed lounge: colorful paper lanterns and string lights in the mulberry tree, bunting, rugs with leather poufs and low tables, a white fence and a chalkboard sign reading Welcome to the secret garden",
       "section": "outdoor",
-      "space": "garden"
+      "space": "garden",
+      "ratio": 0.759
     },
     {
       "image": "/images/wedding-ceremony-auditorium.jpg",
       "caption": "The Auditorium",
       "alt": "Wedding ceremony in the Auditorium, with a white floral arch under the stained-glass window and flowers along a rug aisle",
       "section": "weddings",
-      "space": "auditorium"
+      "space": "auditorium",
+      "ratio": 1.352
     },
     {
       "image": "/images/wedding-reception-auditorium.jpg",
       "caption": "The Auditorium",
       "alt": "The Auditorium set for a wedding reception: a parquet dance floor in front of a stage with a band setup, a floral arch and draped curtains beneath the stained-glass window, and round tables on either side",
       "section": "weddings",
-      "space": "auditorium"
+      "space": "auditorium",
+      "ratio": 1.389
     },
     {
       "image": "/images/venue-annex.jpg",
@@ -273,7 +308,8 @@
       "alt": "The Annex: a bright, open flex room with gray carpet and a section of hardwood floor, a wooden table with wishbone chairs, track lighting and white walls",
       "section": "venue",
       "group": "meetings",
-      "space": "annex"
+      "space": "annex",
+      "ratio": 0.783
     },
     {
       "image": "/images/annex-bridal-room.jpg",
@@ -281,7 +317,8 @@
       "alt": "The Annex set as a bridal room: a wedding dress hanging from the ceiling, tall arched mirrors, a round mirror over a wooden console, velvet armchairs and white roses",
       "section": "weddings",
       "space": "annex",
-      "focus": "center 35%"
+      "focus": "center 35%",
+      "ratio": 0.792
     },
     {
       "image": "/images/annex-meditation.jpg",
@@ -290,20 +327,23 @@
       "section": "venue",
       "group": "wellness",
       "space": "annex",
-      "focus": "center 72%"
+      "focus": "center 72%",
+      "ratio": 0.774
     },
     {
       "image": "/IMG_0207.jpg",
       "caption": "The Secret Garden",
       "alt": "Evening wedding reception outdoors, with green-draped round tables, lanterns and fairy lights in a tree, and a bar",
       "section": "weddings",
-      "space": "garden"
+      "space": "garden",
+      "ratio": 0.769
     },
     {
       "image": "/IMG_0208.jpg",
       "caption": "The Secret Garden",
       "alt": "Outdoor wedding reception in the sun, with long wooden tables, greenery runners and string lights",
-      "section": "weddings"
+      "section": "weddings",
+      "ratio": 0.753
     }
   ]
 }
