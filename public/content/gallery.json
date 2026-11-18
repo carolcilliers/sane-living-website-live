@@ -216,6 +216,22 @@
       "group": "celebrations"
     },
     {
+      "image": "/images/auditorium-variety-show-stage.jpg",
+      "caption": "The Auditorium",
+      "alt": "A birthday variety show in the Auditorium: three performers in sparkly purple outfits and star sunglasses posing on the portable stage under pink lights, with a marquee letter, pink tinsel curtain and the show's title on the big screen",
+      "section": "venue",
+      "group": "celebrations",
+      "space": "auditorium"
+    },
+    {
+      "image": "/images/auditorium-disco-party-grazing-table.jpg",
+      "caption": "The Auditorium",
+      "alt": "Guests in sequined jackets at a disco-themed party in the Auditorium, standing behind a large grazing table of cheeses, breads and fruit, with purple lighting, silver balloons and a disco ball on the screen",
+      "section": "venue",
+      "group": "celebrations",
+      "space": "auditorium"
+    },
+    {
       "image": "/images/secret-garden-cocktail-hour.jpg",
       "caption": "The Secret Garden",
       "alt": "The Secret Garden set for an evening gathering: string lights over gravel, floor cushions and a low table on a rug, candle lanterns, and a long wooden table with appetizers and drinks under the olive and mulberry trees, bordered by a white fence",
