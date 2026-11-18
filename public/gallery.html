@@ -172,9 +172,9 @@
       { id: 'receptions', section: 'venue', group: 'receptions', eyebrow: 'Auditorium', title: 'Receptions & Screenings',
         text: 'Film nights on the big screen with full projection and sound, or round tables, cocktail tables and a long buffet for dinners, slideshows and toasts.',
         cta: 'Plan a reception or screening', href: '/rent/pricing/' },
-      { id: 'celebrations', section: 'any', group: 'celebrations', eyebrow: 'Auditorium · Secret Garden', title: 'Parties & Milestones',
-        text: 'Birthday and anniversary parties, showers, graduations and reunions, with room to dance in the Auditorium or gather under the lights in the Secret Garden.',
-        cta: 'Plan a party', href: '/rent/pricing/' },
+      { id: 'celebrations', section: 'any', group: 'celebrations', eyebrow: 'Auditorium · Secret Garden', title: 'Parties & Fundraisers',
+        text: 'Fundraisers and galas, birthday and anniversary parties, showers, graduations and reunions, with room to dance in the Auditorium or gather under the lights in the Secret Garden.',
+        cta: 'Plan a party or fundraiser', href: '/rent/pricing/' },
       { id: 'celebrations-of-life', section: 'any', group: 'life', eyebrow: 'Auditorium · Secret Garden', title: 'Celebrations of Life',
         text: 'Honor a loved one in a calm, beautiful space: a memorial service beneath the stained glass, with sound and projection for tributes and slideshows, then a reception to share stories over food in the Auditorium or the Secret Garden.',
         cta: 'Plan a celebration of life', href: '/rent/pricing/' },
@@ -222,7 +222,7 @@
     function esc(s) { return String(s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
     function sectionOf(p) { return p.section || 'venue'; }
     function inChapter(p, c) {
-      // Some chapters (e.g. Parties & Milestones, Celebrations of Life) gather tagged photos from any section.
+      // Some chapters (e.g. Parties & Fundraisers, Celebrations of Life) gather tagged photos from any section.
       if (c.section === 'any') return p.group === c.group || (p.alsoIn || []).indexOf(c.group) !== -1;
       if (sectionOf(p) !== c.section) return false;
       if (c.section !== 'venue') return true;

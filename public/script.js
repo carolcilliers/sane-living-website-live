@@ -96,7 +96,7 @@ function injectNav() {
                 <a href="/gallery/#gallery-wellness">Wellness &amp; Circles</a>
                 <a href="/gallery/#gallery-receptions">Receptions &amp; Screenings</a>
                 <a href="/gallery/#gallery-performances">Concerts &amp; Performances</a>
-                <a href="/gallery/#gallery-celebrations">Parties &amp; Milestones</a>
+                <a href="/gallery/#gallery-celebrations">Parties &amp; Fundraisers</a>
               </div>
             </div>
             <a href="/rent/weddings/">Weddings</a>
