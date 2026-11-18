@@ -232,6 +232,14 @@
       "space": "auditorium"
     },
     {
+      "image": "/images/auditorium-community-dinner.jpg",
+      "caption": "The Auditorium",
+      "alt": "A full seated dinner in the Auditorium: guests at round tables with black linens, glassware and small purple flowers, reading programs, with a buffet beneath the stained-glass window and stage lights overhead",
+      "section": "venue",
+      "group": "celebrations",
+      "space": "auditorium"
+    },
+    {
       "image": "/images/secret-garden-cocktail-hour.jpg",
       "caption": "The Secret Garden",
       "alt": "The Secret Garden set for an evening gathering: string lights over gravel, floor cushions and a low table on a rug, candle lanterns, and a long wooden table with appetizers and drinks under the olive and mulberry trees, bordered by a white fence",
