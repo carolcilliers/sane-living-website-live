@@ -138,9 +138,9 @@
       "ratio": 2.267
     },
     {
-      "image": "/images/auditorium-film-screening.jpg",
+      "image": "/images/auditorium-film-screening.jpg?v=2",
       "caption": "The Auditorium",
-      "alt": "A film screening in the Auditorium: an audience in rows of chairs facing the big screen showing the Love Heals documentary, with a speaker introducing the film at a microphone",
+      "alt": "A film screening in the Auditorium: an audience in rows of chairs facing the big screen showing the Love Heals documentary poster, with a speaker introducing the film at a microphone",
       "section": "venue",
       "group": "receptions",
       "space": "auditorium",
