@@ -173,7 +173,7 @@
       { id: 'wellness', section: 'venue', group: 'wellness', eyebrow: 'Auditorium', title: 'Wellness & Circles',
         text: 'Clear the chairs and the open floor becomes a calm space for meditation, breathwork, sound baths and sharing circles, lit by the stained-glass window.',
         cta: 'Host a retreat or circle', href: '/rent/pricing/' },
-      { id: 'receptions', section: 'venue', group: 'receptions', eyebrow: 'Auditorium', title: 'Receptions & Screenings',
+      { id: 'receptions', section: 'venue', group: 'receptions', flip: true, eyebrow: 'Auditorium', title: 'Receptions & Screenings',
         text: 'Film nights on the big screen with full projection and sound, or round tables, cocktail tables and a long buffet for dinners, slideshows and toasts.',
         cta: 'Plan a reception or screening', href: '/rent/pricing/' },
       { id: 'celebrations', section: 'any', group: 'celebrations', layout: 'rows', eyebrow: 'Auditorium · Secret Garden', title: 'Parties & Fundraisers',
@@ -289,7 +289,7 @@
           '<h2 id="gallery-' + c.id + '-title">' + esc(c.title) + '</h2><p>' + esc(c.text) + '</p>' +
           (c.chips ? '<ul class="chapter-chips">' + c.chips.map(function(x) { return '<li>' + esc(x) + '</li>'; }).join('') + '</ul>' : '') + '</div>' +
           '<a class="btn btn-outline chapter-cta" href="' + esc(c.href) + '">' + esc(c.cta) + '</a></div>' +
-          (c.layout === 'rows' ? fitRows(list) : mosaic(list, !alt)) + '</div></section>';
+          (c.layout === 'rows' ? fitRows(list) : mosaic(list, c.flip != null ? c.flip : !alt)) + '</div></section>';
       }).join('');
       document.getElementById('gallery-chapters').innerHTML = html ||
         '<section class="section section-alt"><div class="container"><p style="text-align:center;">No photos here yet.</p></div></section>';

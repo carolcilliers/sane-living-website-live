@@ -76,9 +76,17 @@
       "caption": "The Auditorium",
       "alt": "The Auditorium at Sane Living: an audience listening to a speaker at a workshop",
       "section": "venue",
-      "group": "receptions",
       "space": "auditorium",
       "ratio": 1.333
+    },
+    {
+      "image": "/images/auditorium-film-screening.jpg?v=2",
+      "caption": "The Auditorium",
+      "alt": "A film screening in the Auditorium: an audience in rows of chairs facing the big screen showing the Love Heals documentary poster, with a speaker introducing the film at a microphone",
+      "section": "venue",
+      "group": "receptions",
+      "space": "auditorium",
+      "ratio": 1.29
     },
     {
       "image": "/images/main-hall-05.jpg",
@@ -136,24 +144,6 @@
       "group": "receptions",
       "space": "auditorium",
       "ratio": 2.267
-    },
-    {
-      "image": "/images/auditorium-film-screening.jpg?v=2",
-      "caption": "The Auditorium",
-      "alt": "A film screening in the Auditorium: an audience in rows of chairs facing the big screen showing the Love Heals documentary poster, with a speaker introducing the film at a microphone",
-      "section": "venue",
-      "group": "receptions",
-      "space": "auditorium",
-      "ratio": 1.29
-    },
-    {
-      "image": "/images/love-heals-documentary-poster.jpg",
-      "caption": "Love Heals screening",
-      "alt": "Poster for the documentary Love Heals: Using the Ancient Wisdom of Energy to Journey Within, a person with raised arms facing a sunset over red rock country",
-      "section": "venue",
-      "group": "receptions",
-      "space": "auditorium",
-      "ratio": 1.109
     },
     {
       "image": "/images/main-hall-12.jpg",
