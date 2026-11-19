@@ -36,6 +36,9 @@
     .np-section-head { text-align: center; max-width: 42rem; margin: 0 auto clamp(2rem, 5vw, 3rem); }
     .np-section-head h2 { margin: 0 0 var(--space-sm); }
     .np-section-head p { color: var(--clr-text-muted); line-height: 1.75; margin: 0; }
+    .np-section-head .np-statement { font-family: var(--font-display); font-size: clamp(1.75rem, 3.6vw, 2.75rem); line-height: 1.25; color: var(--clr-text); margin: 0 auto clamp(2.25rem, 5vw, 3.25rem); max-width: 46rem; }
+    .np-statement em { font-style: italic; color: var(--clr-plum); }
+    #organizations .np-section-head { max-width: 50rem; }
 
     /* Purpose */
     .np-purpose { display: grid; grid-template-columns: 1.05fr 1fr; gap: clamp(2rem, 5vw, 4.5rem); align-items: center; max-width: 1120px; margin: 0 auto; }
@@ -45,12 +48,12 @@
     .np-purpose .lede { font-family: var(--font-display); font-style: italic; font-size: clamp(1.3rem, 2vw, 1.55rem); line-height: 1.5; color: var(--clr-plum); }
 
     /* Organizations */
-    .np-orgs { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: clamp(1.25rem, 3vw, 2rem); max-width: 1080px; margin: 0 auto; }
-    .np-org { display: grid; grid-template-columns: 132px 1fr; gap: clamp(1.25rem, 3vw, 1.75rem); align-items: center; background: #fff; border: 1.5px solid rgba(138, 86, 160, 0.45); border-radius: 16px; padding: clamp(1.5rem, 3vw, 2rem); color: inherit; text-decoration: none; box-shadow: 0 6px 18px rgba(31, 19, 40, 0.06); transition: transform .25s ease, box-shadow .25s ease, border-color .25s ease; }
-    .np-orgs > .np-org:last-child:nth-child(odd) { grid-column: 1 / -1; justify-self: center; width: calc((100% - clamp(1.25rem, 3vw, 2rem)) / 2); }
+    .np-orgs { display: flex; flex-wrap: wrap; justify-content: center; gap: clamp(1.25rem, 2.5vw, 1.75rem); max-width: 1120px; margin: 0 auto; }
+    .np-orgs > .np-org { width: calc((100% - 2 * clamp(1.25rem, 2.5vw, 1.75rem)) / 3); }
+    .np-org { display: grid; grid-template-columns: 1fr; justify-items: center; align-content: start; text-align: center; gap: clamp(1.25rem, 3vw, 1.75rem); align-items: center; background: #fff; border: 1.5px solid rgba(138, 86, 160, 0.45); border-radius: 16px; padding: clamp(1.5rem, 3vw, 2rem); color: inherit; text-decoration: none; box-shadow: 0 6px 18px rgba(31, 19, 40, 0.06); transition: transform .25s ease, box-shadow .25s ease, border-color .25s ease; }
     .np-org:hover, .np-org:focus-visible { transform: translateY(-3px); box-shadow: 0 14px 32px rgba(31, 19, 40, 0.12); border-color: rgba(138, 86, 160, 0.75); }
-    .np-org-logo { width: 132px; height: 132px; display: flex; align-items: center; justify-content: center; }
-    .np-org-logo img { max-width: 132px; max-height: 132px; width: auto; height: auto; object-fit: contain; border-radius: 0; }
+    .np-org-logo { width: 112px; height: 112px; display: flex; align-items: center; justify-content: center; }
+    .np-org-logo img { max-width: 112px; max-height: 112px; width: auto; height: auto; object-fit: contain; border-radius: 0; }
     .np-org h3 { font-size: 1.45rem; line-height: 1.2; margin: 0 0 var(--space-xs, 6px); }
     .np-org p { margin: 0 0 var(--space-sm); line-height: 1.7; color: var(--clr-text-muted); font-size: 0.98rem; }
     .np-org-link { font-weight: 700; font-size: 0.85rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--clr-plum); }
@@ -83,14 +86,9 @@
 
     @media (max-width: 860px) {
       .np-purpose { grid-template-columns: 1fr; }
-      .np-orgs { grid-template-columns: 1fr; }
-      .np-orgs > .np-org:last-child:nth-child(odd) { width: 100%; }
       }
-    @media (max-width: 560px) {
-      .np-org { grid-template-columns: 1fr; text-align: center; justify-items: center; }
-      .np-org-logo { width: 112px; height: 112px; }
-      .np-org-logo img { max-width: 112px; max-height: 112px; }
-    }
+    @media (max-width: 960px) { .np-orgs > .np-org { width: calc((100% - clamp(1.25rem, 2.5vw, 1.75rem)) / 2); } }
+    @media (max-width: 600px) { .np-orgs > .np-org { width: 100%; } }
   </style>
 </head>
 <body>
@@ -110,9 +108,9 @@
   <section class="section section-alt" id="organizations">
     <div class="container">
       <div class="np-section-head" data-animate>
+        <p class="np-statement"><em>The Sane Community Project</em> is a non&#8209;profit initiative offering free and subsidized events that nourish mind, body, and community.</p>
         <span class="eyebrow">Our Community</span>
         <h2>The Organizations</h2>
-        <p data-sentences>The Sane Community Project is a non&#8209;profit initiative offering free and subsidized events that nourish mind, body, and community.</p>
       </div>
       <div class="np-orgs">
         <a class="np-org" href="https://www.ojaitemple.org" target="_blank" rel="noopener noreferrer">
