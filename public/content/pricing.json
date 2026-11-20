@@ -1,6 +1,6 @@
 {
   "noteDate": "As of January 1, 2026",
-  "noteText": "Rates subject to change January 2027.",
+  "noteText": "Our 2026 rates, with new 2027 rates starting January 1, 2027.",
   "hoursHeader": "Event Space Hours: 8am – 2am\nHours of Operation: 9am – 5pm",
   "rows": [
     {
@@ -9,7 +9,11 @@
       "monThu": "$400",
       "friday": "$400",
       "saturday": "$500",
-      "sunday": "$400"
+      "sunday": "$400",
+      "monThu2027": "$500",
+      "friday2027": "$500",
+      "saturday2027": "$625",
+      "sunday2027": "$500"
     },
     {
       "label": "Night",
@@ -17,7 +21,11 @@
       "monThu": "$400",
       "friday": "$600",
       "saturday": "$600",
-      "sunday": "$500"
+      "sunday": "$500",
+      "monThu2027": "$500",
+      "friday2027": "$750",
+      "saturday2027": "$750",
+      "sunday2027": "$625"
     },
     {
       "label": "Day & Night",
@@ -25,11 +33,17 @@
       "monThu": "$500",
       "friday": "$800",
       "saturday": "$875",
-      "sunday": "$775"
+      "sunday": "$775",
+      "monThu2027": "$625",
+      "friday2027": "$1,000",
+      "saturday2027": "$1,100",
+      "sunday2027": "$975"
     }
   ],
   "weddingsNote": "Weddings are quoted separately from our standard rental rates. Visit the Weddings page for highlights and photos, and let’s co-create the wedding of your dreams.",
   "availabilityNote": "Purple dates are not available",
   "ctaHeading": "Ready to Book?",
-  "ctaText": "Get in touch to reserve the Sane Living Center for your event."
+  "ctaText": "Get in touch to reserve the Sane Living Center for your event.",
+  "currentYear": "2026",
+  "nextYear": "2027"
 }

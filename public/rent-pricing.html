@@ -179,6 +179,13 @@
     .rate-table-wrap:has(+ .late-note) { margin-bottom: var(--space-md); }
     .late-note { text-align: center; margin: 0 0 var(--space-2xl); font-size: 0.95rem; font-weight: 700; color: var(--clr-plum); }
     .pricing-note-sep { margin: 0 6px; }
+    /* Two years side by side in each cell: this year, then next year in purple */
+    .rate-table .r-now, .rate-table .r-next { display: block; }
+    .rate-table .r-next { margin-top: 3px; color: var(--clr-accent); font-weight: 800; }
+    .rate-key { display: flex; justify-content: center; gap: 22px; margin: 0 0 var(--space-sm); font-size: 0.85rem; font-weight: 700; color: var(--clr-text-muted); }
+    .rate-key span::before { content: ''; display: inline-block; width: 10px; height: 10px; border-radius: 50%; margin-right: 8px; vertical-align: 0; background: var(--clr-text); }
+    .rate-key .k-next { color: var(--clr-accent); }
+    .rate-key .k-next::before { background: var(--clr-accent); }
     .rates-body .rate-table-head + .pricing-note + .holiday-note, .rates-body .holiday-note { display: block; width: fit-content; max-width: 100%; margin: 0 auto var(--space-md); padding: 8px 18px; font-size: 0.9rem; text-align: center; }
     .rates-hero h1 { margin-bottom: 0; }
 </style>
@@ -218,9 +225,10 @@
         <h2>Auditorium Rates</h2>
         <p data-sentences>Rates below are for the Auditorium. For the Secret Garden, the Annex or the Conference Room, please <a href="/contact/">contact us</a> or call <a data-site-href="phoneLink" href="tel:+18056466000">(805) 646-6000</a> for rates.</p>
       </div>
-      <p class="pricing-note" data-animate><span id="pricing-note-text">Rates subject to change January 2027.</span></p>
+      <p class="pricing-note" data-animate><span id="pricing-note-text">Our 2026 rates, with new 2027 rates starting January 1, 2027.</span></p>
       <p class="holiday-note" data-animate data-sentences>Holiday rates apply. Ask us about pricing for holiday dates.</p>
 
+      <p class="rate-key" data-animate><span class="k-now" id="rate-key-now">2026</span><span class="k-next" id="rate-key-next">2027</span></p>
       <div class="rate-table-wrap" data-animate>
         <table class="rate-table">
           <thead>
@@ -235,24 +243,24 @@
           <tbody id="pricing-rows">
             <tr>
               <td>Day<span>8am – 5pm</span></td>
-              <td>$400</td>
-              <td>$400</td>
-              <td>$500</td>
-              <td>$400</td>
+              <td><span class="r-now">$400</span><span class="r-next">$500</span></td>
+              <td><span class="r-now">$400</span><span class="r-next">$500</span></td>
+              <td><span class="r-now">$500</span><span class="r-next">$625</span></td>
+              <td><span class="r-now">$400</span><span class="r-next">$500</span></td>
             </tr>
             <tr>
               <td>Night<span>5pm – 12am</span></td>
-              <td>$400</td>
-              <td>$600</td>
-              <td>$600</td>
-              <td>$500</td>
+              <td><span class="r-now">$400</span><span class="r-next">$500</span></td>
+              <td><span class="r-now">$600</span><span class="r-next">$750</span></td>
+              <td><span class="r-now">$600</span><span class="r-next">$750</span></td>
+              <td><span class="r-now">$500</span><span class="r-next">$625</span></td>
             </tr>
             <tr>
               <td>Day &amp; Night<span>8am – 12am</span></td>
-              <td>$500</td>
-              <td>$800</td>
-              <td>$875</td>
-              <td>$775</td>
+              <td><span class="r-now">$500</span><span class="r-next">$625</span></td>
+              <td><span class="r-now">$800</span><span class="r-next">$1,000</span></td>
+              <td><span class="r-now">$875</span><span class="r-next">$1,100</span></td>
+              <td><span class="r-now">$775</span><span class="r-next">$975</span></td>
             </tr>
           </tbody>
         </table>
@@ -315,11 +323,18 @@
         if(typeof d.ctaText==='string') document.querySelector('.pricing-cta p').textContent=d.ctaText;
         if (typeof d.noteDate === 'string' && document.getElementById('pricing-note-date')) document.getElementById('pricing-note-date').textContent = d.noteDate;
         if (typeof d.noteText === 'string') document.getElementById('pricing-note-text').textContent = d.noteText;
+        if (d.currentYear) document.getElementById('rate-key-now').textContent = d.currentYear;
+        if (d.nextYear) document.getElementById('rate-key-next').textContent = d.nextYear;
+        var hasNext = Array.isArray(d.rows) && d.rows.some(function(r) { return r.monThu2027 || r.friday2027 || r.saturday2027 || r.sunday2027; });
+        document.querySelector('.rate-key').hidden = !hasNext;
         if (typeof d.hoursHeader === 'string') document.getElementById('pricing-hours').innerHTML = esc(d.hoursHeader).replace(/\n/g, '<br>');
         if (Array.isArray(d.rows)) {
           document.getElementById('pricing-rows').innerHTML = d.rows.map(function(row) {
             return '<tr><td>' + esc(row.label) + (row.sublabel ? '<span>' + esc(row.sublabel) + '</span>' : '') + '</td>' +
-              '<td>' + esc(row.monThu) + '</td><td>' + esc(row.friday) + '</td><td>' + esc(row.saturday) + '</td><td>' + esc(row.sunday) + '</td></tr>';
+              ['monThu', 'friday', 'saturday', 'sunday'].map(function(k) {
+                var next = row[k + '2027'];
+                return '<td><span class="r-now">' + esc(row[k]) + '</span>' + (next ? '<span class="r-next">' + esc(next) + '</span>' : '') + '</td>';
+              }).join('') + '</tr>';
           }).join('');
         }
         if (typeof d.weddingsNote === 'string') {
