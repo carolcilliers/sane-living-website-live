@@ -43,6 +43,8 @@
     /* Purpose */
     .np-purpose { display: grid; grid-template-columns: 1.05fr 1fr; gap: clamp(2rem, 5vw, 4.5rem); align-items: center; max-width: 1120px; margin: 0 auto; }
     .np-purpose img { width: 100%; aspect-ratio: 4 / 3.4; object-fit: cover; object-position: 50% 55%; border-radius: 16px; box-shadow: 0 18px 44px rgba(31, 19, 40, 0.14); }
+    .np-purpose-photo { margin: 0; }
+    .np-purpose-photo figcaption { margin-top: 12px; text-align: center; font-size: 0.85rem; letter-spacing: 0.02em; color: var(--clr-text-muted); }
     .np-purpose h2 { margin: 0 0 var(--space-md); }
     .np-purpose p { line-height: 1.8; margin: 0 0 var(--space-md); }
     .np-purpose .lede { font-family: var(--font-display); font-style: italic; font-size: clamp(1.3rem, 2vw, 1.55rem); line-height: 1.5; color: var(--clr-plum); }
@@ -171,7 +173,10 @@
   <section class="section" id="purpose">
     <div class="container">
       <div class="np-purpose">
-        <img src="/images/auditorium-community-circle.jpg" alt="A community group sitting in a circle of chairs in the Auditorium, smiling and waving at the camera" title="The Auditorium" loading="lazy">
+        <figure class="np-purpose-photo">
+          <img src="/images/auditorium-community-circle.jpg" alt="Members of the Ojai Valley Land Conservancy board sitting in a circle of chairs in the Auditorium, smiling and waving at the camera" title="Ojai Valley Land Conservancy Board Meeting" loading="lazy">
+          <figcaption>Ojai Valley Land Conservancy Board Meeting</figcaption>
+        </figure>
         <div data-animate>
           <span class="eyebrow">The Sane Community Project</span>
           <h2>Building a Saner Community</h2>
