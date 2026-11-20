@@ -54,18 +54,18 @@
       "ratio": 1.497
     },
     {
-      "image": "/images/main-hall-02.jpg",
+      "image": "/images/main-hall-06.jpg",
       "caption": "The Auditorium",
-      "alt": "The Auditorium at Sane Living: floor seats, cushions and blankets arranged in a large circle",
+      "alt": "The Auditorium at Sane Living: a circle of meditation cushions with plants beneath the stained-glass window",
       "section": "venue",
       "group": "wellness",
       "space": "auditorium",
-      "ratio": 1.333
+      "ratio": 0.75
     },
     {
-      "image": "/images/main-hall-03.jpg",
+      "image": "/images/main-hall-02.jpg",
       "caption": "The Auditorium",
-      "alt": "The Auditorium at Sane Living: a group sitting together on the floor in a circle in daylight",
+      "alt": "The Auditorium at Sane Living: floor seats, cushions and blankets arranged in a large circle",
       "section": "venue",
       "group": "wellness",
       "space": "auditorium",
@@ -101,9 +101,9 @@
       "ratio": 1.333
     },
     {
-      "image": "/images/main-hall-06.jpg",
+      "image": "/images/auditorium-aerial-sound-healing.jpg",
       "caption": "The Auditorium",
-      "alt": "The Auditorium at Sane Living: a circle of meditation cushions with plants beneath the stained-glass window",
+      "alt": "The Auditorium set for an aerial yoga and sound healing session: golden silk hammocks hanging from the wood-beamed ceiling, singing bowls on a white rug, and paintings on easels around the room beneath the stained glass",
       "section": "venue",
       "group": "wellness",
       "space": "auditorium",
@@ -329,6 +329,15 @@
       "ratio": 0.792
     },
     {
+      "image": "/images/main-hall-03.jpg",
+      "caption": "The Auditorium",
+      "alt": "The Auditorium at Sane Living: a group sitting together on the floor in a circle in daylight",
+      "section": "venue",
+      "group": "wellness",
+      "space": "auditorium",
+      "ratio": 1.333
+    },
+    {
       "image": "/images/annex-meditation.jpg",
       "caption": "The Annex",
       "alt": "The Annex set for meditation: floor cushions around a low table with a singing bowl and a bell, on part carpet and part hardwood floor, with sheer curtains and track lighting",
@@ -337,15 +346,6 @@
       "space": "annex",
       "focus": "center 72%",
       "ratio": 0.774
-    },
-    {
-      "image": "/images/auditorium-aerial-sound-healing.jpg",
-      "caption": "The Auditorium",
-      "alt": "The Auditorium set for an aerial yoga and sound healing session: golden silk hammocks hanging from the wood-beamed ceiling, singing bowls on a white rug, and paintings on easels around the room beneath the stained glass",
-      "section": "venue",
-      "group": "wellness",
-      "space": "auditorium",
-      "ratio": 0.75
     },
     {
       "image": "/IMG_0207.jpg",
