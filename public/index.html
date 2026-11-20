@@ -183,6 +183,9 @@
     .avail-steps span { color: var(--clr-text-muted); font-size: 0.98rem; line-height: 1.65; }
     .avail-actions { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-md) var(--space-lg); }
     .avail-call { font-size: 0.98rem; color: var(--clr-text-muted); }
+    .avail-rates { flex-basis: 100%; font-size: 0.95rem; font-weight: 700; color: var(--clr-plum); }
+    .avail-rates:hover { color: var(--clr-accent); }
+    .rates-cta { text-align: center; margin: clamp(1.75rem, 4vw, 2.5rem) 0 0; }
     .avail-call a { color: var(--clr-plum); font-weight: 700; border-bottom: 1px solid var(--clr-accent); }
     .avail-call a:hover { color: var(--clr-accent); }
     .avail-calendar { background: #fff; border-radius: 4px; overflow: hidden; border-top: 3px solid var(--clr-accent); }
@@ -540,6 +543,10 @@
         </a>
       </div>
 
+      <div class="rates-cta" data-animate>
+        <a href="/rent/pricing/" class="btn btn-primary">See Rates &amp; Availability</a>
+      </div>
+
       <div class="included" data-animate>
         <span class="eyebrow">The Auditorium comes with</span>
         <ul class="included-list">
@@ -586,6 +593,7 @@
         <div class="avail-actions" data-animate>
           <a href="/rent/#availability" class="btn btn-primary">Request to Rent</a>
           <span class="avail-call">or call <a data-site-href="phoneLink" data-site-text="phoneDisplay" href="tel:+18056466000">(805) 646-6000</a></span>
+          <a href="/rent/pricing/" class="avail-rates">or view our rates &rarr;</a>
         </div>
         <div class="avail-calendar" data-animate>
           <iframe data-site-availability
