@@ -195,6 +195,7 @@ function injectFooter() {
           <nav class="footer-links" aria-label="Footer navigation">
             <a href="/">Home</a>
             <a href="/rent/">Rent the Space</a>
+            <a href="/rent/pricing/">Rates &amp; Availability</a>
             <a href="/gallery/">Photos</a>
             <a href="/events/">Community Events</a>
             <a href="/about/">About</a>

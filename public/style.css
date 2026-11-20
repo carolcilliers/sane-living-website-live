@@ -1632,3 +1632,6 @@ html.logo-preview-sage body:has(.video-hero) .site-nav:not(.scrolled):not(:has(.
   .nav-submenu::before { display: none; }
   .nav-submenu a { font-size: 14px !important; padding-top: 7px !important; padding-bottom: 7px !important; color: var(--clr-text-muted) !important; }
 }
+
+/* Side-by-side buttons (e.g. Check a Date + See Rates) */
+.btn-row { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; }
