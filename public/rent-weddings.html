@@ -129,12 +129,14 @@
     .cielo-copy .rent-lede { color: var(--clr-text-muted); margin: 0 0 var(--space-lg); }
     .cielo-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 14px 28px; }
     .cielo-actions .text-link { font-weight: 700; color: var(--clr-accent); border-bottom: 1px solid currentColor; padding-bottom: 3px; }
-    .cielo-perks { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: clamp(1.25rem, 3vw, 2.25rem); margin-top: clamp(2.5rem, 6vw, 4rem); }
+    .cielo-perks { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: clamp(1.25rem, 3vw, 2.25rem); margin-top: clamp(2.5rem, 6vw, 4rem); }
     .cielo-perk img { display: block; width: 100%; aspect-ratio: 3 / 2; object-fit: cover; border-radius: 4px; margin-bottom: 18px; }
     .cielo-k { display: block; font-size: 11px; font-weight: 800; letter-spacing: 0.16em; text-transform: uppercase; color: var(--clr-plum); margin-bottom: 6px; }
     .cielo-perk h3 { margin: 0 0 8px; }
     .cielo-perk p { margin: 0; color: var(--clr-text-muted); }
-    @media (max-width: 860px) { .cielo-feature { grid-template-columns: 1fr; } .cielo-perks { grid-template-columns: 1fr; } }
+    @media (max-width: 1100px) { .cielo-perks { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+    @media (max-width: 860px) { .cielo-feature { grid-template-columns: 1fr; } }
+    @media (max-width: 600px) { .cielo-perks { grid-template-columns: 1fr; } }
     .wedding-photo { cursor: zoom-in; }
     [data-wlb-img] { cursor: zoom-in; }
     .one-line-h2 { white-space: nowrap; }
@@ -224,7 +226,7 @@
     <div class="rent-wrap">
       <div class="cielo-feature" data-animate>
         <figure class="cielo-hero">
-          <img src="/images/about-farm.jpg" alt="Cielo Farm at sunset: a farmhouse with a wraparound porch, a white fence and orchard trees in the hills above Ojai" loading="lazy">
+          <img src="/images/cielo-farm-patio.jpg" alt="The view from the Cielo Farm farmhouse doors: a patio with woven lounge chairs, a lawn, a white fence, citrus trees and mountains beyond" loading="lazy">
           <figcaption>Cielo Farm · Ojai</figcaption>
         </figure>
         <div class="cielo-copy">
@@ -238,6 +240,12 @@
         </div>
       </div>
       <div class="cielo-perks" data-animate>
+        <div class="cielo-perk">
+          <img src="/images/about-farm.jpg" alt="Cielo Farm at sunset: a farmhouse with a wraparound porch, a white fence and orchard trees in the hills above Ojai" loading="lazy">
+          <span class="cielo-k">Home</span>
+          <h3>A Farmhouse in the Hills</h3>
+          <p data-sentences>A wraparound porch, a white fence and orchard trees, with sunset views over the hills above Ojai.</p>
+        </div>
         <div class="cielo-perk">
           <img src="/images/cielo-farm-living-room.jpg" alt="The bright living room of the Cielo Farm farmhouse, with a leather sofa, a white daybed and a staircase" loading="lazy">
           <span class="cielo-k">Stay</span>
