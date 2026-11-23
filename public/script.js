@@ -7,48 +7,6 @@
 
 
 
-/* ---- Logo preview (temporary, opt-in) ----
-   Visiting any page with ?logo=sage (or sage-outline / sage-glow / sage-disc for other treatments on dark) shows the proposed "Sage Ojai" logo in the menu bar and footer,
-   and keeps showing it while you click around (this browser tab only). ?logo=off switches it back.
-   Regular visitors never see it: without the link, nothing changes. */
-(function logoPreview() {
-  var VARIANTS = {
-    'sage':         { label: 'no effect',     img: '/images/logo-sage-ojai-3559-pad.png' },
-    'sage-outline': { label: 'thin outline',  img: '/images/logo-sage-ojai-3559-pad.png' },
-    'sage-glow':    { label: 'soft glow',     img: '/images/logo-sage-ojai-3559-pad.png' },
-    'sage-disc':    { label: 'light circle',  img: '/images/logo-sage-ojai-3559-pad.png' }
-  };
-  var q = new URLSearchParams(location.search).get('logo');
-  var v = null;
-  try {
-    if (VARIANTS[q]) sessionStorage.setItem('logoPreview', q);
-    if (q === 'off') sessionStorage.removeItem('logoPreview');
-    v = sessionStorage.getItem('logoPreview');
-  } catch (e) { v = q; }
-  if (!VARIANTS[v]) return;
-  var src = VARIANTS[v].img;
-  document.documentElement.classList.add('logo-preview-sage', 'logo-preview-' + v.replace(/^sage$/, 'sage-plain'));
-  function swap() {
-    document.querySelectorAll('.nav-logo img, .footer-logo img').forEach(function(img) {
-      if (img.getAttribute('src') === src) return;
-      img.src = src;
-      img.alt = 'Sage Ojai';
-      img.removeAttribute('width');
-    });
-  }
-  new MutationObserver(swap).observe(document.documentElement, { childList: true, subtree: true, attributes: true, attributeFilter: ['src'] });
-  document.addEventListener('DOMContentLoaded', function() {
-    swap();
-    var badge = document.createElement('div');
-    badge.className = 'logo-preview-badge';
-    badge.innerHTML = 'Logo preview: <b>Sage Ojai</b>, PMS 3559 C (' + VARIANTS[v].label + ') · ' +
-      Object.keys(VARIANTS).filter(function(k) { return k !== v; }).map(function(k) {
-        return '<a href="?logo=' + k + '">' + VARIANTS[k].label + '</a>';
-      }).join(' · ') + ' · <a href="?logo=off">Turn off</a>';
-    document.body.appendChild(badge);
-  });
-})();
-
 document.addEventListener('DOMContentLoaded', () => {
   injectNav();
   injectFooter();

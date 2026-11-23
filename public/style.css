@@ -1594,30 +1594,6 @@ html body .hero-half .hero-scrim {
 html body .hero-half video { filter: none; }
 html body .hero-copy h1 { text-shadow: 0 2px 24px rgba(21, 12, 27, 0.6), 0 1px 3px rgba(21, 12, 27, 0.35); }
 
-/* ---- Logo preview (only with ?logo=sage; see logoPreview in script.js) ---- */
-html.logo-preview-sage .nav-logo img { height: 44px; }
-html.logo-preview-sage .footer-logo img { height: 50px; width: auto; }
-@media (max-width: 959px) { html.logo-preview-sage .nav-logo img { height: 40px; } }
-@media (max-width: 520px) { html.logo-preview-sage .nav-logo img { height: 32px; } }
-html.logo-preview-sage body:has(.video-hero) .site-nav:not(.scrolled):not(:has(.nav-toggle.active)) .nav-logo,
-html.logo-preview-sage .site-footer .footer-logo { background-image: url('/images/logo-sage-ojai-on-dark.png?v=2'); }
-html.logo-preview-sage-outline body:has(.video-hero) .site-nav:not(.scrolled):not(:has(.nav-toggle.active)) .nav-logo,
-html.logo-preview-sage-outline .site-footer .footer-logo { background-image: url('/images/logo-sage-ojai-on-dark-outline.png'); }
-html.logo-preview-sage-glow body:has(.video-hero) .site-nav:not(.scrolled):not(:has(.nav-toggle.active)) .nav-logo,
-html.logo-preview-sage-glow .site-footer .footer-logo { background-image: url('/images/logo-sage-ojai-on-dark-glow.png'); }
-html.logo-preview-sage-disc body:has(.video-hero) .site-nav:not(.scrolled):not(:has(.nav-toggle.active)) .nav-logo,
-html.logo-preview-sage-disc .site-footer .footer-logo { background-image: url('/images/logo-sage-ojai-on-dark-disc.png'); }
-html.logo-preview-sage-plain body:has(.video-hero) .site-nav:not(.scrolled):not(:has(.nav-toggle.active)) .nav-logo,
-html.logo-preview-sage-plain .site-footer .footer-logo { background-image: url('/images/logo-sage-ojai-on-dark-3559-pad.png'); }
-/* padded artwork (room for the outline, glow or circle): scale up so the lettering stays the same size */
-html.logo-preview-sage .nav-logo img { height: 50px; }
-html.logo-preview-sage .footer-logo img { height: 57px; }
-@media (max-width: 959px) { html.logo-preview-sage .nav-logo img { height: 46px; } }
-@media (max-width: 520px) { html.logo-preview-sage .nav-logo img { height: 37px; } }
-html.logo-preview-sage body:has(.video-hero) .site-nav:not(.scrolled):not(:has(.nav-toggle.active)) .nav-logo { filter: drop-shadow(0 1px 2px rgba(20, 10, 28, 0.55)) drop-shadow(0 2px 10px rgba(20, 10, 28, 0.45)); }
-.logo-preview-badge { position: fixed; left: 16px; bottom: 16px; max-width: calc(100vw - 32px); z-index: 9999; padding: 8px 14px; border-radius: 999px; background: rgba(31, 19, 40, 0.88); color: #fff; font-size: 13px; box-shadow: 0 6px 20px rgba(0,0,0,0.25); }
-.logo-preview-badge a { color: #E9B872; font-weight: 700; margin-left: 2px; }
-
 /* ---- Rent the Space ▾ Occasions › submenu (a flyout on desktop, an indented list on phones) ---- */
 .nav-sub { position: relative; }
 .nav-sub-head { display: flex !important; align-items: center; justify-content: space-between; gap: 12px; }
