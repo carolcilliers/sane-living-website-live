@@ -6,38 +6,26 @@
     {
       "label": "Day",
       "sublabel": "8am – 5pm",
-      "monThu": "$400",
-      "friday": "$400",
-      "saturday": "$500",
-      "sunday": "$400",
-      "monThu2027": "$500",
-      "friday2027": "$500",
-      "saturday2027": "$625",
-      "sunday2027": "$500"
+      "sunThu": "$400",
+      "friSat": "$500",
+      "sunThu2027": "$500",
+      "friSat2027": "$625"
     },
     {
       "label": "Night",
       "sublabel": "5pm – 12am",
-      "monThu": "$400",
-      "friday": "$600",
-      "saturday": "$600",
-      "sunday": "$500",
-      "monThu2027": "$500",
-      "friday2027": "$750",
-      "saturday2027": "$750",
-      "sunday2027": "$625"
+      "sunThu": "$400",
+      "friSat": "$600",
+      "sunThu2027": "$500",
+      "friSat2027": "$750"
     },
     {
       "label": "Day & Night",
       "sublabel": "8am – 12am",
-      "monThu": "$500",
-      "friday": "$800",
-      "saturday": "$875",
-      "sunday": "$775",
-      "monThu2027": "$625",
-      "friday2027": "$1,000",
-      "saturday2027": "$1,100",
-      "sunday2027": "$975"
+      "sunThu": "$500",
+      "friSat": "$875",
+      "sunThu2027": "$625",
+      "friSat2027": "$1,100"
     }
   ],
   "weddingsNote": "Weddings are quoted separately from our standard rental rates. Visit the Weddings page for highlights and photos, and let’s co-create the wedding of your dreams.",

@@ -1137,7 +1137,7 @@ function renderBlock(b, resources, annotate, blocks = [], depth = 0) {
     inner =
       "<h2>" +
       esc(p.heading || "Rates") +
-      '</h2><div class="studio-rate-wrap"><table class="studio-rate-table"><thead><tr><th>Rental period</th><th>Mon–Thu</th><th>Friday</th><th>Saturday</th><th>Sunday</th></tr></thead><tbody>' +
+      '</h2><div class="studio-rate-wrap"><table class="studio-rate-table"><thead><tr><th>Rental period</th><th>Sun–Thu</th><th>Fri &amp; Sat</th></tr></thead><tbody>' +
       rows
         .map(
           (x) =>
@@ -1146,7 +1146,7 @@ function renderBlock(b, resources, annotate, blocks = [], depth = 0) {
             "<small>" +
             esc(x.sublabel || "") +
             "</small></th>" +
-            ["monThu", "friday", "saturday", "sunday"]
+            ["sunThu", "friSat"]
               .map((k) => "<td>" + esc(x[k] || "") + "</td>")
               .join("") +
             "</tr>",

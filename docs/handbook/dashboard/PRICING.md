@@ -8,7 +8,7 @@ Data: public/content/pricing.json and shared pricing draft.
 
 ## Working rules
 
-Each original row retains label, sublabel, monThu, friday, saturday and sunday strings. Do not normalize currency, coerce numbers, invent discounts, add rates or change authored prices during styling. Preserve noteDate/noteText/hoursHeader, weddingsNote/availabilityNote and CTA fields. Session headings update in place; save/publish still serializes the complete object.
+Each row retains label, sublabel, sunThu and friSat strings (Sunday–Thursday and Friday & Saturday; changed from four day columns on Nov 23, 2026), plus optional sunThu2027 and friSat2027 for next year’s rates. Do not normalize currency, coerce numbers, invent discounts, add rates or change authored prices during styling. Preserve noteDate/noteText/hoursHeader, weddingsNote/availabilityNote and CTA fields. Session headings update in place; save/publish still serializes the complete object.
 
 ## Backend and recovery
 

@@ -100,10 +100,10 @@ collections:
             fields:
               - { label: "Row Name (Day / Night / Day & Night)", name: "label", widget: "string" }
               - { label: "Hours (e.g. 7 am to 5 pm)", name: "sublabel", widget: "string", required: false }
-              - { label: "Mon - Thu Price", name: "monThu", widget: "string" }
-              - { label: "Friday Price", name: "friday", widget: "string" }
-              - { label: "Saturday Price", name: "saturday", widget: "string" }
-              - { label: "Sunday Price", name: "sunday", widget: "string" }
+              - { label: "Sun - Thu Price", name: "sunThu", widget: "string" }
+              - { label: "Fri & Sat Price", name: "friSat", widget: "string" }
+              - { label: "Sun - Thu Price (next year)", name: "sunThu2027", widget: "string", required: false }
+              - { label: "Fri & Sat Price (next year)", name: "friSat2027", widget: "string", required: false }
           - { label: "Weddings Note", name: "weddingsNote", widget: "text", required: false }
           - { label: "Availability Note", name: "availabilityNote", widget: "string", required: false }
           - { label: "Bottom Heading", name: "ctaHeading", widget: "string", required: false }

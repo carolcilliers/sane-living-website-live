@@ -236,33 +236,25 @@
           <thead>
             <tr>
               <th id="pricing-hours">Event Space Hours: 8am – 2am<br>Hours of Operation: 9am – 5pm</th>
-              <th>Monday – Thursday</th>
-              <th>Friday</th>
-              <th>Saturday</th>
-              <th>Sunday</th>
+              <th>Sunday – Thursday</th>
+              <th>Friday &amp; Saturday</th>
             </tr>
           </thead>
           <tbody id="pricing-rows">
             <tr>
               <td>Day<span>8am – 5pm</span></td>
               <td><span class="r-now"><small class="r-yr">2026</small>$400</span><span class="r-next"><small class="r-yr">2027</small>$500</span></td>
-              <td><span class="r-now"><small class="r-yr">2026</small>$400</span><span class="r-next"><small class="r-yr">2027</small>$500</span></td>
               <td><span class="r-now"><small class="r-yr">2026</small>$500</span><span class="r-next"><small class="r-yr">2027</small>$625</span></td>
-              <td><span class="r-now"><small class="r-yr">2026</small>$400</span><span class="r-next"><small class="r-yr">2027</small>$500</span></td>
             </tr>
             <tr>
               <td>Night<span>5pm – 12am</span></td>
               <td><span class="r-now"><small class="r-yr">2026</small>$400</span><span class="r-next"><small class="r-yr">2027</small>$500</span></td>
               <td><span class="r-now"><small class="r-yr">2026</small>$600</span><span class="r-next"><small class="r-yr">2027</small>$750</span></td>
-              <td><span class="r-now"><small class="r-yr">2026</small>$600</span><span class="r-next"><small class="r-yr">2027</small>$750</span></td>
-              <td><span class="r-now"><small class="r-yr">2026</small>$500</span><span class="r-next"><small class="r-yr">2027</small>$625</span></td>
             </tr>
             <tr>
               <td>Day &amp; Night<span>8am – 12am</span></td>
               <td><span class="r-now"><small class="r-yr">2026</small>$500</span><span class="r-next"><small class="r-yr">2027</small>$625</span></td>
-              <td><span class="r-now"><small class="r-yr">2026</small>$800</span><span class="r-next"><small class="r-yr">2027</small>$1,000</span></td>
               <td><span class="r-now"><small class="r-yr">2026</small>$875</span><span class="r-next"><small class="r-yr">2027</small>$1,100</span></td>
-              <td><span class="r-now"><small class="r-yr">2026</small>$775</span><span class="r-next"><small class="r-yr">2027</small>$975</span></td>
             </tr>
           </tbody>
         </table>
@@ -327,14 +319,14 @@
         if (typeof d.noteText === 'string') document.getElementById('pricing-note-text').textContent = d.noteText;
         if (d.currentYear) document.getElementById('rate-key-now').textContent = d.currentYear;
         if (d.nextYear) document.getElementById('rate-key-next').textContent = d.nextYear;
-        var hasNext = Array.isArray(d.rows) && d.rows.some(function(r) { return r.monThu2027 || r.friday2027 || r.saturday2027 || r.sunday2027; });
+        var hasNext = Array.isArray(d.rows) && d.rows.some(function(r) { return r.sunThu2027 || r.friSat2027; });
         document.querySelector('.rate-key').hidden = !hasNext;
         if (typeof d.hoursHeader === 'string') document.getElementById('pricing-hours').innerHTML = esc(d.hoursHeader).replace(/\n/g, '<br>');
         var thisYear = d.currentYear || '2026', nextYear = d.nextYear || '2027';
         if (Array.isArray(d.rows)) {
           document.getElementById('pricing-rows').innerHTML = d.rows.map(function(row) {
             return '<tr><td>' + esc(row.label) + (row.sublabel ? '<span>' + esc(row.sublabel) + '</span>' : '') + '</td>' +
-              ['monThu', 'friday', 'saturday', 'sunday'].map(function(k) {
+              ['sunThu', 'friSat'].map(function(k) {
                 var next = row[k + '2027'];
                 return '<td><span class="r-now">' + (next ? '<small class="r-yr">' + esc(thisYear) + '</small>' : '') + esc(row[k]) + '</span>' +
                   (next ? '<span class="r-next"><small class="r-yr">' + esc(nextYear) + '</small>' + esc(next) + '</span>' : '') + '</td>';
