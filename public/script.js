@@ -100,7 +100,6 @@ function injectNav() {
               </div>
             </div>
             <a href="/rent/weddings/">Weddings</a>
-            <a href="/rent/pricing/">Rates &amp; Availability</a>
             <!-- Our Partners: temporarily hidden from the menu (page still live at /partners/) -->
           </div>
         </li>
@@ -119,7 +118,7 @@ function injectNav() {
         <li><a href="/contact/"${isActive(currentPath, '/contact/')}>Contact</a></li>
       </ul>
       <div class="nav-end">
-        <a href="/rent/#calendar" class="btn btn-primary nav-cta" aria-label="Check a date"><span class="nav-cta-full">Check a Date</span><span class="nav-cta-short">Check a Date</span></a>
+        <a href="/rent/pricing/" data-site-booking class="btn btn-primary nav-cta" aria-label="Rates and availability"><span class="nav-cta-full">Rates &amp; Availability</span><span class="nav-cta-short">Rates</span></a>
         <button class="nav-toggle" id="nav-toggle" aria-label="Toggle menu">
           <span></span><span></span><span></span>
         </button>
