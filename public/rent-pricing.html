@@ -66,6 +66,11 @@
       margin-top: 2px;
     }
 
+    .rate-table tfoot td { padding: 16px; background: rgba(138, 86, 160, 0.07); border-top: 2px solid rgba(138, 86, 160, 0.25); text-align: center; color: var(--clr-text); font-weight: 600; }
+    .rate-table tfoot td:first-child { text-align: left; font-weight: 700; }
+    .rate-table tfoot td:first-child span { display: block; font-size: 0.75rem; font-weight: 400; color: var(--clr-text-muted); margin-top: 2px; }
+    .rate-table tfoot a { color: var(--clr-accent); font-weight: 800; white-space: nowrap; border-bottom: 1px solid currentColor; }
+    .rate-table tfoot a:hover { color: var(--clr-accent-hover, var(--clr-plum)); }
     .rate-table tbody tr:nth-child(even) {
       background: var(--clr-bg-card);
     }
@@ -156,7 +161,8 @@
 
     @media (max-width: 600px) {
       .rate-table thead th,
-      .rate-table tbody td {
+      .rate-table tbody td,
+      .rate-table tfoot td {
         padding: 10px 8px;
         font-size: 0.8rem;
       }
@@ -259,6 +265,12 @@
               <td><span class="r-now"><small class="r-yr">2026</small>$875</span><span class="r-next"><small class="r-yr">2027</small>$1,100</span></td>
             </tr>
           </tbody>
+          <tfoot>
+            <tr class="r-other">
+              <td>Other Spaces<span>The Annex, Conference Room &amp; Secret Garden</span></td>
+              <td colspan="2"><span class="r-other-note">Separate rates for each space.</span> <a href="/contact/">Inquire for rates &rarr;</a></td>
+            </tr>
+          </tfoot>
         </table>
       </div>
       <p class="late-note" data-animate>Extended hours until 2am available on request.</p>
