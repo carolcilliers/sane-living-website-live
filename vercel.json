@@ -185,6 +185,14 @@
       "destination": "/inspiration.html"
     },
     {
+      "source": "/faq/",
+      "destination": "/faq.html"
+    },
+    {
+      "source": "/faq",
+      "destination": "/faq.html"
+    },
+    {
       "source": "/contact/",
       "destination": "/contact.html"
     },

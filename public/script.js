@@ -199,6 +199,7 @@ function injectFooter() {
             <a href="/gallery/">Photos</a>
             <a href="/events/">Community Events</a>
             <a href="/about/">About</a>
+            <a href="/faq/">FAQ</a>
             <a href="/contact/">Contact</a>
           </nav>
         </div>

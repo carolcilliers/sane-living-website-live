@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>FAQ — Sane Living Center</title>
+  <meta name="description" content="Answers to common questions about renting the Sane Living Center in downtown Ojai: dates, rates, capacity, catering, alcohol, music, weddings and parking.">
+  <link rel="stylesheet" href="/style.css">
+  <style>
+    /* ============ FAQ (draft, Nov 23, 2026) ============ */
+    .faq-wrap { max-width: var(--max-width); margin: 0 auto; padding: 0 var(--space-lg); }
+    /* Opening photo */
+    .video-hero.faq-hero { position: relative; min-height: max(440px, 52vh); background: var(--clr-night); color: var(--clr-on-night); overflow: hidden; display: flex; align-items: flex-end; }
+    .faq-hero > img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: center 40%; border-radius: 0; }
+    .faq-hero-scrim { position: absolute; inset: 0; background:
+        linear-gradient(90deg, rgba(31, 19, 40, 0.8) 0%, rgba(31, 19, 40, 0.3) 55%, rgba(31, 19, 40, 0) 85%),
+        linear-gradient(180deg, rgba(31, 19, 40, 0.6) 0%, rgba(31, 19, 40, 0) 26%),
+        linear-gradient(0deg, rgba(31, 19, 40, 0.95) 0%, rgba(31, 19, 40, 0.45) 34%, rgba(31, 19, 40, 0) 64%); }
+    .faq-hero-copy { position: relative; width: 100%; padding: calc(var(--nav-height) + 56px) 0 clamp(3rem, 8vh, 4.5rem); }
+    .faq-hero h1 { font-size: clamp(2.8rem, 6vw, 5rem); font-weight: 600; line-height: 1.02; color: var(--clr-on-night); margin: 0 0 var(--space-lg); }
+    .faq-hero h1 em { display: block; font-weight: 500; color: var(--clr-glow); }
+    .faq-hero p { font-size: clamp(1.05rem, 1.5vw, 1.2rem); line-height: 1.65; color: #e6dcea; max-width: 36rem; margin: 0; }
+    @media (max-width: 760px) { .faq-hero-scrim { background: linear-gradient(180deg, rgba(31, 19, 40, 0.65) 0%, rgba(31, 19, 40, 0.55) 40%, rgba(31, 19, 40, 0.95) 100%); } }
+    /* Layout: topic list on the left, questions on the right */
+    .faq-layout { display: grid; grid-template-columns: minmax(0, 3fr) minmax(0, 9fr); gap: clamp(2rem, 5vw, 4.5rem); align-items: start; }
+    .faq-topics { position: sticky; top: calc(var(--nav-height) + 24px); }
+    .faq-topics .eyebrow { display: block; margin-bottom: var(--space-sm); }
+    .faq-topics ul { list-style: none; margin: 0; padding: 0; border-left: 2px solid var(--clr-border); }
+    .faq-topics a { display: block; padding: 8px 0 8px 16px; margin-left: -2px; border-left: 2px solid transparent; font-weight: 700; color: var(--clr-text-muted); }
+    .faq-topics a:hover, .faq-topics a.is-current { color: var(--clr-accent); border-left-color: var(--clr-accent); }
+    .faq-group { scroll-margin-top: calc(var(--nav-height) + 24px); }
+    .faq-group + .faq-group { margin-top: clamp(2.75rem, 6vw, 4rem); }
+    .faq-group h2 { font-size: clamp(1.9rem, 3vw, 2.5rem); font-weight: 600; margin: 0 0 var(--space-md); }
+    .faq-item { border-top: 1px solid var(--clr-border); }
+    .faq-item:last-child { border-bottom: 1px solid var(--clr-border); }
+    .faq-item summary { list-style: none; cursor: pointer; display: flex; justify-content: space-between; align-items: center; gap: 20px; padding: 20px 0; font-size: 1.12rem; font-weight: 700; color: var(--clr-text); }
+    .faq-item summary::-webkit-details-marker { display: none; }
+    .faq-item summary::after { content: ""; flex: none; width: 12px; height: 12px; border-right: 2px solid var(--clr-accent); border-bottom: 2px solid var(--clr-accent); transform: rotate(45deg) translateY(-4px); transition: transform 0.25s var(--ease-soft); }
+    .faq-item[open] summary::after { transform: rotate(-135deg) translateY(-2px); }
+    .faq-item summary:hover { color: var(--clr-accent); }
+    .faq-answer { padding: 0 0 22px; max-width: 46rem; color: var(--clr-text-muted); line-height: 1.7; }
+    .faq-answer p { margin: 0 0 12px; }
+    .faq-answer p:last-child { margin-bottom: 0; }
+    .faq-answer a { color: var(--clr-accent); font-weight: 700; border-bottom: 1px solid currentColor; }
+    @media (max-width: 900px) {
+      .faq-layout { grid-template-columns: 1fr; }
+      .faq-topics { position: static; }
+      .faq-topics ul { display: flex; flex-wrap: wrap; gap: 8px; border: 0; }
+      .faq-topics a { padding: 7px 14px; margin: 0; border: 1px solid var(--clr-border); border-radius: 999px; font-size: 0.92rem; }
+    }
+    /* Closing band */
+    .faq-close { position: relative; overflow: hidden; text-align: center; background-color: var(--clr-night-deep); }
+    .faq-close > img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; opacity: 0.24; border-radius: 0; }
+    .faq-close .faq-wrap { position: relative; max-width: 50rem; }
+    .faq-close h2 { font-size: clamp(2.3rem, 4.6vw, 3.6rem); font-weight: 600; line-height: 1.06; margin: 0 0 var(--space-md); }
+    .faq-close h2 em { font-weight: 500; }
+    .faq-close p { font-size: 1.12rem; line-height: 1.65; max-width: 34rem; margin: 0 auto var(--space-xl); color: #e2d6e8; }
+  </style>
+
+  <meta property="og:title" content="FAQ — Sane Living Center">
+  <meta property="og:description" content="Answers to common questions about renting the Sane Living Center in downtown Ojai: dates, rates, capacity, catering, alcohol, music, weddings and parking.">
+  <meta property="og:image" content="https://saneliving.com/images/share-auditorium.jpg">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:alt" content="The Auditorium at the Sane Living Center in Ojai">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://saneliving.com/faq/">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="FAQ — Sane Living Center">
+  <meta name="twitter:description" content="Answers to common questions about renting the Sane Living Center in downtown Ojai: dates, rates, capacity, catering, alcohol, music, weddings and parking.">
+  <meta name="twitter:image" content="https://saneliving.com/images/share-auditorium.jpg">
+  <meta name="twitter:image:alt" content="The Auditorium at the Sane Living Center in Ojai">
+<script type="application/ld+json">
+{
+ "@context": "https://schema.org",
+ "@type": "FAQPage",
+ "mainEntity": [
+  {
+   "@type": "Question",
+   "name": "How do I check if my date is available?",
+   "acceptedAnswer": {
+    "@type": "Answer",
+    "text": "Open the calendar on the Rent page. Purple dates are already booked. Then send us your date, guest count and plans through the request form, and the team will follow up to confirm the details and your rate."
+   }
+  },
+  {
+   "@type": "Question",
+   "name": "How much does it cost to rent the space?",
+   "acceptedAnswer": {
+    "@type": "Answer",
+    "text": "Rates depend on the day and the time block: Day (8am–5pm), Night (5pm–12am) or Day & Night. 2026 rates start at $400, and new 2027 rates begin January 1, 2027. See the full table on Rates & Availability."
+   }
+  },
+  {
+   "@type": "Question",
+   "name": "What are your hours?",
+   "acceptedAnswer": {
+    "@type": "Answer",
+    "text": "Events can run from 8am to 2am. Our office is open 9am to 5pm for calls and questions."
+   }
+  },
+  {
+   "@type": "Question",
+   "name": "Can I book just a few hours?",
+   "acceptedAnswer": {
+    "@type": "Answer",
+    "text": "Yes. Book the morning, the evening or the whole day. A meeting at 8am and a reception at 7pm can share the same room on the same day."
+   }
+  },
+  {
+   "@type": "Question",
+   "name": "Can I see the space before I book?",
+   "acceptedAnswer": {
+    "@type": "Answer",
+    "text": "Please do. The best way to picture your event is to stand in the room. Mention a walk-through when you get in touch and we’ll find a time."
+   }
+  },
+  {
+   "@type": "Question",
+   "name": "How many guests can you hold?",
+   "acceptedAnswer": {
+    "@type": "Answer",
+    "text": "The Auditorium seats 110, theater-style or at tables, and holds 225 standing."
+   }
+  },
+  {
+   "@type": "Question",
+   "name": "Which spaces can I rent?",
+   "acceptedAnswer": {
+    "@type": "Answer",
+    "text": "Four, all at one location: the Auditorium, the Conference Room, the Annex and the Secret Garden. Start with the Auditorium and add the others as you need them. See all four spaces."
+   }
+  },
+  {
+   "@type": "Question",
+   "name": "What equipment is included?",
+   "acceptedAnswer": {
+    "@type": "Answer",
+    "text": "The Auditorium has a full sound system, a projector and screen, theater lighting and a portable stage we set up on request. The Conference Room has a large wooden table, a 56″ wall-mounted monitor and a whiteboard."
+   }
+  },
+  {
+   "@type": "Question",
+   "name": "Do you provide tables and chairs?",
+   "acceptedAnswer": {
+    "@type": "Answer",
+    "text": "Yes, chair and table rentals are available. Tell us your guest count and layout, whether that’s theater-style, a circle, dinner tables or an open dance floor, and we’ll set the room."
+   }
+  },
+  {
+   "@type": "Question",
+   "name": "Can I bring my own caterer?",
+   "acceptedAnswer": {
+    "@type": "Answer",
+    "text": "Yes. Outside caterers are welcome, and you can even have a food truck set up in our private parking lot. Caterers need to provide proof of insurance and follow the venue’s load-in, cleanup and house rules."
+   }
+  },
+  {
+   "@type": "Question",
+   "name": "Can we serve alcohol?",
+   "acceptedAnswer": {
+    "@type": "Answer",
+    "text": "Yes. You’re welcome to provide and serve your own alcohol, as long as alcohol service is covered under your event’s Certificate of Insurance (COI)."
+   }
+  },
+  {
+   "@type": "Question",
+   "name": "How late can the music go?",
+   "acceptedAnswer": {
+    "@type": "Answer",
+    "text": "Outdoor sound in the Secret Garden wraps up by 10pm. The Auditorium is built for celebration, with sound-insulated walls, so the music and dancing can carry on inside until 2am. Amplified music stays inside the Auditorium."
+   }
+  },
+  {
+   "@type": "Question",
+   "name": "Do you host weddings?",
+   "acceptedAnswer": {
+    "@type": "Answer",
+    "text": "Yes. Say your vows beneath the stained glass, have dinner under the string lights in the Secret Garden, then dance in the Auditorium, all at one location. See wedding photos and highlights."
+   }
+  },
+  {
+   "@type": "Question",
+   "name": "How is wedding pricing different?",
+   "acceptedAnswer": {
+    "@type": "Answer",
+    "text": "Weddings are quoted separately from our standard rates, so each quote fits your guest count, timeline and vision. Call (805) 646-6000 to start the conversation."
+   }
+  },
+  {
+   "@type": "Question",
+   "name": "Is there a room to get ready in?",
+   "acceptedAnswer": {
+    "@type": "Answer",
+    "text": "Yes. The Annex works as a private bridal room, just down the hall from the Auditorium and next to the Secret Garden."
+   }
+  },
+  {
+   "@type": "Question",
+   "name": "Where can our guests stay?",
+   "acceptedAnswer": {
+    "@type": "Answer",
+    "text": "Downtown hotels are a short walk away, so guests can walk to the ceremony and back without shuttles. For the wedding party, our partner Cielo Farm is a 20+ acre orchard retreat in the hills that sleeps up to 15."
+   }
+  },
+  {
+   "@type": "Question",
+   "name": "Where are you?",
+   "acceptedAnswer": {
+    "@type": "Answer",
+    "text": "Behind the purple doors at 316 E Matilija St, Ojai, CA 93023, a short walk from the Ojai Playhouse, Libbey Park, hotels and restaurants."
+   }
+  },
+  {
+   "@type": "Question",
+   "name": "Is there parking?",
+   "acceptedAnswer": {
+    "@type": "Answer",
+    "text": "Yes. We have a private parking lot, with street parking nearby and valet available for larger events."
+   }
+  },
+  {
+   "@type": "Question",
+   "name": "Is the venue wheelchair accessible?",
+   "acceptedAnswer": {
+    "@type": "Answer",
+    "text": "Yes. The venue is on the ground floor, with accessible restrooms and an accessible parking spot."
+   }
+  }
+ ]
+}
+</script>
+<link rel="icon" href="/favicon.svg">
+<script src="/site-config.js" defer></script>
+<script src="/site-content.js" defer></script>
+</head>
+<body>
+  <nav id="site-nav"></nav>
+
+  <!-- Opening photo (class video-hero keeps the menu transparent over it) -->
+  <section class="video-hero faq-hero">
+    <img src="/images/venue-purple-doors.jpg" alt="The purple front doors of the Sane Living Center on Matilija Street">
+    <div class="faq-hero-scrim" aria-hidden="true"></div>
+    <div class="faq-hero-copy">
+      <div class="faq-wrap">
+        <span class="eyebrow glow">FAQ</span>
+        <h1>Good Questions, <em>Quick Answers</em></h1>
+        <p>Everything people usually ask before booking the Sane Living Center. Don’t see yours? Call <a href="tel:+18056466000" style="color:inherit;border-bottom:1px solid currentColor">(805) 646-6000</a>.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" id="faq">
+    <div class="faq-wrap faq-layout">
+      <nav class="faq-topics" aria-label="FAQ topics" data-animate>
+        <span class="eyebrow">Topics</span>
+        <ul>
+          <li><a href="#booking">Booking &amp; Rates</a></li>
+          <li><a href="#spaces">The Spaces</a></li>
+          <li><a href="#food">Food, Drink &amp; Music</a></li>
+          <li><a href="#weddings">Weddings</a></li>
+          <li><a href="#visiting">Getting Here</a></li>
+        </ul>
+      </nav>
+
+      <div>
+        <div class="faq-group" id="booking" data-animate>
+          <h2>Booking &amp; Rates</h2>
+          <details class="faq-item"><summary>How do I check if my date is available?</summary>
+            <div class="faq-answer"><p>Open the <a href="/rent/#calendar">calendar on the Rent page</a>. Purple dates are already booked. Then send us your date, guest count and plans through the request form, and the team will follow up to confirm the details and your rate.</p></div></details>
+          <details class="faq-item"><summary>How much does it cost to rent the space?</summary>
+            <div class="faq-answer"><p>Rates depend on the day and the time block: Day (8am–5pm), Night (5pm–12am) or Day &amp; Night. 2026 rates start at $400, and new 2027 rates begin January 1, 2027. See the full table on <a href="/rent/pricing/" data-site-booking>Rates &amp; Availability</a>.</p></div></details>
+          <details class="faq-item"><summary>What are your hours?</summary>
+            <div class="faq-answer"><p>Events can run from 8am to 2am. Our office is open 9am to 5pm for calls and questions.</p></div></details>
+          <details class="faq-item"><summary>Can I book just a few hours?</summary>
+            <div class="faq-answer"><p>Yes. Book the morning, the evening or the whole day. A meeting at 8am and a reception at 7pm can share the same room on the same day.</p></div></details>
+          <details class="faq-item"><summary>Can I see the space before I book?</summary>
+            <div class="faq-answer"><p>Please do. The best way to picture your event is to stand in the room. Mention a walk-through when you <a href="/contact/">get in touch</a> and we’ll find a time.</p></div></details>
+        </div>
+
+        <div class="faq-group" id="spaces" data-animate>
+          <h2>The Spaces</h2>
+          <details class="faq-item"><summary>How many guests can you hold?</summary>
+            <div class="faq-answer"><p>The Auditorium seats 110, theater-style or at tables, and holds 225 standing.</p></div></details>
+          <details class="faq-item"><summary>Which spaces can I rent?</summary>
+            <div class="faq-answer"><p>Four, all at one location: the Auditorium, the Conference Room, the Annex and the Secret Garden. Start with the Auditorium and add the others as you need them. <a href="/rent/">See all four spaces</a>.</p></div></details>
+          <details class="faq-item"><summary>What equipment is included?</summary>
+            <div class="faq-answer"><p>The Auditorium has a full sound system, a projector and screen, theater lighting and a portable stage we set up on request. The Conference Room has a large wooden table, a 56″ wall-mounted monitor and a whiteboard.</p></div></details>
+          <details class="faq-item"><summary>Do you provide tables and chairs?</summary>
+            <div class="faq-answer"><p>Yes, chair and table rentals are available. Tell us your guest count and layout, whether that’s theater-style, a circle, dinner tables or an open dance floor, and we’ll set the room.</p></div></details>
+        </div>
+
+        <div class="faq-group" id="food" data-animate>
+          <h2>Food, Drink &amp; Music</h2>
+          <details class="faq-item"><summary>Can I bring my own caterer?</summary>
+            <div class="faq-answer"><p>Yes. Outside caterers are welcome, and you can even have a food truck set up in our private parking lot. Caterers need to provide proof of insurance and follow the venue’s load-in, cleanup and house rules.</p></div></details>
+          <details class="faq-item"><summary>Can we serve alcohol?</summary>
+            <div class="faq-answer"><p>Yes. You’re welcome to provide and serve your own alcohol, as long as alcohol service is covered under your event’s Certificate of Insurance (COI).</p></div></details>
+          <details class="faq-item"><summary>How late can the music go?</summary>
+            <div class="faq-answer"><p>Outdoor sound in the Secret Garden wraps up by 10pm. The Auditorium is built for celebration, with sound-insulated walls, so the music and dancing can carry on inside until 2am. Amplified music stays inside the Auditorium.</p></div></details>
+        </div>
+
+        <div class="faq-group" id="weddings" data-animate>
+          <h2>Weddings</h2>
+          <details class="faq-item"><summary>Do you host weddings?</summary>
+            <div class="faq-answer"><p>Yes. Say your vows beneath the stained glass, have dinner under the string lights in the Secret Garden, then dance in the Auditorium, all at one location. <a href="/rent/weddings/">See wedding photos and highlights</a>.</p></div></details>
+          <details class="faq-item"><summary>How is wedding pricing different?</summary>
+            <div class="faq-answer"><p>Weddings are quoted separately from our standard rates, so each quote fits your guest count, timeline and vision. Call (805) 646-6000 to start the conversation.</p></div></details>
+          <details class="faq-item"><summary>Is there a room to get ready in?</summary>
+            <div class="faq-answer"><p>Yes. The Annex works as a private bridal room, just down the hall from the Auditorium and next to the Secret Garden.</p></div></details>
+          <details class="faq-item"><summary>Where can our guests stay?</summary>
+            <div class="faq-answer"><p>Downtown hotels are a short walk away, so guests can walk to the ceremony and back without shuttles. For the wedding party, our partner <a href="/rent/farm/">Cielo Farm</a> is a 20+ acre orchard retreat in the hills that sleeps up to 15.</p></div></details>
+        </div>
+
+        <div class="faq-group" id="visiting" data-animate>
+          <h2>Getting Here</h2>
+          <details class="faq-item"><summary>Where are you?</summary>
+            <div class="faq-answer"><p>Behind the purple doors at <a data-site-href="directionsUrl" href="https://maps.google.com/?q=316+E+Matilija+St+Ojai+CA" target="_blank" rel="noopener">316 E Matilija St, Ojai, CA 93023</a>, a short walk from the Ojai Playhouse, Libbey Park, hotels and restaurants.</p></div></details>
+          <details class="faq-item"><summary>Is there parking?</summary>
+            <div class="faq-answer"><p>Yes. We have a private parking lot, with street parking nearby and valet available for larger events.</p></div></details>
+          <details class="faq-item"><summary>Is the venue wheelchair accessible?</summary>
+            <div class="faq-answer"><p>Yes. The venue is on the ground floor, with accessible restrooms and an accessible parking spot.</p></div></details>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Closing band -->
+  <section class="section section-night faq-close">
+    <img src="/images/main-hall.jpg" alt="" aria-hidden="true" loading="lazy">
+    <div class="faq-wrap">
+      <h2>Still Have a Question? <em class="glow">We’re Happy to Help</em></h2>
+      <p>Call (805) 646-6000, 9am to 5pm, or send us a message and the team will get back to you.</p>
+      <div class="btn-row" style="justify-content:center"><a href="/rent/#calendar" class="btn btn-glow">Check a Date</a><a href="/contact/" class="btn btn-ghost-light">Contact Us</a></div>
+    </div>
+  </section>
+
+  <footer id="site-footer"></footer>
+  <script src="/script.js"></script>
+  <script>
+    (function() {
+      // Highlight the topic in view.
+      var links = document.querySelectorAll('.faq-topics a');
+      if ('IntersectionObserver' in window) {
+        var io = new IntersectionObserver(function(es) { es.forEach(function(e) { if (e.isIntersecting) links.forEach(function(a) { a.classList.toggle('is-current', a.getAttribute('href') === '#' + e.target.id); }); }); }, { rootMargin: '-30% 0px -60% 0px' });
+        document.querySelectorAll('.faq-group').forEach(function(g) { io.observe(g); });
+      }
+    })();
+  </script>
+</body>
+</html>
