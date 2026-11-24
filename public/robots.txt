@@ -3,4 +3,4 @@ Disallow: /dash/
 Disallow: /admin/
 Disallow: /api/
 
-Sitemap: https://saneliving.com/sitemap.xml
+Sitemap: https://www.saneliving.com/sitemap.xml
