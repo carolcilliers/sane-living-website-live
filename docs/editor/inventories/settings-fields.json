@@ -120,6 +120,14 @@
     "scope": "global"
   },
   {
+    "key": "youtubeUrl",
+    "group": "Contact and social",
+    "current_type": "string",
+    "canonical_resource": "settings",
+    "binding_key": "youtubeUrl",
+    "scope": "global"
+  },
+  {
     "key": "homeHeading",
     "group": "Homepage",
     "current_type": "string",

@@ -18,7 +18,8 @@
     }
     var phone=cfg.safeUrl(s.phoneLink,'tel');
     var email=/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(s.email)?s.email:'';
-    var social=['instagramUrl','facebookUrl'].map(function(key){var url=cfg.safeUrl(s[key],'url');return url?'<a href="'+esc(url)+'" target="_blank" rel="noopener noreferrer">'+(key==='instagramUrl'?'Instagram':'Facebook')+'</a>':'';}).join(' ');
+    var socialNames={instagramUrl:'Instagram',facebookUrl:'Facebook',youtubeUrl:'YouTube'};
+    var social=['instagramUrl','facebookUrl','youtubeUrl'].map(function(key){var url=cfg.safeUrl(s[key],'url');return url?'<a href="'+esc(url)+'" target="_blank" rel="noopener noreferrer">'+socialNames[key]+'</a>':'';}).join(' ');
     var logo=cfg.safeUrl(s.logoUrl,'image')||'/images/logo.png';
     var directions=cfg.safeUrl(s.directionsUrl,'link');
     // V3 footer: newsletter band, then brand / Visit / Contact / Explore columns, then a quiet bottom bar.
