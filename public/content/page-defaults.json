@@ -2,12 +2,12 @@
   "/about/": {
     "title": "About — Sane Living Center",
     "description": "About the Sane Living Center in Ojai: founder Aubrey Balkind, his philosophy and the EVO 3 Sculpture on East Matilija Street.",
-    "image": "https://saneliving.com/images/share-auditorium.jpg"
+    "image": "https://saneliving.com/images/share-auditorium-rows.jpg"
   },
   "/contact/": {
     "title": "Contact — Sane Living Center",
     "description": "Contact the Sane Living Center in downtown Ojai: ask about a date, plan a walk-through or send us a message.",
-    "image": "https://saneliving.com/images/share-auditorium.jpg"
+    "image": "https://saneliving.com/images/share-auditorium-rows.jpg"
   },
   "/events/ojai-health-intensive/": {
     "title": "Ojai Health Intensive — Sane Living Center",
@@ -22,106 +22,106 @@
   "/events/": {
     "title": "Community Events — Sane Living Center",
     "description": "Upcoming community events and past events at the Sane Living Center in downtown Ojai: film screenings, workshops, performances and gatherings open to everyone.",
-    "image": "https://saneliving.com/images/share-auditorium.jpg"
+    "image": "https://saneliving.com/images/share-auditorium-rows.jpg"
   },
   "/evo3/": {
     "title": "Bio Ego Algo - Sane Living",
     "description": "An unprecedented artwork articulating the threats and treats of living with Bio, Ego & Algo.",
-    "image": "https://saneliving.com/images/share-auditorium.jpg"
+    "image": "https://saneliving.com/images/share-auditorium-rows.jpg"
   },
   "/gallery/": {
     "title": "Photos — Sane Living Center",
-    "description": "Photos of the Sane Living Center in downtown Ojai: the Auditorium, Conference Room, the Annex, the Secret Garden, weddings and events.",
-    "image": "https://saneliving.com/images/share-auditorium.jpg"
+    "description": "Photos of the Sane Living Center in downtown Ojai: the Auditorium, Board Room, the Annex, the Secret Garden, weddings and events.",
+    "image": "https://saneliving.com/images/share-auditorium-rows.jpg"
   },
   "/": {
     "title": "Sane Living Center — Host Your Event in the Heart of Ojai",
-    "description": "A beautiful sacred space in the heart of Ojai: an auditorium, conference room, flex space and secret garden for meetings, workshops, weddings, screenings and parties, open 8am to 2am.",
-    "image": "https://saneliving.com/images/share-auditorium.jpg"
+    "description": "A beautiful sacred space in the heart of Ojai: an auditorium, board room, flex space and secret garden for meetings, workshops, weddings, screenings and parties, open 8am to 2am.",
+    "image": "https://saneliving.com/images/share-auditorium-rows.jpg"
   },
   "/inspiration/": {
     "title": "Inspiration — Sane Living",
     "description": "Thought leaders and innovators who inspire sane living — Harari, Attenborough, Harris, Musk, Zach Bush, and more.",
-    "image": "https://saneliving.com/images/share-auditorium.jpg"
+    "image": "https://saneliving.com/images/share-auditorium-rows.jpg"
   },
   "/lifestyle/ai-algo/": {
     "title": "AI Algo — Sane Living",
     "description": "AI recently increased its evolutionary speed and power when it entered Deep Mind, creatively writing its own software.",
-    "image": "https://saneliving.com/images/share-auditorium.jpg"
+    "image": "https://saneliving.com/images/share-auditorium-rows.jpg"
   },
   "/lifestyle/evo3/": {
     "title": "EVO 3 — Sane Living",
     "description": "EVO 3 — Evolution from existential threats to existential treats through the balance of Bio, Ego, and Algo.",
-    "image": "https://saneliving.com/images/share-auditorium.jpg"
+    "image": "https://saneliving.com/images/share-auditorium-rows.jpg"
   },
   "/lifestyle/natures-bio/": {
     "title": "Nature's Bio — Sane Living",
     "description": "Nature's life on earth began 3.5 billion years ago. A holistic WE system based on Biology.",
-    "image": "https://saneliving.com/images/share-auditorium.jpg"
+    "image": "https://saneliving.com/images/share-auditorium-rows.jpg"
   },
   "/lifestyle/sapiens-ego/": {
     "title": "Sapiens Ego — Sane Living",
     "description": "Sapiens have existed for about 200,000 years with a unique ability in the EGO part of the brain.",
-    "image": "https://saneliving.com/images/share-auditorium.jpg"
+    "image": "https://saneliving.com/images/share-auditorium-rows.jpg"
   },
   "/lifestyle/": {
     "title": "Lifestyle — Sane Living",
     "description": "Understanding Nature's Bio, Sapiens Ego, AI Algo, and EVO 3. Positive lifestyle changes for self-healing.",
-    "image": "https://saneliving.com/images/share-auditorium.jpg"
+    "image": "https://saneliving.com/images/share-auditorium-rows.jpg"
   },
   "/partners/": {
     "title": "Our Partners — Sane Living Center",
     "description": "Local Ojai partners who help hosts put on great events at the Sane Living Center — caterers, planners, florists, photographers and more.",
-    "image": "https://saneliving.com/images/share-auditorium.jpg"
+    "image": "https://saneliving.com/images/share-auditorium-rows.jpg"
   },
   "/rent/farm/": {
     "title": "Cielo Farm — Sane Living Center",
     "description": "Rent Cielo Farm — a quiet 20+ acre permaculture orchard in Ojai, California. Perfect for retreats and getaways.",
-    "image": "https://saneliving.com/images/share-auditorium.jpg"
+    "image": "https://saneliving.com/images/share-auditorium-rows.jpg"
   },
   "/rent/pricing/": {
     "title": "Rates & Availability — Sane Living Center",
     "description": "Sane Living Center rates and availability. View pricing and book the space for your next event in Ojai, California.",
-    "image": "https://saneliving.com/images/share-auditorium.jpg"
+    "image": "https://saneliving.com/images/share-auditorium-rows.jpg"
   },
   "/rent/weddings/": {
     "title": "Weddings — Sane Living Center",
     "description": "Host your wedding at the Sane Living Center in downtown Ojai: ceremonies beneath the stained glass, dinners in the Secret Garden and dancing in the Auditorium. Every wedding receives a custom quote.",
-    "image": "https://saneliving.com/images/share-auditorium.jpg"
+    "image": "https://saneliving.com/images/share-auditorium-rows.jpg"
   },
   "/rent/": {
     "title": "Rent the Space — Sane Living Center",
-    "description": "Four spaces in one downtown Ojai location: the Auditorium, Conference Room, the Annex and the Secret Garden. Meetings, workshops, celebrations and weddings.",
-    "image": "https://saneliving.com/images/share-auditorium.jpg"
+    "description": "Four spaces in one downtown Ojai location: the Auditorium, Board Room, the Annex and the Secret Garden. Meetings, workshops, celebrations and weddings.",
+    "image": "https://saneliving.com/images/share-auditorium-rows.jpg"
   },
   "/sculpture/": {
     "title": "EVO3 Sculpture — Sane Living",
     "description": "Standing over 8 feet tall on East Matilija Street in Ojai, California, the EVO3 Sculpture offers viewers the story of humanity.",
-    "image": "https://saneliving.com/images/share-auditorium.jpg"
+    "image": "https://saneliving.com/images/share-auditorium-rows.jpg"
   },
   "/self-heal/destress/": {
     "title": "DESTRESS — Sane Living",
     "description": "DESTRESS to self-heal. SOCIALIZE, MEDITATE, GROUND — calming practices for self-healing.",
-    "image": "https://saneliving.com/images/share-auditorium.jpg"
+    "image": "https://saneliving.com/images/share-auditorium-rows.jpg"
   },
   "/self-heal/detox/": {
     "title": "DETOX — Sane Living",
     "description": "DETOX to self-heal. FASTING cleanses all organs, increases life span.",
-    "image": "https://saneliving.com/images/share-auditorium.jpg"
+    "image": "https://saneliving.com/images/share-auditorium-rows.jpg"
   },
   "/self-heal/eat/": {
     "title": "EAT — Sane Living",
     "description": "EAT to self-heal. GUT/BRAIN MICROBIOME, HYDRATE, PROTEIN — positive eating for self-healing.",
-    "image": "https://saneliving.com/images/share-auditorium.jpg"
+    "image": "https://saneliving.com/images/share-auditorium-rows.jpg"
   },
   "/self-heal/move/": {
     "title": "MOVE — Sane Living",
     "description": "MOVE to self-heal. BALANCE, STRETCH, STRENGTH — positive movement for self-healing.",
-    "image": "https://saneliving.com/images/share-auditorium.jpg"
+    "image": "https://saneliving.com/images/share-auditorium-rows.jpg"
   },
   "/self-heal/": {
     "title": "Self 2 Heal — Sane Living",
     "description": "We, Sapiens can Self Heal by changing how we Eat, Move, De-Tox, and De-Stress.",
-    "image": "https://saneliving.com/images/share-auditorium.jpg"
+    "image": "https://saneliving.com/images/share-auditorium-rows.jpg"
   }
 }
