@@ -766,6 +766,10 @@
   </script>
   <script>
   (function() {
+    // Hidden on the home page at the owner's request (Nov 26, 2026); events still list on /events/.
+    // Set to true to bring the "Upcoming Community Events" section back.
+    var SHOW_HOME_EVENTS = false;
+    if (!SHOW_HOME_EVENTS) return;
     // --- Upcoming Public Events: Airtable via /api/calendar-events (the site's
     // calendar sync — Airtable is the single source for events). ---
     function todayStr() {
