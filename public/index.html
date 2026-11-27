@@ -330,6 +330,33 @@
       .ticker-list[aria-hidden="true"] { display: none; }
       .ticker-list { flex-wrap: wrap; justify-content: center; }
     }
+    /* ---- Newsletter pop-up ---- */
+    .nl-pop { position: fixed; inset: 0; z-index: 2000; display: flex; align-items: center; justify-content: center; padding: 20px; }
+    .nl-pop[hidden] { display: none; }
+    .nl-pop-backdrop { position: absolute; inset: 0; background: rgba(31, 19, 40, 0.55); opacity: 0; transition: opacity 0.35s var(--ease-soft); }
+    .nl-pop-card { position: relative; display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); width: min(760px, 100%); max-height: calc(100vh - 40px); overflow: auto; background: var(--clr-bg); border-radius: 10px; box-shadow: 0 30px 80px rgba(31, 19, 40, 0.35); opacity: 0; transform: translateY(16px); transition: opacity 0.35s var(--ease-soft), transform 0.35s var(--ease-soft); }
+    .nl-pop.is-open .nl-pop-backdrop { opacity: 1; }
+    .nl-pop.is-open .nl-pop-card { opacity: 1; transform: none; }
+    .nl-pop-img { width: 100%; height: 100%; min-height: 360px; object-fit: cover; border-radius: 10px 0 0 10px; }
+    .nl-pop-body { padding: 44px 40px 32px; display: flex; flex-direction: column; gap: 12px; }
+    .nl-pop-body h2 { margin: 0; font-size: clamp(1.9rem, 3.4vw, 2.4rem); line-height: 1.08; }
+    .nl-pop-body h2 em { color: var(--clr-accent); }
+    .nl-pop-body p { margin: 0; color: var(--clr-text-muted); line-height: 1.6; }
+    .nl-pop-form { display: flex; flex-direction: column; gap: 10px; margin-top: 8px; }
+    .nl-pop-form input[type=email] { width: 100%; box-sizing: border-box; padding: 14px 16px; border: 1px solid var(--clr-border); border-radius: 999px; font: inherit; background: #fff; color: var(--clr-text); }
+    .nl-pop-form input[type=email]:focus { outline: 2px solid var(--clr-accent); outline-offset: 1px; }
+    .nl-pop-form .btn { width: 100%; justify-content: center; }
+    .nl-pop-thanks { font-weight: 700; color: var(--clr-plum) !important; }
+    .nl-pop-skip { align-self: center; margin-top: 2px; padding: 8px 12px; background: none; border: 0; font: inherit; font-size: 0.9rem; color: var(--clr-text-dim); cursor: pointer; text-decoration: underline; text-underline-offset: 3px; }
+    .nl-pop-x { position: absolute; top: 12px; right: 12px; width: 44px; height: 44px; display: flex; align-items: center; justify-content: center; border: 0; border-radius: 50%; background: rgba(255, 255, 255, 0.9); color: var(--clr-plum); cursor: pointer; z-index: 1; }
+    .nl-pop-x:hover { background: #fff; color: var(--clr-accent); }
+    @media (max-width: 640px) {
+      .nl-pop { align-items: flex-end; padding: 0; }
+      .nl-pop-card { grid-template-columns: 1fr; border-radius: 14px 14px 0 0; max-height: 92vh; }
+      .nl-pop-img { min-height: 0; height: 150px; border-radius: 14px 14px 0 0; }
+      .nl-pop-body { padding: 24px 22px 18px; }
+    }
+    @media (prefers-reduced-motion: reduce) { .nl-pop-backdrop, .nl-pop-card { transition: none; } }
   </style>
 
   <meta property="og:title" content="Sane Living Center — Host Your Event in the Heart of Ojai">
@@ -658,6 +685,28 @@
     </div>
   </section>
 
+  <!-- Newsletter pop-up (home page only). Shows once after a short visit; closing it hides it for 30 days. -->
+  <div class="nl-pop" id="nlPop" hidden>
+    <div class="nl-pop-backdrop" data-nl-close></div>
+    <div class="nl-pop-card" role="dialog" aria-modal="true" aria-labelledby="nlPopTitle">
+      <button type="button" class="nl-pop-x" data-nl-close aria-label="Close"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
+      <img class="nl-pop-img" src="/images/secret-garden-cocktail-hour.jpg" alt="" aria-hidden="true">
+      <div class="nl-pop-body">
+        <span class="eyebrow">Stay in the Loop</span>
+        <h2 id="nlPopTitle">Gatherings in the <em>Heart of Ojai</em></h2>
+        <p>Be the first to hear about community events, workshops and celebrations at the Sane Living Center.</p>
+        <form class="nl-pop-form" id="nlPopForm" method="post" target="_blank" novalidate>
+          <label class="visually-hidden" for="nl-pop-email">Email address</label>
+          <input id="nl-pop-email" type="email" name="EMAIL" placeholder="Your email address" autocomplete="email" required>
+          <div class="signup-honeypot" aria-hidden="true"><input id="nlPopHoney" type="text" tabindex="-1" value=""></div>
+          <button type="submit" class="btn btn-primary">Subscribe</button>
+        </form>
+        <p class="nl-pop-thanks" id="nlPopThanks" hidden>Thank you! Please confirm your subscription in the window that just opened.</p>
+        <button type="button" class="nl-pop-skip" data-nl-close>No thanks</button>
+      </div>
+    </div>
+  </div>
+
   <footer id="site-footer"></footer>
 
   <script src="/script.js"></script>
@@ -839,6 +888,59 @@
       if (!s) return '';
       return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
     }
+  })();
+  </script>
+  <script>
+  (function() {
+    // Newsletter pop-up: home page only, once per visitor. Uses the same Mailchimp list as the footer.
+    var pop = document.getElementById('nlPop'); if (!pop) return;
+    var KEY = 'sl-newsletter-pop', DAYS = 30, DELAY = 15000;
+    function seen() { try { var v = JSON.parse(localStorage.getItem(KEY) || 'null'); return v && (v.subscribed || Date.now() - v.at < DAYS * 864e5); } catch (e) { return false; } }
+    function remember(extra) { try { localStorage.setItem(KEY, JSON.stringify(Object.assign({ at: Date.now() }, extra || {}))); } catch (e) {} }
+    if (seen()) return;
+    var lastFocus = null, shown = false;
+    function open() {
+      if (shown || seen() || document.querySelector('.nl-pop.is-open')) return;
+      shown = true; lastFocus = document.activeElement; pop.hidden = false;
+      requestAnimationFrame(function() { pop.classList.add('is-open'); });
+      setTimeout(function() { var i = document.getElementById('nl-pop-email'); if (i) i.focus({ preventScroll: true }); }, 60);
+      document.addEventListener('keydown', onKey);
+    }
+    function close() {
+      pop.classList.remove('is-open'); remember();
+      document.removeEventListener('keydown', onKey);
+      setTimeout(function() { pop.hidden = true; if (lastFocus && lastFocus.focus) lastFocus.focus({ preventScroll: true }); }, 350);
+    }
+    function onKey(e) {
+      if (e.key === 'Escape') { close(); return; }
+      if (e.key === 'Tab') { // keep focus inside the pop-up
+        var f = [].slice.call(pop.querySelectorAll('button, input:not([tabindex="-1"]), a[href]')).filter(function(el) { return el.offsetParent !== null; });
+        if (!f.length) return; var first = f[0], last = f[f.length - 1];
+        if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus(); }
+        else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
+      }
+    }
+    [].forEach.call(pop.querySelectorAll('[data-nl-close]'), function(b) { b.addEventListener('click', close); });
+    fetch('/content/settings.json', { cache: 'no-store' }).then(function(r) { return r.json(); }).then(function(s) {
+      var url = String(s.newsletterUrl || '');
+      if (!s.newsletterEnabled || !/^https:\/\/[a-z0-9.-]+\.list-manage\.com\/subscribe\/post\?/i.test(url)) return;
+      var form = document.getElementById('nlPopForm'), u = new URL(url);
+      form.action = url;
+      document.getElementById('nlPopHoney').name = 'b_' + u.searchParams.get('u') + '_' + u.searchParams.get('id');
+      form.addEventListener('submit', function(e) {
+        var email = document.getElementById('nl-pop-email');
+        if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.value.trim())) { e.preventDefault(); email.focus(); email.setAttribute('aria-invalid', 'true'); return; }
+        remember({ subscribed: true });
+        setTimeout(function() { form.hidden = true; document.getElementById('nlPopThanks').hidden = false; }, 50);
+        setTimeout(close, 4000);
+      });
+      // Show after 15 seconds, or once the visitor has scrolled halfway down, whichever comes first.
+      var t = setTimeout(open, DELAY);
+      window.addEventListener('scroll', function onScroll() {
+        var max = document.documentElement.scrollHeight - innerHeight;
+        if (max > 0 && scrollY / max > 0.5) { clearTimeout(t); window.removeEventListener('scroll', onScroll); open(); }
+      }, { passive: true });
+    }).catch(function() {});
   })();
   </script>
 </body>
