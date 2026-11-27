@@ -341,6 +341,7 @@
     .nl-pop-body { padding: 44px 40px 32px; display: flex; flex-direction: column; gap: 12px; }
     .nl-pop-body h2 { margin: 0; font-size: clamp(1.9rem, 3.4vw, 2.4rem); line-height: 1.08; }
     .nl-pop-body h2 em { color: var(--clr-accent); }
+    .nl-pop-body h2 .nl-keep { white-space: nowrap; }
     .nl-pop-body p { margin: 0; color: var(--clr-text-muted); line-height: 1.6; }
     .nl-pop-form { display: flex; flex-direction: column; gap: 10px; margin-top: 8px; }
     .nl-pop-form input[type=email] { width: 100%; box-sizing: border-box; padding: 14px 16px; border: 1px solid var(--clr-border); border-radius: 999px; font: inherit; background: #fff; color: var(--clr-text); }
@@ -693,7 +694,7 @@
       <img class="nl-pop-img" src="/images/secret-garden-cocktail-hour.jpg" alt="" aria-hidden="true">
       <div class="nl-pop-body">
         <span class="eyebrow">Stay in the Loop</span>
-        <h2 id="nlPopTitle">Gatherings in the <em>Heart of Ojai</em></h2>
+        <h2 id="nlPopTitle">Gatherings in <span class="nl-keep">the <em>Heart of Ojai</em></span></h2>
         <p>Be the first to hear about community events, workshops and celebrations at the Sane Living Center.</p>
         <form class="nl-pop-form" id="nlPopForm" method="post" target="_blank" novalidate>
           <label class="visually-hidden" for="nl-pop-email">Email address</label>
