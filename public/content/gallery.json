@@ -297,6 +297,15 @@
       "ratio": 1.333
     },
     {
+      "image": "/images/auditorium-holiday-dinner.jpg",
+      "caption": "The Auditorium",
+      "alt": "The Auditorium set for a festive holiday dinner: black-clothed tables with wine glasses, purple flowers and place settings, cocktail tables, and a buffet beneath the stained-glass window",
+      "section": "venue",
+      "group": "celebrations",
+      "space": "auditorium",
+      "ratio": 1.333
+    },
+    {
       "image": "/images/secret-garden-cocktail-hour.jpg",
       "caption": "The Secret Garden",
       "alt": "The Secret Garden set for an evening gathering: string lights over gravel, floor cushions and a low table on a rug, candle lanterns, and a long wooden table with appetizers and drinks under the olive and mulberry trees, bordered by a white fence",
