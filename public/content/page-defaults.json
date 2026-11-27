@@ -31,12 +31,12 @@
   },
   "/gallery/": {
     "title": "Photos — Sane Living Center",
-    "description": "Photos of the Sane Living Center in downtown Ojai: the Auditorium, Board Room, the Annex, the Secret Garden, weddings and events.",
+    "description": "Photos of the Sane Living Center in downtown Ojai: the Auditorium, Conference Room, the Annex, the Secret Garden, weddings and events.",
     "image": "https://saneliving.com/images/share-auditorium-rows.jpg"
   },
   "/": {
     "title": "Sane Living Center — Host Your Event in the Heart of Ojai",
-    "description": "A beautiful sacred space in the heart of Ojai: an auditorium, board room, flex space and secret garden for meetings, workshops, weddings, screenings and parties, open 8am to 2am.",
+    "description": "A beautiful sacred space in the heart of Ojai: an auditorium, conference room, flex space and secret garden for meetings, workshops, weddings, screenings and parties, open 8am to 2am.",
     "image": "https://saneliving.com/images/share-auditorium-rows.jpg"
   },
   "/inspiration/": {
@@ -91,7 +91,7 @@
   },
   "/rent/": {
     "title": "Rent the Space — Sane Living Center",
-    "description": "Four spaces in one downtown Ojai location: the Auditorium, Board Room, the Annex and the Secret Garden. Meetings, workshops, celebrations and weddings.",
+    "description": "Four spaces in one downtown Ojai location: the Auditorium, Conference Room, the Annex and the Secret Garden. Meetings, workshops, celebrations and weddings.",
     "image": "https://saneliving.com/images/share-auditorium-rows.jpg"
   },
   "/sculpture/": {
