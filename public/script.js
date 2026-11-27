@@ -155,6 +155,7 @@ function injectFooter() {
             <a href="/rent/pricing/">Rates &amp; Availability</a>
             <a href="/gallery/">Photos</a>
             <a href="/events/">Community Events</a>
+            <a href="/events/#updates">Newsletter</a>
             <a href="/about/">About</a>
             <!-- FAQ: hidden until internal review is done (page still at /faq/) -->
             <a href="/contact/">Contact</a>
