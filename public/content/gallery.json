@@ -234,6 +234,15 @@
       "ratio": 1.367
     },
     {
+      "image": "/images/auditorium-memorial-portrait-table.jpg",
+      "caption": "The Auditorium",
+      "alt": "A memorial table in the Auditorium with a framed portrait of Sane Living founder Aubrey Balkind, a candle, white flowers and yellow yarrow in a blue vase, with twinkling lights by the glass doors",
+      "section": "venue",
+      "group": "life",
+      "space": "auditorium",
+      "ratio": 1.333
+    },
+    {
       "image": "/images/auditorium-graduation-party.jpg",
       "caption": "The Auditorium",
       "alt": "The Auditorium set for a graduation party: gold and black sequined cocktail tables, a dessert table, framed graduate portraits, blue and gold balloons and drapes framing the stained-glass window",
