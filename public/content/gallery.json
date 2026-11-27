@@ -146,6 +146,15 @@
       "ratio": 2.267
     },
     {
+      "image": "/images/auditorium-talk-screen.jpg",
+      "caption": "The Auditorium",
+      "alt": "A speaker on stage in the Auditorium in front of a projected mountain sunset, with an audience seated in rows under the wood-beamed ceiling and pendant lights",
+      "section": "venue",
+      "group": "receptions",
+      "space": "auditorium",
+      "ratio": 1.333
+    },
+    {
       "image": "/images/main-hall-12.jpg",
       "caption": "The Auditorium",
       "alt": "The Auditorium at Sane Living: a stage set up with a drum kit, guitars and keyboard for a concert",
